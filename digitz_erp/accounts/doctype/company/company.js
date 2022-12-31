@@ -22,23 +22,39 @@ frappe.ui.form.on('Company', {
 
 frappe.ui.form.on("Company", "onload", function(frm) {
 	//Since the default selectionis cash
-		frm.set_query("customer_account_group", function() {
-			return {
-				"filters": {
-					//"account_type": ["in", ["Bank","Cash"]],
-					"account_type":"Debtors",
-					"is_group": 1
-				}
-			};
-		});
-		
-		frm.set_query("supplier_account_group", function() {
-			return {
-				"filters": {
-					//"account_type": ["in", ["Bank","Cash"]],
-					"account_type":"Creditors",
-					"is_group": 1
-				}
-			};
-		});
-	});
+	frm.set_query("default_payable_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"root_type":"Liability"
+			}
+		};
+	});	
+
+	frm.set_query("default_receivable_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"root_type":"Asset"
+			}
+		};
+	});	
+
+	frm.set_query("stock_received_but_not_billed", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"account_type":"Stock Received But Not Billed"
+			}
+		};
+	});	
+
+	frm.set_query("default_inventory_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"account_type":"Stock"
+			}
+		};
+	});	
+});

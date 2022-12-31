@@ -35,6 +35,7 @@
   {
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date"
   },
   {
@@ -45,17 +46,20 @@
   {
    "fieldname": "account",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Account ",
    "options": "Account"
   },
   {
    "fieldname": "debit_amount",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Debit Amount"
   },
   {
    "fieldname": "credit_amount",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Credit Amount"
   },
   {
@@ -84,12 +88,13 @@
   {
    "fieldname": "idx",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Idx"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-31 06:37:43.330478",
+ "modified": "2022-12-31 18:37:26.356674",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "GL Posting",

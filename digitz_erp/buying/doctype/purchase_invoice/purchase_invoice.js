@@ -5,7 +5,6 @@ frappe.ui.form.on('Purchase Invoice', {
 	
 	setup: function(frm){
 
-		frm.add_fetch('supplier','account_ledger','supplier_account')
 		frm.add_fetch('supplier','tax_id','tax_id')
 		frm.add_fetch('supplier','supplier_name','supplier_name')	
 		frm.add_fetch('supplier','credit_days','credit_days')
@@ -50,11 +49,20 @@ frappe.ui.form.on('Purchase Invoice', {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
 	},
+	additional_discount(frm)
+	{
+		frm.trigger("make_taxes_and_totals");
+	}
+	,
 	make_taxes_and_totals(frm)	
 	{
 		console.log("from make totals..")
 		frm.clear_table("taxes");
-		frm.refresh_field("taxes");		
+		frm.refresh_field("taxes");	
+		
+		var gross_total = 0;
+		var tax_total =0;
+		var net_total = 0;
 		
 		frm.doc.items.forEach(function(entry) { 
 			console.log("Item in Row")	
@@ -72,19 +80,52 @@ frappe.ui.form.on('Purchase Invoice', {
 				entry.tax_amount = ((entry.qty* entry.rate ) * (entry.tax_rate /100))
 				entry.net_amount = entry.qty* entry.rate + ((entry.qty* entry.rate ) * (entry.tax_rate /100))
 			}			
-
 			
 			entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 		
 			var taxesTable = frm.add_child("taxes");
 			taxesTable.tax = entry.tax;
-			
-			frm.refresh_field("items");		
-			frm.refresh_field("taxes");
+			gross_total = gross_total + entry.gross_amount;			
+			tax_total = tax_total + entry.tax_amount;
 		
-	});
+		});
+		
+		frm.refresh_field("items");		
+		frm.refresh_field("taxes");
+
+		if(isNaN(frm.doc.additional_discount))
+		{
+			frm.doc.additional_discount = 0;
+		}
+
+		frm.doc.gross_total = gross_total;		
+		frm.doc.net_total = gross_total + tax_total - frm.doc.additional_discount;
+		frm.doc.tax_total = tax_total;
+		
+		if(frm.doc.net_total != Math.round(frm.doc.net_total) )
+		{
+			console.log("Rounded net total");			
+
+			frm.doc.round_off = (frm.doc.net_total - Math.round(frm.doc.net_total));			
+
+			frm.doc.rounded_total = Math.round(frm.doc.net_total) ;
+		}
+
+		console.log("Totals");			
+
+		console.log(frm.doc.gross_total);
+		console.log(frm.doc.tax_total);
+		console.log(frm.doc.net_total);
+		console.log(frm.doc.round_off);
+		console.log(frm.doc.rounded_total);
+		
+		frm.refresh_field("gross_total");	
+		frm.refresh_field("net_total");	
+		frm.refresh_field("tax_total");	
+		frm.refresh_field("round_off");	
+		frm.refresh_field("rounded_total");	
 	},
-	get_default_warehouse(frm)
+	get_default_company_and_warehouse(frm)
 	{
 		var default_company =""	
 		console.log("From Get Default Warehouse Method in the parent form")
@@ -96,9 +137,10 @@ frappe.ui.form.on('Purchase Invoice', {
 				'fieldname':'default_company'
 			},
 			callback: (r)=>{
+
 				default_company =r.message.default_company       
-				
-				
+				frm.doc.company = r.message.default_company
+				frm.refresh_field("company");	
 					frappe.call(
 					{
 						method: 'frappe.client.get_value',
@@ -137,7 +179,7 @@ frappe.ui.form.on("Purchase Invoice", "onload", function(frm) {
 		};
 	});	
 
-	frm.trigger("get_default_warehouse");	
+	frm.trigger("get_default_company_and_warehouse");	
 
 });
 

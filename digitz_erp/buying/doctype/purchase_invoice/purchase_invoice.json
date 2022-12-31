@@ -12,13 +12,12 @@
   "supplier",
   "supplier_name",
   "tax_id",
-  "supplier_account",
+  "price_list",
   "column_break_6",
   "company",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "price_list",
   "warehouse",
   "accounts_section",
   "credit_purchase",
@@ -28,17 +27,26 @@
   "column_break_17",
   "paid_from_account",
   "payable_account",
+  "round_off_account",
   "section_break_19",
   "items",
   "selected_item_stock_qty_in_the_warehouse",
+  "amended_from",
+  "section_break_25",
+  "gross_total",
+  "tax_total",
+  "additional_discount",
+  "column_break_33",
+  "net_total",
+  "round_off",
+  "rounded_total",
+  "section_break_33",
   "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_25",
-  "remarks",
   "section_break_27",
-  "amended_from"
+  "remarks"
  ],
  "fields": [
   {
@@ -64,12 +72,6 @@
    "fieldname": "tax_id",
    "fieldtype": "Data",
    "label": "Tax Id"
-  },
-  {
-   "fieldname": "supplier_account",
-   "fieldtype": "Link",
-   "label": "Supplier Account",
-   "options": "Account"
   },
   {
    "fieldname": "column_break_6",
@@ -154,6 +156,7 @@
   {
    "fieldname": "taxes",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Taxes",
    "options": "Purchase Invoice Tax"
   },
@@ -175,7 +178,8 @@
   },
   {
    "fieldname": "section_break_25",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Totals"
   },
   {
    "fieldname": "remarks",
@@ -219,12 +223,61 @@
    "label": "Payable Account",
    "options": "Account",
    "read_only": 1
+  },
+  {
+   "fieldname": "gross_total",
+   "fieldtype": "Currency",
+   "label": "Gross Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Currency",
+   "label": "Tax Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "additional_discount",
+   "fieldtype": "Currency",
+   "label": "Additional Discount"
+  },
+  {
+   "fieldname": "rounded_total",
+   "fieldtype": "Currency",
+   "label": "Rounded Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "round_off_account",
+   "fieldtype": "Link",
+   "label": "Round Off Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_33",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-12-31 07:56:48.951007",
+ "modified": "2022-12-31 15:04:36.931066",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

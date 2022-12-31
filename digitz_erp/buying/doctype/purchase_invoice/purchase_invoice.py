@@ -38,10 +38,24 @@ class PurchaseInvoice(Document):
 
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 		
-		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_receivable_account'], as_dict=1)
+		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
 		
+		'stock_received_but_not_billed','round_off_account'], as_dict=1)
+		
+		idx =1
+		
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Purchase Invoice"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.posting_date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = default_accounts.default_payable_account
+		gl_doc.credit_amount = self.rounded_total
+		gl_doc.party_type = "Supplier"
+		gl_doc.party = self.supplier_name
+		gl_doc.insert()
 
 
-
-
+		
 
