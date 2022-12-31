@@ -1,1 +1,7 @@
 Digitz ERP
+Stock
+Accounts
+Setup
+HR
+Buying
+Selling

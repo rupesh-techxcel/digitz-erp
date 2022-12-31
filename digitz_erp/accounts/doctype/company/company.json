@@ -1,0 +1,225 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:company_name",
+ "creation": "2022-12-09 04:40:03.617565",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company_name",
+  "address",
+  "email_id",
+  "phone",
+  "city",
+  "state",
+  "country",
+  "tax_id",
+  "column_break_9",
+  "company_logo",
+  "company_logo_display",
+  "section_break_12",
+  "inventory_settings_tab",
+  "inventory_settings",
+  "use_customer_last_price",
+  "update_standard_selling_price",
+  "default_warehouse",
+  "accounts_settings_tab",
+  "tax_details",
+  "tax_not_applicable",
+  "tax_type",
+  "tax",
+  "column_break_23",
+  "accounts_settings",
+  "default_payable_account",
+  "default_receivable_account",
+  "stock_received_but_not_billed",
+  "default_inventory_account"
+ ],
+ "fields": [
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax ID"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company_logo",
+   "fieldtype": "Attach Image",
+   "label": "Company Logo"
+  },
+  {
+   "fieldname": "company_logo_display",
+   "fieldtype": "Image",
+   "label": "Company Logo Display"
+  },
+  {
+   "fieldname": "section_break_12",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "inventory_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Inventory Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_customer_last_price",
+   "fieldtype": "Check",
+   "label": "Use customer last price"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_standard_selling_price",
+   "fieldtype": "Check",
+   "label": "Update Standard Selling Price On Transactions"
+  },
+  {
+   "fieldname": "accounts_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounts and Tax"
+  },
+  {
+   "fieldname": "tax_type",
+   "fieldtype": "Select",
+   "label": "Tax Type",
+   "options": "VAT\nGST"
+  },
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "inventory_settings",
+   "fieldtype": "Heading",
+   "label": "Inventory Settings"
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "tax_details",
+   "fieldtype": "Heading",
+   "label": "Tax Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_not_applicable",
+   "fieldtype": "Check",
+   "label": "Tax Not Applicable"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "default_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Payable Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_receivable_account",
+   "fieldtype": "Link",
+   "label": "Default Receivable Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stock_received_but_not_billed",
+   "fieldtype": "Link",
+   "label": "Stock Received But Not Billed Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_inventory_account",
+   "fieldtype": "Link",
+   "label": "Default Inventory Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_23",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "accounts_settings",
+   "fieldtype": "Heading",
+   "label": "Accounts Settings"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-12-31 11:17:50.281100",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Company",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "company_name",
+ "track_changes": 1
+}

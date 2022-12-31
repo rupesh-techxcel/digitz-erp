@@ -1,0 +1,150 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:item_name",
+ "creation": "2022-12-09 06:24:45.198426",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "description",
+  "column_break_4",
+  "base_unit",
+  "item_group",
+  "brand",
+  "tax_excluded",
+  "tax",
+  "uoms_section",
+  "unit",
+  "standard_selling_price",
+  "standard_buying_price",
+  "disabled",
+  "tab_break_14",
+  "customer_rates",
+  "supplier_rates"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "label": "Item Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "base_unit",
+   "fieldtype": "Link",
+   "label": "Base Unit",
+   "options": "Unit"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Link",
+   "label": "Brand",
+   "options": "Brand"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "uoms_section",
+   "fieldtype": "Section Break",
+   "label": "Units"
+  },
+  {
+   "fieldname": "standard_selling_price",
+   "fieldtype": "Float",
+   "label": "Standard Selling Price"
+  },
+  {
+   "fieldname": "standard_buying_price",
+   "fieldtype": "Float",
+   "label": "Standard Buying Price"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "tab_break_14",
+   "fieldtype": "Tab Break"
+  },
+  {
+   "fieldname": "customer_rates",
+   "fieldtype": "Table",
+   "label": "Customer Prices",
+   "options": "Customer Item"
+  },
+  {
+   "fieldname": "supplier_rates",
+   "fieldtype": "Table",
+   "label": "Supplier Prices",
+   "options": "Supplier Item"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Not Applicable"
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Table",
+   "label": "Unit",
+   "options": "Item Unit"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-12-29 16:23:00.834159",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Item",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
