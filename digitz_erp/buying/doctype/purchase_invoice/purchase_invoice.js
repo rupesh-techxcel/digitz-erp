@@ -5,19 +5,36 @@ frappe.ui.form.on('Purchase Invoice', {
 	
 	setup: function(frm){
 
-		frm.add_fetch('supplier','tax_id','tax_id')
-		frm.add_fetch('supplier','supplier_name','supplier_name')	
-		frm.add_fetch('supplier','credit_days','credit_days')
-		frm.get_field('taxes').grid.cannot_add_rows = true;
+		frm.add_fetch('supplier','tax_id','tax_id')		
+		frm.add_fetch('supplier','credit_days','credit_days')		
+		//frm.get_field('taxes').grid.cannot_add_rows = true;		
 		
 	},	
 	supplier(frm)
-	{		
+	{			
+		console.log("supplier")	
+		console.log(frm.doc.supplier)
 
+		console.log("supplier default price list")	
+		frappe.call(
+		{
+			method: 'frappe.client.get_value',
+			args:{
+			'doctype':'Supplier',
+			'filters':{'supplier_name': frm.doc.supplier},
+			'fieldname':['default_price_list']
+		},
+		callback:(r)=>
+		{		
+			console.log(r.message.default_price_list);
+
+			frm.doc.price_list = r.message.default_price_list;
+			frm.refresh_field("price_list");	
+		}
+	});
 	},
 	edit_posting_date_and_time(frm)
-	{
-		console.log("here");
+	{		
 		
 		//console.log(frm.doc.edit_posting_date_and_time);
 		console.log(frm.doc.edit_posting_date_and_time);
@@ -52,8 +69,14 @@ frappe.ui.form.on('Purchase Invoice', {
 	additional_discount(frm)
 	{
 		frm.trigger("make_taxes_and_totals");
-	}
-	,
+	},
+	rate_includes_tax(frm)
+	{
+		frappe.confirm('Are you sure you want to change this setting which will change the tax calculation in the line items ?',
+    	() => {
+			frm.trigger("make_taxes_and_totals");
+         })	
+	},	
 	make_taxes_and_totals(frm)	
 	{
 		console.log("from make totals..")
@@ -63,36 +86,131 @@ frappe.ui.form.on('Purchase Invoice', {
 		var gross_total = 0;
 		var tax_total =0;
 		var net_total = 0;
+		var discount_total = 0;
+
+		//Avoid Possible NaN
+		frm.doc.gross_total = 0;
+		frm.doc.net_total = 0;
+		frm.doc.tax_total = 0;
+		frm.doc.total_discount_in_line_items = 0;
+		frm.doc.round_off = 0;
+		frm.doc.rounded_total = 0;				
 		
+
 		frm.doc.items.forEach(function(entry) { 
 			console.log("Item in Row")	
 			console.log(entry.item);		
-			var tax_in_rate = 0;
-			if(entry.rate_included_tax)
-			{
+			var tax_in_rate = 0;			
+
+			//rate_included_tax column in items table is readonly and it depends the form's rate_includes_tax column
+			entry.rate_included_tax = frm.doc.rate_includes_tax;
+			entry.gross_amount = 0
+			entry.tax_amount =0;
+			entry.net_amount = 0 
+			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
+
+			if(entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation 
+			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
+										// also this implementation is streight forward than the other way										
 				tax_in_rate = entry.rate * (entry.tax_rate/ (100 + entry.tax_rate));
 				entry.rate_excluded_tax = entry.rate - tax_in_rate;
-				entry.net_amount = entry.qty * entry.rate - (entry.qty* entry.rate * (entry.tax_rate/(100 + entry.tax_rate) ));
+				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)  
+						 -(((entry.qty* entry.rate) 
+						 - entry.discount_amount
+						 ) 						 
+						 * (entry.tax_rate/(100 + entry.tax_rate) ));
 			}
 			else
 			{
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = ((entry.qty* entry.rate ) * (entry.tax_rate /100))
-				entry.net_amount = entry.qty* entry.rate + ((entry.qty* entry.rate ) * (entry.tax_rate /100))
+				entry.tax_amount = (((entry.qty* entry.rate ) - entry.discount_amount) * (entry.tax_rate /100))
+				entry.net_amount = ((entry.qty* entry.rate) - entry.discount_amount)
+						 + (((entry.qty* entry.rate ) - entry.discount_amount) * (entry.tax_rate /100))
+
+				console.log("Net amount %f", entry.net_amount);
 			}			
 			
 			entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 		
-			var taxesTable = frm.add_child("taxes");
-			taxesTable.tax = entry.tax;
+			//var taxesTable = frm.add_child("taxes");
+			//taxesTable.tax = entry.tax;
 			gross_total = gross_total + entry.gross_amount;			
 			tax_total = tax_total + entry.tax_amount;
+			discount_total = discount_total + entry.discount_amount;
+
+			entry.qty_in_base_unit = entry.qty / entry.conversion_factor;
+			entry.rate_in_base_unit = entry.rate * entry.conversion_factor;
+
+			if(!isNaN(entry.qty ) && !isNaN(entry.rate))
+			{
+
+				frappe.call({						
+					method:'digitz_erp.api.common_methods.get_item_uoms',
+					async: false,
+					args: {
+						item: entry.item
+					},
+					callback: (r) => {
+						console.log("get_item_uoms result")
+						console.log(r.message);		
+						
+
+						var units = r.message;
+						var output ="";
+						var output2 ="";
+						entry.unit_conversion_details ="";
+						$.each(units,(a,b)=>
+						{
+
+							
+							var qty = entry.qty;
+							var conversion = b.conversion_factor
+							var unit = b.unit
+							console.log("Unit")
+							console.log(b.unit);
+							console.log("Conversion Factor")
+							console.log(b.conversion_factor);
+							console.log("qty")
+							console.log(qty);
+							
+							var uomqty = qty / conversion;
+							var uomrate = entry.rate * conversion;
+
+							var uomqty2 ="";
+
+							if(uomqty> Math.trunc(uomqty))
+							{
+								console.log("Excess");
+								console.log(uomqty-Math.trunc(uomqty));
+
+								var excessqty = Math.round((uomqty-Math.trunc(uomqty)) *  conversion,0);
+
+								uomqty2 = Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit;
+							}
+							else
+							{
+								uomqty2 = uomqty + " " + unit ;
+							}
+
+							output = output +  uomqty2 + "\n";
+							output2 = output2 + unit + " rate: " + uomrate + "\n";
+
+						}					
+						)
+						console.log(output + output2);
+						entry.unit_conversion_details = output +output2;						
+					}
+				}
+			
+				)
+			}
+			else
+			{
+				console.log("Qty and Rate are NaN");
+			}
 		
 		});
 		
-		frm.refresh_field("items");		
-		frm.refresh_field("taxes");
-
 		if(isNaN(frm.doc.additional_discount))
 		{
 			frm.doc.additional_discount = 0;
@@ -101,13 +219,13 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.doc.gross_total = gross_total;		
 		frm.doc.net_total = gross_total + tax_total - frm.doc.additional_discount;
 		frm.doc.tax_total = tax_total;
-		
+		frm.doc.total_discount_in_line_items = discount_total;
+		console.log("Net Total Before Round Off")
+		console.log(frm.doc.net_total)
+
 		if(frm.doc.net_total != Math.round(frm.doc.net_total) )
-		{
-			console.log("Rounded net total");			
-
-			frm.doc.round_off = (frm.doc.net_total - Math.round(frm.doc.net_total));			
-
+		{	
+			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
 			frm.doc.rounded_total = Math.round(frm.doc.net_total) ;
 		}
 
@@ -118,12 +236,16 @@ frappe.ui.form.on('Purchase Invoice', {
 		console.log(frm.doc.net_total);
 		console.log(frm.doc.round_off);
 		console.log(frm.doc.rounded_total);
-		
+
+		frm.refresh_field("items");		
+		frm.refresh_field("taxes");
+
 		frm.refresh_field("gross_total");	
 		frm.refresh_field("net_total");	
 		frm.refresh_field("tax_total");	
 		frm.refresh_field("round_off");	
 		frm.refresh_field("rounded_total");	
+		
 	},
 	get_default_company_and_warehouse(frm)
 	{
@@ -147,7 +269,7 @@ frappe.ui.form.on('Purchase Invoice', {
 						args:{
 							'doctype':'Company',
 							'filters':{'company_name': default_company},
-							'fieldname':['default_warehouse']
+							'fieldname':['default_warehouse','rate_includes_tax']
 						},
 						callback:(r2)=>
 						{		
@@ -155,7 +277,9 @@ frappe.ui.form.on('Purchase Invoice', {
 							console.log(r2.message.default_warehouse);
 							frm.doc.warehouse =	 r2.message.default_warehouse;		
 							console.log(frm.doc.warehouse);
+							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");	
+							frm.refresh_field("rate_includes_tax");	
 						}
 					}
 
@@ -163,7 +287,8 @@ frappe.ui.form.on('Purchase Invoice', {
 			}
 		})
 
-	}
+	}	
+
 });
 
 
@@ -180,6 +305,23 @@ frappe.ui.form.on("Purchase Invoice", "onload", function(frm) {
 	});	
 
 	frm.trigger("get_default_company_and_warehouse");	
+
+	frm.set_query("price_list", function() {
+		return {
+			"filters": {
+				"is_buying": 1
+			}
+		};
+	});	
+	
+	frm.set_query("supplier", function() {
+		return {
+			"filters": {
+			"is_disabled": 0
+			}
+		};
+	});	
+
 
 });
 
@@ -219,11 +361,9 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-
 										
 					if(!r.message.tax_excluded)		
-					{					
-					
+					{
 						frappe.call(
 							{
 								method:'frappe.client.get_value',
@@ -244,46 +384,75 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					 {
 						row.tax = "";
 						row.tax_rate = 0;					
-					 }		
+					}
+
+					console.log("Item:- %s",row.item);
+					console.log("Price List");
+					console.log(frm.doc.price_list);
+					
+					var applyStandrPricing = false;
+
+					if(frm.doc.price_list  != "Standard Buying")		
+					{	
+						frappe.call(
+							{
+								method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								async:false,
+						
+								args:{
+										'item':row.item	,
+										'price_list': frm.doc.price_list						
+								},
+								callback(r)	
+								{	
+									if(r.message.length == 1)
+									{						
+										console.log(r.message[0].price);
+										row.rate = r.message[0].price;
+										row.rate_in_base_unit = r.message[0].price;									
+									}
+									else
+									{
+										applyStandrPricing = true;
+									}
+								}
+						});
+					}
+					else
+					{
+						applyStandrPricing = true;
+					}
+
+					if(applyStandrPricing)
+					{
+						frappe.call(
+							{
+								method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								async:false,
+						
+								args:{
+										'item':row.item	,
+										'price_list': 'Standard Buying'	
+								},
+								callback(r)	
+								{	
+									if(r.message.length == 1)
+									{						
+										console.log(r.message[0].price);
+										row.rate = r.message[0].price;
+										row.rate_in_base_unit = r.message[0].price;	
+									}
+									else
+									{
+										applyStandrPricing = true;
+									}
+								}
+						});
+					}
 
 					 frm.refresh_field("items");
-
 				}			
-				
 			});			
-			
-
-			// var child = locals[cdt][cdn];
-			// var grid_row = frm.fields_dict['items'].grid.grid_rows_by_docname[child.name];
-			// var field = frappe.utils.filter_dict(grid_row.docfields, {fieldname: "uom"})[0];
-			// console.log(grid_row);
-			// field.set_query =  function(){
-			// 	return {
-			// 	   filters: { parent: row.item}
-			// 	}
-			//   }
-
-			 
-
-
-
-			// frappe.call(
-			// 	{
-			// 		method:'digitz_erp.events.common_methods.get_item_uoms',
-			// 		async:false,
-			// 		args:{
-			// 			'item': row.item,						
-			// 			'fieldname':['uom']
-			// 		},
-			// 		callback(r)	
-			// 		{
-			// 			console.log(r.message);
-			// 		//	row.set_df_property("uom", "options",r.message.uom);
-			// 			//row.uom.options = r.message.uom;
-			// 		}
-
-			// 	}
-			// );
     },
 	tax_excluded(frm, cdt, cdn) {        
 		let row = frappe.get_doc(cdt, cdn);	
@@ -320,12 +489,12 @@ frappe.ui.form.on('Purchase Invoice Item', {
 		}
 	},
 	qty(frm,cdt,cdn)
-	{
-		frm.trigger("make_taxes_and_totals");
+	{	
+		frm.trigger("make_taxes_and_totals");		
 	},
 	rate(frm,cdt,cdn)
-	{
-		frm.trigger("make_taxes_and_totals");
+	{		
+		frm.trigger("make_taxes_and_totals");	
 	},
 	rate_included_tax(frm,cdt,cdn)
 	{
@@ -356,7 +525,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 
 		frappe.call(
 				{
-					method:'digitz_erp.api.common_methods.get_item_uoms',
+					method:'digitz_erp.api.common_methods.get_item_uom',
 					async:false,
 					args:{
 						item: row.item,
@@ -368,21 +537,76 @@ frappe.ui.form.on('Purchase Invoice Item', {
 						{
 							frappe.msgprint("Invalid unit, Unit does not exists for the item.");
 							row.unit = row.base_unit;
-							row.conversion_factor = 1;
+							row.conversion_factor = 1;							
 						}
 						else
 						{														
 							console.log(r.message[0].conversion_factor);
 							row.conversion_factor = r.message[0].conversion_factor;
+							//row.rate = row.rate * row.conversion_factor;							
+							//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
+    						//() => {
+							//row.qty = row.qty/ row.conversion_factor;								
+         					//})	
 						}
+						frm.trigger("make_taxes_and_totals");						
 						
-						frm.refresh_field("items");		
-					//	row.set_df_property("uom", "options",r.message.uom);
-						//row.uom.options = r.message.uom;
+						frm.refresh_field("items");	
 					}
 
 				}
 			);
-	}	
+	},
+	discount_percentage(frm,cdt,cdn)
+	{
+		let row = frappe.get_doc(cdt, cdn);
+		console.log("from discount_percentage")
+		console.log("Gross Amount %f", row.gross_amount );				
+
+		
+		var discount_percentage = row.discount_percentage;
+		
+		console.log("Percentage %s", row.discount_percentage);
+
+		if(row.discount_percentage > 0)  
+		{
+			console.log("Apply Discount Percentage")
+			var discount = row.gross_amount * (row.discount_percentage /100);
+			row.discount_amount = discount;			
+		}
+		else
+		{
+			row.discount_amount = 0;
+			row.discount_percentage = 0;
+		}
+
+		frm.trigger("make_taxes_and_totals");
+
+		frm.refresh_field("items");
+
+			
+	},
+	discount_amount(frm,cdt,cdn)
+	{
+		console.log("from discount_amount")
+
+		let row = frappe.get_doc(cdt, cdn);
+		var discount = row.discount_amount;
+
+		if(row.discount_amount > 0)  
+		{
+			var discount_percentage = discount* 100 / row.gross_amount;
+			row.discount_percentage = discount_percentage;
+		}
+		else
+		{
+			row.discount_amount = 0;
+			row.discount_percentage = 0;
+		}
+
+		frm.trigger("make_taxes_and_totals");
+
+		frm.refresh_field("items");
+	}
 });
 

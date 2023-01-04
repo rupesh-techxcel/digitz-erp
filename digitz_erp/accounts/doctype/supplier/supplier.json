@@ -27,19 +27,13 @@
   "credit_amount",
   "default_price_list",
   "default_terms",
-  "is_active",
+  "is_disabled",
   "section_break_20",
   "terms",
   "section_break_22",
   "remarks"
  ],
  "fields": [
-  {
-   "default": "0",
-   "fieldname": "is_active",
-   "fieldtype": "Check",
-   "label": "Is Active"
-  },
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
@@ -64,6 +58,7 @@
   {
    "fieldname": "phone_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Phone No"
   },
   {
@@ -74,6 +69,7 @@
   {
    "fieldname": "contact_person",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Contact Person"
   },
   {
@@ -84,6 +80,7 @@
   {
    "fieldname": "contact_mobile_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Contact Mobile No"
   },
   {
@@ -92,8 +89,10 @@
    "label": "TRN No"
   },
   {
+   "default": "All Supplier Groups",
    "fieldname": "supplier_group",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Supplier Group",
    "options": "Supplier Group"
   },
@@ -114,10 +113,13 @@
    "unique": 1
   },
   {
+   "default": "Standard Buying",
    "fieldname": "default_price_list",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Default Price List",
-   "options": "Price List"
+   "options": "Price List",
+   "reqd": 1
   },
   {
    "fieldname": "default_terms",
@@ -128,6 +130,7 @@
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Email",
    "options": "Email"
   },
@@ -158,11 +161,17 @@
    "fieldtype": "Select",
    "label": "Emirate",
    "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_disabled",
+   "fieldtype": "Check",
+   "label": "Is Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-31 11:40:06.603673",
+ "modified": "2023-01-04 16:43:20.564060",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

@@ -25,18 +25,24 @@
   "use_customer_last_price",
   "update_standard_selling_price",
   "default_warehouse",
+  "column_break_18",
+  "rules_for_prices",
   "accounts_settings_tab",
   "tax_details",
   "tax_not_applicable",
   "tax_type",
   "tax",
+  "tax_account",
+  "rate_includes_tax",
   "column_break_23",
   "accounts_settings",
   "default_payable_account",
   "default_receivable_account",
   "stock_received_but_not_billed",
   "default_inventory_account",
-  "round_off_account"
+  "round_off_account",
+  "system_tab",
+  "material_receipt_integrated_with_purchase"
  ],
  "fields": [
   {
@@ -201,11 +207,46 @@
    "label": "Round Off Account",
    "options": "Account",
    "reqd": 1
+  },
+  {
+   "fieldname": "system_tab",
+   "fieldtype": "Tab Break",
+   "label": "System"
+  },
+  {
+   "default": "1",
+   "fieldname": "material_receipt_integrated_with_purchase",
+   "fieldtype": "Check",
+   "label": "Material Receipt Integrated With Purchase",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "tax.account",
+   "fieldname": "tax_account",
+   "fieldtype": "Data",
+   "label": "Tax Account",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate includes tax in sales transactions"
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Default Selling Price List : Standard Selling\nDefault Buying Price List : Standard Buying\nUse default price LIst when customer or supplier price not available: Yes",
+   "fieldname": "rules_for_prices",
+   "fieldtype": "Small Text",
+   "label": "Rules for prices"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-31 13:34:58.371563",
+ "modified": "2023-01-04 06:52:39.827566",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

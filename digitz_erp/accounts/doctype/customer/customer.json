@@ -17,6 +17,7 @@
   "email_id",
   "phone_no",
   "mobile_no",
+  "column_break_10",
   "contact_person",
   "contact_person_designation",
   "contact_mobile_no",
@@ -26,7 +27,11 @@
   "credit_amount",
   "default_terms",
   "default_price_list",
-  "is_active"
+  "is_disabled",
+  "section_break_21",
+  "terms",
+  "section_break_23",
+  "remarks"
  ],
  "fields": [
   {
@@ -40,12 +45,6 @@
    "fieldtype": "Link",
    "label": "Customer Group",
    "options": "Customer Group"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_active",
-   "fieldtype": "Check",
-   "label": "Is Active"
   },
   {
    "fieldname": "address",
@@ -131,11 +130,39 @@
    "fieldtype": "Data",
    "label": "Email",
    "options": "Email"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_disabled",
+   "fieldtype": "Check",
+   "label": "Is Disabled"
+  },
+  {
+   "fieldname": "section_break_21",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "terms",
+   "fieldtype": "Text Editor",
+   "label": "Terms"
+  },
+  {
+   "fieldname": "section_break_23",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-24 18:34:33.651740",
+ "modified": "2023-01-04 16:45:12.120758",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

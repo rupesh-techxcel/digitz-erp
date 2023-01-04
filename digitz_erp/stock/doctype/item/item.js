@@ -5,32 +5,7 @@ frappe.ui.form.on('Item', {
 	 setup: function(frm) {
 		if(frm.is_new() == 1)
 		{
-			frappe.call({
-				method: 'frappe.client.get_value',
-				args:{
-					'doctype':'Global Settings',
-					'fieldname':'default_company'
-				},
-				callback: (r)=>{
-					
-						frappe.call(
-						{
-							method: 'frappe.client.get_value',
-							args:{
-								'doctype':'Company',
-								'filters':{'company_name': r.message.default_company},
-								'fieldname':['tax']
-							},
-							callback:(r2)=>
-							{
-								console.log('Tax')
-								console.log(r2.message.tax)
-								frm.doc.tax = r2.message.tax;																							
-							}
-						}
-					)	
-				}
-			})
+			frm.trigger("assign_default_tax");
 		}
 	 },
 	tax_excluded(frm)
@@ -44,6 +19,37 @@ frappe.ui.form.on('Item', {
 		   frm.doc.tax ="";		
 		   frm.refresh_field("tax");   	
 	   }
+	},
+	assign_default_tax(frm)
+	{		
+
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args:{
+				'doctype':'Global Settings',
+				'fieldname':'default_company'
+			},
+			callback: (r)=>{
+				
+					frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args:{
+							'doctype':'Company',
+							'filters':{'company_name': r.message.default_company},
+							'fieldname':['tax']
+						},
+						callback:(r2)=>
+						{
+							console.log('Tax')
+							console.log(r2.message.tax)
+							frm.doc.tax = r2.message.tax;	
+							frm.refresh_field("tax");
+						}
+					}
+				)	
+			}
+		})
 	},
 	validate: function(frm)
 	{	
@@ -74,9 +80,23 @@ frappe.ui.form.on('Item', {
 			var baseuom = frm.add_child("units");
 			baseuom.unit = frm.doc.base_unit;
 			baseuom.conversion_factor = 1;
-			baseuom.parent = doc.item;
+			baseuom.parent = frm.doc.item;
 			console.log("Base UOM")
 			console.log(baseuom);
+		}		
+	},
+	before_save: function(frm)
+	{
+		if(!frm.doc.tax_excluded)
+		{
+			if(!frm.doc.tax)
+			{	
+				frm.trigger("assign_default_tax");			
+			}						
+		}
+		else
+		{
+			frm.doc.tax ="";
 		}
 	}
 });
@@ -84,8 +104,8 @@ frappe.ui.form.on('Item', {
 frappe.ui.form.on("Item", "onload", function(frm) {
 
 	var default_company = ""
-	console.log("Is New")
-	console.log(frm.is_new())
+	
+	console.log("New Document %s" ,frm.is_new())
 
 	if(frm.is_new())
 	{
@@ -112,15 +132,56 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 								console.log('Tax')
 								console.log(r2.message.tax)
 								frm.doc.tax = r2.message.tax;		
+								frm.refresh_field("tax");  
 																					
 							}
 						}
 
 					)	
 				}
-			})
+			});		
 		}
+		frappe.call(
+			{
+				method:'digitz_erp.api.common_methods.get_item_buying_price',
+				async:false,
+				args:{
+					'item':frm.doc.item_name
+					},
+					callback(r)	
+					{	console.log("Price");				
+						console.log(r.message)
+					if(r.message.length == 1)
+					{						
+						console.log(r.message[0].price);				
+						frm.doc.standard_buying_price = r.message[0].price;
+					}				
+				
+				}
 
-	}
+			}
+		);
+
+		frappe.call(
+			{
+				method:'digitz_erp.api.common_methods.get_item_selling_price',
+				async:false,
+				args:{
+					'item':frm.doc.item_name
+					},
+					callback(r)	
+					{	console.log("Price");				
+						console.log(r.message)
+					if(r.message.length == 1)
+					{						
+						console.log(r.message[0].price);				
+						frm.doc.standard_selling_price = r.message[0].price;
+					}				
+				}
+
+			}
+		);
+	
+	}	
 );
 

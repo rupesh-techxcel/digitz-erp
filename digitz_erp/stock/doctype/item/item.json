@@ -12,18 +12,24 @@
   "item_name",
   "description",
   "column_break_4",
-  "base_unit",
   "item_group",
+  "maintain_stock",
   "brand",
   "tax_excluded",
   "tax",
-  "uoms_section",
-  "unit",
-  "standard_selling_price",
+  "section_break_10",
   "standard_buying_price",
+  "column_break_14",
+  "standard_selling_price",
+  "section_break_15",
+  "section_break_13",
+  "uoms_section",
+  "base_unit",
+  "units",
   "disabled",
   "tab_break_14",
   "customer_rates",
+  "supplier_prices_tab",
   "supplier_rates"
  ],
  "fields": [
@@ -40,12 +46,14 @@
    "unique": 1
   },
   {
+   "default": "PCS",
    "fieldname": "base_unit",
    "fieldtype": "Link",
    "label": "Base Unit",
    "options": "Unit"
   },
   {
+   "default": "All Item Groups",
    "fieldname": "item_group",
    "fieldtype": "Link",
    "label": "Item Group",
@@ -75,16 +83,18 @@
   {
    "fieldname": "uoms_section",
    "fieldtype": "Section Break",
-   "label": "Units"
+   "label": "Units Of Measurements"
   },
   {
+   "default": "0.00",
    "fieldname": "standard_selling_price",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Standard Selling Price"
   },
   {
+   "default": "0.00",
    "fieldname": "standard_buying_price",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Standard Buying Price"
   },
   {
@@ -95,7 +105,8 @@
   },
   {
    "fieldname": "tab_break_14",
-   "fieldtype": "Tab Break"
+   "fieldtype": "Tab Break",
+   "label": "Customer Prices"
   },
   {
    "fieldname": "customer_rates",
@@ -116,15 +127,43 @@
    "label": "Tax Not Applicable"
   },
   {
-   "fieldname": "unit",
+   "default": "1",
+   "fieldname": "maintain_stock",
+   "fieldtype": "Check",
+   "label": "Maintain Stock"
+  },
+  {
+   "fieldname": "supplier_prices_tab",
+   "fieldtype": "Tab Break",
+   "label": "Supplier Prices"
+  },
+  {
+   "fieldname": "units",
    "fieldtype": "Table",
-   "label": "Unit",
+   "label": "Units",
    "options": "Item Unit"
+  },
+  {
+   "fieldname": "section_break_15",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_13",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "section_break_10",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-29 16:23:00.834159",
+ "modified": "2023-01-02 20:57:51.602517",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
