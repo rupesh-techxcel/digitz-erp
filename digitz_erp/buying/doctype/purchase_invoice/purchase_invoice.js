@@ -113,12 +113,13 @@ frappe.ui.form.on('Purchase Invoice', {
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
 										// also this implementation is streight forward than the other way										
 				tax_in_rate = entry.rate * (entry.tax_rate/ (100 + entry.tax_rate));
-				entry.rate_excluded_tax = entry.rate - tax_in_rate;
+				entry.rate_excluded_tax = entry.rate - tax_in_rate;		
+				
+				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
 				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)  
-						 -(((entry.qty* entry.rate) 
-						 - entry.discount_amount
-						 ) 						 
-						 * (entry.tax_rate/(100 + entry.tax_rate) ));
+
+				console.log("Rate excluded rate %f", entry.rate_excluded_tax)
+				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}
 			else
 			{
@@ -128,9 +129,10 @@ frappe.ui.form.on('Purchase Invoice', {
 						 + (((entry.qty* entry.rate ) - entry.discount_amount) * (entry.tax_rate /100))
 
 				console.log("Net amount %f", entry.net_amount);
+				entry.gross_amount = entry.qty * entry.rate;
 			}			
 			
-			entry.gross_amount = entry.qty * entry.rate_excluded_tax;
+			
 		
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
@@ -227,6 +229,10 @@ frappe.ui.form.on('Purchase Invoice', {
 		{	
 			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
 			frm.doc.rounded_total = Math.round(frm.doc.net_total) ;
+		}
+		else
+		{
+			frm.doc.rounded_total = frm.doc.net_total;
 		}
 
 		console.log("Totals");			

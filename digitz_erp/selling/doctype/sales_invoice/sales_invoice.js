@@ -113,11 +113,11 @@ frappe.ui.form.on('Sales Invoice', {
 										// also this implementation is streight forward than the other way										
 				tax_in_rate = entry.rate * (entry.tax_rate/ (100 + entry.tax_rate));
 				entry.rate_excluded_tax = entry.rate - tax_in_rate;
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)  
-						 -(((entry.qty* entry.rate) 
-						 - entry.discount_amount
-						 ) 						 
-						 * (entry.tax_rate/(100 + entry.tax_rate) ));
+				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
+				console.log("Tax Rate %f", entry.tax_rate);
+				console.log("Tax Amount %f",entry.tax_amount);
+				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);  
+				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}
 			else
 			{
@@ -126,10 +126,12 @@ frappe.ui.form.on('Sales Invoice', {
 				entry.net_amount = ((entry.qty* entry.rate) - entry.discount_amount)
 						 + (((entry.qty* entry.rate ) - entry.discount_amount) * (entry.tax_rate /100))
 
+				
 				console.log("Net amount %f", entry.net_amount);
+				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}			
 			
-			entry.gross_amount = entry.qty * entry.rate_excluded_tax;
+			
 		
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
@@ -226,6 +228,10 @@ frappe.ui.form.on('Sales Invoice', {
 		{	
 			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
 			frm.doc.rounded_total = Math.round(frm.doc.net_total) ;
+		}
+		else
+		{
+			frm.doc.rounded_total = frm.doc.net_total;
 		}
 
 		console.log("Totals");			
