@@ -58,6 +58,24 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 		};
 	});	
 
+	frm.set_query("cost_of_goods_sold_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"account_type":"Cost Of Goods Sold"
+			}
+		};
+	});
+
+	frm.set_query("default_income_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"root_type":"Income"
+			}
+		};
+	});
+
 	frm.doc.rules_for_prices = "Default Selling Price List : Standard Selling" +
 	"\nDefault Buying Price List : Standard Buying" + 
 	"\nUse default price LIst when customer or supplier price not available: Yes" +

@@ -41,6 +41,8 @@
   "stock_received_but_not_billed",
   "default_inventory_account",
   "round_off_account",
+  "default_income_account",
+  "cost_of_goods_sold_account",
   "system_tab",
   "material_receipt_integrated_with_purchase"
  ],
@@ -242,11 +244,25 @@
    "fieldname": "rules_for_prices",
    "fieldtype": "Small Text",
    "label": "Rules for prices"
+  },
+  {
+   "fieldname": "cost_of_goods_sold_account",
+   "fieldtype": "Link",
+   "label": "Cost Of Goods Sold Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_income_account",
+   "fieldtype": "Link",
+   "label": "Default Income Accout",
+   "options": "Account",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-04 06:52:39.827566",
+ "modified": "2023-01-04 20:07:31.155570",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

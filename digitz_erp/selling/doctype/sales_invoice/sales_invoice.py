@@ -29,12 +29,12 @@ class SalesInvoice(Document):
 	def before_cancel(self):
 
 		frappe.db.delete("Stock Ledger",
-				{"Voucher_type": "Purchase Invoice",
+				{"Voucher_type": "Sales Invoice",
 				 "voucher_no":self.name
 				})
 	
 		frappe.db.delete("GL Posting",
-				{"Voucher_type": "Purchase Invoice",
+				{"Voucher_type": "Sales Invoice",
 				 "voucher_no":self.name
 				})
 
@@ -44,7 +44,7 @@ class SalesInvoice(Document):
 		
 		default_accounts = frappe.get_value("Company", default_company,['default_receivable_account','default_inventory_account',
 		
-		'stock_delivered_but_not_invoiced','round_off_account','tax_account'], as_dict=1)
+		'default_income_account','cost_of_goods_sold_account','round_off_account','tax_account'], as_dict=1)
 		
 		idx =1
 		
