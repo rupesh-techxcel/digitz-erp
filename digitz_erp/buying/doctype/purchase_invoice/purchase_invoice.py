@@ -17,7 +17,7 @@ class PurchaseInvoice(Document):
 			doc.warehouse = docitem.warehouse
 			doc.voucher_type = "Purchase Invoice"
 			doc.voucher_no = self.name
-			doc.qty = docitem.qty
+			doc.qty_in = docitem.qty
 			doc.unit = docitem.unit
 			doc.incoming_rate = docitem.rate
 			doc.valuation_rate = docitem.rate			
@@ -25,7 +25,7 @@ class PurchaseInvoice(Document):
 			doc.insert()
 		
 		self.insert_gl_records()
-		
+		self.insert_payment_postings()
 
 	def before_cancel(self):		
 
@@ -109,7 +109,54 @@ class PurchaseInvoice(Document):
 
 			gl_doc.insert()
 		
+	def insert_payment_postings(self):
+		
+		if self.credit_purchase==0:
 
+			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Purchase Invoice', 'voucher_no': self.name})
+
+
+			default_company = frappe.db.get_single_value("Global Settings","default_company")
+		
+			default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',		
+			'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
+			
+			payment_mode = frappe.get_value("Payment Mode", self.payment_mode, ['account'],as_dict=1)
+
+			idx = gl_count + 1
+		
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Purchase Invoice"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = default_accounts.default_payable_account
+			gl_doc.debit_amount = self.rounded_total
+			gl_doc.party_type = "Supplier"
+			gl_doc.party = self.supplier
+			gl_doc.aginst_account = payment_mode.account
+			gl_doc.insert()
+			
+			idx= idx + 1
+
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Purchase Invoice"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = payment_mode.account
+			gl_doc.credit_amount = self.rounded_total
+			gl_doc.aginst_account = default_accounts.stock_received_but_not_billed				
+			gl_doc.insert()
+
+
+
+
+
+
+		
 
 		
 

@@ -14,7 +14,8 @@
   "warehouse",
   "voucher_type",
   "voucher_no",
-  "qty",
+  "qty_in",
+  "qty_out",
   "unit",
   "balance_qty",
   "incoming_rate",
@@ -64,12 +65,6 @@
    "label": "Voucher No"
   },
   {
-   "fieldname": "qty",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Qty"
-  },
-  {
    "fieldname": "balance_qty",
    "fieldtype": "Float",
    "label": "Balance Qty"
@@ -114,11 +109,22 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Unit"
+  },
+  {
+   "fieldname": "qty_in",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty In"
+  },
+  {
+   "fieldname": "qty_out",
+   "fieldtype": "Float",
+   "label": "Qty Out"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-31 06:55:16.921727",
+ "modified": "2023-01-05 09:27:50.245209",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",
