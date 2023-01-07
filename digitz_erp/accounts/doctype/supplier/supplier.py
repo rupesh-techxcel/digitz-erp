@@ -9,6 +9,25 @@ class Supplier(Document):
 	def before_save(self):
 		self.validate_globals()	
 
+		address = self.address
+		city =""
+		
+		if self.address !="":			
+			city = "\n"	+ self.city
+		else:
+			city = self.city
+			
+		emirate =""
+		if	self.emirate !="":
+			emirate = "\n" + self.emirate
+
+		country = ""
+		if self.country !="":
+			country = "\n" + self.country
+
+		full_address = self.address  + city + emirate + country
+		self.full_address = full_address
+
 	
 	def validate_globals(self):
 		

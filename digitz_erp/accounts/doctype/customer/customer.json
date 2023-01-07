@@ -13,10 +13,12 @@
   "address",
   "city",
   "state",
+  "emirate",
   "country",
   "email_id",
   "phone_no",
   "mobile_no",
+  "full_address",
   "column_break_10",
   "contact_person",
   "contact_person_designation",
@@ -54,7 +56,7 @@
   {
    "fieldname": "city",
    "fieldtype": "Data",
-   "label": "City"
+   "label": "City (Area)"
   },
   {
    "fieldname": "country",
@@ -153,11 +155,23 @@
    "fieldname": "remarks",
    "fieldtype": "Text",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "full_address",
+   "fieldtype": "Small Text",
+   "label": "Full Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "emirate",
+   "fieldtype": "Select",
+   "label": "Emirate",
+   "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-04 18:06:59.651218",
+ "modified": "2023-01-07 12:34:50.030566",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
