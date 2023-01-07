@@ -7,7 +7,8 @@ frappe.ui.form.on('Sales Invoice', {
 
 		frm.add_fetch('customer','tax_id','tax_id')		
 		frm.add_fetch('customer','credit_days','credit_days')		
-		//frm.get_field('taxes').grid.cannot_add_rows = true;		
+		frm.add_fetch('customer','full_address','address')		
+		//frm.get_field('taxes').grid.cannot_add_rows = true;	
 		
 	},
 	customer(frm)
@@ -42,7 +43,7 @@ frappe.ui.form.on('Sales Invoice', {
 	 	if(frm.doc.edit_posting_date_and_time ==1)
 	 	{
 	 		frm.set_df_property("posting_date","read_only",0);
-			 frm.set_df_property("posting_time","read_only",0);
+			frm.set_df_property("posting_time","read_only",0);
 	 	}
 	 	else
 	 	{
@@ -52,8 +53,7 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 	credit_purchase(frm)	
 	{
-		 frm.set_df_property("payment_mode","hidden",frm.doc.credit_purchase);
-		 frm.set_df_property("payment_account","hidden",frm.doc.credit_purchase);
+		 frm.set_df_property("payment_mode","hidden",frm.doc.credit_purchase);		 
 
 		if(frm.doc.credit_purchase)
 		{

@@ -9,29 +9,33 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
+  "reference_no",
+  "reference_date",
   "customer",
-  "tax_id",
+  "address",
   "column_break_6",
   "company",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "section_break_11",
-  "column_break_9",
+  "tax_id",
   "do_no",
+  "lpo_no",
+  "lpo_date",
+  "section_break_11",
   "warehouse",
+  "column_break_14",
   "section_break_16",
   "price_list",
+  "column_break_19",
   "rate_includes_tax",
   "accounts_section",
   "credit_purchase",
   "credit_days",
   "payment_terms",
+  "column_break_24",
   "payment_mode",
-  "column_break_17",
-  "paid_from_account",
-  "payable_account",
-  "round_off_account",
+  "remarks",
   "section_break_19",
   "items",
   "section_break_29",
@@ -52,8 +56,7 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
-  "remarks"
+  "section_break_27"
  ],
  "fields": [
   {
@@ -109,12 +112,7 @@
   },
   {
    "fieldname": "section_break_11",
-   "fieldtype": "Section Break",
-   "label": "Supplier Documents"
-  },
-  {
-   "fieldname": "column_break_9",
-   "fieldtype": "Column Break"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "do_no",
@@ -170,32 +168,9 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
-  },
-  {
-   "fieldname": "column_break_17",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "paid_from_account",
-   "fieldtype": "Link",
-   "label": "Paid From Account",
-   "options": "Account"
-  },
-  {
-   "fetch_from": "company.default_payable_account",
-   "fieldname": "payable_account",
-   "fieldtype": "Link",
-   "label": "Payable Account",
-   "options": "Account",
-   "read_only": 1
-  },
-  {
-   "fieldname": "round_off_account",
-   "fieldtype": "Link",
-   "label": "Round Off Account",
-   "options": "Account"
   },
   {
    "fieldname": "section_break_19",
@@ -312,14 +287,51 @@
   },
   {
    "fieldname": "remarks",
-   "fieldtype": "JSON",
+   "fieldtype": "Small Text",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lpo_no",
+   "fieldtype": "Data",
+   "label": "LPO No"
+  },
+  {
+   "fieldname": "lpo_date",
+   "fieldtype": "Date",
+   "label": "LPO Date"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-04 16:47:35.583939",
+ "modified": "2023-01-07 13:06:34.656234",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

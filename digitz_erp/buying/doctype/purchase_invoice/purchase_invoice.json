@@ -10,6 +10,7 @@
  "field_order": [
   "naming_series",
   "supplier",
+  "supplier_address",
   "tax_id",
   "column_break_6",
   "company",
@@ -30,10 +31,6 @@
   "credit_days",
   "payment_terms",
   "payment_mode",
-  "column_break_17",
-  "paid_from_account",
-  "payable_account",
-  "round_off_account",
   "section_break_19",
   "items",
   "section_break_29",
@@ -144,10 +141,6 @@
    "options": "Payment Mode"
   },
   {
-   "fieldname": "column_break_17",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -216,20 +209,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "paid_from_account",
-   "fieldtype": "Link",
-   "label": "Paid From Account",
-   "options": "Account"
-  },
-  {
-   "fetch_from": "company.default_payable_account",
-   "fieldname": "payable_account",
-   "fieldtype": "Link",
-   "label": "Payable Account",
-   "options": "Account",
-   "read_only": 1
-  },
-  {
    "fieldname": "gross_total",
    "fieldtype": "Currency",
    "label": "Gross Total",
@@ -257,12 +236,6 @@
    "fieldtype": "Currency",
    "label": "Rounded Total",
    "read_only": 1
-  },
-  {
-   "fieldname": "round_off_account",
-   "fieldtype": "Link",
-   "label": "Round Off Account",
-   "options": "Account"
   },
   {
    "fieldname": "column_break_33",
@@ -327,12 +300,17 @@
   {
    "fieldname": "section_break_29",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "supplier_address",
+   "fieldtype": "Small Text",
+   "label": "Supplier Address"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-04 15:06:49.707514",
+ "modified": "2023-01-07 12:39:41.325922",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

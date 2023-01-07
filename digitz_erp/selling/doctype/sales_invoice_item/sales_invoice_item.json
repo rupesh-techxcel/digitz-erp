@@ -7,6 +7,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "warehouse",
   "item",
   "item_code",
   "qty",
@@ -18,7 +19,6 @@
   "conversion_factor",
   "rate_included_tax",
   "rate_excluded_tax",
-  "warehouse",
   "column_break_11",
   "gross_amount",
   "tax_excluded",
@@ -94,6 +94,7 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Warehouse",
    "options": "Warehouse"
   },
@@ -156,7 +157,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-01-04 17:43:22.951711",
+ "modified": "2023-01-07 12:46:11.117489",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",
