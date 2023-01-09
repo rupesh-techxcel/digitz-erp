@@ -10,94 +10,48 @@
  "field_order": [
   "customer_name",
   "customer_group",
-  "address",
-  "city",
-  "state",
-  "emirate",
-  "country",
-  "email_id",
-  "phone_no",
-  "mobile_no",
-  "full_address",
-  "column_break_10",
-  "contact_person",
-  "contact_person_designation",
-  "contact_mobile_no",
+  "billing_address",
+  "billing_address_details",
   "tax_id",
+  "section_break_4",
+  "default_price_list",
+  "shipping_address",
+  "shipping_address_details",
+  "column_break_10",
   "credit_days",
   "credit_amount",
+  "remarks",
+  "section_break_14",
   "default_terms",
-  "default_price_list",
-  "is_disabled",
   "section_break_21",
+  "use_default_customer_terms",
   "terms",
   "section_break_23",
-  "remarks"
+  "is_disabled",
+  "section_break_20"
  ],
  "fields": [
   {
    "fieldname": "customer_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Customer Name",
+   "reqd": 1,
    "unique": 1
   },
   {
    "default": "All Customer Groups",
    "fieldname": "customer_group",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Customer Group",
-   "options": "Customer Group"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Small Text",
-   "label": "Address"
-  },
-  {
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "label": "City (Area)"
-  },
-  {
-   "fieldname": "country",
-   "fieldtype": "Link",
-   "label": "Country",
-   "options": "Country"
-  },
-  {
-   "fieldname": "state",
-   "fieldtype": "Data",
-   "label": "State"
-  },
-  {
-   "fieldname": "phone_no",
-   "fieldtype": "Data",
-   "label": "Phone No"
-  },
-  {
-   "fieldname": "mobile_no",
-   "fieldtype": "Data",
-   "label": "Mobile No"
-  },
-  {
-   "fieldname": "contact_person",
-   "fieldtype": "Data",
-   "label": "Contact Person"
-  },
-  {
-   "fieldname": "contact_person_designation",
-   "fieldtype": "Data",
-   "label": "Contact Person Designation"
+   "options": "Customer Group",
+   "reqd": 1
   },
   {
    "fieldname": "tax_id",
    "fieldtype": "Data",
    "label": "Tax Id"
-  },
-  {
-   "fieldname": "contact_mobile_no",
-   "fieldtype": "Data",
-   "label": "Contact Mobile No"
   },
   {
    "fieldname": "credit_days",
@@ -123,12 +77,6 @@
    "options": "Price List"
   },
   {
-   "fieldname": "email_id",
-   "fieldtype": "Data",
-   "label": "Email",
-   "options": "Email"
-  },
-  {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
   },
@@ -145,7 +93,8 @@
   {
    "fieldname": "terms",
    "fieldtype": "Text Editor",
-   "label": "Terms"
+   "label": "Terms",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_23",
@@ -153,25 +102,51 @@
   },
   {
    "fieldname": "remarks",
-   "fieldtype": "Text",
+   "fieldtype": "Small Text",
    "label": "Remarks"
   },
   {
-   "fieldname": "full_address",
-   "fieldtype": "Small Text",
-   "label": "Full Address",
-   "read_only": 1
+   "fieldname": "shipping_address",
+   "fieldtype": "Link",
+   "label": "Shipping Address",
+   "options": "Customer Address"
   },
   {
-   "fieldname": "emirate",
-   "fieldtype": "Select",
-   "label": "Emirate",
-   "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+   "fieldname": "section_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "billing_address",
+   "fieldtype": "Link",
+   "label": "Billing Address",
+   "options": "Customer Address"
+  },
+  {
+   "fieldname": "billing_address_details",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "shipping_address_details",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "use_default_customer_terms",
+   "fieldtype": "Check",
+   "label": "Use default customer terms"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-07 12:34:50.030566",
+ "modified": "2023-01-09 10:33:13.871066",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

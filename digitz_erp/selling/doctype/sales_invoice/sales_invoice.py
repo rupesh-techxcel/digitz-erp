@@ -1,5 +1,6 @@
 # Copyright (c) 2023, Rupesh P and contributors
 # For license information, please see license.txt
+from frappe.utils import now
 
 import frappe
 from frappe.model.document import Document
@@ -23,7 +24,10 @@ class SalesInvoice(Document):
 			doc.valuation_rate = docitem.rate			
 			doc.is_latest = 1
 			doc.insert()
-		
+
+		self.created_by = frappe.user
+		self.submitted_date = now()
+
 		self.insert_gl_records()
 		self.insert_payment_postings()
 

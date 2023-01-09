@@ -9,32 +9,30 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
-  "reference_no",
-  "reference_date",
   "customer",
+  "reference_no",
   "address",
+  "billing_address_display",
   "column_break_6",
-  "company",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "tax_id",
-  "do_no",
+  "shipping_address",
+  "shipping_address_display",
+  "column_break_4",
+  "company",
   "lpo_no",
   "lpo_date",
-  "section_break_11",
-  "warehouse",
-  "column_break_14",
-  "section_break_16",
   "price_list",
-  "column_break_19",
   "rate_includes_tax",
+  "warehouse",
+  "section_break_11",
   "accounts_section",
   "credit_purchase",
   "credit_days",
   "payment_terms",
-  "column_break_24",
   "payment_mode",
+  "column_break_25",
   "remarks",
   "section_break_19",
   "items",
@@ -56,7 +54,12 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27"
+  "section_break_27",
+  "tab_break_50",
+  "data_53",
+  "do_no",
+  "profitability_tab",
+  "invoice_profitability"
  ],
  "fields": [
   {
@@ -72,11 +75,6 @@
    "label": "Customer",
    "options": "Customer",
    "reqd": 1
-  },
-  {
-   "fieldname": "tax_id",
-   "fieldtype": "Data",
-   "label": "Tax Id"
   },
   {
    "fieldname": "column_break_6",
@@ -115,21 +113,11 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "do_no",
-   "fieldtype": "Data",
-   "label": "DO No"
-  },
-  {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse",
    "reqd": 1
-  },
-  {
-   "fieldname": "section_break_16",
-   "fieldtype": "Section Break",
-   "label": "Pricing"
   },
   {
    "default": "Standard Selling",
@@ -292,12 +280,10 @@
   },
   {
    "fieldname": "address",
-   "fieldtype": "Small Text",
-   "label": "Address"
-  },
-  {
-   "fieldname": "column_break_14",
-   "fieldtype": "Column Break"
+   "fieldtype": "Link",
+   "label": "Billing Address",
+   "options": "Customer Address",
+   "reqd": 1
   },
   {
    "fieldname": "lpo_no",
@@ -310,28 +296,62 @@
    "label": "LPO Date"
   },
   {
-   "fieldname": "column_break_24",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_19",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "reference_no",
    "fieldtype": "Data",
    "label": "Reference No"
   },
   {
-   "fieldname": "reference_date",
-   "fieldtype": "Date",
-   "label": "Reference Date"
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tab_break_50",
+   "fieldtype": "Tab Break",
+   "label": "References"
+  },
+  {
+   "fieldname": "data_53",
+   "fieldtype": "Section Break",
+   "label": "Related Documents"
+  },
+  {
+   "fieldname": "do_no",
+   "fieldtype": "Data",
+   "label": "DO No"
+  },
+  {
+   "fieldname": "shipping_address",
+   "fieldtype": "Link",
+   "label": "Shipping Address",
+   "options": "Customer Address"
+  },
+  {
+   "fieldname": "billing_address_display",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "shipping_address_display",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "profitability_tab",
+   "fieldtype": "Tab Break",
+   "label": "Profitability"
+  },
+  {
+   "fieldname": "invoice_profitability",
+   "fieldtype": "Data",
+   "label": "Invoice Profitability"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-07 13:06:34.656234",
+ "modified": "2023-01-09 10:47:14.063498",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
