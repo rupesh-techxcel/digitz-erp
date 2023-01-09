@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import now
 
 class Supplier(Document):	
 	
@@ -25,8 +26,15 @@ class Supplier(Document):
 		if self.country !="":
 			country = "\n" + self.country
 
-		full_address = self.address  + city + emirate + country
+		taxId = ""
+		
+		if self.tax_id !="":
+			taxId = "\n" + "TRN No:" + self.tax_id
+		
+		full_address = self.address  + city + emirate + country + taxId
+
 		self.full_address = full_address
+
 
 	
 	def validate_globals(self):
