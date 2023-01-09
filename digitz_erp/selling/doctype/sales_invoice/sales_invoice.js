@@ -3,19 +3,19 @@
 
 frappe.ui.form.on('Sales Invoice', {	
 
-	// setup: function(frm){
+	setup: function(frm){
 
-	// 	frm.add_fetch('customer','tax_id','tax_id')		
-	// 	frm.add_fetch('customer','credit_days','credit_days')			
-	// 	frm.add_fetch('customer','billing_address','address')		
-	// 	frm.add_fetch('customer','billing_address_details','billing_address_display')		
-	// 	frm.add_fetch('customer','shipping_address','shipping_address')		
-	// 	frm.add_fetch('customer','shipping_address_details','shipping_address_display')		
+		frm.add_fetch('customer','tax_id','tax_id')		
+		frm.add_fetch('customer','credit_days','credit_days')			
+		frm.add_fetch('customer','billing_address','address')		
+		frm.add_fetch('customer','billing_address_details','billing_address_display')		
+		frm.add_fetch('customer','shipping_address','shipping_address')		
+		frm.add_fetch('customer','shipping_address_details','shipping_address_display')		
+		frm.add_fetch('payment_mode','account','payment_account')			
 		
-	// },
+	},
 	customer(frm)
 	{			
-		frappe.msgprint(frm.doc.customer)
 		console.log("customer")	
 		console.log(frm.doc.customer)
 
@@ -54,20 +54,19 @@ frappe.ui.form.on('Sales Invoice', {
 			frm.set_df_property("posting_time","read_only",1);
 	 	}  
 	},
-	// credit_sale(frm)	
-	// {		
+	 credit_sale(frm)	
+	 {		
 		console.log("Credit Sale");
-		// frm.set_df_property("credit_days","hidden",!frm.doc.credit_purchase);		 
-		// frm.set_df_property("payment_mode","hidden",frm.doc.credit_purchase);		 
-		// frm.set_df_property("payment_account","hidden",frm.doc.credit_purchase);	
-		 
+		 frm.set_df_property("credit_days","hidden",!frm.doc.credit_sale);		 
+		 frm.set_df_property("payment_mode","hidden",frm.doc.credit_sale);		 
+		 frm.set_df_property("payment_account","hidden",frm.doc.credit_sale);
 
-		// if(frm.doc.credit_purchase)
-		// {
-		// 	frm.doc.payment_mode ="";
-		// 	frm.doc.payment_account ="";			
-		// }
-	// },
+		 if(frm.doc.credit_sale)
+		 {
+		 	frm.doc.payment_mode ="";
+		 	frm.doc.payment_account ="";			
+		 }
+	},
 	warehouse(frm)
 	{
 		console.log("warehouse set")
@@ -302,38 +301,38 @@ frappe.ui.form.on('Sales Invoice', {
 	}	
 });
 
-// frappe.ui.form.on("Sales Invoice", "onload", function(frm) {
+frappe.ui.form.on("Sales Invoice", "onload", function(frm) {
 
-// 	//Since the default selectionis cash
-// 	//frm.set_df_property("date","read_only",1);	
-// 	frm.set_query("warehouse", function() {
-// 		return {
-// 			"filters": {
-// 				"is_group": 0
-// 			}
-// 		};
-// 	});	
+	//Since the default selectionis cash
+	//frm.set_df_property("date","read_only",1);	
+	frm.set_query("warehouse", function() {
+		return {
+			"filters": {
+				"is_group": 0
+			}
+		};
+	});	
 
-// 	frm.trigger("get_default_company_and_warehouse");	
+	frm.trigger("get_default_company_and_warehouse");	
 
-// 	frm.set_query("price_list", function() {
-// 		return {
-// 			"filters": {
-// 				"is_selling": 1
-// 			}
-// 		};
-// 	});	
+	frm.set_query("price_list", function() {
+		return {
+			"filters": {
+				"is_selling": 1
+			}
+		};
+	});	
 	
-// 	frm.set_query("customer", function() {
-// 		return {
-// 			"filters": {
-// 			"is_disabled": 0
-// 			}
-// 		};
-// 	});	
-// 	console.log("Test loading..")
+	frm.set_query("customer", function() {
+		return {
+			"filters": {
+			"is_disabled": 0
+			}
+		};
+	});	
+	console.log("Test loading..")
 
-// });
+});
 
 frappe.ui.form.on('Sales Invoice Item', {	
 	item(frm, cdt, cdn) {        
