@@ -143,10 +143,11 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 		}
 		frappe.call(
 			{
-				method:'digitz_erp.api.common_methods.get_item_buying_price',
+				method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
 				async:false,
 				args:{
-					'item':frm.doc.item_name
+					'item':frm.doc.item_name,
+					'price_list':'Standard Buying'
 					},
 					callback(r)	
 					{	console.log("Price");				
@@ -164,10 +165,11 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 
 		frappe.call(
 			{
-				method:'digitz_erp.api.common_methods.get_item_selling_price',
+				method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
 				async:false,
 				args:{
-					'item':frm.doc.item_name
+					'item':frm.doc.item_name,
+					'price_list':'Standard Selling'
 					},
 					callback(r)	
 					{	console.log("Price");				
