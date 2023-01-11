@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Stock</span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Items\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Groups\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Brand\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"UOMs\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouses\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}}]",
+ "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Stock</span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Items\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Groups\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Brand\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"UOMs\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouses\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Transfer\",\"col\":3}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger\",\"col\":3}}]",
  "creation": "2022-12-21 18:15:28.263676",
  "docstatus": 0,
  "doctype": "Workspace",
@@ -10,7 +10,7 @@
  "idx": 0,
  "label": "Stock",
  "links": [],
- "modified": "2022-12-30 09:44:09.822301",
+ "modified": "2023-01-11 10:33:04.571908",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock",
@@ -24,6 +24,13 @@
   {
    "color": "Grey",
    "doc_view": "List",
+   "label": "Stock Ledger",
+   "link_to": "Stock Ledger",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
    "label": "Price List",
    "link_to": "Price List",
    "type": "DocType"
@@ -33,6 +40,13 @@
    "doc_view": "List",
    "label": "Items",
    "link_to": "Item",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Stock Transfer",
+   "link_to": "Stock Transfer",
    "type": "DocType"
   },
   {

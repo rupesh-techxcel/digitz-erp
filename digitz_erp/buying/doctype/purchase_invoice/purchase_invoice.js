@@ -7,6 +7,9 @@ frappe.ui.form.on('Purchase Invoice', {
 
 		frm.add_fetch('supplier','tax_id','tax_id')		
 		frm.add_fetch('supplier','credit_days','credit_days')		
+		frm.add_fetch('supplier','full_address','supplier_address')		
+		frm.add_fetch('supplier','tax_id','tax_id')		
+		frm.add_fetch('payment_mode','account','payment_account')			
 		//frm.get_field('taxes').grid.cannot_add_rows = true;		
 		
 	},	
@@ -52,14 +55,16 @@ frappe.ui.form.on('Purchase Invoice', {
 	},
 	credit_purchase(frm)	
 	{
-		 frm.set_df_property("payment_mode","hidden",frm.doc.credit_purchase);
-		 frm.set_df_property("payment_account","hidden",frm.doc.credit_purchase);
+		frm.set_df_property("credit_days","hidden",!frm.doc.credit_purchase);		 
+		frm.set_df_property("payment_mode","hidden",frm.doc.credit_purchase);		 
+		frm.set_df_property("payment_account","hidden",frm.doc.credit_purchase);
 
 		if(frm.doc.credit_purchase)
 		{
 			frm.doc.payment_mode ="";
 			frm.doc.payment_account ="";			
 		}
+
 	},
 	warehouse(frm)
 	{
