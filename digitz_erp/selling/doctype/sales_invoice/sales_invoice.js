@@ -3,6 +3,8 @@
 
 frappe.ui.form.on('Sales Invoice', {	
 
+	
+
 	setup: function(frm){
 
 		frm.add_fetch('customer','tax_id','tax_id')		
@@ -11,8 +13,7 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.add_fetch('customer','billing_address_details','billing_address_display')		
 		frm.add_fetch('customer','shipping_address','shipping_address')		
 		frm.add_fetch('customer','shipping_address_details','shipping_address_display')		
-		frm.add_fetch('payment_mode','account','payment_account')			
-		
+		frm.add_fetch('payment_mode','account','payment_account')		
 	},
 	customer(frm)
 	{			
@@ -298,7 +299,31 @@ frappe.ui.form.on('Sales Invoice', {
 			}
 		})
 
-	}	
+	},
+	validate: function(frm)	
+	{
+		var valid = false;
+
+		frm.doc.items.forEach(function(entry) { 
+
+			if(typeof(entry) =='undefined' )
+			{
+
+			}
+			else
+			{
+				valid = true;
+
+			}
+
+		});
+
+		if(!valid)
+		{
+			frapp.message("No valid item found in the document");
+			return;
+		}
+	}
 });
 
 frappe.ui.form.on("Sales Invoice", "onload", function(frm) {
@@ -335,8 +360,20 @@ frappe.ui.form.on("Sales Invoice", "onload", function(frm) {
 });
 
 frappe.ui.form.on('Sales Invoice Item', {	
-	item(frm, cdt, cdn) {        
+	item(frm, cdt, cdn) {    
+		
 		let row = frappe.get_doc(cdt, cdn);
+		console.log(frm.doc.customer);		
+		console.log(typeof(frm.doc.customer));
+		
+		if(typeof(frm.doc.customer) == "undefined")
+		{
+			frappe.msgprint("Select customer.")
+			row.item = "";
+			return;
+		}
+		
+	
 		
 		console.log(row.item);
 		console.log(row.qty);

@@ -7,34 +7,34 @@ from frappe.utils import now
 
 class Supplier(Document):	
 	
-	def before_save(self):
-		self.validate_globals()	
+	# def on_update(self):	
 
-		address = self.address
-		city =""
+	# 	self.validate_globals()	
+
+	# 	address = self.address
+	# 	city =""
 		
-		if self.address !="":			
-			city = "\n"	+ self.city
-		else:
-			city = self.city
+	# 	if self.address !="":			
+	# 		city = "\n"	+ self.city
+	# 	else:
+	# 		city = self.city
 			
-		emirate =""
-		if	self.emirate !="":
-			emirate = "\n" + self.emirate
+	# 	emirate =""
+	# 	if	self.emirate !="":
+	# 		emirate = "\n" + self.emirate
 
-		country = ""
-		if self.country !="":
-			country = "\n" + self.country
+	# 	country = ""
+	# 	if self.country !="":
+	# 		country = "\n" + self.country
 
-		taxId = ""
+	# 	taxId = ""
 		
-		if self.tax_id !="":
-			taxId = "\n" + "TRN No:" + self.tax_id
+	# 	if self.tax_id !="":
+	# 		taxId = "\n" + "TRN No:" + self.tax_id
 		
-		full_address = self.address  + city + emirate + country + taxId
+	# 	full_address = self.address  + city + emirate + country + taxId
 
-		self.full_address = full_address
-
+	# 	self.full_address = full_address
 
 	
 	def validate_globals(self):
@@ -43,12 +43,7 @@ class Supplier(Document):
 		if not global_settings:
 			frappe.throw('Default companuy is not configured in the Global Settings!.')			
 
-	# def after_insert(self):
-	# 	doc = frappe.get_doc('doctype':'Account',
-	# 				'account_name': self.Supplier_name
-
-	# 	)
-
+	
 
 		
     

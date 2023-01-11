@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2023-01-04 16:31:16.689825",
+ "creation": "2023-01-11 11:00:40.032450",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -26,7 +26,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "tax_id",
   "section_break_11",
   "accounts_section",
   "credit_sale",
@@ -41,7 +40,6 @@
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
-  "amended_from",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -52,14 +50,14 @@
   "round_off",
   "rounded_total",
   "section_break_33",
-  "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
   "section_break_27",
   "tab_break_50",
   "data_53",
-  "do_no"
+  "do_no",
+  "amended_from"
  ],
  "fields": [
   {
@@ -77,15 +75,24 @@
    "reqd": 1
   },
   {
-   "fieldname": "column_break_6",
-   "fieldtype": "Column Break"
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
   },
   {
-   "fieldname": "company",
+   "fieldname": "address",
    "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company",
+   "label": "Billing Address",
+   "options": "Customer Address",
    "reqd": 1
+  },
+  {
+   "fieldname": "billing_address_display",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
   },
   {
    "default": "Today",
@@ -109,15 +116,35 @@
    "label": "Edit Posting Date And Time"
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
+   "fieldname": "shipping_address",
+   "fieldtype": "Link",
+   "label": "Shipping Address",
+   "options": "Customer Address"
   },
   {
-   "fieldname": "warehouse",
+   "fieldname": "shipping_address_display",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
    "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
+   "label": "Company",
+   "options": "Company",
    "reqd": 1
+  },
+  {
+   "fieldname": "lpo_no",
+   "fieldtype": "Data",
+   "label": "LPO No"
+  },
+  {
+   "fieldname": "lpo_date",
+   "fieldtype": "Date",
+   "label": "LPO Date"
   },
   {
    "default": "Standard Selling",
@@ -133,9 +160,26 @@
    "label": "Rate includes tax"
   },
   {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
+  },
+  {
+   "default": "1",
+   "fieldname": "credit_sale",
+   "fieldtype": "Check",
+   "label": "Credit Sale"
   },
   {
    "fieldname": "credit_days",
@@ -155,6 +199,22 @@
    "options": "Payment Mode"
   },
   {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Payment Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
   },
@@ -162,8 +222,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Sales Invoice Item",
-   "reqd": 1
+   "options": "Delivery Note Item"
   },
   {
    "fieldname": "section_break_29",
@@ -183,7 +242,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Purchase Invoice",
+   "options": "Delivery Note",
    "print_hide": 1,
    "read_only": 1
   },
@@ -242,13 +301,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "taxes",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Taxes",
-   "options": "Purchase Invoice Tax"
-  },
-  {
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
    "label": "Terms And Conditions"
@@ -269,37 +321,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Billing Address",
-   "options": "Customer Address",
-   "reqd": 1
-  },
-  {
-   "fieldname": "lpo_no",
-   "fieldtype": "Data",
-   "label": "LPO No"
-  },
-  {
-   "fieldname": "lpo_date",
-   "fieldtype": "Date",
-   "label": "LPO Date"
-  },
-  {
-   "fieldname": "reference_no",
-   "fieldtype": "Data",
-   "label": "Reference No"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
    "label": "References"
@@ -315,49 +336,22 @@
    "label": "DO No"
   },
   {
-   "fieldname": "shipping_address",
+   "fieldname": "amended_from",
    "fieldtype": "Link",
-   "label": "Shipping Address",
-   "options": "Customer Address"
-  },
-  {
-   "fieldname": "billing_address_display",
-   "fieldtype": "Small Text"
-  },
-  {
-   "fieldname": "shipping_address_display",
-   "fieldtype": "Small Text"
-  },
-  {
-   "fieldname": "column_break_25",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "tax_id",
-   "fieldtype": "Data",
-   "label": "Tax ID"
-  },
-  {
-   "default": "1",
-   "fieldname": "credit_sale",
-   "fieldtype": "Check",
-   "label": "Credit Sale"
-  },
-  {
-   "fieldname": "payment_account",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Payment Account",
-   "options": "Account"
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Delivery Note",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-10 19:03:59.071043",
+ "modified": "2023-01-11 11:02:22.867245",
  "modified_by": "Administrator",
  "module": "Selling",
- "name": "Sales Invoice",
+ "name": "Delivery Note",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [

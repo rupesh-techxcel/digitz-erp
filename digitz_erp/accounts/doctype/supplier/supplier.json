@@ -161,7 +161,7 @@
    "fieldname": "emirate",
    "fieldtype": "Select",
    "label": "Emirate",
-   "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
   },
   {
    "default": "0",
@@ -179,7 +179,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-07 12:12:51.167726",
+ "modified": "2023-01-10 20:36:42.945678",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

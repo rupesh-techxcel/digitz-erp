@@ -116,7 +116,7 @@ class SalesInvoice(Document):
 
 	def insert_payment_postings(self):
 		
-		if self.credit_purchase==0:
+		if self.credit_sale==0:
 
 			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Sales Invoice', 'voucher_no': self.name})
 

@@ -62,7 +62,7 @@
    "fieldname": "emirate",
    "fieldtype": "Select",
    "label": "Emirate",
-   "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain",
+   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain",
    "reqd": 1
   },
   {
@@ -162,7 +162,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-09 02:52:39.500917",
+ "modified": "2023-01-10 20:36:18.207791",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer Address",

@@ -15,9 +15,47 @@ frappe.ui.form.on('Supplier', {
 			};
 		});		        		
 			
-    }
+    },
+	before_save: function(frm){
+
+		var address = frm.doc.address;
+
+		var city = frm.doc.city;
+
+		if(typeof(frm.doc.address) != "undefined" && frm.doc.address !="" )
+		{
+			if(typeof(frm.doc.city) != "undefined" && frm.doc.city !="" )
+			{
+				city = "\n" + frm.doc.city;
+			}
+			else
+			{
+				city ="";
+			}
+		}		
+		else
+		{
+			address = "";
+
+		}
+
+		var state = frm.doc.state;
+
+		if(typeof(frm.doc.state) != "undefined" && frm.doc.state !="")
+		{
+			state = "\n" + frm.doc.state
+		}
+		else
+		{
+			state ="";
+		}
+		
+		var country = "\n" + frm.doc.country;
+		
+		frm.doc.full_address = address + city + state + country;
+	}
+});
 	
-})
 
 frappe.ui.form.on("Supplier", "onload", function(frm) {
 	

@@ -17,20 +17,22 @@
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
+  "price_list",
+  "rate_includes_tax",
+  "column_break_10",
   "section_break_11",
   "supplier_inv_no",
   "supplier_inv_date",
-  "column_break_9",
   "do_no",
   "warehouse",
-  "section_break_16",
-  "price_list",
-  "rate_includes_tax",
   "accounts_section",
   "credit_purchase",
   "credit_days",
   "payment_terms",
   "payment_mode",
+  "payment_account",
+  "column_break_24",
+  "remarks",
   "section_break_19",
   "items",
   "section_break_29",
@@ -51,8 +53,7 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
-  "remarks"
+  "section_break_27"
  ],
  "fields": [
   {
@@ -137,6 +138,7 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
@@ -181,7 +183,7 @@
   },
   {
    "fieldname": "remarks",
-   "fieldtype": "JSON",
+   "fieldtype": "Small Text",
    "label": "Remarks"
   },
   {
@@ -280,17 +282,8 @@
    "label": "DO No"
   },
   {
-   "fieldname": "column_break_9",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_16",
-   "fieldtype": "Section Break",
-   "label": "Pricing"
-  },
-  {
    "fieldname": "section_break_11",
-   "fieldtype": "Section Break",
+   "fieldtype": "Heading",
    "label": "Supplier Documents"
   },
   {
@@ -305,12 +298,27 @@
    "fieldname": "supplier_address",
    "fieldtype": "Small Text",
    "label": "Supplier Address"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Payment Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-07 12:39:41.325922",
+ "modified": "2023-01-11 10:19:47.526838",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

@@ -141,48 +141,53 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 				}
 			});		
 		}
-		frappe.call(
-			{
-				method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
-				async:false,
-				args:{
-					'item':frm.doc.item_name,
-					'price_list':'Standard Buying'
-					},
-					callback(r)	
-					{	console.log("Price");				
-						console.log(r.message)
-					if(r.message.length == 1)
-					{						
-						console.log(r.message[0].price);				
-						frm.doc.standard_buying_price = r.message[0].price;
-					}				
+		else
+		{
+			// frappe.call(
+			// {
+			// 	method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
+			// 	async:false,
+			// 	args:{
+			// 		'item':frm.doc.item_name,
+			// 		'price_list':'Standard Buying'
+			// 		},
+			// 		callback(r)	
+			// 		{	console.log("Price");				
+			// 			console.log(r.message)
+			// 		if(r.message.length == 1)
+			// 			{						
+			// 				console.log(r.message[0].price);				
+			// 				frm.doc.standard_buying_price = r.message[0].price;
+			// 			}				
 				
-				}
+			// 		}
 
-			}
-		);
+			// 	}
+		
+			// );
+		
 
-		frappe.call(
-			{
-				method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
-				async:false,
-				args:{
-					'item':frm.doc.item_name,
-					'price_list':'Standard Selling'
-					},
-					callback(r)	
-					{	console.log("Price");				
-						console.log(r.message)
-					if(r.message.length == 1)
-					{						
-						console.log(r.message[0].price);				
-						frm.doc.standard_selling_price = r.message[0].price;
-					}				
-				}
+			// frappe.call(
+			// 	{
+			// 		method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
+			// 		async:false,
+			// 		args:{
+			// 			'item':frm.doc.item_name,
+			// 			'price_list':'Standard Selling'
+			// 			},
+			// 			callback(r)	
+			// 			{	console.log("Price");				
+			// 				console.log(r.message)
+			// 			if(r.message.length == 1)
+			// 			{						
+			// 				console.log(r.message[0].price);				
+			// 				frm.doc.standard_selling_price = r.message[0].price;
+			// 			}				
+			// 		}
 
-			}
-		);
+			// 	}
+			// );
+		}
 	
 	}	
 );

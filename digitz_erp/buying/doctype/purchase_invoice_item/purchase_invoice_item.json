@@ -28,7 +28,8 @@
   "discount_percentage",
   "discount_amount",
   "net_amount",
-  "unit_conversion_details"
+  "unit_conversion_details",
+  "section_break_23"
  ],
  "fields": [
   {
@@ -130,12 +131,6 @@
    "label": "Tax Excluded"
   },
   {
-   "fieldname": "tax",
-   "fieldtype": "Link",
-   "label": "Tax",
-   "options": "Tax"
-  },
-  {
    "fieldname": "rate_in_base_unit",
    "fieldtype": "Currency",
    "label": "Rate In Base Unit",
@@ -151,12 +146,22 @@
    "fieldtype": "Small Text",
    "label": "Unit Conversion Details",
    "read_only": 1
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "section_break_23",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-01-05 11:16:31.261945",
+ "modified": "2023-01-11 09:53:53.305986",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice Item",
