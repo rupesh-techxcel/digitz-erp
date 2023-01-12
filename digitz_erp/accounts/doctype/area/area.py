@@ -1,9 +1,8 @@
-# Copyright (c) 2022, Rupesh P and contributors
+# Copyright (c) 2023, Rupesh P and contributors
 # For license information, please see license.txt
 
-import frappe
+# import frappe
 from frappe.model.document import Document
 
-class Customer(Document):
+class Area(Document):
 	pass
-	

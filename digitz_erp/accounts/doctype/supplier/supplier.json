@@ -31,8 +31,7 @@
   "is_disabled",
   "section_break_20",
   "terms",
-  "section_break_22",
-  "remarks"
+  "section_break_22"
  ],
  "fields": [
   {
@@ -145,11 +144,6 @@
    "label": "Terms"
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Text",
-   "label": "Remarks"
-  },
-  {
    "fieldname": "section_break_20",
    "fieldtype": "Section Break"
   },
@@ -161,7 +155,7 @@
    "fieldname": "emirate",
    "fieldtype": "Select",
    "label": "Emirate",
-   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+   "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
   },
   {
    "default": "0",
@@ -179,7 +173,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-10 20:36:42.945678",
+ "modified": "2023-01-12 11:12:02.278333",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:title",
  "creation": "2023-01-08 14:01:50.539607",
  "default_view": "List",
  "doctype": "DocType",
@@ -9,11 +8,10 @@
  "engine": "InnoDB",
  "field_order": [
   "address",
-  "title",
   "address_line_1",
   "address_line_2",
-  "area",
   "emirate",
+  "area",
   "country",
   "customer",
   "column_break_7",
@@ -32,15 +30,6 @@
   "full_address"
  ],
  "fields": [
-  {
-   "description": "Eg: Customer Name - Billing Address",
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Title",
-   "reqd": 1,
-   "unique": 1
-  },
   {
    "fieldname": "address_line_1",
    "fieldtype": "Data",
@@ -130,6 +119,7 @@
    "description": "Automatically links when saving from Customer",
    "fieldname": "customer",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Customer",
    "options": "Customer"
@@ -161,28 +151,15 @@
   }
  ],
  "index_web_pages_for_search": 1,
+ "istable": 1,
  "links": [],
- "modified": "2023-01-10 20:36:18.207791",
+ "modified": "2023-01-12 09:02:34.899466",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer Address",
  "name_case": "Title Case",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

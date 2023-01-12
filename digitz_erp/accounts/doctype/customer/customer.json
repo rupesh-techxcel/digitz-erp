@@ -10,25 +10,35 @@
  "field_order": [
   "customer_name",
   "customer_group",
-  "billing_address",
-  "billing_address_details",
   "tax_id",
   "section_break_4",
+  "salesman",
   "default_price_list",
-  "shipping_address",
-  "shipping_address_details",
   "column_break_10",
   "credit_days",
   "credit_amount",
-  "remarks",
-  "section_break_14",
-  "default_terms",
-  "section_break_21",
+  "section_break_20",
+  "address",
+  "address_line_1",
+  "address_line_2",
+  "emirate",
+  "area",
+  "country",
+  "delivery_locations",
+  "column_break_27",
+  "contact",
+  "phone",
+  "email_id",
+  "contact_person",
+  "contact_person_designation",
+  "contact_phone",
+  "contact_email_id",
+  "full_address",
+  "section_break_24",
   "use_default_customer_terms",
+  "default_terms",
   "terms",
-  "section_break_23",
-  "is_disabled",
-  "section_break_20"
+  "is_disabled"
  ],
  "fields": [
   {
@@ -87,51 +97,14 @@
    "label": "Is Disabled"
   },
   {
-   "fieldname": "section_break_21",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "terms",
    "fieldtype": "Text Editor",
    "label": "Terms",
    "read_only": 1
   },
   {
-   "fieldname": "section_break_23",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
-  },
-  {
-   "fieldname": "shipping_address",
-   "fieldtype": "Link",
-   "label": "Shipping Address",
-   "options": "Customer Address"
-  },
-  {
    "fieldname": "section_break_4",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "billing_address",
-   "fieldtype": "Link",
-   "label": "Billing Address",
-   "options": "Customer Address"
-  },
-  {
-   "fieldname": "billing_address_details",
-   "fieldtype": "Small Text"
-  },
-  {
-   "fieldname": "shipping_address_details",
-   "fieldtype": "Small Text"
-  },
-  {
-   "fieldname": "section_break_14",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "section_break_20",
@@ -142,11 +115,106 @@
    "fieldname": "use_default_customer_terms",
    "fieldtype": "Check",
    "label": "Use default customer terms"
+  },
+  {
+   "fieldname": "delivery_locations",
+   "fieldtype": "Table",
+   "label": "Delivery Locations",
+   "options": "Customer Delivery Location"
+  },
+  {
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address Line 1"
+  },
+  {
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fieldname": "emirate",
+   "fieldtype": "Select",
+   "label": "Emirate",
+   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Link",
+   "label": "Area",
+   "options": "Area"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "fieldname": "salesman",
+   "fieldtype": "Link",
+   "label": "Salesman",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "column_break_27",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone "
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "contact_person_designation",
+   "fieldtype": "Data",
+   "label": "Contact Person Designation"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone"
+  },
+  {
+   "fieldname": "contact_email_id",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "section_break_24",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "full_address",
+   "fieldtype": "Small Text",
+   "label": "Full Address"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Heading",
+   "label": "Address"
+  },
+  {
+   "fieldname": "contact",
+   "fieldtype": "Heading",
+   "label": "Contact"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-09 10:33:13.871066",
+ "modified": "2023-01-12 09:44:29.734170",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
