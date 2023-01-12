@@ -3,54 +3,32 @@
 
 frappe.ui.form.on('Customer', {
 	
-	 setup: function(frm) {
+	 
+	before_save: function(frm){
 
-		frm.set_query("billing_address", function() {
-			return {
-				"filters":{"customer": ["in" ,frm.doc.customer_name, ""]}				
-			};
-		});		
+		var addressline_1 = frm.doc.address_line_1;
+		var addressline_2 = "";
+		
+		if(typeof(frm.doc.address_line_2) != "undefined" && frm.doc.address_line_2 !="")
+		{
+			addressline_2 = "\n" + frm.doc.address_line_2			
+		}
 
-		frm.set_query("shipping_address", function() {
-			return {
-				"filters":{"customer": ["in" ,frm.doc.customer_name, ""]}				
-			};
-		});	
-	 },
-	 billing_address(frm)
-	 {
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args:{
-				'doctype':'Customer Address',
-				'filters':{'title': frm.doc.billing_address},
-				'fieldname':['full_address']
-			},
-			callback: (r)=>{
-				console.log(r);
-				frm.doc.billing_address_details = r.full_address;
-			}	
-	 	});
-	},
-	shipping_address(frm)
-	{
-	   frappe.call({
-		   method: 'frappe.client.get_value',
-		   args:{
-			   'doctype':'Customer Address',
-			   'filters':{'title': frm.doc.shipping_address},
-			   'fieldname':['full_address']
-		   },
-		   callback: (r)=>{
-			   console.log(r);
-			   frm.doc.shipping_address_details = r.full_address;
-		   }	
-		});
-   }
+		var area = "";
+
+		if(typeof(frm.doc.area) != "undefined")
+		{
+			area = "\n" + frm.doc.area
+		}
+
+		var emirate = "\n" + frm.doc.emirate;
+		var country = "\n" + frm.doc.country;
+		
+		frm.doc.full_address = addressline_1 + addressline_2 + area + emirate+ country;
+	}
 });
 
 frappe.ui.form.on("Customer", "onload", function(frm) {
 
-	frm.add_fetch('billing_address','full_address','billing_address_details');	
-	frm.add_fetch('shipping_address','full_address','shipping_address_details');	
+	
 })

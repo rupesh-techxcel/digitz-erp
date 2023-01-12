@@ -11,14 +11,14 @@
   "naming_series",
   "customer",
   "reference_no",
-  "address",
-  "billing_address_display",
+  "customer_address",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "shipping_address",
-  "shipping_address_display",
+  "ship_to_location",
+  "salesman",
+  "tax_id",
   "column_break_4",
   "company",
   "lpo_no",
@@ -26,7 +26,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "tax_id",
   "section_break_11",
   "accounts_section",
   "credit_sale",
@@ -162,8 +161,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Sales Invoice Item",
-   "reqd": 1
+   "options": "Sales Invoice Item"
   },
   {
    "fieldname": "section_break_29",
@@ -274,13 +272,6 @@
    "label": "Remarks"
   },
   {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Billing Address",
-   "options": "Customer Address",
-   "reqd": 1
-  },
-  {
    "fieldname": "lpo_no",
    "fieldtype": "Data",
    "label": "LPO No"
@@ -315,27 +306,8 @@
    "label": "DO No"
   },
   {
-   "fieldname": "shipping_address",
-   "fieldtype": "Link",
-   "label": "Shipping Address",
-   "options": "Customer Address"
-  },
-  {
-   "fieldname": "billing_address_display",
-   "fieldtype": "Small Text"
-  },
-  {
-   "fieldname": "shipping_address_display",
-   "fieldtype": "Small Text"
-  },
-  {
    "fieldname": "column_break_25",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "tax_id",
-   "fieldtype": "Data",
-   "label": "Tax ID"
   },
   {
    "default": "1",
@@ -349,12 +321,34 @@
    "hidden": 1,
    "label": "Payment Account",
    "options": "Account"
+  },
+  {
+   "fieldname": "ship_to_location",
+   "fieldtype": "Link",
+   "label": "Ship To Location",
+   "options": "Customer Delivery Location"
+  },
+  {
+   "fieldname": "customer_address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "salesman",
+   "fieldtype": "Link",
+   "label": "Salesman",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax Id"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-10 19:03:59.071043",
+ "modified": "2023-01-12 09:53:55.655782",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

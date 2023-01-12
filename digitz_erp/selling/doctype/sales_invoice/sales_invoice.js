@@ -7,13 +7,19 @@ frappe.ui.form.on('Sales Invoice', {
 
 	setup: function(frm){
 
+		
+		frm.add_fetch('customer','full_address','customer_address')		
+		frm.add_fetch('customer','salesman','salesman')		
 		frm.add_fetch('customer','tax_id','tax_id')		
 		frm.add_fetch('customer','credit_days','credit_days')			
-		frm.add_fetch('customer','billing_address','address')		
-		frm.add_fetch('customer','billing_address_details','billing_address_display')		
-		frm.add_fetch('customer','shipping_address','shipping_address')		
-		frm.add_fetch('customer','shipping_address_details','shipping_address_display')		
-		frm.add_fetch('payment_mode','account','payment_account')		
+
+		frm.set_query("ship_to_location", function() {
+			return {
+				"filters": {
+					"parent": frm.doc.customer
+				}
+			};
+		});		
 	},
 	customer(frm)
 	{			
