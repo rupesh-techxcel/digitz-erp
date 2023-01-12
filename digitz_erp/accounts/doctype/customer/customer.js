@@ -21,6 +21,7 @@ frappe.ui.form.on('Customer', {
 			area = "\n" + frm.doc.area
 		}
 
+
 		var emirate = "\n" + frm.doc.emirate;
 		var country = "\n" + frm.doc.country;
 		
@@ -29,6 +30,5 @@ frappe.ui.form.on('Customer', {
 });
 
 frappe.ui.form.on("Customer", "onload", function(frm) {
-
 	
 })
