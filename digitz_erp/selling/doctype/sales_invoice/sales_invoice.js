@@ -11,7 +11,7 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.add_fetch('customer','full_address','customer_address')		
 		frm.add_fetch('customer','salesman','salesman')		
 		frm.add_fetch('customer','tax_id','tax_id')		
-		frm.add_fetch('customer','credit_days','credit_days')			
+		frm.add_fetch('customer','credit_days','credit_days')					
 
 		frm.set_query("ship_to_location", function() {
 			return {

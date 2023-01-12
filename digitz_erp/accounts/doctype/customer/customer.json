@@ -38,7 +38,8 @@
   "use_default_customer_terms",
   "default_terms",
   "terms",
-  "is_disabled"
+  "is_disabled",
+  "section_break_32"
  ],
  "fields": [
   {
@@ -210,11 +211,15 @@
    "fieldname": "contact",
    "fieldtype": "Heading",
    "label": "Contact"
+  },
+  {
+   "fieldname": "section_break_32",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-12 09:44:29.734170",
+ "modified": "2023-01-12 19:58:11.991653",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
