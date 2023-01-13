@@ -3,7 +3,17 @@
 
 frappe.ui.form.on('Customer', {
 	
-	 
+	setup:function(frm)
+	{
+
+		frm.set_query("area", function() {
+			return {
+				"filters": {
+					"emirate": frm.doc.emirate
+				}
+			};
+		});	
+	},	 
 	before_save: function(frm){
 
 		var addressline_1 = frm.doc.address_line_1;
@@ -20,7 +30,6 @@ frappe.ui.form.on('Customer', {
 		{
 			area = "\n" + frm.doc.area
 		}
-
 
 		var emirate = "\n" + frm.doc.emirate;
 		var country = "\n" + frm.doc.country;
