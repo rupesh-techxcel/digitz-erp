@@ -8,19 +8,30 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "area"
+  "area",
+  "emirate"
  ],
  "fields": [
   {
    "fieldname": "area",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Area",
+   "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "emirate",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Emirate",
+   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-12 09:42:20.863588",
+ "modified": "2023-01-13 09:40:34.533372",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Area",
