@@ -155,3 +155,18 @@ class SalesInvoice(Document):
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.aginst_account = default_accounts.default_receivable_account				
 			gl_doc.insert()
+
+	@frappe.whitelist()
+	def generate_delivery_note(self):
+		
+		# frappe.get_doc({'doctype':'Delivery Note', 'key_1': 'value_1”', 'key_2” ': 'value_1”})'.insert() 
+		print(self.__dict__)
+		delivery_note = self.__dict__
+		delivery_note['doctype'] = 'Delivery Note'
+		delivery_note['name'] = ''
+		delivery_note['naming_series'] = 'DN-.YYYY.-'
+		
+		frappe.get_doc(delivery_note).insert()
+		frappe.db.commit()
+
+

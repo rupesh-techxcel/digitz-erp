@@ -36,7 +36,6 @@
   {
    "fieldname": "item_code",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Item Code",
    "unique": 1
   },
@@ -57,7 +56,6 @@
    "default": "All Item Groups",
    "fieldname": "item_group",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Item Group",
    "options": "Item Group"
   },
@@ -97,7 +95,6 @@
    "default": "0.00",
    "fieldname": "standard_buying_price",
    "fieldtype": "Currency",
-   "in_list_view": 1,
    "label": "Standard Buying Price"
   },
   {
@@ -166,7 +163,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-10 18:40:47.335080",
+ "modified": "2023-01-14 19:07:19.176610",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
@@ -186,7 +183,7 @@
    "write": 1
   }
  ],
- "search_fields": "item_code, item_name",
+ "search_fields": "item_code,item_name",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

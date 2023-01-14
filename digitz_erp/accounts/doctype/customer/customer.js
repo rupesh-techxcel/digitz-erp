@@ -19,23 +19,48 @@ frappe.ui.form.on('Customer', {
 		var addressline_1 = frm.doc.address_line_1;
 		var addressline_2 = "";
 		
-		if(typeof(frm.doc.address_line_2) != "undefined" && frm.doc.address_line_2 !="")
+		if(frm.doc.address_line_1 && frm.doc.address_line_1 !="")
 		{
-			addressline_2 = "\n" + frm.doc.address_line_2			
+			addressline_1 = frm.doc.address_line_1;
+			console.log("address line 1")			
+		}
+		else
+		{
+			addressline_1 = "";
+		}
+
+		
+		if(frm.doc.address_line_2 && frm.doc.address_line_2 !="")
+		{
+			if(addressline_1 !="")
+			{
+				addressline_2 = "\n" + frm.doc.address_line_2;
+				console.log("address line 2")			
+			}
+			else
+			{
+				addressline_2 = frm.doc.address_line_2;			
+			}			
 		}
 
 		var area = "";
 
-		if(typeof(frm.doc.area) != "undefined")
+		if( frm.doc.area)
 		{
-			area = "\n" + frm.doc.area
+			console.log("area")			
+			area = "\n" + frm.doc.area_name
 		}
 
 		var emirate = "\n" + frm.doc.emirate;
 		var country = "\n" + frm.doc.country;
 		
 		frm.doc.full_address = addressline_1 + addressline_2 + area + emirate+ country;
+	},
+	emirate(frm)
+	{
+		frm.doc.area = ""; //Change default area for the emirate selected
 	}
+
 });
 
 frappe.ui.form.on("Customer", "onload", function(frm) {
