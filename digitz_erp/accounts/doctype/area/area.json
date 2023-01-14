@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:area",
+ "autoname": "format:{area} - {emirate}",
  "creation": "2023-01-12 09:42:20.863588",
  "default_view": "List",
  "doctype": "DocType",
@@ -31,11 +31,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-13 09:40:34.533372",
+ "modified": "2023-01-14 14:32:40.386923",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Area",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

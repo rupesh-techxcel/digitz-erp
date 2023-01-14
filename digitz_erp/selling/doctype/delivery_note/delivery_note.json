@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2023-01-11 11:00:40.032450",
+ "creation": "2023-01-14 16:21:38.748089",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -11,14 +11,14 @@
   "naming_series",
   "customer",
   "reference_no",
-  "address",
-  "billing_address_display",
+  "customer_address",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "shipping_address",
-  "shipping_address_display",
+  "ship_to_location",
+  "salesman",
+  "tax_id",
   "column_break_4",
   "company",
   "lpo_no",
@@ -40,6 +40,7 @@
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
+  "amended_from",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -50,6 +51,7 @@
   "round_off",
   "rounded_total",
   "section_break_33",
+  "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
@@ -80,15 +82,9 @@
    "label": "Reference No"
   },
   {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Billing Address",
-   "options": "Customer Address",
-   "reqd": 1
-  },
-  {
-   "fieldname": "billing_address_display",
-   "fieldtype": "Small Text"
+   "fieldname": "customer_address",
+   "fieldtype": "Small Text",
+   "label": "Address"
   },
   {
    "fieldname": "column_break_6",
@@ -116,14 +112,21 @@
    "label": "Edit Posting Date And Time"
   },
   {
-   "fieldname": "shipping_address",
+   "fieldname": "ship_to_location",
    "fieldtype": "Link",
-   "label": "Shipping Address",
-   "options": "Customer Address"
+   "label": "Ship To Location",
+   "options": "Customer Delivery Location"
   },
   {
-   "fieldname": "shipping_address_display",
-   "fieldtype": "Small Text"
+   "fieldname": "salesman",
+   "fieldtype": "Link",
+   "label": "Salesman",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax Id"
   },
   {
    "fieldname": "column_break_4",
@@ -222,7 +225,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Delivery Note Item"
+   "options": "Sales Invoice Item"
   },
   {
    "fieldname": "section_break_29",
@@ -242,7 +245,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Delivery Note",
+   "options": "Purchase Invoice",
    "print_hide": 1,
    "read_only": 1
   },
@@ -301,6 +304,13 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "taxes",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Taxes",
+   "options": "Purchase Invoice Tax"
+  },
+  {
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
    "label": "Terms And Conditions"
@@ -348,7 +358,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-11 11:02:22.867245",
+ "modified": "2023-01-14 16:21:38.748089",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",
