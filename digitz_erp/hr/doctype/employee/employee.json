@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{employee_code} - {employee_name}",
  "creation": "2022-12-22 13:16:45.023583",
  "default_view": "List",
  "doctype": "DocType",
@@ -169,10 +170,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-22 15:57:19.104357",
+ "modified": "2023-01-14 14:36:46.093356",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -188,6 +190,7 @@
    "write": 1
   }
  ],
+ "search_fields": "employee_name,employee_code",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

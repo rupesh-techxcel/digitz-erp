@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:customer_name",
+ "autoname": "format:{customer_name} - {area}",
  "creation": "2022-12-21 17:08:13.855018",
  "default_view": "List",
  "doctype": "DocType",
@@ -13,6 +13,7 @@
   "tax_id",
   "section_break_4",
   "salesman",
+  "salesman_name",
   "default_price_list",
   "column_break_10",
   "credit_days",
@@ -23,6 +24,7 @@
   "address_line_2",
   "emirate",
   "area",
+  "area_name",
   "country",
   "delivery_locations",
   "column_break_27",
@@ -215,15 +217,29 @@
   {
    "fieldname": "section_break_32",
    "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "salesman.employee_name",
+   "fieldname": "salesman_name",
+   "fieldtype": "Data",
+   "label": "Salesman Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "area.area",
+   "fieldname": "area_name",
+   "fieldtype": "Data",
+   "label": "Area Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-12 19:58:11.991653",
+ "modified": "2023-01-14 15:16:38.587994",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
