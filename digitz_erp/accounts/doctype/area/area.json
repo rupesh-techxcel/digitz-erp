@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{area} - {emirate}",
+ "autoname": "format:{area}, {emirate}",
  "creation": "2023-01-12 09:42:20.863588",
  "default_view": "List",
  "doctype": "DocType",
@@ -17,8 +17,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Area",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "emirate",
@@ -31,7 +30,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-14 14:32:40.386923",
+ "modified": "2023-01-14 19:27:18.984229",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Area",

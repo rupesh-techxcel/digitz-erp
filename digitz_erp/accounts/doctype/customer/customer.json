@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{customer_name} - {area}",
+ "autoname": "format:{customer_name}, {area}",
  "creation": "2022-12-21 17:08:13.855018",
  "default_view": "List",
  "doctype": "DocType",
@@ -49,8 +49,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Customer Name",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "default": "All Customer Groups",
@@ -235,7 +234,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-14 15:16:38.587994",
+ "modified": "2023-01-14 19:28:15.101129",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
