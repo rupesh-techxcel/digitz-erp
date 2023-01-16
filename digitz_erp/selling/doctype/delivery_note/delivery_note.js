@@ -38,7 +38,10 @@ frappe.ui.form.on('Delivery Note', {
 		{		
 			console.log(r.message.default_price_list);
 
-			frm.doc.price_list = r.message.default_price_list;
+			if (r.message.default_price_list) {
+				frm.doc.price_list = r.message.default_price_list;
+			}
+
 			frm.refresh_field("price_list");	
 		}
 		});
@@ -331,7 +334,7 @@ frappe.ui.form.on('Delivery Note', {
 	}
 });
 
-frappe.ui.form.on("Sales Invoice", "onload", function(frm) {
+frappe.ui.form.on("Delivery Note", "onload", function(frm) {
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);	
@@ -364,7 +367,7 @@ frappe.ui.form.on("Sales Invoice", "onload", function(frm) {
 
 });
 
-frappe.ui.form.on('Sales Invoice Item', {	
+frappe.ui.form.on('Delivery Note Item', {	
 	item(frm, cdt, cdn) {    
 		
 		let row = frappe.get_doc(cdt, cdn);

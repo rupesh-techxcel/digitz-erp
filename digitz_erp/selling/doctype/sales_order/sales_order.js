@@ -1,18 +1,10 @@
 // Copyright (c) 2023, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Sales Invoice', {
-	
-	refresh: function (frm) {
-		if (!frm.doc.__islocal) {
+frappe.ui.form.on('Sales Order', {
+	// refresh: function(frm) {
 
-			frm.add_custom_button('Generate Delivery Note', () => {
-				frm.call("generate_delivery_note")
-				console.log("from button create")
-			},
-			)
-		}
-	},
+	// }
 	setup: function (frm) {
 
 		frm.add_fetch('customer', 'full_address', 'customer_address')
@@ -314,7 +306,7 @@ frappe.ui.form.on('Sales Invoice', {
 	}
 });
 
-frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
+frappe.ui.form.on("Sales Order", "onload", function (frm) {
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);	
@@ -347,7 +339,8 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
 });
 
-frappe.ui.form.on('Sales Invoice Item', {
+
+frappe.ui.form.on('Sales Order Item', {
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
