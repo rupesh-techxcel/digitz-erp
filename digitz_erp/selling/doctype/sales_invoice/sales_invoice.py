@@ -5,171 +5,179 @@ from frappe.utils import now
 import frappe
 from frappe.model.document import Document
 
-class SalesInvoice(Document):	
-	
-	def before_submit(self):		
 
-		for docitem in self.items:		
-			doc = frappe.get_doc({'doctype':'Stock Ledger'})			
-			doc.item = docitem.item
-			doc.item_code = docitem.item_code
-			doc.posting_date = self.posting_date
-			doc.posting_time = self.posting_time
-			doc.warehouse = docitem.warehouse
-			doc.voucher_type = "Sales Invoice"
-			doc.voucher_no = self.name
-			doc.qty_out = docitem.qty
-			doc.unit = docitem.unit
-			doc.outgoing_rate = docitem.rate
-			doc.valuation_rate = docitem.rate			
-			doc.is_latest = 1
-			doc.insert()
+class SalesInvoice(Document):
+    """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
+    # def before_save(self):
+    #     if not self.is_new():
+    #         self.generate_delivery_note()
 
-		self.created_by = frappe.user
-		self.submitted_date = now()
+    def before_submit(self):
+        for docitem in self.items:
+            doc = frappe.get_doc({'doctype': 'Stock Ledger'})
+            doc.item = docitem.item
+            doc.item_code = docitem.item_code
+            doc.posting_date = self.posting_date
+            doc.posting_time = self.posting_time
+            doc.warehouse = docitem.warehouse
+            doc.voucher_type = "Sales Invoice"
+            doc.voucher_no = self.name
+            doc.qty_out = docitem.qty
+            doc.unit = docitem.unit
+            doc.outgoing_rate = docitem.rate
+            doc.valuation_rate = docitem.rate
+            doc.is_latest = 1
+            doc.insert()
 
-		self.insert_gl_records()
-		self.insert_payment_postings()
+        self.created_by = frappe.user
+        self.submitted_date = now()
 
-	def before_cancel(self):
+        self.insert_gl_records()
+        self.insert_payment_postings()
 
-		frappe.db.delete("Stock Ledger",
-				{"Voucher_type": "Sales Invoice",
-				 "voucher_no":self.name
-				})
-	
-		frappe.db.delete("GL Posting",
-				{"Voucher_type": "Sales Invoice",
-				 "voucher_no":self.name
-				})
+    def before_cancel(self):
 
-	def insert_gl_records(self):
+        frappe.db.delete("Stock Ledger",
+                         {"Voucher_type": "Sales Invoice",
+                          "voucher_no": self.name
+                          })
 
-		default_company = frappe.db.get_single_value("Global Settings","default_company")
-		
-		default_accounts = frappe.get_value("Company", default_company,['default_receivable_account','default_inventory_account',
-		
-		'default_income_account','cost_of_goods_sold_account','round_off_account','tax_account'], as_dict=1)
-		
-		idx =1
-		
-		# Trade Payavble - Debit
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Sales Invoice"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.default_receivable_account
-		gl_doc.debit_amount = self.rounded_total
-		gl_doc.party_type = "Customer"
-		gl_doc.party = self.customer
-		gl_doc.aginst_account = default_accounts.default_income_account
-		gl_doc.insert()
+        frappe.db.delete("GL Posting",
+                         {"Voucher_type": "Sales Invoice",
+                          "voucher_no": self.name
+                          })
 
+    def insert_gl_records(self):
 
-		# Stock Received But Not Billed 
-		idx =2
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Sales Invoice"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.default_income_account
-		gl_doc.credit_amount =  self.net_total - self.tax_total		
-		gl_doc.aginst_account =  default_accounts.default_receivable_account
-		gl_doc.insert()
+        default_company = frappe.db.get_single_value(
+            "Global Settings", "default_company")
 
+        default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
 
-		# Tax
-		idx =3
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Sales Invoice"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.tax_account
-		gl_doc.credit_amount = self.tax_total		
-		gl_doc.insert()
+                                                                         'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 
+        idx = 1
 
-		# Round Off
-		
-		if self.round_off!=0.00:
-			idx =4
-			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
-			gl_doc.voucher_no = self.name
-			gl_doc.idx = idx
-			gl_doc.posting_date = self.posting_date
-			gl_doc.posting_time = self.posting_time
-			gl_doc.account = default_accounts.round_off_account
+        # Trade Payavble - Debit
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.default_receivable_account
+        gl_doc.debit_amount = self.rounded_total
+        gl_doc.party_type = "Customer"
+        gl_doc.party = self.customer
+        gl_doc.aginst_account = default_accounts.default_income_account
+        gl_doc.insert()
 
-			if self.rounded_total > self.net_total:
-				gl_doc.credit_amount = self.round_off
-			else:
-				gl_doc.debit_amount = self.round_off		
+        # Stock Received But Not Billed
+        idx = 2
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.default_income_account
+        gl_doc.credit_amount = self.net_total - self.tax_total
+        gl_doc.aginst_account = default_accounts.default_receivable_account
+        gl_doc.insert()
 
-			gl_doc.insert()
+        # Tax
+        idx = 3
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.tax_account
+        gl_doc.credit_amount = self.tax_total
+        gl_doc.insert()
 
-	def insert_payment_postings(self):
-		
-		if self.credit_sale==0:
+        # Round Off
 
-			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Sales Invoice', 'voucher_no': self.name})
+        if self.round_off != 0.00:
+            idx = 4
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.round_off_account
 
+            if self.rounded_total > self.net_total:
+                gl_doc.credit_amount = self.round_off
+            else:
+                gl_doc.debit_amount = self.round_off
 
-			default_company = frappe.db.get_single_value("Global Settings","default_company")
-		
-			default_accounts = frappe.get_value("Company", default_company,['default_receivable_account','default_inventory_account',		
-			'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
-			
-			payment_mode = frappe.get_value("Payment Mode", self.payment_mode, ['account'],as_dict=1)
+            gl_doc.insert()
 
-			idx = gl_count + 1
-		
-			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
-			gl_doc.voucher_no = self.name
-			gl_doc.idx = idx
-			gl_doc.posting_date = self.posting_date
-			gl_doc.posting_time = self.posting_time
-			gl_doc.account = default_accounts.default_receivable_account
-			gl_doc.credit_amount = self.rounded_total
-			gl_doc.party_type = "Customer"
-			gl_doc.party = self.customer
-			gl_doc.aginst_account = payment_mode.account
-			gl_doc.insert()
-			
-			idx= idx + 1
+    def insert_payment_postings(self):
 
-			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
-			gl_doc.voucher_no = self.name
-			gl_doc.idx = idx
-			gl_doc.posting_date = self.posting_date
-			gl_doc.posting_time = self.posting_time
-			gl_doc.account = payment_mode.account
-			gl_doc.debit_amount = self.rounded_total
-			gl_doc.aginst_account = default_accounts.default_receivable_account				
-			gl_doc.insert()
+        if self.credit_sale == 0:
 
-	@frappe.whitelist()
-	def generate_delivery_note(self):
-		
-		# frappe.get_doc({'doctype':'Delivery Note', 'key_1': 'value_1”', 'key_2” ': 'value_1”})'.insert() 
-		print(self.__dict__)
-		delivery_note = self.__dict__
-		delivery_note['doctype'] = 'Delivery Note'
-		delivery_note['name'] = ''
-		delivery_note['naming_series'] = 'DN-.YYYY.-'
-		
-		frappe.get_doc(delivery_note).insert()
-		frappe.db.commit()
-		frappe.msgprint("Delivery Note created successfully.")
+            gl_count = frappe.db.count(
+                'GL Posting', {'voucher_type': 'Sales Invoice', 'voucher_no': self.name})
 
+            default_company = frappe.db.get_single_value(
+                "Global Settings", "default_company")
 
+            default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+                                                                             'stock_received_but_not_billed', 'round_off_account', 'tax_account'], as_dict=1)
 
+            payment_mode = frappe.get_value(
+                "Payment Mode", self.payment_mode, ['account'], as_dict=1)
 
+            idx = gl_count + 1
+
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.default_receivable_account
+            gl_doc.credit_amount = self.rounded_total
+            gl_doc.party_type = "Customer"
+            gl_doc.party = self.customer
+            gl_doc.aginst_account = payment_mode.account
+            gl_doc.insert()
+
+            idx = idx + 1
+
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = payment_mode.account
+            gl_doc.debit_amount = self.rounded_total
+            gl_doc.aginst_account = default_accounts.default_receivable_account
+            gl_doc.insert()
+
+    @frappe.whitelist()
+    def generate_delivery_note(self):
+        delivery_note_name = ""
+        if frappe.db.exists('Delivery Note', {"against_sales_invoice": self.name}):
+            delivery_note_doc = frappe.get_doc(
+                'Delivery Note', {"against_sales_invoice": self.name})
+            delivery_note_name = delivery_note_doc.name
+            delivery_note_doc.delete()
+
+        delivery_note = self.__dict__
+        delivery_note['doctype'] = 'Delivery Note'
+        delivery_note['against_sales_invoice'] = delivery_note['name']
+        delivery_note['name'] = delivery_note_name
+        delivery_note['naming_series'] = 'DN-.YYYY.-'
+
+        for item in delivery_note['items']:
+            item.doctype = "Delivery Note Item"
+
+        frappe.get_doc(delivery_note).insert()
+        frappe.db.commit()
+        frappe.msgprint("Delivery Note created successfully.")
