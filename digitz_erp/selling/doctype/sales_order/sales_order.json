@@ -1,8 +1,8 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "naming_series:naming_series",
- "creation": "2023-01-14 16:21:38.748089",
+ "autoname": "naming_series:",
+ "creation": "2023-01-15 10:28:24.991095",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -29,6 +29,9 @@
   "warehouse",
   "section_break_11",
   "accounts_section",
+  "payment_terms",
+  "column_break_25",
+  "remarks",
   "section_break_19",
   "items",
   "section_break_29",
@@ -50,6 +53,8 @@
   "terms_and_conditions",
   "section_break_27",
   "tab_break_50",
+  "data_53",
+  "do_no",
   "amended_from"
  ],
  "fields": [
@@ -57,7 +62,7 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "DN-.YYYY.-"
+   "options": "SO-.YYYY.-"
   },
   {
    "fieldname": "customer",
@@ -66,6 +71,13 @@
    "label": "Customer",
    "options": "Customer",
    "reqd": 1
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
   },
   {
    "fieldname": "reference_no",
@@ -170,6 +182,20 @@
    "label": "Accounts"
   },
   {
+   "fieldname": "payment_terms",
+   "fieldtype": "Data",
+   "label": "Payment Terms "
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
   },
@@ -177,7 +203,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Delivery Note Item"
+   "options": "Sales Order Item"
   },
   {
    "fieldname": "section_break_29",
@@ -191,15 +217,6 @@
   {
    "fieldname": "column_break_30",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Delivery Note",
-   "print_hide": 1,
-   "read_only": 1
   },
   {
    "fieldname": "section_break_25",
@@ -288,29 +305,41 @@
    "label": "References"
   },
   {
+   "fieldname": "data_53",
+   "fieldtype": "Section Break",
+   "label": "Related Documents"
+  },
+  {
+   "fieldname": "do_no",
+   "fieldtype": "Data",
+   "label": "DO No"
+  },
+  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Delivery Note",
+   "options": "Sales Order",
    "print_hide": 1,
    "read_only": 1
   },
   {
-   "fetch_from": "customer.customer_name",
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "label": "Customer Name",
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Sales Order",
+   "print_hide": 1,
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-15 10:06:18.842979",
+ "modified": "2023-01-15 20:36:38.398406",
  "modified_by": "Administrator",
  "module": "Selling",
- "name": "Delivery Note",
+ "name": "Sales Order",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [

@@ -5,7 +5,7 @@ from frappe.utils import now
 import frappe
 from frappe.model.document import Document
 
-class SalesInvoice(Document):
+class SalesInvoice(Document):	
 	
 	def before_submit(self):		
 
@@ -168,5 +168,8 @@ class SalesInvoice(Document):
 		
 		frappe.get_doc(delivery_note).insert()
 		frappe.db.commit()
+		frappe.msgprint("Delivery Note created successfully.")
+
+
 
 

@@ -47,8 +47,15 @@ frappe.ui.form.on('Customer', {
 
 		if( frm.doc.area)
 		{
-			console.log("area")			
-			area = "\n" + frm.doc.area_name
+			console.log("area")	
+			if((!addressline_1 && !addressline_2) || (addressline_1 =="" && addressline_2==""))
+			{
+				area = frm.doc.area_name
+			}
+			else
+			{
+				area = "\n" + frm.doc.area_name
+			}
 		}
 
 		var emirate = "\n" + frm.doc.emirate;

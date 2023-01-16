@@ -10,6 +10,7 @@
  "field_order": [
   "naming_series",
   "customer",
+  "customer_name",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -343,12 +344,19 @@
    "fieldname": "tax_id",
    "fieldtype": "Data",
    "label": "Tax Id"
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-12 09:53:55.655782",
+ "modified": "2023-01-15 10:05:42.398442",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
