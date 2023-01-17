@@ -163,21 +163,27 @@ class SalesInvoice(Document):
     @frappe.whitelist()
     def generate_delivery_note(self):
         delivery_note_name = ""
+        do_exists = 0
         if frappe.db.exists('Delivery Note', {"against_sales_invoice": self.name}):
             delivery_note_doc = frappe.get_doc(
                 'Delivery Note', {"against_sales_invoice": self.name})
             delivery_note_name = delivery_note_doc.name
             delivery_note_doc.delete()
+            do_exists = 1
 
         delivery_note = self.__dict__
         delivery_note['doctype'] = 'Delivery Note'
         delivery_note['against_sales_invoice'] = delivery_note['name']
         delivery_note['name'] = delivery_note_name
         delivery_note['naming_series'] = 'DN-.YYYY.-'
+        delivery_note['posting_date'] = now()
 
         for item in delivery_note['items']:
             item.doctype = "Delivery Note Item"
 
         frappe.get_doc(delivery_note).insert()
         frappe.db.commit()
-        frappe.msgprint("Delivery Note created successfully.")
+        if do_exists:
+            frappe.msgprint("Delivery Note updated successfully.")
+        else:
+            frappe.msgprint("Delivery Note created successfully.")

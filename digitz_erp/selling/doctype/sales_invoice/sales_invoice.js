@@ -4,11 +4,12 @@
 frappe.ui.form.on('Sales Invoice', {
 	
 	refresh: function (frm) {
+	
+		// if(frm.doc.docstatus == 1) 
 		if (!frm.doc.__islocal) {
 
-			frm.add_custom_button('Generate Delivery Note', () => {
-				frm.call("generate_delivery_note")
-				console.log("from button create")
+			frm.add_custom_button('Create/Update Delivery Note', () => {
+				frm.call("generate_delivery_note")				
 			},
 			)
 		}
