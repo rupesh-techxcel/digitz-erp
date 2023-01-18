@@ -2,14 +2,55 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Sales Invoice', {
-	
+
 	refresh: function (frm) {
-	
+
 		// if(frm.doc.docstatus == 1) 
 		if (!frm.doc.__islocal) {
 
 			frm.add_custom_button('Create/Update Delivery Note', () => {
-				frm.call("generate_delivery_note")				
+				frm.call("generate_delivery_note")
+			},
+			)
+		}
+
+		if (frm.doc.__islocal) {
+			frm.add_custom_button('Fetch Delivery Note', () => {
+				if (frm.doc.customer) {
+					frappe.call('digitz_erp.get_deliver_note_items', {
+						customer: frm.doc.customer
+					}).then(r => {
+						for (var i = 0; i < r.message.length; i++) {
+							frm.add_child("items", {
+								delivery_note: r.message[i].delivery_note,
+								warehouse: r.message[i].warehouse,
+								item: r.message[i].item,
+								item_code: r.message[i].item_code,
+								qty: r.message[i].qty,
+								unit: r.message[i].unit,
+								rate: r.message[i].rate,
+								base_unit: r.message[i].base_unit,
+								qty_in_base_unit: r.message[i].qty_in_base_unit,
+								rate_in_base_unit: r.message[i].rate_in_base_unit,
+								conversion_factor: r.message[i].conversion_factor,
+								rate_included_tax: r.message[i].rate_included_tax,
+								rate_excluded_tax: r.message[i].rate_excluded_tax,
+								gross_amount: r.message[i].gross_amount,
+								tax_excluded: r.message[i].tax_excluded,
+								tax: r.message[i].tax,
+								tax_rate: r.message[i].tax_rate,
+								tax_amount: r.message[i].tax_amount,
+								discount_percentage: r.message[i].discount_percentage,
+								discount_amount: r.message[i].discount_amount,
+								net_amount: r.message[i].net_amount,
+								unit_conversion_details: r.message[i].unit_conversion_details,
+							})
+						}
+						frm.refresh_field("items");
+					})
+				} else {
+					frappe.throw("Please select customer")
+				}
 			},
 			)
 		}

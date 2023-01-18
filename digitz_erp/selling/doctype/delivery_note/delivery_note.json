@@ -28,6 +28,7 @@
   "rate_includes_tax",
   "warehouse",
   "against_sales_invoice",
+  "for_sales_invoice",
   "section_break_11",
   "accounts_section",
   "section_break_19",
@@ -310,12 +311,18 @@
    "fieldtype": "Link",
    "label": "Against Sales Invoice",
    "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "for_sales_invoice",
+   "fieldtype": "Link",
+   "label": "For Sales Invoice",
+   "options": "Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-17 00:04:01.199196",
+ "modified": "2023-01-18 19:18:15.369421",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

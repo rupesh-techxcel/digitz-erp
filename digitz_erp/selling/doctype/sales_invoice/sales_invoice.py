@@ -8,9 +8,15 @@ from frappe.model.document import Document
 
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
-    # def before_save(self):
-    #     if not self.is_new():
-    #         self.generate_delivery_note()
+
+    def before_save(self):
+        for i in self.items:
+            if i.delivery_note:
+                frappe.db.set_value(
+                    'Delivery Note', i.delivery_note, 'against_sales_invoice', self.name)
+                frappe.db.commit()
+        # if not self.is_new():
+        #     self.generate_delivery_note()
 
     def before_submit(self):
         for docitem in self.items:
@@ -183,7 +189,5 @@ class SalesInvoice(Document):
 
         frappe.get_doc(delivery_note).insert()
         frappe.db.commit()
-        if do_exists:
-            frappe.msgprint("Delivery Note updated successfully.")
-        else:
-            frappe.msgprint("Delivery Note created successfully.")
+        frappe.msgprint(
+            "Delivery Note updated successfully." if do_exists else "Delivery Note created successfully.")
