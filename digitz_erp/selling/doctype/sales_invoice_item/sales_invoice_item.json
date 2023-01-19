@@ -7,7 +7,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "delivery_note",
   "warehouse",
   "item",
   "item_code",
@@ -153,18 +152,12 @@
    "fieldtype": "Small Text",
    "label": "Unit Conversion Details",
    "read_only": 1
-  },
-  {
-   "fieldname": "delivery_note",
-   "fieldtype": "Link",
-   "label": "Delivery Note",
-   "options": "Delivery Note"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-01-19 00:23:05.583996",
+ "modified": "2023-01-19 21:21:58.297909",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",
