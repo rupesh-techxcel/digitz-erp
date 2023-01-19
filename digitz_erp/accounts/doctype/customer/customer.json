@@ -201,7 +201,8 @@
   {
    "fieldname": "full_address",
    "fieldtype": "Small Text",
-   "label": "Full Address"
+   "label": "Full Address",
+   "read_only": 1
   },
   {
    "fieldname": "address",
@@ -234,7 +235,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-14 19:28:15.101129",
+ "modified": "2023-01-18 20:36:13.255804",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
