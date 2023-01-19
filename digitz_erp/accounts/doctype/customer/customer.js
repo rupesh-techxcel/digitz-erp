@@ -21,8 +21,7 @@ frappe.ui.form.on('Customer', {
 		
 		if(frm.doc.address_line_1 && frm.doc.address_line_1 !="")
 		{
-			addressline_1 = frm.doc.address_line_1;
-			console.log("address line 1")			
+			addressline_1 = frm.doc.address_line_1;			
 		}
 		else
 		{
@@ -34,8 +33,7 @@ frappe.ui.form.on('Customer', {
 		{
 			if(addressline_1 !="")
 			{
-				addressline_2 = "\n" + frm.doc.address_line_2;
-				console.log("address line 2")			
+				addressline_2 = "</br>" + frm.doc.address_line_2;				
 			}
 			else
 			{
@@ -45,23 +43,30 @@ frappe.ui.form.on('Customer', {
 
 		var area = "";
 
-		if( frm.doc.area)
-		{
-			console.log("area")	
+		console.log("1");
+		if(frm.doc.area_name && frm.doc.area_name !="")
+		{			
 			if((!addressline_1 && !addressline_2) || (addressline_1 =="" && addressline_2==""))
 			{
-				area = frm.doc.area_name
+				area = frm.doc.area_name;								
 			}
 			else
 			{
-				area = "\n" + frm.doc.area_name
+				area = "</br>" + frm.doc.area_name;
 			}
 		}
+		else
+		{
+			
+		}
 
-		var emirate = "\n" + frm.doc.emirate;
-		var country = "\n" + frm.doc.country;
+		var emirate = "</br>" + frm.doc.emirate;
+		var country = "</br>" + frm.doc.country;
 		
-		frm.doc.full_address = addressline_1 + addressline_2 + area + emirate+ country;
+		frm.doc.full_address = "<p>" + addressline_1 + addressline_2  + area + emirate +  country + "</p>"
+		console.log(frm.doc.full_address);
+
+		
 	},
 	emirate(frm)
 	{
