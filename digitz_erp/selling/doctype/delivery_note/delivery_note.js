@@ -7,10 +7,13 @@ frappe.ui.form.on('Delivery Note', {
 		// if(frm.doc.docstatus == 1) 
 		if (!frm.doc.__islocal) {
 
-			frm.add_custom_button('Create/Update Sale Invoice', () => {
-				frm.call("generate_sale_invoice")
-			},
-			)
+			if(frm.doc.docstatus ==1 && !frm.doc.against_sales_invoice &&  !frm.doc.for_sales_invoice)
+			{
+				frm.add_custom_button('Create Sale Invoice', () => {
+					frm.call("generate_sale_invoice")
+				},
+				)
+			}
 		}
 	},
 
@@ -572,7 +575,6 @@ frappe.ui.form.on('Delivery Note Item', {
 		let row = frappe.get_doc(cdt, cdn);
 		console.log("from discount_percentage")
 		console.log("Gross Amount %f", row.gross_amount);
-
 
 		var discount_percentage = row.discount_percentage;
 

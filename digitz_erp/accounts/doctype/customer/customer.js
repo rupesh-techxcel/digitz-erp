@@ -27,13 +27,12 @@ frappe.ui.form.on('Customer', {
 		{
 			addressline_1 = "";
 		}
-
 		
 		if(frm.doc.address_line_2 && frm.doc.address_line_2 !="")
 		{
 			if(addressline_1 !="")
 			{
-				addressline_2 = "</br>" + frm.doc.address_line_2;				
+				addressline_2 = "\n" + frm.doc.address_line_2;				
 			}
 			else
 			{
@@ -42,8 +41,7 @@ frappe.ui.form.on('Customer', {
 		}
 
 		var area = "";
-
-		console.log("1");
+		
 		if(frm.doc.area_name && frm.doc.area_name !="")
 		{			
 			if((!addressline_1 && !addressline_2) || (addressline_1 =="" && addressline_2==""))
@@ -52,7 +50,7 @@ frappe.ui.form.on('Customer', {
 			}
 			else
 			{
-				area = "</br>" + frm.doc.area_name;
+				area = "\n" + frm.doc.area_name;
 			}
 		}
 		else
@@ -60,10 +58,10 @@ frappe.ui.form.on('Customer', {
 			
 		}
 
-		var emirate = "</br>" + frm.doc.emirate;
-		var country = "</br>" + frm.doc.country;
+		var emirate = "\n" + frm.doc.emirate;
+		var country = "\n" + frm.doc.country;
 		
-		frm.doc.full_address = "<p>" + addressline_1 + addressline_2  + area + emirate +  country + "</p>"
+		frm.doc.full_address = "\n" + addressline_1 + addressline_2  + area + emirate +  country + "\n"
 		console.log(frm.doc.full_address);
 
 		

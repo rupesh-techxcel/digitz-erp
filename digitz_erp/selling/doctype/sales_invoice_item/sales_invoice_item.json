@@ -28,7 +28,8 @@
   "discount_percentage",
   "discount_amount",
   "net_amount",
-  "unit_conversion_details"
+  "unit_conversion_details",
+  "delivery_note_item_reference_no"
  ],
  "fields": [
   {
@@ -152,12 +153,17 @@
    "fieldtype": "Small Text",
    "label": "Unit Conversion Details",
    "read_only": 1
+  },
+  {
+   "fieldname": "delivery_note_item_reference_no",
+   "fieldtype": "Data",
+   "label": "Delivery Note Item Reference No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-01-19 21:21:58.297909",
+ "modified": "2023-01-20 21:20:37.810777",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",

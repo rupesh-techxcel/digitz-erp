@@ -9,14 +9,16 @@ from frappe.model.document import Document
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
 
-    def before_save(self):
-        for i in self.items:
-            if i.delivery_note:
-                frappe.db.set_value(
-                    'Delivery Note', i.delivery_note, 'against_sales_invoice', self.name)
-                frappe.db.commit()
-        # if not self.is_new():
-        #     self.generate_delivery_note()
+    # def before_save(self):
+        # for i in self.items:
+        #     if i.delivery_note:
+        #         frappe.db.set_value(
+        #             'Delivery Note', i.delivery_note, 'against_sales_invoice', self.name)
+        #         frappe.db.commit()
+        
+        # if not self.is_new() and self.auto_save_delivery_note:
+        # if self.auto_save_delivery_note:
+            #  self.generate_delivery_note()
 
     def before_submit(self):
         for docitem in self.items:
@@ -170,6 +172,8 @@ class SalesInvoice(Document):
     def generate_delivery_note(self):
         delivery_note_name = ""
         do_exists = 0
+        si_name = self.name
+        frappe.msgprint(self.name);
         if frappe.db.exists('Delivery Note', {"against_sales_invoice": self.name}):
             delivery_note_doc = frappe.get_doc(
                 'Delivery Note', {"against_sales_invoice": self.name})
@@ -185,9 +189,21 @@ class SalesInvoice(Document):
         delivery_note['posting_date'] = now()
 
         for item in delivery_note['items']:
-            item.doctype = "Delivery Note Item"
+            item.doctype = "Delivery Note Item"            
 
-        frappe.get_doc(delivery_note).insert()
-        frappe.db.commit()
-        frappe.msgprint(
-            "Delivery Note updated successfully." if do_exists else "Delivery Note created successfully.")
+        doNo = frappe.get_doc(delivery_note).insert()
+        frappe.db.commit()        
+        
+        do = frappe.get_doc('Delivery Note', doNo.name)
+        si = frappe.get_doc('Sales Invoice',si_name)
+
+        index = 0        
+
+        for item in do.items:            
+            item.sales_invoice_item_reference = si.items[index].name
+            index = index + 1
+
+        do.save()
+
+        # frappe.msgprint(
+            # "Delivery Note updated successfully." if do_exists else "Delivery Note created successfully.")

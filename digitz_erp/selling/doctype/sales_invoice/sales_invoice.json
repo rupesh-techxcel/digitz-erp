@@ -56,9 +56,9 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
-  "tab_break_50",
-  "data_53"
+  "data_53",
+  "auto_save_delivery_note",
+  "delivery_note"
  ],
  "fields": [
   {
@@ -263,10 +263,6 @@
    "label": "Terms and Conditions"
   },
   {
-   "fieldname": "section_break_27",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
@@ -289,11 +285,6 @@
   {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "tab_break_50",
-   "fieldtype": "Tab Break",
-   "label": "References"
   },
   {
    "fieldname": "data_53",
@@ -345,12 +336,30 @@
    "fieldtype": "Data",
    "label": "Customer Name",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_save_delivery_note",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Auto Save Delivery Note"
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Link",
+   "label": "Delivery Note",
+   "options": "Delivery Note"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2023-01-17 20:51:57.408415",
+ "links": [
+  {
+   "link_doctype": "Delivery Note",
+   "link_fieldname": "against_sales_invoice"
+  }
+ ],
+ "modified": "2023-01-20 21:39:45.261135",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

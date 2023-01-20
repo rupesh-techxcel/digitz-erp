@@ -20,23 +20,26 @@ class DeliveryNote(Document):
         #     sales_invoice_name = sales_invoice_doc.name
         #     sales_invoice_doc.delete()
         #     do_exists = 1
-        delivery_note_doc = frappe.get_doc('Delivery Note', self.name)
-
+        
+        deliveryNoteName =  self.name
         sales_invoice = self.__dict__
         sales_invoice['doctype'] = 'Sales Invoice'
         sales_invoice['name'] = sales_invoice_name
         sales_invoice['naming_series'] = 'SINV-.YYYY.-'
         sales_invoice['posting_date'] = now()
+        sales_invoice['delivery_note'] =deliveryNoteName
         del sales_invoice['against_sales_invoice']
-        for item in sales_invoice['items']:
+        
+        for item in sales_invoice['items']:            
             item.doctype = "Sales Invoice Item"
+            item.delivery_note_item_reference_no = item.name
+            item._meta = ""
+        
+        print("Self.Name")
+        print(deliveryNoteName)
 
         sales_invoice_doc = frappe.get_doc(
             sales_invoice).insert(ignore_permissions=True)
-        delivery_note_doc.for_sales_invoice = sales_invoice_doc.name
-        delivery_note_doc.save(ignore_permissions=True)
-        frappe.db.commit()
-        # if do_exists:
-        #     frappe.msgprint("Sales Invoice updated successfully.")
-        # else:
+        
+        frappe.db.commit()        
         frappe.msgprint("Sales Invoice created successfully.")
