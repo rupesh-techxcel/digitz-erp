@@ -48,7 +48,8 @@
   "section_break_39",
   "customer_terms",
   "system_tab",
-  "material_receipt_integrated_with_purchase"
+  "material_receipt_integrated_with_purchase",
+  "delivery_note_integrated_with_sales_invoice"
  ],
  "fields": [
   {
@@ -283,11 +284,18 @@
    "fieldtype": "Link",
    "label": "Customer Terms",
    "options": "Terms And Conditions"
+  },
+  {
+   "default": "0",
+   "description": "Automatically generate Delivery Note when saving Sales Invoice",
+   "fieldname": "delivery_note_integrated_with_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Delivery Note Integrated with Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-09 10:28:13.029954",
+ "modified": "2023-01-20 06:41:54.517979",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

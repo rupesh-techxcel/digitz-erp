@@ -6,54 +6,21 @@ frappe.ui.form.on('Sales Invoice', {
 	refresh: function (frm) {
 
 		// if(frm.doc.docstatus == 1) 
-		if (!frm.doc.__islocal) {
+		// if (!frm.doc.__islocal && !frm.doc.auto_save_delivery_note) {
 
-			frm.add_custom_button('Create/Update Delivery Note', () => {
-				frm.call("generate_delivery_note")
-			},
-			)
+		// 	frm.add_custom_button('Create/Update Delivery Note', () => {
+		// 		frm.call("generate_delivery_note")
+		// 	},
+		// 	)
+		// }
+
+
+	},
+	after_save: function (frm) {
+		if (frm.doc.auto_save_delivery_note) {
+			frm.call("generate_delivery_note")
 		}
 
-		if (frm.doc.__islocal) {
-			frm.add_custom_button('Fetch Delivery Note', () => {
-				if (frm.doc.customer) {
-					frappe.call('digitz_erp.get_deliver_note_items', {
-						customer: frm.doc.customer
-					}).then(r => {
-						for (var i = 0; i < r.message.length; i++) {
-							frm.add_child("items", {
-								delivery_note: r.message[i].delivery_note,
-								warehouse: r.message[i].warehouse,
-								item: r.message[i].item,
-								item_code: r.message[i].item_code,
-								qty: r.message[i].qty,
-								unit: r.message[i].unit,
-								rate: r.message[i].rate,
-								base_unit: r.message[i].base_unit,
-								qty_in_base_unit: r.message[i].qty_in_base_unit,
-								rate_in_base_unit: r.message[i].rate_in_base_unit,
-								conversion_factor: r.message[i].conversion_factor,
-								rate_included_tax: r.message[i].rate_included_tax,
-								rate_excluded_tax: r.message[i].rate_excluded_tax,
-								gross_amount: r.message[i].gross_amount,
-								tax_excluded: r.message[i].tax_excluded,
-								tax: r.message[i].tax,
-								tax_rate: r.message[i].tax_rate,
-								tax_amount: r.message[i].tax_amount,
-								discount_percentage: r.message[i].discount_percentage,
-								discount_amount: r.message[i].discount_amount,
-								net_amount: r.message[i].net_amount,
-								unit_conversion_details: r.message[i].unit_conversion_details,
-							})
-						}
-						frm.refresh_field("items");
-					})
-				} else {
-					frappe.throw("Please select customer")
-				}
-			},
-			)
-		}
 	},
 	setup: function (frm) {
 
@@ -316,7 +283,7 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
 						},
 						callback: (r2) => {
 							console.log("Before assign default warehouse");
@@ -324,11 +291,31 @@ frappe.ui.form.on('Sales Invoice', {
 							frm.doc.warehouse = r2.message.default_warehouse;
 							console.log(frm.doc.warehouse);
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+							frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
+							console.log(r2.message);
+							frm.refresh_field("Auto Save");
+							console.log("Auto Save")
+							console.log(frm.doc.auto_save_delivery_note)
+
+							//Have a button to create delivery note in case delivery note is not integrated with SI
+							if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
+								frm.add_custom_button('Create/Update Delivery Note', () => {
+									frm.call("generate_delivery_note")
+								},
+								)
+							}
+
+							if (frm.doc.__islocal) {
+								frm.add_custom_button('Get Items from Delivery Notes', () => {
+									frm.trigger("get_items_from_delivery_notes");
+								},
+								)
+							}
+
 						}
 					}
-
 				)
 			}
 		})
@@ -353,6 +340,56 @@ frappe.ui.form.on('Sales Invoice', {
 			frapp.message("No valid item found in the document");
 			return;
 		}
+	},
+	get_items_from_delivery_notes(frm) {
+		if (frm.doc.__islocal) {
+			frm.add_custom_button('Get items from Delivery Note', () => {
+				if (frm.doc.customer) {
+					frappe.call('digitz_erp.get_deliver_note_items', {
+						customer: frm.doc.customer
+					}).then(r => {
+						for (var i = 0; i < r.message.length; i++) {
+							frm.add_child("items", {
+								delivery_note: r.message[i].delivery_note,
+								warehouse: r.message[i].warehouse,
+								item: r.message[i].item,
+								item_code: r.message[i].item_code,
+								qty: r.message[i].qty,
+								unit: r.message[i].unit,
+								rate: r.message[i].rate,
+								base_unit: r.message[i].base_unit,
+								qty_in_base_unit: r.message[i].qty_in_base_unit,
+								rate_in_base_unit: r.message[i].rate_in_base_unit,
+								conversion_factor: r.message[i].conversion_factor,
+								rate_included_tax: r.message[i].rate_included_tax,
+								rate_excluded_tax: r.message[i].rate_excluded_tax,
+								gross_amount: r.message[i].gross_amount,
+								tax_excluded: r.message[i].tax_excluded,
+								tax: r.message[i].tax,
+								tax_rate: r.message[i].tax_rate,
+								tax_amount: r.message[i].tax_amount,
+								discount_percentage: r.message[i].discount_percentage,
+								discount_amount: r.message[i].discount_amount,
+								net_amount: r.message[i].net_amount,
+								unit_conversion_details: r.message[i].unit_conversion_details,
+							})
+						}
+
+						frm.refresh_field("items");
+
+
+						if (r.message.length == 0)
+							frappe.msgprint("No delivery note items found to fetch from.")
+
+						frm.remove_custom_button('Get Items from Delivery Notes')								
+					})
+				} else {
+					frappe.throw("Please select customer")
+				}
+			},
+			)
+		}
+
 	}
 });
 
@@ -630,7 +667,6 @@ frappe.ui.form.on('Sales Invoice Item', {
 
 		frm.refresh_field("items");
 
-
 	},
 	discount_amount(frm, cdt, cdn) {
 		console.log("from discount_amount")
@@ -651,6 +687,5 @@ frappe.ui.form.on('Sales Invoice Item', {
 
 		frm.refresh_field("items");
 	}
-
 
 });
