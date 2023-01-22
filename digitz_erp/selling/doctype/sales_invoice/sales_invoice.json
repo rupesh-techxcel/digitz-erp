@@ -19,11 +19,13 @@
   "edit_posting_date_and_time",
   "ship_to_location",
   "salesman",
+  "salesman_code",
   "tax_id",
   "column_break_4",
   "company",
   "lpo_no",
   "lpo_date",
+  "delivery_note",
   "price_list",
   "rate_includes_tax",
   "warehouse",
@@ -57,8 +59,7 @@
   "terms",
   "terms_and_conditions",
   "data_53",
-  "auto_save_delivery_note",
-  "delivery_note"
+  "auto_save_delivery_note"
  ],
  "fields": [
   {
@@ -147,13 +148,6 @@
    "label": "Payment Terms "
   },
   {
-   "fieldname": "payment_mode",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Payment Mode",
-   "options": "Payment Mode"
-  },
-  {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
   },
@@ -181,7 +175,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Purchase Invoice",
+   "options": "Sales Invoice",
    "print_hide": 1,
    "read_only": 1
   },
@@ -302,13 +296,6 @@
    "label": "Credit Sale"
   },
   {
-   "fieldname": "payment_account",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Payment Account",
-   "options": "Account"
-  },
-  {
    "fieldname": "ship_to_location",
    "fieldtype": "Link",
    "label": "Ship To Location",
@@ -345,10 +332,32 @@
    "label": "Auto Save Delivery Note"
   },
   {
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman Code"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
    "fieldname": "delivery_note",
    "fieldtype": "Link",
    "label": "Delivery Note",
-   "options": "Delivery Note"
+   "options": "Delivery Note",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -359,7 +368,7 @@
    "link_fieldname": "against_sales_invoice"
   }
  ],
- "modified": "2023-01-20 21:39:45.261135",
+ "modified": "2023-01-22 08:32:57.795401",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

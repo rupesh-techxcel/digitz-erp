@@ -6,9 +6,7 @@ from frappe.model.document import Document
 from frappe.utils.data import now
 
 
-class DeliveryNote(Document):
-    # frappe.get_all("Delivery Note Item", fields="*", filters={
-    #                "docstatus": 1, "against_sales_invoice": None, "for_sales_invoice": None})
+class DeliveryNote(Document):        
 
     @frappe.whitelist()
     def generate_sale_invoice(self):
@@ -28,18 +26,17 @@ class DeliveryNote(Document):
         sales_invoice['naming_series'] = 'SINV-.YYYY.-'
         sales_invoice['posting_date'] = now()
         sales_invoice['delivery_note'] =deliveryNoteName
-        del sales_invoice['against_sales_invoice']
-        
+                
         for item in sales_invoice['items']:            
             item.doctype = "Sales Invoice Item"
             item.delivery_note_item_reference_no = item.name
-            item._meta = ""
+            item._meta = ""        
         
-        print("Self.Name")
-        print(deliveryNoteName)
-
         sales_invoice_doc = frappe.get_doc(
             sales_invoice).insert(ignore_permissions=True)
         
         frappe.db.commit()        
         frappe.msgprint("Sales Invoice created successfully.")
+    
+    
+       

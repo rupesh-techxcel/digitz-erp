@@ -7,8 +7,7 @@ frappe.ui.form.on('Delivery Note', {
 		// if(frm.doc.docstatus == 1) 
 		if (!frm.doc.__islocal) {
 
-			if(frm.doc.docstatus ==1 && !frm.doc.against_sales_invoice &&  !frm.doc.for_sales_invoice)
-			{
+			if (frm.doc.docstatus == 1 && !frm.doc.against_sales_invoice && !frm.doc.for_sales_invoice) {
 				frm.add_custom_button('Create Sale Invoice', () => {
 					frm.call("generate_sale_invoice")
 				},
@@ -309,16 +308,18 @@ frappe.ui.form.on('Delivery Note', {
 			}
 			else {
 				valid = true;
-
 			}
-
 		});
 
 		if (!valid) {
-			frapp.message("No valid item found in the document");
+			frappe.msgprint("No valid item found in the document");
 			return;
-		}
+		}		
+
+		if(frm.doc.auto_generated_from_sales_invoice)
+			frappe.throw("Cannot change Delivery Note created from a Sales Invoice")
 	}
+
 });
 
 frappe.ui.form.on("Delivery Note", "onload", function (frm) {
