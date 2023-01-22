@@ -27,7 +27,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "against_sales_invoice",
   "section_break_11",
   "accounts_section",
   "section_break_19",
@@ -51,7 +50,8 @@
   "terms_and_conditions",
   "section_break_27",
   "tab_break_50",
-  "amended_from"
+  "amended_from",
+  "auto_generated_from_sales_invoice"
  ],
  "fields": [
   {
@@ -304,17 +304,16 @@
    "read_only": 1
   },
   {
-   "fieldname": "against_sales_invoice",
-   "fieldtype": "Link",
-   "label": "Against Sales Invoice",
-   "options": "Sales Invoice",
-   "read_only": 1
+   "default": "0",
+   "fieldname": "auto_generated_from_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Auto Generated From Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-20 21:37:37.965871",
+ "modified": "2023-01-22 04:16:02.123526",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

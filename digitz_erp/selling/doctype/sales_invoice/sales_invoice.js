@@ -14,13 +14,64 @@ frappe.ui.form.on('Sales Invoice', {
 		// 	)
 		// }
 
-
 	},
 	after_save: function (frm) {
+		
 		if (frm.doc.auto_save_delivery_note) {
 			frm.call("generate_delivery_note")
 		}
 
+	},
+	after_cancel: function(frm)
+	{	
+		console.log(frm.doc)	
+
+		if(frm.doc.auto_save_delivery_note)           
+			frappe.call(
+				{
+					method:'digitz_erp.api.common_methods.cancel_delivery_note',
+					async:false,
+			
+					args:{
+							'delivery_note':frm.doc.delivery_note												
+					},
+					callback(r)	
+					{	
+						frappe.msgprint("Delivery Note cancelled.")
+					}
+			});
+	},
+	validate: function (frm) {
+		var valid = false;
+
+		frm.doc.items.forEach(function (entry) {
+
+			if (typeof (entry) == 'undefined') {
+
+			}
+			else {
+				valid = true;
+
+			}
+
+		});
+
+		if(!frm.doc.credit_sale && !frm.doc.payment_account)
+		{
+			valid = false;
+			frappe.msgprint("Select payment account")
+		}
+
+		if(!frm.doc.credit_sale && !frm.doc.payment_mode)
+		{
+			valid = false;
+			frappe.msgprint("Select payment mode")
+		}
+
+		if (!valid) {
+			frappe.message("No valid item found in the document");
+			return;
+		}
 	},
 	setup: function (frm) {
 
@@ -28,6 +79,8 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.add_fetch('customer', 'salesman', 'salesman')
 		frm.add_fetch('customer', 'tax_id', 'tax_id')
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
+		
 
 		frm.set_query("ship_to_location", function () {
 			return {
@@ -74,15 +127,18 @@ frappe.ui.form.on('Sales Invoice', {
 		}
 	},
 	credit_sale(frm) {
-		console.log("Credit Sale");
+		
 		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
+		
 
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
+		
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -295,9 +351,7 @@ frappe.ui.form.on('Sales Invoice', {
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
 							console.log(r2.message);
-							frm.refresh_field("Auto Save");
-							console.log("Auto Save")
-							console.log(frm.doc.auto_save_delivery_note)
+							frm.refresh_field("auto_save_delivery_note");							
 
 							//Have a button to create delivery note in case delivery note is not integrated with SI
 							if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
@@ -320,27 +374,7 @@ frappe.ui.form.on('Sales Invoice', {
 			}
 		})
 
-	},
-	validate: function (frm) {
-		var valid = false;
-
-		frm.doc.items.forEach(function (entry) {
-
-			if (typeof (entry) == 'undefined') {
-
-			}
-			else {
-				valid = true;
-
-			}
-
-		});
-
-		if (!valid) {
-			frapp.message("No valid item found in the document");
-			return;
-		}
-	},
+	},	
 	get_items_from_delivery_notes(frm) {
 		if (frm.doc.__islocal) {
 			frm.add_custom_button('Get items from Delivery Note', () => {
@@ -438,8 +472,6 @@ frappe.ui.form.on('Sales Invoice Item', {
 			row.item = "";
 			return;
 		}
-
-
 
 		console.log(row.item);
 		console.log(row.qty);

@@ -21,6 +21,7 @@ class SalesInvoice(Document):
             #  self.generate_delivery_note()
 
     def before_submit(self):
+        
         for docitem in self.items:
             doc = frappe.get_doc({'doctype': 'Stock Ledger'})
             doc.item = docitem.item
@@ -53,8 +54,15 @@ class SalesInvoice(Document):
         frappe.db.delete("GL Posting",
                          {"Voucher_type": "Sales Invoice",
                           "voucher_no": self.name
-                          })
-
+                          })      
+        
+    def on_trash(self):
+        if self.auto_save_delivery_note:
+             do = frappe.get_doc('Delivery Note', self.delivery_note)
+             do.auto_generated_from_sales_invoice =0
+             do.save()
+             frappe.msgprint("Removed LInk with Delivery Note. You can recreate the Sales Invoice from Delivery Note if required.")
+    
     def insert_gl_records(self):
 
         default_company = frappe.db.get_single_value(
@@ -170,40 +178,60 @@ class SalesInvoice(Document):
 
     @frappe.whitelist()
     def generate_delivery_note(self):
+        
+        # if document already saved, do also already saved. so, if the user is submitting the sales invoice
+        # just need to submit the do as well
+
+        
+        if self.docstatus == 1 and self.delivery_note:
+            do = frappe.get_doc('Delivery Note', self.delivery_note)
+            do.submit()
+            frappe.msgprint("Delivery Note submitted")
+            return
+        
         delivery_note_name = ""
-        do_exists = 0
-        si_name = self.name
-        frappe.msgprint(self.name);
-        if frappe.db.exists('Delivery Note', {"against_sales_invoice": self.name}):
-            delivery_note_doc = frappe.get_doc(
-                'Delivery Note', {"against_sales_invoice": self.name})
+        
+        si_name = self.name        
+
+        # Before delete the existing Delivery Note to insert it again, remove the link in the Sales Invoice
+        # to avoid the reference error
+
+        si = frappe.get_doc('Sales Invoice',si_name)
+        # Remove Reference first to avoid reference error when trying to delete before recreating
+        si.delivery_note ="" 
+        si.save()
+        
+        if frappe.db.exists('Delivery Note', {"name": self.delivery_note}):
+            delivery_note_doc = frappe.get_doc('Delivery Note', self.delivery_note)
             delivery_note_name = delivery_note_doc.name
-            delivery_note_doc.delete()
-            do_exists = 1
+            delivery_note_doc.delete()          
 
         delivery_note = self.__dict__
         delivery_note['doctype'] = 'Delivery Note'
-        delivery_note['against_sales_invoice'] = delivery_note['name']
+        # delivery_note['against_sales_invoice'] = delivery_note['name']
         delivery_note['name'] = delivery_note_name
         delivery_note['naming_series'] = 'DN-.YYYY.-'
         delivery_note['posting_date'] = now()
+        delivery_note['auto_generated_from_sales_invoice'] = 1
 
         for item in delivery_note['items']:
-            item.doctype = "Delivery Note Item"            
+            item.doctype = "Delivery Note Item"    
+            item._meta = ""        
 
         doNo = frappe.get_doc(delivery_note).insert()
-        frappe.db.commit()        
+        frappe.db.commit()       
+        
         
         do = frappe.get_doc('Delivery Note', doNo.name)
         si = frappe.get_doc('Sales Invoice',si_name)
 
+        si.delivery_note = doNo.name;
+        
         index = 0        
 
-        for item in do.items:            
-            item.sales_invoice_item_reference = si.items[index].name
+        for item in si.items:            
+            item.delivery_note_item_reference_no = do.items[index].name
             index = index + 1
 
-        do.save()
-
-        # frappe.msgprint(
-            # "Delivery Note updated successfully." if do_exists else "Delivery Note created successfully.")
+        si.save()
+        

@@ -30,3 +30,10 @@ def get_item_price_for_price_list(item, price_list):
 		fields=["price"]	
 )
 
+@frappe.whitelist()
+def cancel_delivery_note(delivery_note):
+    do = frappe.get_doc('Delivery Note',delivery_note)
+    do.cancel()
+
+
+
