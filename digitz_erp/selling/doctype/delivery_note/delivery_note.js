@@ -5,15 +5,15 @@ frappe.ui.form.on('Delivery Note', {
 	refresh: function (frm) {
 
 		// if(frm.doc.docstatus == 1) 
-		if (!frm.doc.__islocal) {
+		// if (!frm.doc.__islocal) {
 
-			if (frm.doc.docstatus == 1 && !frm.doc.against_sales_invoice && !frm.doc.for_sales_invoice) {
-				frm.add_custom_button('Create Sale Invoice', () => {
-					frm.call("generate_sale_invoice")
-				},
-				)
-			}
-		}
+		// 	if (frm.doc.docstatus == 1 && !frm.doc.against_sales_invoice && !frm.doc.for_sales_invoice) {
+		// 		frm.add_custom_button('Create Sale Invoice', () => {
+		// 			frm.call("generate_sale_invoice")
+		// 		},
+		// 		)
+		// 	}
+		// }
 	},
 
 	setup: function (frm) {

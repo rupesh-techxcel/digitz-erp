@@ -362,13 +362,8 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [
-  {
-   "link_doctype": "Delivery Note",
-   "link_fieldname": "against_sales_invoice"
-  }
- ],
- "modified": "2023-01-22 16:36:41.137037",
+ "links": [],
+ "modified": "2023-01-23 07:59:46.617270",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
