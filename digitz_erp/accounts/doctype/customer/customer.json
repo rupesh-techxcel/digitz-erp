@@ -144,7 +144,8 @@
    "fieldname": "area",
    "fieldtype": "Link",
    "label": "Area",
-   "options": "Area"
+   "options": "Area",
+   "reqd": 1
   },
   {
    "fieldname": "country",
@@ -235,7 +236,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-18 20:36:13.255804",
+ "modified": "2023-01-28 09:07:56.199972",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

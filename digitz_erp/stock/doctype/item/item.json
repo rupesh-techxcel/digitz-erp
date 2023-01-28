@@ -25,6 +25,9 @@
   "section_break_13",
   "uoms_section",
   "base_unit",
+  "column_break_19",
+  "stock_balance",
+  "section_break_20",
   "units",
   "disabled",
   "tab_break_14",
@@ -159,11 +162,24 @@
   {
    "fieldname": "section_break_10",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "stock_balance",
+   "fieldtype": "Float",
+   "label": "Stock Balance(Base Unit)"
+  },
+  {
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_20",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-14 19:07:19.176610",
+ "modified": "2023-01-28 14:53:10.665732",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2022-12-30 13:22:20.249671",
+ "creation": "2023-01-25 12:48:24.694446",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -11,16 +11,15 @@
   "posting_date",
   "warehouse",
   "column_break_8",
-  "qty_in",
+  "qty",
   "incoming_rate",
-  "qty_out",
-  "outgoing_rate",
   "unit",
   "balance_qty",
   "valuation_rate",
   "balance_value",
   "source",
-  "document_id"
+  "document_id",
+  "stock_reset_in_previous_record"
  ],
  "fields": [
   {
@@ -33,8 +32,17 @@
    "options": "Item"
   },
   {
+   "fetch_from": "item.item_code",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "item_code"
+  },
+  {
    "fieldname": "posting_date",
-   "fieldtype": "Datetime",
+   "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Date"
   },
@@ -46,9 +54,8 @@
    "options": "Warehouse"
   },
   {
-   "fieldname": "balance_qty",
-   "fieldtype": "Float",
-   "label": "Balance Qty"
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "incoming_rate",
@@ -56,9 +63,15 @@
    "label": "Incoming Rate"
   },
   {
-   "fieldname": "outgoing_rate",
+   "fieldname": "unit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Unit"
+  },
+  {
+   "fieldname": "balance_qty",
    "fieldtype": "Float",
-   "label": "Outgoing Rate"
+   "label": "Balance Qty"
   },
   {
    "fieldname": "valuation_rate",
@@ -71,34 +84,10 @@
    "label": "Balance Value"
   },
   {
-   "fetch_from": "item.item_code",
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "in_filter": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "item_code"
-  },
-  {
-   "fieldname": "unit",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Unit"
-  },
-  {
-   "fieldname": "qty_in",
+   "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty In"
-  },
-  {
-   "fieldname": "qty_out",
-   "fieldtype": "Float",
-   "label": "Qty Out"
-  },
-  {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "source",
@@ -111,14 +100,20 @@
    "fieldtype": "Dynamic Link",
    "label": "Document Id",
    "options": "source"
+  },
+  {
+   "default": "0",
+   "fieldname": "stock_reset_in_previous_record",
+   "fieldtype": "Check",
+   "label": "Stock Reset In Previous Record"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-28 05:05:19.063895",
+ "modified": "2023-01-28 09:34:19.717242",
  "modified_by": "Administrator",
  "module": "Stock",
- "name": "Stock Ledger",
+ "name": "Stock In Ledger",
  "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [

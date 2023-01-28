@@ -18,9 +18,8 @@ frappe.ui.form.on('Sales Invoice', {
 	after_save: function (frm) {
 		
 		if (frm.doc.auto_save_delivery_note) {
-			frm.call("generate_delivery_note")
+			frm.call("auto_generate_delivery_note")
 		}
-
 	},
 	after_cancel: function(frm)
 	{	
@@ -29,11 +28,11 @@ frappe.ui.form.on('Sales Invoice', {
 		if(frm.doc.auto_save_delivery_note)           
 			frappe.call(
 				{
-					method:'digitz_erp.api.common_methods.cancel_delivery_note',
+					method:'digitz_erp.api.delivery_note_api.cancel_delivery_note',
 					async:false,
 			
 					args:{
-							'delivery_note':frm.doc.delivery_note												
+							'sales_invoice':frm.doc.name												
 					},
 					callback(r)	
 					{	
@@ -71,6 +70,14 @@ frappe.ui.form.on('Sales Invoice', {
 		if (!valid) {
 			frappe.message("No valid item found in the document");
 			return;
+		}
+
+		if(frm.doc.__islocal) //When the invoice is created by duplicating from an existing invoice, there may be delivery notes allocated
+		{					// and it needs to be removed
+			if(frm.doc.delivery_notes)
+			{
+					frm.doc.delivery_notes = undefined;
+			}
 		}
 	},
 	setup: function (frm) {
@@ -219,7 +226,7 @@ frappe.ui.form.on('Sales Invoice', {
 			if (!isNaN(entry.qty) && !isNaN(entry.rate)) {
 
 				frappe.call({
-					method: 'digitz_erp.api.common_methods.get_item_uoms',
+					method: 'digitz_erp.api.items_api.get_item_uoms',
 					async: false,
 					args: {
 						item: entry.item
@@ -356,7 +363,7 @@ frappe.ui.form.on('Sales Invoice', {
 							//Have a button to create delivery note in case delivery note is not integrated with SI
 							if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
 								frm.add_custom_button('Create/Update Delivery Note', () => {
-									frm.call("generate_delivery_note")
+									frm.call("auto_generate_delivery_note")
 								},
 								)
 							}
@@ -533,7 +540,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					if (frm.doc.price_list != "Standard Buying") {
 						frappe.call(
 							{
-								method: 'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
 								async: false,
 
 								args: {
@@ -559,7 +566,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					if (applyStandrPricing) {
 						frappe.call(
 							{
-								method: 'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
 								async: false,
 
 								args: {
@@ -647,7 +654,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 
 		frappe.call(
 			{
-				method: 'digitz_erp.api.common_methods.get_item_uom',
+				method: 'digitz_erp.api.items_api.get_item_uom',
 				async: false,
 				args: {
 					item: row.item,

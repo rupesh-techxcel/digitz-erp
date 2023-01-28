@@ -20,8 +20,6 @@ def get_item_uoms(item):
 	)
 
 @frappe.whitelist()
-
-@frappe.whitelist()
 def get_item_price_for_price_list(item, price_list):
 	 return frappe.get_all(
 		"Price List Item",
@@ -29,11 +27,3 @@ def get_item_price_for_price_list(item, price_list):
 		 "parent": price_list},
 		fields=["price"]	
 )
-
-@frappe.whitelist()
-def cancel_delivery_note(delivery_note):
-    do = frappe.get_doc('Delivery Note',delivery_note)
-    do.cancel()
-
-
-
