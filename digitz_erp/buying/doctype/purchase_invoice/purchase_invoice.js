@@ -152,7 +152,7 @@ frappe.ui.form.on('Purchase Invoice', {
 			{
 
 				frappe.call({						
-					method:'digitz_erp.api.common_methods.get_item_uoms',
+					method:'digitz_erp.api.items_api.get_item_uoms',
 					async: false,
 					args: {
 						item: entry.item
@@ -407,7 +407,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					{	
 						frappe.call(
 							{
-								method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								method:'digitz_erp.api.items_api.get_item_price_for_price_list',
 								async:false,
 						
 								args:{
@@ -438,7 +438,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					{
 						frappe.call(
 							{
-								method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								method:'digitz_erp.api.items_api.get_item_price_for_price_list',
 								async:false,
 						
 								args:{
@@ -536,7 +536,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 
 		frappe.call(
 				{
-					method:'digitz_erp.api.common_methods.get_item_uom',
+					method:'digitz_erp.api.items_api.get_item_uom',
 					async:false,
 					args:{
 						item: row.item,

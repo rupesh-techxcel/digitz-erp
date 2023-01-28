@@ -25,7 +25,6 @@
   "company",
   "lpo_no",
   "lpo_date",
-  "delivery_note",
   "price_list",
   "rate_includes_tax",
   "warehouse",
@@ -58,8 +57,10 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
+  "references_tab",
   "data_53",
-  "auto_save_delivery_note"
+  "auto_save_delivery_note",
+  "delivery_notes"
  ],
  "fields": [
   {
@@ -353,17 +354,22 @@
    "read_only": 1
   },
   {
-   "fieldname": "delivery_note",
-   "fieldtype": "Link",
-   "label": "Delivery Note",
-   "options": "Delivery Note",
+   "fieldname": "references_tab",
+   "fieldtype": "Tab Break",
+   "label": "References"
+  },
+  {
+   "fieldname": "delivery_notes",
+   "fieldtype": "Table",
+   "label": "Delivery Notes",
+   "options": "Sales Invoice Delivery Notes",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-23 07:59:46.617270",
+ "modified": "2023-01-23 14:33:29.707368",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

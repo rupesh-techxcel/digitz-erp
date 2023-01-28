@@ -146,7 +146,7 @@ frappe.ui.form.on('Quotation', {
 			if (!isNaN(entry.qty) && !isNaN(entry.rate)) {
 
 				frappe.call({
-					method: 'digitz_erp.api.common_methods.get_item_uoms',
+					method: 'digitz_erp.api.items_api.get_item_uoms',
 					async: false,
 					args: {
 						item: entry.item
@@ -414,7 +414,7 @@ frappe.ui.form.on('Quotation Item', {
 					if (frm.doc.price_list != "Standard Buying") {
 						frappe.call(
 							{
-								method: 'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
 								async: false,
 
 								args: {
@@ -440,7 +440,7 @@ frappe.ui.form.on('Quotation Item', {
 					if (applyStandrPricing) {
 						frappe.call(
 							{
-								method: 'digitz_erp.api.common_methods.get_item_price_for_price_list',
+								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
 								async: false,
 
 								args: {
@@ -528,7 +528,7 @@ frappe.ui.form.on('Quotation Item', {
 
 		frappe.call(
 			{
-				method: 'digitz_erp.api.common_methods.get_item_uom',
+				method: 'digitz_erp.api.items_api.get_item_uom',
 				async: false,
 				args: {
 					item: row.item,
