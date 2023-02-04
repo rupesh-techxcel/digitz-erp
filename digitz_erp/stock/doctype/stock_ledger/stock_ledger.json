@@ -1,7 +1,7 @@
 {
  "actions": [],
  "creation": "2022-12-30 13:22:20.249671",
- "default_view": "List",
+ "default_view": "Report",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -10,17 +10,19 @@
   "item_code",
   "posting_date",
   "warehouse",
+  "balance_qty",
+  "valuation_rate",
+  "balance_value",
   "column_break_8",
   "qty_in",
   "incoming_rate",
   "qty_out",
   "outgoing_rate",
   "unit",
-  "balance_qty",
-  "valuation_rate",
-  "balance_value",
+  "voucher",
+  "voucher_no",
   "source",
-  "document_id"
+  "source_document_id"
  ],
  "fields": [
   {
@@ -107,15 +109,27 @@
    "options": "DocType"
   },
   {
-   "fieldname": "document_id",
+   "fieldname": "voucher",
+   "fieldtype": "Link",
+   "label": "Voucher",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "source_document_id",
    "fieldtype": "Dynamic Link",
-   "label": "Document Id",
+   "label": "Source Document Id",
    "options": "source"
+  },
+  {
+   "fieldname": "voucher_no",
+   "fieldtype": "Dynamic Link",
+   "label": "Voucher No",
+   "options": "voucher"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-28 05:05:19.063895",
+ "modified": "2023-01-29 15:08:51.255154",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

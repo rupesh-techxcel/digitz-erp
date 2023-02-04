@@ -1,0 +1,29 @@
+.navbar
+{
+    background:#68b2f3!important;
+    /* background: orange; */
+}
+
+.layout-side-section
+{
+    background: blanchedalmond!important;
+}
+
+.page-head 
+{
+    background: lavenderblush!important;
+}
+
+body{
+    color:blue;
+}
+
+.list-row 
+{
+    border:1px solid lightblue !important;
+}
+
+.list-row-head
+{
+    border:1px solid lightblue !important;
+}

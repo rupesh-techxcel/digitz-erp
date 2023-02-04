@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:naming_series",
- "creation": "2023-01-14 16:21:38.748089",
+ "creation": "2023-02-04 15:44:24.432607",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -22,6 +22,7 @@
   "tax_id",
   "column_break_4",
   "company",
+  "company_tax_id",
   "lpo_no",
   "lpo_date",
   "price_list",
@@ -51,14 +52,17 @@
   "section_break_27",
   "tab_break_50",
   "amended_from",
-  "auto_generated_from_sales_invoice"
+  "auto_generated_from_sales_invoice",
+  "address_line_1",
+  "address_line_2",
+  "area_name",
+  "country"
  ],
  "fields": [
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Series",
-   "options": "DN-.YYYY.-"
+   "label": "Series"
   },
   {
    "fieldname": "customer",
@@ -66,6 +70,13 @@
    "label": "Customer",
    "options": "Customer",
    "reqd": 1
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
   },
   {
    "fieldname": "reference_no",
@@ -193,15 +204,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Delivery Note",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_25",
    "fieldtype": "Section Break",
    "label": "Totals"
@@ -297,23 +299,57 @@
    "read_only": 1
   },
   {
-   "fetch_from": "customer.customer_name",
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "label": "Customer Name",
-   "read_only": 1
-  },
-  {
    "default": "0",
    "fieldname": "auto_generated_from_sales_invoice",
    "fieldtype": "Check",
    "label": "Auto Generated From Sales Invoice"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Delivery Note",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fetch_from": "company.tax_id",
+   "fieldname": "company_tax_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Tax Id",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.address_line_1",
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address Line 1"
+  },
+  {
+   "fetch_from": "customer.address_line_2",
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fetch_from": "customer.area_name",
+   "fieldname": "area_name",
+   "fieldtype": "Data",
+   "label": "Area Name"
+  },
+  {
+   "fetch_from": "customer.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-22 04:16:02.123526",
+ "modified": "2023-02-04 18:01:51.070019",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

@@ -1,7 +1,8 @@
 # Copyright (c) 2023, Rupesh P and contributors
 # For license information, please see license.txt
 from frappe.utils import now
-
+from frappe.utils import today
+from frappe.utils import get_datetime
 import frappe
 from frappe.model.document import Document
 
@@ -21,6 +22,8 @@ class SalesInvoice(Document):
             #  self.generate_delivery_note()
 
     def before_submit(self):
+
+        self.validate_item()
         
         for docitem in self.items:
             doc = frappe.get_doc({'doctype': 'Stock Ledger'})
@@ -43,6 +46,28 @@ class SalesInvoice(Document):
 
         self.insert_gl_records()
         self.insert_payment_postings()
+
+    
+    # def validate(self):
+
+        # self.validate_item()
+       
+    
+    def validate_item(self):
+         
+        posting_date_time = get_datetime(self.posting_date + " " + self.posting_time)			
+      
+        for docitem in self.items:
+            available_qty =0
+            
+            previous_stocks = frappe.db.get_list('Stock In Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse], 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date', as_list=True)
+            print(previous_stocks)
+            for stock_for_balance in previous_stocks:
+                available_qty = available_qty + stock_for_balance.balance_qty
+        
+            if(available_qty< docitem.qty_in_base_unit):
+                    frappe.throw("No sufficient qty exists for the item " + docitem.item +", required qty -" + str(docitem.qty_in_base_unit) + " " + docitem.base_unit
+                    + ", available qty -" + str(available_qty))
 
     def before_cancel(self):
 
@@ -183,7 +208,7 @@ class SalesInvoice(Document):
         # just need to submit the do as well
                 
         if self.docstatus == 1:
-            si_do = frappe.get_doc('Sales Invoice Delivery Notes',{'parent':self.name})
+            si_do = frappe.get_('Sales Invoice Delivery Notes',{'parent':self.name})
             do_no = si_do.delivery_note
             do = frappe.get_doc('Delivery Note',do_no)
             do.submit()
@@ -213,13 +238,14 @@ class SalesInvoice(Document):
                 delivery_note_name = delivery_note_doc.name
                 delivery_note_doc.delete()        
         
-
         delivery_note = self.__dict__
         delivery_note['doctype'] = 'Delivery Note'
         # delivery_note['against_sales_invoice'] = delivery_note['name']
-        delivery_note['name'] = delivery_note_name
-        delivery_note['naming_series'] = 'DN-.YYYY.-'
-        delivery_note['posting_date'] = now()
+        delivery_note['name'] = delivery_note_name        
+        delivery_note['naming_series'] = "DN-.#####.-.MM.-.YYYY."
+        delivery_note['posting_date'] = self.posting_date
+        delivery_note['posting_time'] = self.posting_time
+
         delivery_note['auto_generated_from_sales_invoice'] = 1
 
         for item in delivery_note['items']:
@@ -233,7 +259,39 @@ class SalesInvoice(Document):
         do = frappe.get_doc('Delivery Note', doNo.name)
         si = frappe.get_doc('Sales Invoice',si_name)
 
+        print("Before Delivery Note")
+
         row = si.append('delivery_notes', {'delivery_note': do.name})
+
+        print("After Delivery Note")      
+
+        si.save()
+
+        delivery_notes = frappe.db.get_list('Sales Invoice Delivery Notes', {'parent': ['=', si_name]},['delivery_note'], as_list=True)
+        
+        print(delivery_notes)
+
+        print("After Print")
+
+
+
+        index = 0
+        maxIndex = 3
+        doNos = ""
+    
+        for delivery_note in delivery_notes:     
+            do = frappe.get_doc('Delivery Note',delivery_note )   
+            doNos = doNos + do.name + "   "
+            index= index + 1
+            if index == maxIndex:
+                break
+
+        print("DO Nos")
+        print(doNos)
+
+        si = frappe.get_doc('Sales Invoice',si_name)
+
+        si.delivery_notes_to_print = doNos
         
         index = 0        
 

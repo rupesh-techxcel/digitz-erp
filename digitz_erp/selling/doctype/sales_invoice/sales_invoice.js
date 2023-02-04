@@ -220,9 +220,9 @@ frappe.ui.form.on('Sales Invoice', {
 			tax_total = tax_total + entry.tax_amount;
 			discount_total = discount_total + entry.discount_amount;
 
-			entry.qty_in_base_unit = entry.qty / entry.conversion_factor;
-			entry.rate_in_base_unit = entry.rate * entry.conversion_factor;
-
+			entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
+			entry.rate_in_base_unit = entry.rate / entry.conversion_factor;
+			
 			if (!isNaN(entry.qty) && !isNaN(entry.rate)) {
 
 				frappe.call({
@@ -235,48 +235,48 @@ frappe.ui.form.on('Sales Invoice', {
 						console.log("get_item_uoms result")
 						console.log(r.message);
 
-
 						var units = r.message;
 						var output = "";
 						var output2 = "";
 						entry.unit_conversion_details = "";
 						$.each(units, (a, b) => {
-
-
-							var qty = entry.qty;
+							
 							var conversion = b.conversion_factor
 							var unit = b.unit
-							console.log("Unit")
-							console.log(b.unit);
-							console.log("Conversion Factor")
-							console.log(b.conversion_factor);
-							console.log("qty")
-							console.log(qty);
+							console.log("uomqty")							
 
-							var uomqty = qty / conversion;
-							var uomrate = entry.rate * conversion;
+							var uomqty = entry.qty_in_base_unit / conversion;
+							console.log("uomrate")
+							var uomrate = entry.rate_in_base_unit * conversion;
+
+							console.log(uomqty)
+							console.log(uomrate)
 
 							var uomqty2 = "";
 
-							if (uomqty > Math.trunc(uomqty)) {
-								console.log("Excess");
-								console.log(uomqty - Math.trunc(uomqty));
-
-								var excessqty = Math.round((uomqty - Math.trunc(uomqty)) * conversion, 0);
-
-								uomqty2 = Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit;
+							if(uomqty == entry.qty_in_base_unit)
+							{
+								uomqty2 = uomqty + " " + unit + " @ " + uomrate
 							}
-							else {
-								uomqty2 = uomqty + " " + unit;
-							}
+							else
+							{
+								if (uomqty > Math.trunc(uomqty)) {	
+									var excessqty = Math.round((uomqty - Math.trunc(uomqty)) * conversion, 0);
+									uomqty2 = uomqty + " " + unit + "(" + Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit + ")" + " @ " + uomrate;
+								}
+								else
+								{
+									uomqty2 = uomqty + " " + unit + " @ " + uomrate
+								}
+							}	
 
 							output = output + uomqty2 + "\n";
-							output2 = output2 + unit + " rate: " + uomrate + "\n";
+							//output2 = output2 + unit + " rate: " + uomrate + "\n";
 
 						}
 						)
 						console.log(output + output2);
-						entry.unit_conversion_details = output + output2;
+						entry.unit_conversion_details = output 
 					}
 				}
 
