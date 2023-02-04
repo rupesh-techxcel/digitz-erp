@@ -23,6 +23,7 @@
   "tax_id",
   "column_break_4",
   "company",
+  "company_tax_id",
   "lpo_no",
   "lpo_date",
   "price_list",
@@ -60,7 +61,12 @@
   "references_tab",
   "data_53",
   "auto_save_delivery_note",
-  "delivery_notes"
+  "delivery_notes",
+  "delivery_notes_to_print",
+  "address_line_1",
+  "address_line_2",
+  "area_name",
+  "country"
  ],
  "fields": [
   {
@@ -141,6 +147,7 @@
   {
    "fieldname": "credit_days",
    "fieldtype": "Int",
+   "hidden": 1,
    "label": "Credit Days"
   },
   {
@@ -291,7 +298,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "credit_sale",
    "fieldtype": "Check",
    "label": "Credit Sale"
@@ -312,11 +319,6 @@
    "fieldtype": "Link",
    "label": "Salesman",
    "options": "Employee"
-  },
-  {
-   "fieldname": "tax_id",
-   "fieldtype": "Data",
-   "label": "Tax Id"
   },
   {
    "fetch_from": "customer.customer_name",
@@ -340,13 +342,14 @@
    "label": "Salesman Code"
   },
   {
+   "default": "Cash",
    "fieldname": "payment_mode",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
   {
+   "fetch_from": "payment_mode.account",
    "fieldname": "payment_account",
    "fieldtype": "Link",
    "label": "Payment Account",
@@ -364,12 +367,58 @@
    "label": "Delivery Notes",
    "options": "Sales Invoice Delivery Notes",
    "read_only": 1
+  },
+  {
+   "fetch_from": "customer.address_line_1",
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Address Line 1"
+  },
+  {
+   "fetch_from": "customer.address_line_2",
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Address Line 2"
+  },
+  {
+   "fetch_from": "customer.area_name",
+   "fieldname": "area_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Area Name"
+  },
+  {
+   "fetch_from": "customer.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Country"
+  },
+  {
+   "fetch_from": "company.tax_id",
+   "fieldname": "company_tax_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Tax Id"
+  },
+  {
+   "fetch_from": "customer.tax_id",
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax Id"
+  },
+  {
+   "fieldname": "delivery_notes_to_print",
+   "fieldtype": "Data",
+   "label": "Delivery Notes To Print"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-23 14:33:29.707368",
+ "modified": "2023-02-04 17:50:41.745819",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
