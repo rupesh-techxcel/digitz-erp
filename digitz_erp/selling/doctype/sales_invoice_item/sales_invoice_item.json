@@ -160,14 +160,13 @@
    "allow_on_submit": 1,
    "fieldname": "delivery_note_item_reference_no",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "Delivery Note Item Reference No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-02-04 13:48:52.601750",
+ "modified": "2023-02-09 13:22:05.268295",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",

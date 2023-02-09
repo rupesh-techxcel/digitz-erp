@@ -1,11 +1,10 @@
 # Copyright (c) 2023, Rupesh P and contributors
 # For license information, please see license.txt
-from frappe.utils import now
-from frappe.utils import today
-from frappe.utils import get_datetime
-import frappe
-from frappe.model.document import Document
 
+import frappe
+from frappe.utils import get_datetime
+from frappe.utils import now
+from frappe.model.document import Document
 
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
@@ -23,23 +22,11 @@ class SalesInvoice(Document):
 
     def before_submit(self):
 
-        self.validate_item()
+        # Checking needed whether Delivery Note is creating automatically, if yes, then only stock availability need to check
+        # otherwise it could be done with in the delivery note itself.
+
+        # self.validate_item()           
         
-        for docitem in self.items:
-            doc = frappe.get_doc({'doctype': 'Stock Ledger'})
-            doc.item = docitem.item
-            doc.item_code = docitem.item_code
-            doc.posting_date = self.posting_date
-            doc.posting_time = self.posting_time
-            doc.warehouse = docitem.warehouse
-            doc.voucher_type = "Sales Invoice"
-            doc.voucher_no = self.name
-            doc.qty_out = docitem.qty
-            doc.unit = docitem.unit
-            doc.outgoing_rate = docitem.rate
-            doc.valuation_rate = docitem.rate
-            doc.is_latest = 1
-            doc.insert()
 
         self.created_by = frappe.user
         self.submitted_date = now()
@@ -50,24 +37,23 @@ class SalesInvoice(Document):
     
     # def validate(self):
 
-        # self.validate_item()
-       
+        # self.validate_item()        
     
-    def validate_item(self):
+    # def validate_item(self):
          
-        posting_date_time = get_datetime(self.posting_date + " " + self.posting_time)			
+        # posting_date_time = get_datetime(self.posting_date + " " + self.posting_time)		        	
       
-        for docitem in self.items:
-            available_qty =0
+        # for docitem in self.items:
+            # available_qty =0
             
-            previous_stocks = frappe.db.get_list('Stock In Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse], 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date', as_list=True)
-            print(previous_stocks)
-            for stock_for_balance in previous_stocks:
-                available_qty = available_qty + stock_for_balance.balance_qty
+            # previous_stocks = frappe.db.get_list('Stock In Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse], 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date', as_list=True)
+            # print(previous_stocks)
+            # for stock_for_balance in previous_stocks:
+            #     available_qty = available_qty + stock_for_balance.balance_qty
         
-            if(available_qty< docitem.qty_in_base_unit):
-                    frappe.throw("No sufficient qty exists for the item " + docitem.item +", required qty -" + str(docitem.qty_in_base_unit) + " " + docitem.base_unit
-                    + ", available qty -" + str(available_qty))
+            # if(available_qty< docitem.qty_in_base_unit):
+            #         frappe.throw("No sufficient qty exists for the item " + docitem.item +", required qty -" + str(docitem.qty_in_base_unit) + " " + docitem.base_unit
+            #         + ", available qty -" + str(available_qty))
 
     def before_cancel(self):
 
@@ -81,7 +67,10 @@ class SalesInvoice(Document):
                           "voucher_no": self.name
                           })      
         
-    # def on_trash(self):
+    def on_trash(self):
+        if self.auto_save_delivery_note:
+            frappe.delete_doc('Delivery Note', self.delivery_note)
+
         # if self.auto_save_delivery_note:
         #      do = frappe.get_doc('Delivery Note', self.delivery_note)
         #      do.auto_generated_from_sales_invoice =0
@@ -208,7 +197,7 @@ class SalesInvoice(Document):
         # just need to submit the do as well
                 
         if self.docstatus == 1:
-            si_do = frappe.get_('Sales Invoice Delivery Notes',{'parent':self.name})
+            si_do = frappe.get_doc('Sales Invoice Delivery Notes',{'parent':self.name})
             do_no = si_do.delivery_note
             do = frappe.get_doc('Delivery Note',do_no)
             do.submit()
@@ -236,15 +225,15 @@ class SalesInvoice(Document):
                 frappe.db.delete('Sales Invoice Delivery Notes',{'parent':self.name})
                 delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_name)
                 delivery_note_name = delivery_note_doc.name
-                delivery_note_doc.delete()        
-        
+                delivery_note_doc.delete()               
+       
         delivery_note = self.__dict__
         delivery_note['doctype'] = 'Delivery Note'
         # delivery_note['against_sales_invoice'] = delivery_note['name']
         delivery_note['name'] = delivery_note_name        
-        delivery_note['naming_series'] = "DN-.#####.-.MM.-.YYYY."
-        delivery_note['posting_date'] = self.posting_date
-        delivery_note['posting_time'] = self.posting_time
+        delivery_note['naming_series'] = ""
+        # delivery_note['posting_date'] = self.posting_date
+        # delivery_note['posting_time'] = self.posting_time
 
         delivery_note['auto_generated_from_sales_invoice'] = 1
 
@@ -259,35 +248,23 @@ class SalesInvoice(Document):
         do = frappe.get_doc('Delivery Note', doNo.name)
         si = frappe.get_doc('Sales Invoice',si_name)
 
-        print("Before Delivery Note")
-
         row = si.append('delivery_notes', {'delivery_note': do.name})
-
-        print("After Delivery Note")      
 
         si.save()
 
         delivery_notes = frappe.db.get_list('Sales Invoice Delivery Notes', {'parent': ['=', si_name]},['delivery_note'], as_list=True)
-        
-        print(delivery_notes)
-
-        print("After Print")
-
-
-
+      
+        # It is likely that there will be only one delivery note for the sales invoice for this method.
         index = 0
         maxIndex = 3
         doNos = ""
     
-        for delivery_note in delivery_notes:     
-            do = frappe.get_doc('Delivery Note',delivery_note )   
-            doNos = doNos + do.name + "   "
+        for delivery_noteName in delivery_notes:     
+            delivery_note = frappe.get_doc('Delivery Note',delivery_noteName )   
+            doNos = doNos + delivery_note.name + "   "
             index= index + 1
             if index == maxIndex:
-                break
-
-        print("DO Nos")
-        print(doNos)
+                break     
 
         si = frappe.get_doc('Sales Invoice',si_name)
 
@@ -301,6 +278,14 @@ class SalesInvoice(Document):
 
         si.save()
 
-    
+    @frappe.whitelist()
+    def cancel_delivery_note_for_sales_invoice(self):
+        
+        delivery_note = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
+        do = frappe.get_doc('Delivery Note',delivery_note)
+        do.cancel()
+        frappe.msgprint("Delivery Note cancelled")
+        
+        
 			
         

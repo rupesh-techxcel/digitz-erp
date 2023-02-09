@@ -82,14 +82,13 @@ frappe.ui.form.on('Purchase Invoice', {
 			frm.trigger("make_taxes_and_totals");
          })	
 	},	
-	make_taxes_and_totals(frm)	
-	{
+	make_taxes_and_totals(frm) {
 		console.log("from make totals..")
 		frm.clear_table("taxes");
-		frm.refresh_field("taxes");	
-		
+		frm.refresh_field("taxes");
+
 		var gross_total = 0;
-		var tax_total =0;
+		var tax_total = 0;
 		var net_total = 0;
 		var discount_total = 0;
 
@@ -99,148 +98,138 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.doc.tax_total = 0;
 		frm.doc.total_discount_in_line_items = 0;
 		frm.doc.round_off = 0;
-		frm.doc.rounded_total = 0;				
-		
+		frm.doc.rounded_total = 0;
 
-		frm.doc.items.forEach(function(entry) { 
-			console.log("Item in Row")	
-			console.log(entry.item);		
-			var tax_in_rate = 0;			
+		frm.doc.items.forEach(function (entry) {
+			console.log("Item in Row")
+			console.log(entry.item);
+			var tax_in_rate = 0;
 
 			//rate_included_tax column in items table is readonly and it depends the form's rate_includes_tax column
 			entry.rate_included_tax = frm.doc.rate_includes_tax;
 			entry.gross_amount = 0
-			entry.tax_amount =0;
-			entry.net_amount = 0 
+			entry.tax_amount = 0;
+			entry.net_amount = 0
 			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
 
-			if(entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation 
+			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation 
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
-										// also this implementation is streight forward than the other way										
-				tax_in_rate = entry.rate * (entry.tax_rate/ (100 + entry.tax_rate));
-				entry.rate_excluded_tax = entry.rate - tax_in_rate;		
-				
+				// also this implementation is streight forward than the other way										
+				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
+				entry.rate_excluded_tax = entry.rate - tax_in_rate;
 				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)  
-
-				console.log("Rate excluded rate %f", entry.rate_excluded_tax)
+				console.log("Tax Rate %f", entry.tax_rate);
+				console.log("Tax Amount %f", entry.tax_amount);
+				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}
-			else
-			{
+			else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty* entry.rate ) - entry.discount_amount) * (entry.tax_rate /100))
-				entry.net_amount = ((entry.qty* entry.rate) - entry.discount_amount)
-						 + (((entry.qty* entry.rate ) - entry.discount_amount) * (entry.tax_rate /100))
+				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+
 
 				console.log("Net amount %f", entry.net_amount);
-				entry.gross_amount = entry.qty * entry.rate;
-			}			
-			
-			
-		
+				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
+			}
+
+
+
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
-			gross_total = gross_total + entry.gross_amount;			
+			gross_total = gross_total + entry.gross_amount;
 			tax_total = tax_total + entry.tax_amount;
 			discount_total = discount_total + entry.discount_amount;
 
-			entry.qty_in_base_unit = entry.qty / entry.conversion_factor;
-			entry.rate_in_base_unit = entry.rate * entry.conversion_factor;
+			entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
+			entry.rate_in_base_unit = entry.rate / entry.conversion_factor;
+			
+			if (!isNaN(entry.qty) && !isNaN(entry.rate)) {
 
-			if(!isNaN(entry.qty ) && !isNaN(entry.rate))
-			{
-
-				frappe.call({						
-					method:'digitz_erp.api.items_api.get_item_uoms',
+				frappe.call({
+					method: 'digitz_erp.api.items_api.get_item_uoms',
 					async: false,
 					args: {
 						item: entry.item
 					},
 					callback: (r) => {
 						console.log("get_item_uoms result")
-						console.log(r.message);		
-						
+						console.log(r.message);
 
 						var units = r.message;
-						var output ="";
-						var output2 ="";
-						entry.unit_conversion_details ="";
-						$.each(units,(a,b)=>
-						{
-
+						var output = "";
+						var output2 = "";
+						entry.unit_conversion_details = "";
+						$.each(units, (a, b) => {
 							
-							var qty = entry.qty;
 							var conversion = b.conversion_factor
 							var unit = b.unit
-							console.log("Unit")
-							console.log(b.unit);
-							console.log("Conversion Factor")
-							console.log(b.conversion_factor);
-							console.log("qty")
-							console.log(qty);
-							
-							var uomqty = qty / conversion;
-							var uomrate = entry.rate * conversion;
+							console.log("uomqty")							
 
-							var uomqty2 ="";
+							var uomqty = entry.qty_in_base_unit / conversion;
+							console.log("uomrate")
+							var uomrate = entry.rate_in_base_unit * conversion;
 
-							if(uomqty> Math.trunc(uomqty))
+							console.log(uomqty)
+							console.log(uomrate)
+
+							var uomqty2 = "";
+
+							if(uomqty == entry.qty_in_base_unit)
 							{
-								console.log("Excess");
-								console.log(uomqty-Math.trunc(uomqty));
-
-								var excessqty = Math.round((uomqty-Math.trunc(uomqty)) *  conversion,0);
-
-								uomqty2 = Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit;
+								uomqty2 = uomqty + " " + unit + " @ " + uomrate
 							}
 							else
 							{
-								uomqty2 = uomqty + " " + unit ;
-							}
+								if (uomqty > Math.trunc(uomqty)) {	
+									var excessqty = Math.round((uomqty - Math.trunc(uomqty)) * conversion, 0);
+									uomqty2 = uomqty + " " + unit + "(" + Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit + ")" + " @ " + uomrate;
+								}
+								else
+								{
+									uomqty2 = uomqty + " " + unit + " @ " + uomrate
+								}
+							}	
 
-							output = output +  uomqty2 + "\n";
-							output2 = output2 + unit + " rate: " + uomrate + "\n";
+							output = output + uomqty2 + "\n";
+							//output2 = output2 + unit + " rate: " + uomrate + "\n";
 
-						}					
+						}
 						)
 						console.log(output + output2);
-						entry.unit_conversion_details = output +output2;						
+						entry.unit_conversion_details = output 
 					}
 				}
-			
+
 				)
 			}
-			else
-			{
+			else {
 				console.log("Qty and Rate are NaN");
 			}
-		
+
 		});
-		
-		if(isNaN(frm.doc.additional_discount))
-		{
+
+		if (isNaN(frm.doc.additional_discount)) {
 			frm.doc.additional_discount = 0;
 		}
 
-		frm.doc.gross_total = gross_total;		
+		frm.doc.gross_total = gross_total;
 		frm.doc.net_total = gross_total + tax_total - frm.doc.additional_discount;
 		frm.doc.tax_total = tax_total;
 		frm.doc.total_discount_in_line_items = discount_total;
 		console.log("Net Total Before Round Off")
 		console.log(frm.doc.net_total)
 
-		if(frm.doc.net_total != Math.round(frm.doc.net_total) )
-		{	
+		if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
 			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-			frm.doc.rounded_total = Math.round(frm.doc.net_total) ;
+			frm.doc.rounded_total = Math.round(frm.doc.net_total);
 		}
-		else
-		{
+		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
 
-		console.log("Totals");			
+		console.log("Totals");
 
 		console.log(frm.doc.gross_total);
 		console.log(frm.doc.tax_total);
@@ -248,15 +237,15 @@ frappe.ui.form.on('Purchase Invoice', {
 		console.log(frm.doc.round_off);
 		console.log(frm.doc.rounded_total);
 
-		frm.refresh_field("items");		
+		frm.refresh_field("items");
 		frm.refresh_field("taxes");
 
-		frm.refresh_field("gross_total");	
-		frm.refresh_field("net_total");	
-		frm.refresh_field("tax_total");	
-		frm.refresh_field("round_off");	
-		frm.refresh_field("rounded_total");	
-		
+		frm.refresh_field("gross_total");
+		frm.refresh_field("net_total");
+		frm.refresh_field("tax_total");
+		frm.refresh_field("round_off");
+		frm.refresh_field("rounded_total");
+
 	},
 	get_default_company_and_warehouse(frm)
 	{
