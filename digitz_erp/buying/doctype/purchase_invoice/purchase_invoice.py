@@ -10,15 +10,31 @@ from frappe.model.document import Document
 class PurchaseInvoice(Document):
 
 	def before_submit(self):		
+
+		possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})				
+		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be 
+		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
+		# Also in add_stock_for_purchase_receipt method only checking for < date_time in order avoid difficulty to get exact last record 
+		# to get balance qty and balance value.
+
+		print(possible_invalid)
+
+		if(possible_invalid >0):
+			frappe.throw("There are one or more other purchase invoice exist in the same date and time. Please correct the date and time.")
+
+
 		self.insert_gl_records()
 		self.insert_payment_postings()
+		
 		self.add_stock_for_purchase_receipt()
+
+
 
 	def before_cancel(self):		
 
 		frappe.db.delete("Stock Ledger",
-				{"source": "Purchase Invoice",
-				 "document_id":self.name
+				{"voucher": "Purchase Invoice",
+				 "voucher_no":self.name
 				})
 	
 		frappe.db.delete("GL Posting",
@@ -52,63 +68,65 @@ class PurchaseInvoice(Document):
 		# 		new_running_balance_qty = new_running_balance_qty + stock_in_ledger.running_balance_qty
 		# 		value = value +  (stock_in_ledger.running_balance_qty * stock_in_ledger.incoming_rate)
 
-
-
 	def add_stock_for_purchase_receipt(self):
 
 		for docitem in self.items:			
 			
-			running_balance_qty = docitem.qty_in_base_unit
+			new_balance_qty = docitem.qty_in_base_unit
+			# Default valuation rate
 			valuation_rate = docitem.rate_in_base_unit						
 
+			print("posting_date")
+			print(self.posting_date)
+			print("posting_time")
+			print(self.posting_time)
+			
 			posting_date_time = get_datetime(self.posting_date + " " + self.posting_time)			
-			balance_value = running_balance_qty * valuation_rate
 
-			# posting_date<= consider because to take the dates with in the same minute
-								
-			dbCount = frappe.db.count('Stock In Ledger',{'item': ['=', docitem.item],'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]})
-			
-			print("dcount")
+			# Default balance value calculating withe the current row only
+			new_balance_value = new_balance_qty * valuation_rate
+
+
+
+			print(posting_date_time)
+
+			# posting_date<= consider because to take the dates with in the same minute								
+			# dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]})
+			dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse], 'posting_date': ['<', posting_date_time]})
+			print("dbCount")
 			print(dbCount)
-			
+			print(docitem.item)
+			print(docitem.warehouse)
+			print(posting_date_time)
+
 			if(dbCount>0):
-				last_stock_in_ledger = frappe.db.get_value('Stock In Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]},['balance_qty', 'balance_value', 'incoming_rate'],order_by='posting_date', as_dict=True)
+
+				# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
+				# from the balance qty in the existing rows x actual incoming rate
+
+				last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item_code': ['=', docitem.item_code], 'warehouse':['=', docitem.warehouse], 'posting_date':['<', posting_date_time]},['balance_qty', 'balance_value', 'valuation_rate'],order_by='posting_date desc', as_dict=True)				
+				new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty
+				print("Last Stock Ledger Balance Qty")
+				print(new_balance_qty)
 				
-				running_balance_qty = running_balance_qty + last_stock_in_ledger.balance_qty
-				balance_value = balance_value + (last_stock_in_ledger.balance_qty *  last_stock_in_ledger.incoming_rate)
-				valuation_rate = balance_value/running_balance_qty
+				print("new_balance_qty")
+				print(new_balance_qty)
+				
+				new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
+
+				print("new_balance_value")
+				print(new_balance_value)
+
+				valuation_rate = new_balance_value/new_balance_qty
+
+				print("valuation rate 1")
+				print(valuation_rate)
+
 			
-			new_doc = frappe.new_doc('Stock In Ledger')
-			new_doc.item = docitem.item
-			new_doc.warehouse = docitem.warehouse
-			new_doc.posting_date = posting_date_time
-			new_doc.qty = docitem.qty_in_base_unit
-			new_doc.unit = docitem.base_unit
-			new_doc.incoming_rate = docitem.rate_in_base_unit
-			new_doc.value = docitem.qty * docitem.rate_in_base_unit
-			new_doc.balance_qty = docitem.qty_in_base_unit
-			new_doc.balance_value = balance_value  # balance value is cummilative
-			new_doc.running_balance_qty = running_balance_qty	# running_balance_qty is cummilative
-			new_doc.used_qty = 0	
-			new_doc.valuation_rate = valuation_rate	
-			new_doc.voucher = "Purchase Invoice"
-			new_doc.voucher_no = self.name
-			new_doc.source = "Purchase Invoice Item"
-			new_doc.source_document_id = docitem.name
-			new_doc.insert()
+			print("Valuation Rate 2")
+			print(valuation_rate)
 
-			if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):    
-				frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
-
-			new_stock_balance = frappe.new_doc('Stock Balance')	
-			new_stock_balance.item = docitem.item
-			new_stock_balance.unit = docitem.unit
-			new_stock_balance.warehouse = docitem.warehouse
-			new_stock_balance.stock_qty = running_balance_qty
-			new_stock_balance.stock_value = balance_value
-			
-			new_stock_balance.insert()
-
+		
 			new_stock_ledger = frappe.new_doc("Stock Ledger")
 			new_stock_ledger.item = docitem.item
 			new_stock_ledger.warehouse = docitem.warehouse
@@ -118,13 +136,27 @@ class PurchaseInvoice(Document):
 			new_stock_ledger.incoming_rate = docitem.rate_in_base_unit
 			new_stock_ledger.unit = docitem.base_unit
 			new_stock_ledger.valuation_rate = valuation_rate
-			new_stock_ledger.balance_qty = running_balance_qty
-			new_stock_ledger.balance_value = balance_value
+			new_stock_ledger.balance_qty = new_balance_qty
+			new_stock_ledger.balance_value = new_balance_value
 			new_stock_ledger.voucher = "Purchase Invoice"
 			new_stock_ledger.voucher_no = self.name
 			new_stock_ledger.source = "Purchase Invoice Item"
 			new_stock_ledger.source_document_id = docitem.name
 			new_stock_ledger.insert()	
+
+			if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):    
+				frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+
+			new_stock_balance = frappe.new_doc('Stock Balance')	
+			new_stock_balance.item = docitem.item
+			new_stock_balance.unit = docitem.unit
+			new_stock_balance.warehouse = docitem.warehouse
+			new_stock_balance.stock_qty = new_balance_qty
+			new_stock_balance.stock_value = new_balance_value
+			new_stock_balance.valuation_rate = valuation_rate
+			
+			new_stock_balance.insert()
+
 
 			item = frappe.get_doc('Item', docitem.item)
 			item.stock_balance = item.stock_balance + docitem.qty_in_base_unit

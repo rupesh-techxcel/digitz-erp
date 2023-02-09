@@ -16,31 +16,20 @@ frappe.ui.form.on('Sales Invoice', {
 
 	},
 	after_save: function (frm) {
-		
 		if (frm.doc.auto_save_delivery_note) {
 			frm.call("auto_generate_delivery_note")
 		}
 	},
 	after_cancel: function(frm)
 	{	
-		console.log(frm.doc)	
+		frappe.msgprint("Before call delivery note cancel")
 
-		if(frm.doc.auto_save_delivery_note)           
-			frappe.call(
-				{
-					method:'digitz_erp.api.delivery_note_api.cancel_delivery_note',
-					async:false,
+		if(frm.doc.auto_save_delivery_note)   
+			frm.call("cancel_delivery_note_for_sales_invoice")
 			
-					args:{
-							'sales_invoice':frm.doc.name												
-					},
-					callback(r)	
-					{	
-						frappe.msgprint("Delivery Note cancelled.")
-					}
-			});
 	},
 	validate: function (frm) {
+		
 		var valid = false;
 
 		frm.doc.items.forEach(function (entry) {
@@ -326,8 +315,8 @@ frappe.ui.form.on('Sales Invoice', {
 
 	},
 	get_default_company_and_warehouse(frm) {
-		var default_company = ""
-		console.log("From Get Default Warehouse Method in the parent form")
+
+		var default_company = ""		
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -446,8 +435,11 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 			}
 		};
 	});
-
-	frm.trigger("get_default_company_and_warehouse");
+	
+	console.log(frm.doc);
+	
+	if(frm.doc.__islocal)
+		frm.trigger("get_default_company_and_warehouse");
 
 	frm.set_query("price_list", function () {
 		return {
@@ -463,8 +455,7 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 				"is_disabled": 0
 			}
 		};
-	});
-	console.log("Test loading..")
+	});	
 
 });
 
