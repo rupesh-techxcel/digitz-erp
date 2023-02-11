@@ -321,7 +321,6 @@ frappe.ui.form.on('Delivery Note', {
 				)
 			}
 		})
-
 	},
 	validate: function (frm) {
 		var valid = false;
@@ -343,8 +342,11 @@ frappe.ui.form.on('Delivery Note', {
 
 		if (frm.doc.auto_generated_from_sales_invoice)
 			frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
+	},
+	before_delete: function(frm)
+	{
+		console.log("before delete from clients side")
 	}
-
 });
 
 frappe.ui.form.on("Delivery Note", "onload", function (frm) {

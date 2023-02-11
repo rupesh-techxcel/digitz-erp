@@ -3,7 +3,7 @@
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2023-01-04 16:31:16.689825",
- "default_view": "List",
+ "default_view": "Report",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -99,6 +99,9 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Date",
    "read_only": 1
   },
@@ -273,6 +276,7 @@
   {
    "fieldname": "lpo_no",
    "fieldtype": "Data",
+   "in_preview": 1,
    "label": "LPO No"
   },
   {
@@ -325,6 +329,7 @@
    "fetch_from": "customer.customer_name",
    "fieldname": "customer_name",
    "fieldtype": "Data",
+   "in_preview": 1,
    "label": "Customer Name",
    "read_only": 1
   },
@@ -419,7 +424,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-02-09 19:43:33.032729",
+ "modified": "2023-02-10 13:52:08.356417",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
