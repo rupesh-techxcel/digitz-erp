@@ -83,9 +83,10 @@
   },
   {
    "fieldname": "unit",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Unit"
+   "label": "Unit",
+   "options": "Unit"
   },
   {
    "fieldname": "qty_in",
@@ -129,7 +130,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-29 15:08:51.255154",
+ "modified": "2023-02-10 19:08:31.694406",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

@@ -19,16 +19,12 @@ class PurchaseInvoice(Document):
 
 		print(possible_invalid)
 
-		if(possible_invalid >0):
-			frappe.throw("There are one or more other purchase invoice exist in the same date and time. Please correct the date and time.")
-
+		if(possible_invalid >0):			
+			frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
 
 		self.insert_gl_records()
-		self.insert_payment_postings()
-		
+		self.insert_payment_postings()		
 		self.add_stock_for_purchase_receipt()
-
-
 
 	def before_cancel(self):		
 

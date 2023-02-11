@@ -16,10 +16,35 @@ class DeliveryNote(Document):
 
     def validate_stock(self):
         posting_date_time = get_datetime(self.posting_date + " " + self.posting_time)			
-        
+
+    def before_cancel(self):
+        print("before cancel in DN")  
+     
+    def on_cancel(self):
+        print("on cancel in DN")
+        self.adjust_stock_for_cancel_delivery_note()
 
     def before_submit(self):
-        self.deduct_stock_for_delivery_note()
+        print("Before submit reached in DN.")
+        
+        possible_invalid= frappe.db.count('Delivery Note', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
+        
+        if(possible_invalid >0):
+            frappe.throw("There is another delivery note exist with the same date and time. Please correct the date and time.")
+
+        print(self.docstatus)
+
+        if self.docstatus <2 :
+            print("before - deduct stock for delivery note")
+            self.deduct_stock_for_delivery_note()
+    
+    def before_delete(self):
+        print("Before Delete From DN")
+        frappe.delete_doc("Stock Ledger",{'voucher_no':['=', self.name]})
+
+    def on_trash(self):
+        print("On Trash from DN")        
+        # frappe.delete_doc("Stock Ledger",{'voucher_no':['=', self.name]})
 
     @frappe.whitelist()
     def generate_sale_invoice(self):
@@ -66,6 +91,107 @@ class DeliveryNote(Document):
         
         frappe.msgprint("Sales Invoice created successfully.")
 
+    def adjust_stock_for_cancel_delivery_note(self):
+
+         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
+         stock_recalc_voucher.voucher = 'Delivery Note'
+         stock_recalc_voucher.voucher_no = self.name
+         stock_recalc_voucher.voucher_date = self.posting_date
+         stock_recalc_voucher.voucher_time = self.posting_time
+         stock_recalc_voucher.status = 'Not Started'
+         stock_recalc_voucher.source_action = 'Cancel'
+         stock_recalc_voucher.insert()
+
+         voucher_name = stock_recalc_voucher.name
+         stock_recalc_voucher = frappe.get_doc('Stock Recalculate Voucher', voucher_name)
+
+         for docitem in self.items:
+            # Adjust stock balance 
+            if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}): 
+                docName = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
+                stock_balance_for_item = frappe.get_doc('Stock Balance',docName)
+                valuation_rate = stock_balance_for_item.stock_value / stock_balance_for_item.stock_qty
+
+                stock_balance_for_item.stock_qty = stock_balance_for_item.stock_qty + docitem.qty_in_base_unit
+                stock_balance_for_item.stock_value = stock_balance_for_item.stock_qty * valuation_rate
+                stock_balance_for_item.save()
+
+            stock_ledger_list =frappe.get_list('Stock Ledger', {'voucher':'Delivery Note', 'voucher_no': self.name}, ['name',
+                                                                                                                       'item',
+                                                                                                                       'warehouse',
+                                                                                                                       'qty_in',
+                                                                                                                       'incoming_rate',
+                                                                                                                       'qty_out',
+                                                                                                                       'outgoing_rate',
+                                                                                                                       'balance_qty',
+                                                                                                                       'balance_value',
+                                                                                                                       'valuation_rate',
+                                                                                                                       'unit'
+                                                                                                                       ])
+            print(stock_ledger_list)
+            for sl in stock_ledger_list:
+                print(sl.name)
+                stock_recalc_voucher.append('records',{'item': sl.item, 
+                                                        'warehouse': sl.warehouse,
+                                                        'qty_in':sl.qty_in,
+                                                        'incoming_rate': sl.incoming_rate,
+                                                        'qty_out': sl.qty_out,
+                                                        'outgoing_rate':sl.outgoing_rate,
+                                                        'balance_qty':sl.balance_qty,
+                                                        'balance_value':sl.balance_value,
+                                                        'valuation_rate':sl.valuation_rate,
+                                                        'unit': sl.unit
+                    })
+                stock_recalc_voucher.save()
+                stock_recalc_voucher = frappe.get_doc('Stock Recalculate Voucher', voucher_name)
+                frappe.delete_doc('Stock Ledger', sl.name)                
+                print(sl.name)
+
+
+            stock_recalc_voucher.save()
+            
+            print("stock reclc voucher")
+            # print(stock_recalc.name)
+            print(str(now))            
+
+         self.recalculate_stock_ledger(stock_recalc_voucher)
+         
+         frappe.msgprint("Stock balances adjusted successfully.")
+
+        #  frappe.enqueue('digitz_erp.selling.delivery_note.recalculate_stock_ledger','long', stock_recalc_voucher=stock_recalc)
+
+    def recalculate_stock_ledger(self,stock_recalc_voucher_name):
+
+        stock_recalc_voucher = frappe.get_doc("Stock Recalculate Voucher", stock_recalc_voucher_name.name)    
+        print(stock_recalc_voucher)
+        print(stock_recalc_voucher)
+
+        print("From recalculate_stock_ledger")
+        print(stock_recalc_voucher)
+        stock_recalc_voucher.status = 'Started'
+        stock_recalc_voucher.start_time = now()
+
+        posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))			
+
+        for record in stock_recalc_voucher.records:
+            stock_ledger_items = frappe.get_list('Stock Ledger',{'item':record.item,
+            'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]},'name')
+
+            print("record")
+            print(record)
+
+            for sl_name in stock_ledger_items:
+                sl = frappe.get_doc('Stock Ledger', sl_name)
+                print(sl)
+                sl.balance_qty = sl.balance_qty + record.qty_out
+                sl.balance_value = sl.balance_value + (record.qty_out * sl.valuation_rate)
+                sl.save()
+
+        stock_recalc_voucher.status = 'Completed'
+        stock_recalc_voucher.end_time = now()
+        stock_recalc_voucher.save()
+
+
     def deduct_stock_for_delivery_note(self):
 
         for docitem in self.items:			
@@ -86,8 +212,12 @@ class DeliveryNote(Document):
             , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
             order_by='posting_date desc', as_dict=True)
 
+            if(not previous_stock_balance): 
+                frappe.throw("No stock exists for" + docitem.item )
+
             if(previous_stock_balance.balance_qty < required_qty):
-                frappe.throw("Sufficiant Qty not exists for the item" + docitem.item + " Required Qty=" + str(required_qty) + " Available Qty=" + str(previous_stock_balance.balance_qty) )
+                frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
+                 docitem.base_unit + "and available Qty= " + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit)
                 return
                 
             balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
