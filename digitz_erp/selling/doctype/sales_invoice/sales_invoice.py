@@ -76,28 +76,21 @@ class SalesInvoice(Document):
                 " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
         
     def on_cancel(self):
-        print("after cancel event from sales invoice")
-        
-
+               
         if self.auto_save_delivery_note:
-            delivery_note_name = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
-            delivery_note = frappe.get_doc('Delivery Note', delivery_note_name)
-            if delivery_note.docstatus==1:
-                self.cancel_delivery_note_for_sales_invoice()
-
-    def before_cancel(self):
-
-        print("before cancel event from sales invoice")
-
-        # frappe.db.delete("Stock Ledger",
-        #                  {"Voucher_type": "Sales Invoice",
-        #                   "voucher_no": self.name
-        #                   })
-
+            # delivery_note_name = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
+            # delivery_note = frappe.get_doc('Delivery Note', delivery_note_name)
+            
+            self.cancel_delivery_note_for_sales_invoice()
+                
         frappe.db.delete("GL Posting",
                          {"Voucher_type": "Sales Invoice",
                           "voucher_no": self.name
                           })      
+
+    # def before_cancel(self):
+
+        
         
     # def on_trash(self):
         # if self.auto_save_delivery_note:
@@ -128,7 +121,7 @@ class SalesInvoice(Document):
 
         idx = 1
 
-        # Trade Payavble - Debit
+        # Trade Receivable - Debit
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Invoice"
         gl_doc.voucher_no = self.name
@@ -142,7 +135,7 @@ class SalesInvoice(Document):
         gl_doc.aginst_account = default_accounts.default_income_account
         gl_doc.insert()
 
-        # Stock Received But Not Billed
+        # Income account - Credot
         idx = 2
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Invoice"
@@ -155,7 +148,7 @@ class SalesInvoice(Document):
         gl_doc.aginst_account = default_accounts.default_receivable_account
         gl_doc.insert()
 
-        # Tax
+        # Tax - Credit
         idx = 3
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Invoice"
@@ -164,7 +157,8 @@ class SalesInvoice(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.tax_account
-        gl_doc.credit_amount = self.tax_total
+        gl_doc.credit_amount = self.tax_total        
+        gl_doc.aginst_account = default_accounts.default_receivable_account
         gl_doc.insert()
 
         # Round Off
@@ -242,7 +236,7 @@ class SalesInvoice(Document):
             do = frappe.get_doc('Delivery Note',do_no)
             do.submit()
         
-            frappe.msgprint("A Delivery Note corresponding to the sales invoice is generated.")
+            frappe.msgprint("A Delivery Note corresponding to the sales invoice is also generated.")
             return
         
         delivery_note_name = ""
