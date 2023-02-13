@@ -305,6 +305,28 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.refresh_field("rounded_total");
 
 	},
+	get_item_stock_balance(frm) {
+
+		console.log("From get_item_stock_balance")
+		console.log(frm.item)
+		console.log(frm.warehouse)
+
+		frappe.call(
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Stock Balance',
+					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+					'fieldname': ['stock_qty']
+				},
+				callback: (r2) => {
+					console.log(r2)
+					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
+					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+
+				}
+			});
+	},
 	get_default_company_and_warehouse(frm) {
 
 		var default_company = ""		
@@ -441,6 +463,12 @@ frappe.ui.form.on('Sales Invoice Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
+
+					frm.item = row.item
+					frm.warehouse = row.warehouse
+					console.log("before trigger")
+					frm.trigger("get_item_stock_balance");
+
 
 					if (!r.message.tax_excluded) {
 						frappe.call(
@@ -636,5 +664,11 @@ frappe.ui.form.on('Sales Invoice Item', {
 		frm.trigger("make_taxes_and_totals");
 
 		frm.refresh_field("items");
+	},
+	warehouse(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		frm.item = row.item
+		frm.warehouse = row.warehouse
+		frm.trigger("get_item_stock_balance");
 	}
 });

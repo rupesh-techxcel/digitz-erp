@@ -65,15 +65,14 @@
   },
   {
    "fieldname": "against_account",
-   "fieldtype": "Link",
-   "label": "Against Account",
-   "options": "Account"
+   "fieldtype": "Data",
+   "label": "Against Account"
   },
   {
    "fieldname": "party_type",
    "fieldtype": "Select",
    "label": "Party Type",
-   "options": "Supplier\nCustomer\nEmployee"
+   "options": "\nSupplier\nCustomer\nEmployee"
   },
   {
    "fieldname": "party",
@@ -100,7 +99,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-01 07:26:24.918955",
+ "modified": "2023-02-13 05:49:51.764464",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "GL Posting",

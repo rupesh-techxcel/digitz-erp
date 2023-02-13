@@ -284,6 +284,28 @@ frappe.ui.form.on('Delivery Note', {
 		frm.refresh_field("rounded_total");
 
 	},
+	get_item_stock_balance(frm) {
+
+		console.log("From get_item_stock_balance")
+		console.log(frm.item)
+		console.log(frm.warehouse)
+
+		frappe.call(
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Stock Balance',
+					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+					'fieldname': ['stock_qty']
+				},
+				callback: (r2) => {
+					console.log(r2)
+					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
+					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+
+				}
+			});
+	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
 		console.log("From Get Default Warehouse Method in the parent form")
@@ -385,24 +407,15 @@ frappe.ui.form.on("Delivery Note", "onload", function (frm) {
 frappe.ui.form.on('Delivery Note Item', {
 	item(frm, cdt, cdn) {
 
-		let row = frappe.get_doc(cdt, cdn);
-		console.log(frm.doc.customer);
-		console.log(typeof (frm.doc.customer));
-
+		let row = frappe.get_doc(cdt, cdn);		
 		if (typeof (frm.doc.customer) == "undefined") {
 			frappe.msgprint("Select customer.")
 			row.item = "";
 			return;
 		}
-
-
-
-		console.log(row.item);
-		console.log(row.qty);
-		let doc = frappe.model.get_value("", row.item);
-		console.log(doc);
-		row.warehouse = frm.doc.warehouse;
-		console.log(row.warehouse);
+		
+		let doc = frappe.model.get_value("", row.item);		
+		row.warehouse = frm.doc.warehouse;		
 		frm.trigger("make_taxes_and_totals");
 
 		frappe.call(
@@ -414,17 +427,16 @@ frappe.ui.form.on('Delivery Note Item', {
 					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					console.log('Item Code');
-					console.log(r.message.item_code);
-					console.log(r.message.base_unit);
-					console.log(r.message.tax);
-					console.log(r.message.tax_excluded);
+					
 					row.item_code = r.message.item_code;
 					//row.uom = r.message.base_unit;	
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
+					frm.item = row.item
+					frm.warehouse = row.warehouse				
+					frm.trigger("get_item_stock_balance");
 
 					if (!r.message.tax_excluded) {
 						frappe.call(
@@ -642,7 +654,12 @@ frappe.ui.form.on('Delivery Note Item', {
 		frm.trigger("make_taxes_and_totals");
 
 		frm.refresh_field("items");
+	},
+	warehouse(frm, cdt, cdn) {
+
+		let row = frappe.get_doc(cdt, cdn);
+		frm.item = row.item
+		frm.warehouse = row.warehouse
+		frm.trigger("get_item_stock_balance");
 	}
-
-
 });
