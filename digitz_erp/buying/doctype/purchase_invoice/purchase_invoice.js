@@ -57,7 +57,6 @@ frappe.ui.form.on('Purchase Invoice', {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
-
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
