@@ -33,7 +33,8 @@ class PurchaseInvoice(Document):
   
 		for docitem in self.items:						
    
-   		# For back dated purchase invoice
+   		# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
+		# in this flow itself. If more records, exists stock balance will be udpated lateer
 			more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
 				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
    
@@ -63,6 +64,7 @@ class PurchaseInvoice(Document):
                                             ['balance_qty', 'balance_value', 'valuation_rate'],order_by='posting_date desc', as_dict=True)				
     
 				if(last_stock_ledger):
+					print("last_stock_ledger")
 					new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty			
 				
 					new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
@@ -86,7 +88,7 @@ class PurchaseInvoice(Document):
 			new_stock_ledger.source_document_id = docitem.name
 			new_stock_ledger.insert()	
 			
-			# If no more records for the item, update balances. otherwise it updates in the su
+			# If no more records for the item, update balances. otherwise it updates in the flow
 			if more_records_count_for_item==0: 
 				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):    
 					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
@@ -112,11 +114,10 @@ class PurchaseInvoice(Document):
 			# 	balance_stock_value = balance_stock_value + item.stock_value   
    
 		if(more_records>0):
-			self.recalculate_stock_ledgers("Add",new_stock_ledger.name)		
+			self.recalculate_stock_ledgers("Insert",new_stock_ledger.name)		
 
-	def on_cancel(self):	
-        
-		print("after cancel event")
+	def on_cancel(self):        
+	
 		self.validate_and_cancel_purchase()
 
 		frappe.db.delete("Stock Ledger",
@@ -222,7 +223,7 @@ class PurchaseInvoice(Document):
 			# if(more_for_item ==0):
 			# 	continue   
    
-			balance_qty = 0;
+			balance_qty = 0
 			valuation_rate = 0
 			balance_value = 0
 			qty_in = 0
@@ -242,7 +243,7 @@ class PurchaseInvoice(Document):
 					previous_stock_ledger = frappe.get_doc('Stock Ledger',previous_ledger_name.name)
 					qty_in = previous_stock_ledger.qty_in
 					qty_out = previous_stock_ledger.qty_out
-					rate_in = previous_stock_ledger.incomig_rate
+					rate_in = previous_stock_ledger.incoming_rate
 					rate_out = previous_stock_ledger.outgoing_rate 
 					balance_qty = previous_stock_ledger.balance_qty
 					balance_value = previous_stock_ledger.balance_value
@@ -260,7 +261,7 @@ class PurchaseInvoice(Document):
 															'unit': docitem.unit
 						 									})
                     
-			if(operation == "Add"):
+			if(operation == "Insert"):
     			
        			# When adding purchase invoice, take the corresponding stock ledger values(newly added stock ledger in the parent method)
 				stock_ledger = frappe.get_doc("Stock Ledger", new_stock_ledger_name)				
@@ -270,18 +271,23 @@ class PurchaseInvoice(Document):
 														'incoming_rate': stock_ledger.incoming_rate,
 														'qty_out': stock_ledger.qty_out,
 														'outgoing_rate':stock_ledger.outgoing_rate,
-														'balance_qty':balance_qty,
-														'balance_value':balance_value,
-														'valuation_rate':valuation_rate,
+														'balance_qty':stock_ledger.balance_qty,
+														'balance_value':stock_ledger.balance_value,
+														'valuation_rate':stock_ledger.valuation_rate,
 														'unit': docitem.unit
-														})
+														})			
+    
+		recalc_voucher = stock_recalc_voucher.insert()		
+  
 		# stock_recalc_voucher.save()
-		self.recalculate_subsequent_stock_ledgers(stock_recalc_voucher)
+		self.recalculate_subsequent_stock_ledgers(recalc_voucher)
          
 			# frappe.msgprint("Stock balances updated successfully.")
 	
-	def recalculate_subsequent_stock_ledgers(self,stock_recalc_voucher):
+	def recalculate_subsequent_stock_ledgers(self,recalc_voucher):
      
+		stock_recalc_voucher = frappe.get_doc("Stock Recalculate Voucher", recalc_voucher.name)
+  
 		# stock_recalc_voucher = frappe.get_doc("Stock Recalculate Voucher", stock_recalc_voucher_name)      
 		stock_recalc_voucher.status = 'Started'
 		stock_recalc_voucher.start_time = now()
@@ -291,6 +297,9 @@ class PurchaseInvoice(Document):
 		posting_date_time = get_datetime(str(stock_recalc_voucher.voucher_date) + " " + str(stock_recalc_voucher.voucher_time))			
 
 		for record in stock_recalc_voucher.records:
+			
+			print("idx")
+			print(record.idx)
             
 			balance_qty = record.balance_qty
 			balance_value = record.balance_value
@@ -300,6 +309,8 @@ class PurchaseInvoice(Document):
 			qty_out = record.qty_out
 			outgoing_rate = record.outgoing_rate			
 			
+			print("verify record balance_qty")
+			print(balance_qty)
 
 			stock_ledger_items = frappe.get_list('Stock Ledger',{'item':record.item,
 			'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]}, 'name',order_by='posting_date')
@@ -313,10 +324,16 @@ class PurchaseInvoice(Document):
 				if(sl.voucher == "Delivery Note"):
 					balance_qty = balance_qty - sl.qty_out
 					balance_value = balance_qty * valuation_rate
-				
+	
+				print("Voucher Check")
+				print(sl.voucher)    			
+    
 				if (sl.voucher == "Purchase Invoice"):
 					balance_qty = balance_qty + sl.qty_in
 					balance_value = balance_value  + (sl.qty_in * sl.incoming_rate)
+					print("new balance qty")
+					print(balance_qty)
+     
 					if(balance_qty!=0): #Avoid divisible by zero
 						valuation_rate = balance_value/ balance_qty						
 				
