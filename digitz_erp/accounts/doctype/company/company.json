@@ -43,6 +43,7 @@
   "round_off_account",
   "default_income_account",
   "cost_of_goods_sold_account",
+  "stock_adjustment_account",
   "terms_and_conditions_tab",
   "supplier_terms",
   "section_break_39",
@@ -291,11 +292,18 @@
    "fieldname": "delivery_note_integrated_with_sales_invoice",
    "fieldtype": "Check",
    "label": "Delivery Note Integrated with Sales Invoice"
+  },
+  {
+   "fieldname": "stock_adjustment_account",
+   "fieldtype": "Link",
+   "label": "Stock Adjustment A/c",
+   "options": "Account",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-20 06:41:54.517979",
+ "modified": "2023-02-24 16:40:36.521611",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

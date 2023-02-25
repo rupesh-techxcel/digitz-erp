@@ -171,8 +171,6 @@ frappe.ui.form.on('Delivery Note', {
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
 
-
-
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
 			gross_total = gross_total + entry.gross_amount;
@@ -375,13 +373,13 @@ frappe.ui.form.on("Delivery Note", "onload", function (frm) {
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);	
-	frm.set_query("warehouse", function () {
-		return {
-			"filters": {
-				"is_group": 0
-			}
-		};
-	});
+	// frm.set_query("warehouse", function () {
+	// 	return {
+	// 		"filters": {
+	// 			"is_group": 0
+	// 		}
+	// 	};
+	// });
 
 	frm.trigger("get_default_company_and_warehouse");
 

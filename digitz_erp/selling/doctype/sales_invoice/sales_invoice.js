@@ -391,13 +391,13 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);	
-	frm.set_query("warehouse", function () {
-		return {
-			"filters": {
-				"is_group": 0
-			}
-		};
-	});
+	// frm.set_query("warehouse", function () {
+	// 	return {
+	// 		"filters": {
+	// 			"is_group": 0
+	// 		}
+	// 	};
+	// });
 	
 	console.log(frm.doc);
 	

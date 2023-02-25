@@ -6,7 +6,7 @@
 
 .layout-side-section
 {
-    background: blanchedalmond!important;
+    background: #cbced3!important;
 }
 
 .page-head 
@@ -31,4 +31,15 @@ body{
 .dt-row
 {
     border:1px solid lightblue !important;
+}
+.ce-block__content
+{
+    border:1px solid lightblue !important;
+    padding:0px !important;
+    background: lightblue !important;
+}
+.frappe-control
+{
+    border:1px solid lightblue !important;
+    padding:5px !important
 }

@@ -18,17 +18,15 @@
   "company",
   "remarks",
   "section_break_19",
+  "section_break_13",
   "items",
+  "section_break_12",
   "selected_item_stock_qty_in_the_warehouse",
-  "column_break_30",
-  "section_break_25",
-  "gross_total",
   "column_break_33",
   "net_total",
-  "round_off",
-  "rounded_total",
-  "section_break_33",
-  "section_break_27",
+  "section_break_17",
+  "note",
+  "section_brak_19",
   "amended_from"
  ],
  "fields": [
@@ -42,7 +40,8 @@
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
-   "options": "Warehouse"
+   "options": "Warehouse",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_6",
@@ -93,53 +92,12 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Stock Reconciliation Item"
-  },
-  {
-   "fieldname": "column_break_30",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_25",
-   "fieldtype": "Section Break",
-   "label": "Totals"
-  },
-  {
-   "fieldname": "gross_total",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
+   "options": "Stock Reconciliation Item",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_33",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "net_total",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "round_off",
-   "fieldtype": "Float",
-   "label": "Round Off",
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rounded_total",
-   "fieldtype": "Currency",
-   "label": "Rounded Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "section_break_27",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "amended_from",
@@ -163,12 +121,40 @@
    "fieldname": "selected_item_stock_qty_in_the_warehouse",
    "fieldtype": "Data",
    "label": "Available stock for last selected item"
+  },
+  {
+   "fieldname": "section_break_12",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total"
+  },
+  {
+   "default": "Adding Stock Reconciliation is useful to match your stock in the system with the physical stock available in the warehouse. System will automatically adjust the system stock according to  the physical stock entered. System also posts a 'Stock Adjustment' entry in the GL",
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_13",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_17",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_brak_19",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-02-16 17:12:56.628891",
+ "modified": "2023-02-25 16:25:11.024742",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Reconciliation",
