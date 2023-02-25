@@ -15,7 +15,7 @@
   "start_time",
   "end_time",
   "records",
-  "source_action"
+  "action"
  ],
  "fields": [
   {
@@ -63,15 +63,15 @@
    "options": "Stock Recalculate Voucher Records"
   },
   {
-   "fieldname": "source_action",
+   "fieldname": "action",
    "fieldtype": "Select",
-   "label": "Source Action",
+   "label": "Action",
    "options": "Cancel\nInsert"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-12 10:21:05.964749",
+ "modified": "2023-02-18 06:51:46.909141",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Recalculate Voucher",

@@ -8,14 +8,7 @@
  "field_order": [
   "item",
   "warehouse",
-  "qty_in",
-  "incoming_rate",
-  "qty_out",
-  "outgoing_rate",
-  "valuation_rate",
-  "balance_qty",
-  "balance_value",
-  "unit"
+  "base_stock_ledger"
  ],
  "fields": [
   {
@@ -31,51 +24,15 @@
    "options": "Warehouse"
   },
   {
-   "fieldname": "qty_in",
-   "fieldtype": "Float",
-   "label": "Qty In"
-  },
-  {
-   "fieldname": "incoming_rate",
-   "fieldtype": "Currency",
-   "label": "Incoming Rate"
-  },
-  {
-   "fieldname": "qty_out",
-   "fieldtype": "Float",
-   "label": "Qty Out"
-  },
-  {
-   "fieldname": "outgoing_rate",
-   "fieldtype": "Currency",
-   "label": "Outgoing Rate"
-  },
-  {
-   "fieldname": "valuation_rate",
-   "fieldtype": "Currency",
-   "label": "Valuation Rate"
-  },
-  {
-   "fieldname": "balance_qty",
-   "fieldtype": "Float",
-   "label": "Balance Qty"
-  },
-  {
-   "fieldname": "balance_value",
-   "fieldtype": "Currency",
-   "label": "Balance Value"
-  },
-  {
-   "fieldname": "unit",
-   "fieldtype": "Link",
-   "label": "Unit",
-   "options": "Unit"
+   "fieldname": "base_stock_ledger",
+   "fieldtype": "Data",
+   "label": "Base Stock Ledger"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-02-10 19:08:52.997530",
+ "modified": "2023-02-18 16:45:10.348202",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Recalculate Voucher Records",

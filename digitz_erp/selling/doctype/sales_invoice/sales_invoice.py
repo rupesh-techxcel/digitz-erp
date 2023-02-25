@@ -6,6 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils import now
 from frappe.model.document import Document
 
+
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
 

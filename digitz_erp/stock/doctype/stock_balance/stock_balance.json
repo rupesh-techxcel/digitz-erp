@@ -18,34 +18,40 @@
    "fieldname": "item",
    "fieldtype": "Link",
    "label": "Item",
-   "options": "Item"
+   "options": "Item",
+   "read_only": 1
   },
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
-   "options": "Warehouse"
+   "options": "Warehouse",
+   "read_only": 1
   },
   {
    "fieldname": "stock_qty",
    "fieldtype": "Float",
-   "label": "Stock Qty"
+   "label": "Stock Qty",
+   "read_only": 1
   },
   {
    "fieldname": "unit",
    "fieldtype": "Link",
    "label": "Unit",
-   "options": "Unit"
+   "options": "Unit",
+   "read_only": 1
   },
   {
    "fieldname": "stock_value",
    "fieldtype": "Currency",
-   "label": "Stock Value"
+   "label": "Stock Value",
+   "read_only": 1
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-27 14:36:42.919972",
+ "modified": "2023-02-25 16:52:48.386756",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Balance",
@@ -64,6 +70,7 @@
    "write": 1
   }
  ],
+ "read_only": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

@@ -28,17 +28,32 @@ def get_item_price_for_price_list(item, price_list):
 		 "parent": price_list},
 		fields=["price"]	  
 )
-  
-def get_item_valuation_rate_for_price_list(item, posting_date, posting_time):	
+
+@frappe.whitelist()
+def get_item_valuation_rate(item, posting_date, posting_time):	
 	
 	posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))			
 	
-	previous_ledger_valuation_rate = frappe.db.get_value('Stock Ledger', {'item': ['=', item],'posting_date':['<', posting_date_time]},['valuation_rate'], order_by='posting_date desc', as_dict=True)
+	previous_ledger_valuation_rate = frappe.db.get_value('Stock Ledger', {'item': ['=', item],'posting_date':['<', posting_date_time]},
+                                                      ['valuation_rate'], order_by='posting_date desc', as_dict=True)
  
-	if(not  previous_ledger_valuation_rate):
-		return 0
+	if(previous_ledger_valuation_rate):
+		return previous_ledger_valuation_rate.valuation_rate
 	else:
- 		return previous_ledger_valuation_rate
-   
- 
-  	
+		return 0
+
+@frappe.whitelist()
+def get_stock_for_item(item, warehouse, posting_date, posting_time):
+    
+		print("from get_stock_for_item")
+
+		posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  
+		
+		previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', item], 'warehouse':['=', warehouse]
+			, 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+			order_by='posting_date desc', as_dict=True)  
+  
+		return previous_stock_balance.balance_qty
+
+
+

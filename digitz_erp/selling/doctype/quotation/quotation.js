@@ -310,13 +310,13 @@ frappe.ui.form.on("Quotation", "onload", function (frm) {
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);	
-	frm.set_query("warehouse", function () {
-		return {
-			"filters": {
-				"is_group": 0
-			}
-		};
-	});
+	// frm.set_query("warehouse", function () {
+	// 	return {
+	// 		"filters": {
+	// 			"is_group": 0
+	// 		}
+	// 	};
+	// });
 
 	frm.trigger("get_default_company_and_warehouse");
 

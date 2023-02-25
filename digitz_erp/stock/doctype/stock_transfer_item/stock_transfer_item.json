@@ -19,7 +19,6 @@
   "source_warehouse",
   "target_warehouse",
   "column_break_11",
-  "gross_amount",
   "net_amount",
   "unit_conversion_details",
   "section_break_23"
@@ -90,12 +89,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "Qty * Rate Excluded Tax",
-   "fieldname": "gross_amount",
-   "fieldtype": "Float",
-   "label": "Gross Amount"
-  },
-  {
    "fieldname": "net_amount",
    "fieldtype": "Float",
    "label": "Net Amount"
@@ -114,7 +107,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-01-11 10:26:43.302220",
+ "modified": "2023-02-19 08:08:44.673536",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Transfer Item",

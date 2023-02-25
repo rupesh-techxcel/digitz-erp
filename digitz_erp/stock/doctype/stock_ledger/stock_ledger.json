@@ -1,7 +1,7 @@
 {
  "actions": [],
  "creation": "2022-12-30 13:22:20.249671",
- "default_view": "Report",
+ "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -10,14 +10,15 @@
   "item_code",
   "posting_date",
   "warehouse",
-  "balance_qty",
-  "valuation_rate",
-  "balance_value",
-  "column_break_8",
   "qty_in",
   "incoming_rate",
   "qty_out",
   "outgoing_rate",
+  "balance_qty",
+  "valuation_rate",
+  "balance_value",
+  "change_in_stock_value",
+  "column_break_8",
   "unit",
   "voucher",
   "voucher_no",
@@ -32,45 +33,53 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Item",
-   "options": "Item"
+   "options": "Item",
+   "read_only": 1
   },
   {
    "fieldname": "posting_date",
    "fieldtype": "Datetime",
    "in_list_view": 1,
-   "label": "Date"
+   "label": "Date",
+   "read_only": 1
   },
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Warehouse",
-   "options": "Warehouse"
+   "options": "Warehouse",
+   "read_only": 1
   },
   {
    "fieldname": "balance_qty",
    "fieldtype": "Float",
-   "label": "Balance Qty"
+   "label": "Balance Qty",
+   "read_only": 1
   },
   {
    "fieldname": "incoming_rate",
    "fieldtype": "Float",
-   "label": "Incoming Rate"
+   "label": "Incoming Rate",
+   "read_only": 1
   },
   {
    "fieldname": "outgoing_rate",
    "fieldtype": "Float",
-   "label": "Outgoing Rate"
+   "label": "Outgoing Rate",
+   "read_only": 1
   },
   {
    "fieldname": "valuation_rate",
    "fieldtype": "Float",
-   "label": "Valuation Rate"
+   "label": "Valuation Rate",
+   "read_only": 1
   },
   {
    "fieldname": "balance_value",
    "fieldtype": "Float",
-   "label": "Balance Value"
+   "label": "Balance Value",
+   "read_only": 1
   },
   {
    "fetch_from": "item.item_code",
@@ -79,58 +88,74 @@
    "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "item_code"
+   "label": "item_code",
+   "read_only": 1
   },
   {
    "fieldname": "unit",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Unit",
-   "options": "Unit"
+   "options": "Unit",
+   "read_only": 1
   },
   {
    "fieldname": "qty_in",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty In"
+   "label": "Qty In",
+   "read_only": 1
   },
   {
    "fieldname": "qty_out",
    "fieldtype": "Float",
-   "label": "Qty Out"
+   "label": "Qty Out",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "read_only": 1
   },
   {
    "fieldname": "source",
    "fieldtype": "Link",
    "label": "Source",
-   "options": "DocType"
+   "options": "DocType",
+   "read_only": 1
   },
   {
    "fieldname": "voucher",
    "fieldtype": "Link",
    "label": "Voucher",
-   "options": "DocType"
+   "options": "DocType",
+   "read_only": 1
   },
   {
    "fieldname": "source_document_id",
    "fieldtype": "Dynamic Link",
    "label": "Source Document Id",
-   "options": "source"
+   "options": "source",
+   "read_only": 1
   },
   {
    "fieldname": "voucher_no",
    "fieldtype": "Dynamic Link",
    "label": "Voucher No",
-   "options": "voucher"
+   "options": "voucher",
+   "read_only": 1
+  },
+  {
+   "fieldname": "change_in_stock_value",
+   "fieldtype": "Currency",
+   "label": "Change In Stock Value",
+   "read_only": 1
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-10 19:08:31.694406",
+ "modified": "2023-02-25 16:51:34.871416",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",
@@ -150,6 +175,7 @@
    "write": 1
   }
  ],
+ "read_only": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

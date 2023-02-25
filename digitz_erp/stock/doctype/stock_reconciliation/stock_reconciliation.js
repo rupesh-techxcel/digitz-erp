@@ -75,6 +75,35 @@ frappe.ui.form.on('Stock Reconciliation', {
 				}
 			});
 	},
+	make_totals(frm) {
+		console.log("from make totals..")
+		frm.clear_table("taxes");
+		frm.refresh_field("taxes");
+
+		var gross_total = 0;
+		var tax_total = 0;
+		var net_total = 0;
+		var discount_total = 0;
+
+		//Avoid Possible NaN
+		
+		frm.doc.net_total = 0;
+		net_total = 0
+
+		frm.doc.items.forEach(function (entry) {
+	
+				entry.net_amount = entry.qty * entry.rate				
+				net_total= net_total + entry.net_amount
+				
+				entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
+				entry.rate_in_base_unit = entry.rate / entry.conversion_factor;				
+			})
+
+			frm.doc.net_total = net_total
+			frm.refresh_field("items");
+			frm.refresh_field("net_total");
+		}		
+		,
 });
 
 frappe.ui.form.on("Stock Reconciliation", "onload", function (frm) {
@@ -113,49 +142,54 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 						frm.item = row.item
 						frm.warehouse = row.warehouse				
 						frm.trigger("get_item_stock_balance");
-					}
-				});
-		
-		frappe.call(
-			{
-				method: 'digitz_erp.api.items_api.get_item_valuation_rate',
-				async: false,
+						row.warehouse = frm.doc.warehouse
 
-				args: {
-					'item': row.item,
-					'posting_date': frm.doc.posting_date,
-					'posting_time': frm.doc.posting_time
-				},
-				callback(r) {
-
-					console.log(r)
-					
-					if(r.message = 0)
-					{
 						frappe.call(
 							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
+								method: 'digitz_erp.api.items_api.get_item_valuation_rate',
 								async: false,
 								args: {
 									'item': row.item,
-									'price_list': "Standard Buying"
+									'posting_date': frm.doc.posting_date,
+									'posting_time': frm.doc.posting_time
 								},
 								callback(r) {
-									if (r.message.length == 1) {										
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
+									console.log("Valuation rate in console")					
+									console.log(r.message)					
+				
+									if(r.message == 0)
+									{
+										frappe.call(
+											{
+												method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
+												async: false,
+												args: {
+													'item': row.item,
+													'price_list': "Standard Buying"
+												},
+												callback(r) {
+													if (r.message.length == 1) {										
+														row.valuation_rate = r.message[0].price;
+														row.rate_in_base_unit = r.message[0].price;
+														frm.refresh_field("items");
+													}
+												}
+											});
 									}
+									else
+									{
+										row.rate = r.message
+										row.rate_in_base_unit = r.message
+										frm.refresh_field("items");
+									}
+								
 								}
 							});
-
 					}
-					else
-					{
-						row.rate = r.message
-					}
-				
-				}
-			});
+				});
+		
+		console.log("Before get valuation rate for the item")
+		
 
 		frappe.call(
 			{
@@ -187,6 +221,48 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 		frm.item = row.item
 		frm.warehouse = row.warehouse
 		frm.trigger("get_item_stock_balance");
-	}
+	},
+	qty(frm, cdt, cdn) {	
+		
+		frm.trigger("make_totals")
+	},
+	rate(frm, cdt, cdn) {	
+		
+		frm.trigger("make_totals")
+	},
+	unit(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		
+		frappe.call(
+			{
+				method: 'digitz_erp.api.items_api.get_item_uom',
+				async: false,
+				args: {
+					item: row.item,
+					unit: row.unit
+				},
+				callback(r) {
+					if (r.message.length == 0) {
+						frappe.msgprint("Invalid unit, Unit does not exists for the item.");
+						row.unit = row.base_unit;
+						row.conversion_factor = 1;
+					}
+					else {
+						console.log(r.message[0].conversion_factor);
+						row.conversion_factor = r.message[0].conversion_factor;
+						//row.rate = row.rate * row.conversion_factor;							
+						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
+						//() => {
+						//row.qty = row.qty/ row.conversion_factor;								
+						//})	
+					}
+					frm.trigger("make_totals");
+
+					frm.refresh_field("items");
+				}
+
+			}
+		);
+	},
 }
 )
