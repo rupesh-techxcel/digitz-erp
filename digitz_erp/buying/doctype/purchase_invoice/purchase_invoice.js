@@ -359,6 +359,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
+					row.display_name = row.item
 					frm.item = row.item
 					frm.warehouse = row.warehouse
 					console.log("before trigger")

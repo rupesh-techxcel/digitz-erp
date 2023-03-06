@@ -11,6 +11,7 @@
   "naming_series",
   "customer",
   "customer_name",
+  "customer_display_name",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -419,12 +420,17 @@
    "fieldname": "delivery_notes_to_print",
    "fieldtype": "Data",
    "label": "Delivery Notes To Print"
+  },
+  {
+   "fieldname": "customer_display_name",
+   "fieldtype": "Data",
+   "label": "Customer Display Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-02-10 13:52:08.356417",
+ "modified": "2023-03-05 19:45:11.043774",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

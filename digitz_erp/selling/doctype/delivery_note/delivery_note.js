@@ -432,6 +432,7 @@ frappe.ui.form.on('Delivery Note Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
+					row.display_name = row.item
 					frm.item = row.item
 					frm.warehouse = row.warehouse				
 					frm.trigger("get_item_stock_balance");

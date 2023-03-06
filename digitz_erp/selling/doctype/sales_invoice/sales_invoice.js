@@ -79,8 +79,8 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 	customer(frm) {
 		console.log("customer")
-		console.log(frm.doc.customer)
-
+		console.log(frm.doc.customer)		
+		
 		console.log("customer default price list")
 		frappe.call(
 			{
@@ -88,7 +88,7 @@ frappe.ui.form.on('Sales Invoice', {
 				args: {
 					'doctype': 'Customer',
 					'filters': { 'customer_name': frm.doc.customer },
-					'fieldname': ['default_price_list']
+					'fieldname': ['default_price_list','customer_name']
 				},
 				callback: (r) => {
 					if (r.message.default_price_list) {
@@ -96,6 +96,8 @@ frappe.ui.form.on('Sales Invoice', {
 					}
 
 					frm.refresh_field("price_list");
+					frm.doc.customer_display_name = r.message.customer_name
+					frm.refresh_field("customer_display_name");
 				}
 			});
 	},
@@ -463,6 +465,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
+					row.display_name = row.item
 
 					frm.item = row.item
 					frm.warehouse = row.warehouse

@@ -143,6 +143,7 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 						frm.warehouse = row.warehouse				
 						frm.trigger("get_item_stock_balance");
 						row.warehouse = frm.doc.warehouse
+						row.display_name = row.item
 
 						frappe.call(
 							{

@@ -166,6 +166,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 						frm.item = row.item
 						row.source_warehouse = frm.doc.source_warehouse
 						row.target_warehouse = frm.doc.target_warehouse
+						row.display_name = row.item
 
 						frm.source_warehouse = row.source_warehouse
 						frm.target_warehouse = row.target_warehouse

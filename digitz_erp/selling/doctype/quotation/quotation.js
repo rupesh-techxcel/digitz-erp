@@ -383,6 +383,7 @@ frappe.ui.form.on('Quotation Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
+					row.display_name = row.item
 
 					if (!r.message.tax_excluded) {
 						frappe.call(

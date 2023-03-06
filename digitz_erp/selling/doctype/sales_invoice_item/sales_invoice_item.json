@@ -10,6 +10,7 @@
   "warehouse",
   "item",
   "item_code",
+  "display_name",
   "qty",
   "unit",
   "rate",
@@ -161,12 +162,17 @@
    "fieldname": "delivery_note_item_reference_no",
    "fieldtype": "Data",
    "label": "Delivery Note Item Reference No"
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Display Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-02-09 13:22:05.268295",
+ "modified": "2023-03-05 19:22:55.827111",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",
