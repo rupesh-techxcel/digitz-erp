@@ -80,7 +80,9 @@ class PurchaseInvoice(Document):
 			
 				new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
 
-				valuation_rate = new_balance_value/new_balance_qty	
+				if new_balance_qty!=0:
+					valuation_rate = new_balance_value/new_balance_qty	
+     
 				change_in_stock_value = new_balance_value - last_stock_ledger.balance_value
 			
 		
