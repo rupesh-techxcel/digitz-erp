@@ -33,7 +33,7 @@ app_include_css = "/assets/digitz_erp/css/digitz_erp.css"
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-
+fixtures = ["Custom Field"]
 # Home Pages
 # ----------
 
