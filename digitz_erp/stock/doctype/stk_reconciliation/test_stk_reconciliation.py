@@ -7,7 +7,7 @@ from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 
-class StockReconciliation(Document):
+class StkReconciliation(Document):
     def before_submit(self):
         
         stock_adjustment_value =  self.add_stock_reconciliation()

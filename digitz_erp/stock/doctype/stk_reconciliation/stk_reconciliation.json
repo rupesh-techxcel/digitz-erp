@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2023-02-13 06:30:36.649448",
+ "creation": "2023-03-12 16:30:38.941094",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -89,15 +89,19 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "section_break_13",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Stock Reconciliation Item",
+   "options": "Stk Reconciliation Item",
    "reqd": 1
   },
   {
-   "fieldname": "column_break_33",
-   "fieldtype": "Column Break"
+   "fieldname": "section_break_12",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "selected_item_stock_qty_in_the_warehouse",
@@ -105,8 +109,8 @@
    "label": "Available stock for last selected item"
   },
   {
-   "fieldname": "section_break_12",
-   "fieldtype": "Section Break"
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "net_total",
@@ -114,19 +118,15 @@
    "label": "Net Total"
   },
   {
+   "fieldname": "section_break_17",
+   "fieldtype": "Section Break"
+  },
+  {
    "default": "Adding Stock Reconciliation is useful to match your stock in the system with the physical stock available in the warehouse. System will automatically adjust the system stock according to  the physical stock entered. System also posts a 'Stock Adjustment' entry in the GL",
    "fieldname": "note",
    "fieldtype": "Small Text",
    "label": "Note",
    "read_only": 1
-  },
-  {
-   "fieldname": "section_break_13",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "section_break_17",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "section_brak_19",
@@ -137,7 +137,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Stock Reconciliation",
+   "options": "Stk Reconciliation",
    "print_hide": 1,
    "read_only": 1
   }
@@ -145,10 +145,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-12 19:14:32.375812",
+ "modified": "2023-03-12 16:30:38.941094",
  "modified_by": "Administrator",
  "module": "Stock",
- "name": "Stock Reconciliation",
+ "name": "Stk Reconciliation",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
