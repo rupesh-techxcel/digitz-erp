@@ -38,8 +38,6 @@ frappe.ui.form.on("Payment Entry Detail", {
 					frm.refresh_field("payment_allocation")
 				}
 			});
-
-
 	}
 
 
