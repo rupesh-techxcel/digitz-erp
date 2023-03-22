@@ -2,9 +2,15 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Quotation', {
-	// refresh: function(frm) {
+	 refresh: function(frm) {
 
-	// }
+		// if(frm.doc.status ==1)
+		// {
+			frm.add_custom_button('Create Sale Invoice', () => {
+				frm.call("generate_sale_invoice")
+			});
+		// }
+	 },
 	setup: function (frm) {
 
 		frm.add_fetch('customer', 'full_address', 'customer_address')
