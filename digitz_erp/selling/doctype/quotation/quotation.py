@@ -18,6 +18,7 @@ class Quotation(Document):
 		sales_invoice['posting_date'] = self.posting_date
 		sales_invoice['posting_time'] = self.posting_time
 		sales_invoice['quotation'] = quotationName
+		sales_invoice['auto_save_delivery_note'] = True
 		# Change the document status to draft to avoid error while submitting child table
 		sales_invoice['docstatus'] = 0
 		for item in sales_invoice['items']:            
