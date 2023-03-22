@@ -11,6 +11,7 @@
   "naming_series",
   "customer",
   "customer_name",
+  "customer_display_name",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -59,11 +60,11 @@
   "tab_break_50",
   "data_53",
   "do_no",
-  "amended_from",
   "address_line_1",
   "address_line_2",
   "area_name",
-  "country"
+  "country",
+  "amended_from"
  ],
  "fields": [
   {
@@ -384,12 +385,17 @@
    "fieldname": "country",
    "fieldtype": "Data",
    "label": "Country"
+  },
+  {
+   "fieldname": "customer_display_name",
+   "fieldtype": "Data",
+   "label": "Customer Display Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-21 06:15:51.447442",
+ "modified": "2023-03-22 12:20:33.718321",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

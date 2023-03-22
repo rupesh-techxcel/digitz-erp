@@ -4,12 +4,50 @@
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
 
-		// if(frm.doc.status ==1)
-		// {
-			frm.add_custom_button('Create Sale Invoice', () => {
-				frm.call("generate_sale_invoice")
-			});
-		// }
+		console.log("docstatus")
+		console.log(frm.doc.docstatus)
+
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Global Settings',
+				'fieldname': 'default_company'
+			},
+			callback: (r) => {
+				
+				frm.doc.company = r.message.default_company
+				frm.refresh_field("company");
+				frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args: {
+							'doctype': 'Company',
+							'filters': { 'company_name': r.message.default_company },
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
+						},
+						callback: (r2) => {
+							console.log("Before assign default warehouse");
+							console.log(r2.message.default_warehouse);
+							frm.doc.warehouse = r2.message.default_warehouse;
+							console.log(frm.doc.warehouse);
+							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;							
+							frm.refresh_field("warehouse");
+							frm.refresh_field("rate_includes_tax");
+							console.log(r2.message);
+							frm.refresh_field("auto_save_delivery_note");							
+
+							//Have a button to create delivery note in case delivery note is not integrated with SI
+							if (frm.doc.docstatus==1 ) {
+								frm.add_custom_button('Create Sales Invoice & DO', () => {
+									frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
+								},
+								)
+							}
+						}
+					}
+				)
+			}
+		})
 	 },
 	setup: function (frm) {
 
@@ -47,6 +85,8 @@ frappe.ui.form.on('Quotation', {
 					frm.refresh_field("price_list");
 				}
 			});
+		frm.doc.customer_display_name = frm.doc.customer_name
+		frm.refresh_field("customer_display_name");
 	},
 	edit_posting_date_and_time(frm) {
 
