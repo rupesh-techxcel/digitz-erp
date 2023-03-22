@@ -10,19 +10,21 @@ from frappe.model.document import Document
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
 
-    # def before_save(self):
+    def before_save(self):
         # for i in self.items:
         #     if i.delivery_note:
         #         frappe.db.set_value(
         #             'Delivery Note', i.delivery_note, 'against_sales_invoice', self.name)
         #         frappe.db.commit()
         
-        # if not self.is_new() and self.auto_save_delivery_note:
-        # if self.auto_save_delivery_note:
-            #  self.generate_delivery_note()
+        # if not self.is_new() and self.auto_save_delivery_note:        
          
+        # if self.auto_save_delivery_note:
+        #     self.auto_generate_delivery_note()
+        # frappe.msgprint("before save event")
+        # print("before save")
 
-    def before_submit(self):
+       def before_submit(self):
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be 
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
@@ -44,7 +46,8 @@ class SalesInvoice(Document):
 
         # self.created_by = frappe.user
         # self.submitted_date = now()
-
+        
+   
         self.insert_gl_records()
         self.insert_payment_postings()
 
@@ -110,6 +113,10 @@ class SalesInvoice(Document):
         #     print(delivery_note)
         #     frappe.delete_doc('Delivery Note', delivery_note)
 
+    # def after_save():
+    #     frappe.msgprint("after save")
+    #     print("after save")
+    
     def insert_gl_records(self):
 
         print("From insert gl records")
@@ -228,6 +235,8 @@ class SalesInvoice(Document):
     @frappe.whitelist()
     def auto_generate_delivery_note(self):
         
+        print("From auto generate delivery note")
+        
         # if document already saved, do also already saved. so, if the user is submitting the sales invoice
         # just need to submit the do as well
                 
@@ -251,24 +260,27 @@ class SalesInvoice(Document):
         # Remove Reference first to avoid reference error when trying to delete before recreating
         # si.delivery_note ="" 
         # si.save()
-                
+        
+        do_exists = False
 
         if self.auto_save_delivery_note:
             if frappe.db.exists('Sales Invoice Delivery Notes', {'parent': self.name}):    
+                do_exists = True
                 delivery_note_name =  frappe.db.get_value('Sales Invoice Delivery Notes',{'parent':self.name},['delivery_note'] )
                 # Remove the reference first before deleting the actual document
                 frappe.db.delete('Sales Invoice Delivery Notes',{'parent':self.name})
                 delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_name)
                 delivery_note_name = delivery_note_doc.name
                 delivery_note_doc.delete()
+                print("delivery note deleted")
        
         delivery_note = self.__dict__
         delivery_note['doctype'] = 'Delivery Note'
         # delivery_note['against_sales_invoice'] = delivery_note['name']
-        delivery_note['name'] = delivery_note_name        
+        # delivery_note['name'] = delivery_note_name        
         delivery_note['naming_series'] = ""
-        # delivery_note['posting_date'] = self.posting_date
-        # delivery_note['posting_time'] = self.posting_time
+        delivery_note['posting_date'] = self.posting_date
+        delivery_note['posting_time'] = self.posting_time
 
         delivery_note['auto_generated_from_sales_invoice'] = 1
 
@@ -277,13 +289,19 @@ class SalesInvoice(Document):
             item._meta = ""        
 
         doNo = frappe.get_doc(delivery_note).insert()
-        frappe.db.commit()       
+        frappe.db.commit()
         
+        if(not do_exists):
+            delivery_note_name = doNo.name
+            
+        # Rename the delivery note to the original dnoNo which is deleted
+        if(do_exists):
+            frappe.rename_doc('Delivery Note', doNo.name, delivery_note_name)
         
-        do = frappe.get_doc('Delivery Note', doNo.name)
+        # do = frappe.get_doc('Delivery Note', delivery_note_name)
         si = frappe.get_doc('Sales Invoice',si_name)
 
-        row = si.append('delivery_notes', {'delivery_note': do.name})
+        row = si.append('delivery_notes', {'delivery_note': delivery_note_name})
 
         si.save()
 
@@ -308,10 +326,11 @@ class SalesInvoice(Document):
         index = 0        
 
         for item in si.items:            
-            item.delivery_note_item_reference_no = do.items[index].name
+            item.delivery_note_item_reference_no = doNo.items[index].name
             index = index + 1
 
         si.save()
+        print("From end of auto gen delivery note")
     
     def cancel_delivery_note_for_sales_invoice(self):
         print("cancel delivbery note for sales invoice")

@@ -67,7 +67,8 @@
   "address_line_1",
   "address_line_2",
   "area_name",
-  "country"
+  "country",
+  "quotation"
  ],
  "fields": [
   {
@@ -425,12 +426,19 @@
    "fieldname": "customer_display_name",
    "fieldtype": "Data",
    "label": "Customer Display Name"
+  },
+  {
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "label": "Quotation",
+   "options": "Quotation",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-05 19:45:11.043774",
+ "modified": "2023-03-21 17:46:51.285854",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

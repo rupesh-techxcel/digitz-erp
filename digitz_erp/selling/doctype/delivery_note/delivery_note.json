@@ -11,6 +11,7 @@
   "naming_series",
   "customer",
   "customer_name",
+  "customer_display_name",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -19,6 +20,7 @@
   "edit_posting_date_and_time",
   "ship_to_location",
   "salesman",
+  "salesman_code",
   "tax_id",
   "column_break_4",
   "company",
@@ -51,12 +53,12 @@
   "terms_and_conditions",
   "section_break_27",
   "tab_break_50",
-  "amended_from",
   "auto_generated_from_sales_invoice",
   "address_line_1",
   "address_line_2",
   "area_name",
-  "country"
+  "country",
+  "amended_from"
  ],
  "fields": [
   {
@@ -344,12 +346,24 @@
    "fieldname": "country",
    "fieldtype": "Data",
    "label": "Country"
+  },
+  {
+   "fieldname": "customer_display_name",
+   "fieldtype": "Data",
+   "label": "Customer Display Name"
+  },
+  {
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman code"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-14 23:36:40.246975",
+ "modified": "2023-03-22 05:33:45.099664",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

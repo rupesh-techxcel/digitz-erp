@@ -59,7 +59,11 @@
   "tab_break_50",
   "data_53",
   "do_no",
-  "amended_from"
+  "amended_from",
+  "address_line_1",
+  "address_line_2",
+  "area_name",
+  "country"
  ],
  "fields": [
   {
@@ -360,12 +364,32 @@
    "options": "Quotation",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address Line 1"
+  },
+  {
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fieldname": "area_name",
+   "fieldtype": "Data",
+   "label": "Area Name"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-17 20:00:05.565096",
+ "modified": "2023-03-21 06:15:51.447442",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

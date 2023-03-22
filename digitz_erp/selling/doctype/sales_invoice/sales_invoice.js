@@ -17,9 +17,12 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 	after_save: function (frm) {
 
-		if (frm.doc.auto_save_delivery_note) {
-		frm.call("auto_generate_delivery_note")
-		}
+		console.log("after save")
+		frappe.msgprint("after save")
+
+		// if (frm.doc.auto_save_delivery_note) {
+			 frm.call("auto_generate_delivery_note")
+		// }
 	},	
 	validate: function (frm) {		
 
@@ -96,10 +99,12 @@ frappe.ui.form.on('Sales Invoice', {
 					}
 
 					frm.refresh_field("price_list");
-					frm.doc.customer_display_name = r.message.customer_name
-					frm.refresh_field("customer_display_name");
 				}
 			});
+
+			frm.doc.customer_display_name = frm.doc.customer_name
+			frm.refresh_field("customer_display_name");
+
 	},
 	edit_posting_date_and_time(frm) {
 
