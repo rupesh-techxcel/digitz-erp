@@ -329,6 +329,8 @@ class SalesInvoice(Document):
             item.delivery_note_item_reference_no = doNo.items[index].name
             index = index + 1
 
+        # Need to remove the next line to set auto_save_delivery_note
+        si.auto_save_delivery_note = True
         si.save()
         print("From end of auto gen delivery note")
     
