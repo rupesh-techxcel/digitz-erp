@@ -29,7 +29,7 @@ class PurchaseInvoice(Document):
 	def add_stock_for_purchase_receipt(self):
 
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
-		stock_recalc_voucher.voucher = 'Delivery Note'
+		stock_recalc_voucher.voucher = 'Purchase Invoice'
 		stock_recalc_voucher.voucher_no = self.name
 		stock_recalc_voucher.voucher_date = self.posting_date
 		stock_recalc_voucher.voucher_time = self.posting_time
@@ -54,6 +54,13 @@ class PurchaseInvoice(Document):
 			
 			# Default balance value calculating withe the current row only
 			new_balance_value = new_balance_qty * valuation_rate
+
+			print("Item")
+			print(docitem.item)
+			print("Qty")
+			print(new_balance_qty)
+			print("Value")
+			print(new_balance_value)
    
 			# Assigned current stock value to use if previous values not exist
 			change_in_stock_value = new_balance_value
@@ -68,6 +75,9 @@ class PurchaseInvoice(Document):
                                              'posting_date': ['<', posting_date_time]})
 			
 			if(dbCount>0):
+       
+				print("dbCount")
+				print(dbCount)    
 
 				# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
 				# from the balance qty in the existing rows x actual incoming rate
@@ -79,6 +89,7 @@ class PurchaseInvoice(Document):
 				new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty			
 			
 				new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
+
 
 				if new_balance_qty!=0:
 					valuation_rate = new_balance_value/new_balance_qty	
@@ -114,8 +125,11 @@ class PurchaseInvoice(Document):
    
 			# If no more records for the item, update balances. otherwise it updates in the flow
 			if more_records_count_for_item==0: 
+	
+				print("more_records_count_for_item==0" + docitem.item)
+
 				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):    
-					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
 
 				new_stock_balance = frappe.new_doc('Stock Balance')	
 				new_stock_balance.item = docitem.item
@@ -126,9 +140,12 @@ class PurchaseInvoice(Document):
 				new_stock_balance.valuation_rate = valuation_rate
 			
 				new_stock_balance.insert()
+				print("new stock balance qty")
+				print(new_balance_qty)
 				
 				item_name = frappe.get_value("Item", docitem.item,['item_name'])
 				update_item_stock_balance(item_name)
+	
 			else:
 				stock_recalc_voucher.append('records',{'item': docitem.item, 
     													'warehouse': docitem.warehouse,

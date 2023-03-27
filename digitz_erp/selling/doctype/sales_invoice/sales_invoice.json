@@ -68,7 +68,8 @@
   "address_line_2",
   "area_name",
   "country",
-  "quotation"
+  "quotation",
+  "sales_order"
  ],
  "fields": [
   {
@@ -433,12 +434,18 @@
    "label": "Quotation",
    "options": "Quotation",
    "read_only": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-21 17:46:51.285854",
+ "modified": "2023-03-24 19:41:53.324980",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

@@ -110,11 +110,12 @@ class DeliveryNote(Document):
         
         si.append('delivery_notes', {'delivery_note': deliveryNoteName})
 
-        si.docstatus = 1
+        # si.docstatus = 1
+            
 
         si.save()
         
-        frappe.msgprint("Sales Invoice created successfully.")
+        frappe.msgprint("Sales Invoice created successfully, in draft mode.")
 
     def cancel_delivery_note(self):
         
