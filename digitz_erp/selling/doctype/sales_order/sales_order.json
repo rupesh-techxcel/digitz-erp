@@ -11,6 +11,7 @@
   "naming_series",
   "customer",
   "customer_name",
+  "customer_display_name",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -54,7 +55,7 @@
   "section_break_27",
   "tab_break_50",
   "data_53",
-  "do_no",
+  "quotation",
   "amended_from"
  ],
  "fields": [
@@ -310,33 +311,39 @@
    "label": "Related Documents"
   },
   {
-   "fieldname": "do_no",
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Sales Order",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Sales Order",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "label": "Quotation",
+   "options": "Quotation"
+  },
+  {
+   "fieldname": "customer_display_name",
    "fieldtype": "Data",
-   "label": "DO No"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Sales Order",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Sales Order",
-   "print_hide": 1,
-   "read_only": 1
+   "label": "Customer Display Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-15 20:36:38.398406",
+ "modified": "2023-03-24 19:07:02.104994",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

@@ -2,9 +2,106 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Sales Order', {
-	// refresh: function(frm) {
+	refresh: function(frm) {
 
-	// }
+		var salesInvoiceCreated = false
+		var deliveryNoteCreated = false
+		var alreadyUsed = false
+
+		if(!frm.doc.__islocal)
+		{
+			frappe.call(
+			{
+				method: 'digitz_erp.api.sales_order_api.get_sales_invoice_exists',
+				async: false,
+				args: {
+					'sales_order': frm.doc.name
+				},
+				callback(r) {
+
+					if (r.message)
+					{
+						salesInvoiceCreated = true							
+					}
+				}
+			});
+
+			frappe.call(
+				{
+					method: 'digitz_erp.api.quotation_api.get_delivery_note_exists',
+					async: false,
+					args: {
+						'qtn_no': frm.doc.name
+					},
+					callback(r) {
+	
+						if (r.message)
+						{
+							deliveryNoteCreated = true							
+						}
+					}
+				});	
+	
+				if(deliveryNoteCreated  || salesInvoiceCreated)
+				{
+					alreadyUsed = true
+				}
+				else
+				{
+					alreadyUsed = false
+				}
+			
+				console.log("alreadyused")
+				console.log(alreadyUsed)
+
+			frappe.call({
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Global Settings',
+					'fieldname': 'default_company'
+				},
+				callback: (r) => {
+					
+					frm.doc.company = r.message.default_company
+					frm.refresh_field("company");
+					frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args: {
+								'doctype': 'Company',
+								'filters': { 'company_name': r.message.default_company },
+								'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
+							},
+							callback: (r2) => {
+								
+								//Have a button to create delivery note in case delivery note is not integrated with SI
+								if (frm.doc.docstatus==1 && !alreadyUsed) {
+								
+									frm.add_custom_button('Delivery Note', () => {
+										frm.call("generate_delivery_note")
+									});
+
+									if(r2.message.delivery_note_integrated_with_sales_invoice)
+									{
+										frm.add_custom_button('Create Sales Invoice & DO', () => {
+											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
+										});
+									}
+									else
+									{
+										frm.add_custom_button('Create Sales Invoice', () => {
+											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
+										});
+									}
+									
+								}
+							}
+						}
+					)
+				}
+			});
+		}
+	},
 	setup: function (frm) {
 
 		frm.add_fetch('customer', 'full_address', 'customer_address')
@@ -41,6 +138,8 @@ frappe.ui.form.on('Sales Order', {
 					frm.refresh_field("price_list");
 				}
 			});
+
+		frm.doc.customer_display_name = frm.doc.customer_name
 	},
 	edit_posting_date_and_time(frm) {
 

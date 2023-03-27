@@ -58,7 +58,9 @@
   "address_line_2",
   "area_name",
   "country",
-  "amended_from"
+  "amended_from",
+  "quotation",
+  "sales_order"
  ],
  "fields": [
   {
@@ -358,12 +360,24 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Salesman code"
+  },
+  {
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "label": "Quotation",
+   "options": "Quotation"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-22 05:33:45.099664",
+ "modified": "2023-03-24 19:43:03.954844",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

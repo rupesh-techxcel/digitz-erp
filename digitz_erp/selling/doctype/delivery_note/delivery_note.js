@@ -16,7 +16,6 @@ frappe.ui.form.on('Delivery Note', {
 
 			if (frm.doc.docstatus == 1 && !frm.doc.auto_generated_from_sales_invoice) {
 
-
 				frappe.call(
 					{
 						method: 'digitz_erp.api.delivery_note_api.delivery_note_exists_for_sales_invoice',
@@ -80,6 +79,10 @@ frappe.ui.form.on('Delivery Note', {
 					frm.refresh_field("price_list");
 				}
 			});
+
+		frm.doc.customer_display_name = frm.doc.customer_name
+
+		frm.refresh_field("customer_display_name");
 	},
 	edit_posting_date_and_time(frm) {
 

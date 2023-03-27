@@ -13,5 +13,15 @@ def get_quotation_test():
 def get_quotation_items_data(quotation_no):	
     
     return frappe.db.sql("select item, display_name,qty,unit,rate,tax_rate, tax_amount,net_amount from `tabQuotation Item` where parent=" + quotation_no, ignore_user_permission=True)
-    
 
+@frappe.whitelist()
+def get_sales_invoice_exists(qtn_no):    
+   return frappe.db.exists('Sales Invoice', {'quotation': qtn_no})
+
+@frappe.whitelist()
+def get_sales_order_exists(qtn_no):    
+   return frappe.db.exists('Sales Order', {'quotation': qtn_no})
+
+@frappe.whitelist()
+def get_delivery_note_exists(qtn_no):    
+   return frappe.db.exists('Delivery Note', {'quotation': qtn_no})

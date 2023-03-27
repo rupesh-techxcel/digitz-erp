@@ -7,48 +7,134 @@ frappe.ui.form.on('Quotation', {
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
 
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
-				
-				frm.doc.company = r.message.default_company
-				frm.refresh_field("company");
+		var salesInvoiceCreated = false
+		var deliveryNoteCreated = false
+		var salesOrderCreated =false
+		var alreadyUsed = false
+
+		if(!frm.doc.__islocal)
+		{
+			frappe.call(
+			{
+				method: 'digitz_erp.api.quotation_api.get_sales_invoice_exists',
+				async: false,
+				args: {
+					'qtn_no': frm.doc.name
+				},
+				callback(r) {
+
+					if (r.message)
+					{
+						salesInvoiceCreated = true							
+					}
+				}
+			});	
+
+			frappe.call(
+				{
+					method: 'digitz_erp.api.quotation_api.get_sales_order_exists',
+					async: false,
+					args: {
+						'qtn_no': frm.doc.name
+					},
+					callback(r) {
+	
+						if (r.message)
+						{
+							salesOrderCreated = true							
+						}
+					}
+				});	
+
 				frappe.call(
+					{
+						method: 'digitz_erp.api.quotation_api.get_delivery_note_exists',
+						async: false,
+						args: {
+							'qtn_no': frm.doc.name
+						},
+						callback(r) {
+		
+							if (r.message)
+							{
+								deliveryNoteCreated = true							
+							}
+						}
+					});	
+	
+				if(deliveryNoteCreated  || salesOrderCreated || salesInvoiceCreated)
+				{
+					alreadyUsed = true
+				}
+				else
+				{
+					alreadyUsed = false
+				}
+			
+				console.log("alreadyused")
+				console.log(alreadyUsed)
+
+			frappe.call({
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Global Settings',
+					'fieldname': 'default_company'
+				},
+				callback: (r) => {
+					
+					frm.doc.company = r.message.default_company
+					frm.refresh_field("company");
+					frappe.call(
 					{
 						method: 'frappe.client.get_value',
 						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': r.message.default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
-						},
-						callback: (r2) => {
-							console.log("Before assign default warehouse");
-							console.log(r2.message.default_warehouse);
-							frm.doc.warehouse = r2.message.default_warehouse;
-							console.log(frm.doc.warehouse);
-							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;							
-							frm.refresh_field("warehouse");
-							frm.refresh_field("rate_includes_tax");
-							console.log(r2.message);
-							frm.refresh_field("auto_save_delivery_note");							
+								'doctype': 'Company',
+								'filters': { 'company_name': r.message.default_company },
+								'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
+							},
+							callback: (r2) => {
+								console.log("Before assign default warehouse");
+								console.log(r2.message.default_warehouse);
+								frm.doc.warehouse = r2.message.default_warehouse;
+								console.log(frm.doc.warehouse);
+								frm.doc.rate_includes_tax = r2.message.rate_includes_tax;							
+								frm.refresh_field("warehouse");
+								frm.refresh_field("rate_includes_tax");
+								console.log(r2.message);
+								frm.refresh_field("auto_save_delivery_note");							
 
-							//Have a button to create delivery note in case delivery note is not integrated with SI
-							if (frm.doc.docstatus==1 ) {
-								frm.add_custom_button('Create Sales Invoice & DO', () => {
-									frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
-								},
-								)
+								//Have a button to create delivery note in case delivery note is not integrated with SI
+								if (frm.doc.docstatus==1 && !alreadyUsed) {
+									
+									frm.add_custom_button('Create Sales Order', () => {
+										frm.call("generate_sales_order")
+									});
+								
+									frm.add_custom_button('Delivery Note', () => {
+										frm.call("generate_delivery_note")
+									});
+
+									if(r2.message.delivery_note_integrated_with_sales_invoice)
+									{
+										frm.add_custom_button('Create Sales Invoice & DO', () => {
+											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
+										});
+									}
+									else
+									{
+										frm.add_custom_button('Create Sales Invoice', () => {
+											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
+										});
+									}
+									
+								}
 							}
 						}
-					}
-				)
-			}
-		})
-	 },
+					)
+				}
+			});
+		}
+	},
 	setup: function (frm) {
 
 		frm.add_fetch('customer', 'full_address', 'customer_address')
