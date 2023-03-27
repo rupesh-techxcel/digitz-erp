@@ -68,8 +68,8 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
                             gl.save()
                             print('GL for delivery note updated with new stock value change')
                             
-                if(new_balance_qty<0):
-                    frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
+                    if(new_balance_qty<0):
+                        frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
                                         
                 if (sl.voucher == "Purchase Invoice"):
                     previous_balance_value = new_balance_value #Assign before change 
