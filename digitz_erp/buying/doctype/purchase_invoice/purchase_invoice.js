@@ -13,6 +13,16 @@ frappe.ui.form.on('Purchase Invoice', {
 		//frm.get_field('taxes').grid.cannot_add_rows = true;		
 
 	},
+	validate:function(frm){
+
+		if(!frm.doc.credit_purchase)
+		{
+			if(!frm.doc.payment_mode)
+			{
+				frappe.throw("Please select payment mode")
+			}
+		}
+	},
 	supplier(frm) {
 		console.log("supplier")
 		console.log(frm.doc.supplier)

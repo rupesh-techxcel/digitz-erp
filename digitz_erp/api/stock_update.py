@@ -69,7 +69,7 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
                             print('GL for delivery note updated with new stock value change')
                             
                 if(new_balance_qty<0):
-                    frappe.throw("Stock availability is not sufficiant to make thistransaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
+                    frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
                                         
                 if (sl.voucher == "Purchase Invoice"):
                     previous_balance_value = new_balance_value #Assign before change 
@@ -80,11 +80,24 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
      
                     if(new_balance_qty!=0): #Avoid divisible by zero
                         new_valuation_rate = new_balance_value/ new_balance_qty
+                        
+                if(sl.voucher == "Stock Transfer"):
+                    
+                    previous_balance_value = new_balance_value #Assign before change 
+                    if(sl.qty_in > 0):
+                        new_balance_qty = new_balance_qty + sl.qty_in
+                        new_balance_value = new_balance_value  + (sl.qty_in * sl.incoming_rate)
+                        change_in_stock_value = new_balance_value - previous_balance_value
+                        sl.change_in_stock_value = change_in_stock_value
+                    elif (sl.qty_out>0):                    
+                        new_balance_qty = new_balance_qty - sl.qty_out
+                        new_balance_value = new_balance_qty * new_valuation_rate                    
+                        change_in_stock_value = new_balance_value - previous_balance_value
+                        sl.change_in_stock_value = change_in_stock_value
 				
                 sl.balance_qty = new_balance_qty
                 sl.balance_value = new_balance_value
                 sl.valuation_rate = new_valuation_rate
-                
                 sl.save()
     
             if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):    
