@@ -61,7 +61,7 @@ class StockTransfer(Document):
 			order_by='posting_date desc', as_dict=True)
 
 			if(not previous_stock_balance_in_source): 
-				frappe.throw("No stock exists for" + docitem.item )
+				frappe.throw("No stock exists for " + docitem.item )
 
 			if(previous_stock_balance_in_source.balance_qty < required_qty):
 				frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
@@ -94,7 +94,7 @@ class StockTransfer(Document):
 
 			if(more_records_count_for_item_for_source>0):				
 									stock_recalc_voucher_for_source.append('records',{'item': docitem.item, 
-																				'warehouse': docitem.warehouse,                                                        
+																				'warehouse': docitem.source_warehouse,                                                        
 																				'base_stock_ledger': new_stock_ledger_source.name
 																	})
 			else:				  
@@ -160,7 +160,7 @@ class StockTransfer(Document):
 	
 			if(more_records_count_for_item_for_target>0):				
 						stock_recalc_voucher_for_source.append('records',{'item': docitem.item, 
-																	'warehouse': docitem.warehouse,                                                        
+																	'warehouse': docitem.target_warehouse,                                                        
 																	'base_stock_ledger': new_stock_ledger_target.name
 																	})
 			else:
