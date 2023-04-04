@@ -94,5 +94,3 @@ def check_for_new_record(payment_entry_details,supplier):
 
 
 	
-
-	return pur_invoice_lst
