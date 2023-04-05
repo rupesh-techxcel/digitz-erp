@@ -29,11 +29,11 @@ frappe.ui.form.on("Payment Entry Detail", {
 		}
 		});
 
-		if (existing_suppliers.length > 0) {
-			frappe.model.set_value(cdt, cdn, 'supplier', '');
-			frappe.throw(__('Supplier already exists in another row.'));
-			return;
-		}
+		// if (existing_suppliers.length > 0) {
+		// 	frappe.model.set_value(cdt, cdn, 'supplier', '');
+		// 	frappe.throw(__('Supplier already exists in another row.'));
+		// 	return;
+		// }
 
 		frappe.call({
 			method: 'digitz_erp.accounts.doctype.payment_entry.payment_entry.create_dr_supplier_entry',
@@ -50,6 +50,13 @@ frappe.ui.form.on("Payment Entry Detail", {
 		});
 	},
 
+    allocation: function(frm, cdt, cdn){
+    
+        frappe.msgprint("allocatiuon");
+
+    },
+
+
 	payment_entry_details: function(frm, cdt, cdn) {
 
     },
@@ -58,6 +65,8 @@ frappe.ui.form.on("Payment Entry Detail", {
     	var row = locals[cdt][cdn];
         var link_field_value = row.payment_entry_details;
         var child_table_control;
+
+        
 
         frappe.call({
 			        method: "digitz_erp.accounts.doctype.payment_entry.payment_entry.check_for_new_record",

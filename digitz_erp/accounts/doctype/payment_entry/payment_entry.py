@@ -37,7 +37,7 @@ def create_dr_supplier_entry(doc,supplier):
 		balance_amount = data.get('rounded_total') if data.get('paid_amount') == 0 else data.get('rounded_total') - data.get('paid_amount')
 
 		new_doc.append("payment_allocation",{
-					"paid_amount":data.get('gross_total'),
+					"paid_amount":data.get('paid_amount'),
 					"purchase":data.get('name'),
 					"invoice_ammount":data.get('rounded_total'),
 					"balance_ammount":balance_amount
@@ -51,8 +51,8 @@ def update_payment(child_table_data,supplier):
 	totalPay = 0;
 
 	for allocation in child_table_data:
-		if allocation.get("pay") < allocation.get('invoice_ammount'):
-			frappe.throw(f"Insufficeint invoice ammount for Invoice {allocation.get('purchase')}")
+		if allocation.get("pay")> allocation.get('balance_ammount'):
+			frappe.throw(f"Cannot pay more than the balance amount.")
 
 		frappe.db.sql(""" UPDATE `tabPayment Allocation` SET paid_amount = {0},invoice_ammount = {1},balance_ammount = {2},pay = {3} WHERE name = {4} """.format(allocation.get('paid_amount'),allocation.get('invoice_ammount'),allocation.get('balance_ammount'),allocation.get('pay'),allocation.get('name')))
 
