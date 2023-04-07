@@ -8,6 +8,8 @@ import json
 
 class PaymentEntry(Document):
 	def on_submit(self):
+		total_amount = 0
+
 		for payment in self.payment_entry_details:
 			if payment.get('payment_entry_details'):
 				payment_entry_details = frappe.get_doc('Payment entry Details',payment.get('payment_entry_details'))
@@ -21,8 +23,14 @@ class PaymentEntry(Document):
 					purchase_invoice.save()
 				
 				payment_entry_details.docstatus  = 1
-				payment_entry_details.save(ignore_permissions=True)
+				payment_entry_details.save(ignore_permissions=True)		
 				frappe.db.commit()
+			
+			total_amount += payment.total_amount
+		self.total_amount = total_amount
+
+	def validate(self):
+		pass
 
 
 @frappe.whitelist()
@@ -51,7 +59,7 @@ def update_payment(child_table_data,supplier):
 	totalPay = 0;
 
 	for allocation in child_table_data:
-		if allocation.get("pay")> allocation.get('balance_ammount'):
+		if allocation.get("pay") > allocation.get('balance_ammount'):
 			frappe.throw(f"Cannot pay more than the balance amount.")
 
 		frappe.db.sql(""" UPDATE `tabPayment Allocation` SET paid_amount = {0},invoice_ammount = {1},balance_ammount = {2},pay = {3} WHERE name = {4} """.format(allocation.get('paid_amount'),allocation.get('invoice_ammount'),allocation.get('balance_ammount'),allocation.get('pay'),allocation.get('name')))
@@ -63,6 +71,8 @@ def update_payment(child_table_data,supplier):
 
 @frappe.whitelist()
 def check_for_new_record(payment_entry_details,supplier):
+	if not payment_entry_details:
+		return False
 	data = frappe.get_doc('Payment entry Details',payment_entry_details)
 
 	new_record_check = frappe.db.sql("""SELECT name,gross_total,supplier,rounded_total,paid_amount FROM `tabPurchase Invoice` WHERE supplier = '{}' AND docstatus = 1 AND rounded_total != paid_amount""".format(supplier),as_dict=1)

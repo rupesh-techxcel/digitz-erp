@@ -22,18 +22,18 @@ frappe.ui.form.on("Payment Entry Detail", {
 		var row = locals[cdt][cdn];
 		var existing_suppliers = [];
 
-		// check if the selected supplier already exists in any other row
-		frm.doc.payment_entry_details.forEach(function(d) {
-			if (d.supplier && d.supplier === row.supplier && d.name !== row.name) {
-			existing_suppliers.push(d.supplier);
-		}
-		});
+        // check if the selected supplier already exists in any other row
+        frm.doc.payment_entry_details.forEach(function(d) {
+            if (d.supplier && d.supplier === row.supplier && d.name !== row.name) {
+            existing_suppliers.push(d.supplier);
+        }
+        });
+        
+        if (existing_suppliers.length > 0) {
+            // cur_frm.fields_dict.payment_entry_details.grid.toggle_display('view',false)
+           cur_frm.fields_dict.payment_entry_details.grid.get_row(row.name).toggle_display('view',false);
 
-		// if (existing_suppliers.length > 0) {
-		// 	frappe.model.set_value(cdt, cdn, 'supplier', '');
-		// 	frappe.throw(__('Supplier already exists in another row.'));
-		// 	return;
-		// }
+        }
 
 		frappe.call({
 			method: 'digitz_erp.accounts.doctype.payment_entry.payment_entry.create_dr_supplier_entry',
@@ -50,12 +50,16 @@ frappe.ui.form.on("Payment Entry Detail", {
 		});
 	},
 
-    allocation: function(frm, cdt, cdn){
-    
-        frappe.msgprint("allocatiuon");
+    payment: function(frm, cdt, cdn){
+        var row = locals[cdt][cdn];
 
+        if (row.payment){
+            console.log(row.name)
+            cur_frm.fields_dict.payment_entry_details.grid.get_row(row.name).toggle_editable('total_amount',true)
+            cur_frm.fields_dict.payment_entry_details.grid.get_row(row.name).toggle_display('view',false);
+        }
+        
     },
-
 
 	payment_entry_details: function(frm, cdt, cdn) {
 
