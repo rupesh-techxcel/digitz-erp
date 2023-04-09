@@ -9,15 +9,14 @@ def execute(filters=None):
 	data = get_data(filters)
 	return columns, data
 
-
 def get_data(filters):
 	data = ""
 	if filters.get('customer'):
-		data = frappe.db.sql(""" SELECT name as sales_invoice_name,posting_date as posting_date,rounded_total as amount,delivery_note as delivery_note,ship_to_location as ship_to_location FROM `tabSales Invoice` where docstatus = 0 and customer = '{}' """.format(filters.get('customer')),as_dict=True)
+		data = frappe.db.sql(""" SELECT name as sales_invoice_name,posting_date as posting_date,rounded_total as amount,delivery_note as delivery_note,ship_to_location as ship_to_location FROM `tabSales Invoice` where docstatus = 0 and credit_sale = 1 and customer = '{}'""".format(filters.get('customer'))
+                  ,as_dict=True)
 
 	else:
-		data = frappe.db.sql(""" SELECT name as sales_invoice_name,posting_date as posting_date,rounded_total as amount,delivery_note as delivery_note,ship_to_location as ship_to_location FROM `tabSales Invoice` where docstatus = 0 """,as_dict=True)
-
+		data = frappe.db.sql(""" SELECT name as sales_invoice_name,posting_date as posting_date,rounded_total as amount,delivery_note as delivery_note,ship_to_location as ship_to_location FROM `tabSales Invoice` where docstatus = 0 and credit_sale = 1 """,as_dict=True)
 
 	for dl in data:
 		delivery_note_name = frappe.db.get_value("Sales Invoice Delivery Notes",{"parent":dl.get('sales_invoice_name')},'delivery_note')
@@ -32,7 +31,7 @@ def get_columns():
 		
 			"fieldname": "sales_invoice_name",
 			"fieldtype": "Link",
-			"label": "Sales Invoice Name",
+			"label": "Invoice No",
 			"options": "Sales Invoice",
 			"width": 150,
 	
@@ -49,7 +48,7 @@ def get_columns():
 		
 			"fieldname": "ship_to_location",
 			"fieldtype": "Data",
-			"label": "Shift To Location",
+			"label": "Delivery Location",
 			"width": 120,
 	
 		},
