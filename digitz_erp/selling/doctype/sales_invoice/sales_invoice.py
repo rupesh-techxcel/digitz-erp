@@ -10,7 +10,7 @@ from frappe.model.document import Document
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
 
-    def before_save(self):
+    # def before_save(self):
         # for i in self.items:
         #     if i.delivery_note:
         #         frappe.db.set_value(
@@ -24,7 +24,7 @@ class SalesInvoice(Document):
         # frappe.msgprint("before save event")
         # print("before save")
 
-       def before_submit(self):
+    def before_submit(self):
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be 
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
