@@ -391,7 +391,7 @@ class SalesInvoice(Document):
 
                 delivery_note_doc = frappe.get_doc(delivery_note).insert()
                 frappe.db.commit()
-                delivery_note_name = doNo.name            
+                delivery_note_name = delivery_note_doc.name            
             
         # Rename the delivery note to the original dnoNo which is deleted
         # if(do_exists):
