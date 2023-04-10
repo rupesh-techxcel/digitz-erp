@@ -4,8 +4,7 @@
 
 frappe.query_reports["Statement Of Account"] = {
 	"filters": [
-		{
-		
+		{		
 			"fieldname": "customer",
 			"fieldtype": "Link",
 			"label": "Customer",

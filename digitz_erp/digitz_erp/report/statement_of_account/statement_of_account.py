@@ -9,7 +9,6 @@ def execute(filters=None):
 	data = get_data(filters)
 	return columns, data
 
-
 def get_data(filters):
 	data = ""
 	if filters.get('customer') and  filters.get('from_date') and filters.get('to_date'):
@@ -63,7 +62,7 @@ def get_columns():
 		
 			"fieldname": "ship_to_location",
 			"fieldtype": "Data",
-			"label": "Shift To Location",
+			"label": "Delivery Location",
 			"width": 120,
 	
 		},
