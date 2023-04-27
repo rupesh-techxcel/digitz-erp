@@ -1,18 +1,24 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2022-12-22 19:08:52.935372",
+ "creation": "2023-04-12 18:13:18.652542",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "sup_and_exp",
+  "supplier",
   "account",
   "reference_no",
   "reference_date",
   "remarks",
   "amount",
   "clearance_date",
+  "total_amount",
+  "payment_entry_details",
+  "payment",
+  "view",
   "payment_allocation"
  ],
  "fields": [
@@ -48,16 +54,55 @@
    "label": "Clearance Date"
   },
   {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "payment_entry_details",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Payment Allocation",
+   "options": "Payment entry Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "payment",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Payment"
+  },
+  {
+   "fieldname": "view",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Allocation"
+  },
+  {
    "fieldname": "payment_allocation",
    "fieldtype": "Table",
    "label": "Payment Allocation",
    "options": "Payment Allocation"
+  },
+  {
+   "fieldname": "sup_and_exp",
+   "fieldtype": "Select",
+   "label": "sup_and_exp",
+   "options": "\nSupplier\nOther"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-04-05 09:21:22.670352",
+ "modified": "2023-04-13 10:59:32.101114",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry Detail",

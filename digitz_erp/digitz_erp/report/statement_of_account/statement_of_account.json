@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
  "creation": "2023-04-09 19:16:52.784163",
  "disable_prepared_report": 0,
@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "sales invoice footer",
- "modified": "2023-04-09 19:16:52.784163",
+ "modified": "2023-04-27 08:53:03.993674",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Statement Of Account",

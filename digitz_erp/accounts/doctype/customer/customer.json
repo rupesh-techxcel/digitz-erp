@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "format:{customer_name}, {area}",
  "creation": "2022-12-21 17:08:13.855018",
  "default_view": "List",
@@ -236,7 +235,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-28 09:07:56.199972",
+ "modified": "2023-04-26 03:34:05.090000",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

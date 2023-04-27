@@ -9,25 +9,33 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
-  "date",
-  "posting_time",
-  "edit_posting_date_and_time",
+  "column_break_zjjtr",
+  "posting_date",
+  "section_break_knts7",
   "payment_mode",
+  "column_break_bu9j0",
+  "posting_time",
+  "section_break_ku1xy",
   "account",
+  "column_break_k5acl",
+  "edit_posting_date_and_time",
+  "section_break_wgdje",
   "amended_from",
-  "total_amount",
-  "purchase"
+  "amount",
+  "column_break_zp9js",
+  "allocated_amount",
+  "section_break_yppjt",
+  "receipt_entry_details",
+  "show_allocations",
+  "receipt_allocation"
  ],
  "fields": [
   {
-   "fieldname": "date",
-   "fieldtype": "Date",
-   "label": "Date"
-  },
-  {
+   "default": "Now",
    "fieldname": "posting_time",
-   "fieldtype": "Date",
-   "label": "Posting Time"
+   "fieldtype": "Time",
+   "label": " Time",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -43,8 +51,10 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Payment Mode",
-   "options": "Payment Mode"
+   "options": "Payment Mode",
+   "reqd": 1
   },
   {
    "fieldname": "amended_from",
@@ -56,27 +66,93 @@
    "read_only": 1
   },
   {
+   "fieldname": "receipt_entry_details",
+   "fieldtype": "Table",
+   "label": "Receipt Entry Details",
+   "options": "Receipt Entry Detail",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": " Amount",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_zjjtr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_knts7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_bu9j0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wgdje",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_ku1xy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_k5acl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "receipt_allocation",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Receipt Allocation",
+   "options": "Receipt Allocation",
+   "read_only": 1
+  },
+  {
+   "default": "False",
+   "fieldname": "show_allocations",
+   "fieldtype": "Check",
+   "label": "Show Allocations"
+  },
+  {
+   "fieldname": "allocated_amount",
+   "fieldtype": "Currency",
+   "label": "Allocated Amount"
+  },
+  {
+   "fieldname": "column_break_zp9js",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_yppjt",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "account",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Account",
-   "options": "Account"
-  },
-  {
-   "fieldname": "total_amount",
-   "fieldtype": "Float",
-   "label": "Total Amount"
-  },
-  {
-   "fieldname": "purchase",
-   "fieldtype": "Link",
-   "label": "Purchase",
-   "options": "Purchase Invoice"
+   "options": "Account",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-12-22 18:45:56.606801",
+ "modified": "2023-04-27 06:29:31.170435",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

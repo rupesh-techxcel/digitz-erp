@@ -4,5 +4,5 @@
 # import frappe
 from frappe.model.document import Document
 
-class PaymentEntryDetail(Document):
+class ReceiptEntryDetail(Document):
 	pass

@@ -2,22 +2,27 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2022-12-22 17:48:43.827640",
+ "creation": "2023-04-12 20:06:31.714626",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
-  "date",
-  "posting_time",
-  "edit_posting_date_and_time",
+  "column_break_nkbsc",
+  "posting_date",
+  "section_break_tfo6c",
   "payment_mode",
-  "account",
-  "amended_from",
+  "column_break_obom4",
+  "posting_time",
+  "section_break_3y5rn",
+  "payment_account",
+  "column_break_pxxmi",
+  "edit_posting_date_and_time",
+  "section_break_eyyy2",
   "total_amount",
   "payment_entry_details",
-  "purchase"
+  "amended_from"
  ],
  "fields": [
   {
@@ -26,14 +31,11 @@
    "label": "Series"
   },
   {
-   "fieldname": "date",
-   "fieldtype": "Date",
-   "label": "Date"
-  },
-  {
+   "default": "Now",
    "fieldname": "posting_time",
    "fieldtype": "Date",
-   "label": "Posting Time"
+   "label": "Posting Time",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -48,21 +50,6 @@
    "options": "Payment Mode"
   },
   {
-   "fieldname": "account",
-   "fieldtype": "Link",
-   "label": "Account",
-   "options": "Account"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Payment Entry",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "total_amount",
    "fieldtype": "Float",
    "label": "Total Amount"
@@ -74,16 +61,65 @@
    "options": "Payment Entry Detail"
   },
   {
-   "fieldname": "purchase",
+   "fieldname": "amended_from",
    "fieldtype": "Link",
-   "label": "Purchase",
-   "options": "Purchase Invoice"
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payment Entry",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payment Entry",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_nkbsc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_tfo6c",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_obom4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_3y5rn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_pxxmi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_eyyy2",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-12-29 12:25:13.954795",
+ "modified": "2023-04-13 06:54:40.885516",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

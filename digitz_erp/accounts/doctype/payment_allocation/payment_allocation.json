@@ -6,13 +6,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "purchase",
+  "invoice_amount",
   "paid_amount",
-  "purchase"
+  "balance_amount",
+  "pay"
  ],
  "fields": [
   {
    "fieldname": "paid_amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Paid Amount"
   },
   {
@@ -20,12 +23,28 @@
    "fieldtype": "Link",
    "label": "Purchase",
    "options": "Purchase Invoice"
+  },
+  {
+   "fetch_from": "purchase.rounded_total",
+   "fieldname": "invoice_amount",
+   "fieldtype": "Data",
+   "label": "Invoice Amount"
+  },
+  {
+   "fieldname": "pay",
+   "fieldtype": "Currency",
+   "label": "Paying Amount"
+  },
+  {
+   "fieldname": "balance_amount",
+   "fieldtype": "Currency",
+   "label": "Balance Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-12-22 19:25:01.222981",
+ "modified": "2023-04-12 18:45:18.031817",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Allocation",

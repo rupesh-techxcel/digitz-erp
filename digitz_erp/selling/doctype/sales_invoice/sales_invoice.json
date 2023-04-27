@@ -54,6 +54,7 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "paid_amount",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -440,12 +441,17 @@
    "fieldtype": "Link",
    "label": "Sales Order",
    "options": "Sales Order"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-24 19:41:53.324980",
+ "modified": "2023-04-16 06:20:05.338035",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

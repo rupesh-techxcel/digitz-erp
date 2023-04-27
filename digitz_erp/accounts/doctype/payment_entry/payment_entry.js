@@ -1,7 +1,25 @@
 frappe.ui.form.on('Payment Entry', {
-	// refresh: function(frm) {
+	refresh: function(frm) {
 
-	// }
+	},
+	setup: function(frm){
+
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
+	},
+	edit_posting_date_and_time(frm) {
+
+		//console.log(frm.doc.edit_posting_date_and_time);
+		console.log(frm.doc.edit_posting_date_and_time);
+
+		if (frm.doc.edit_posting_date_and_time == 1) {
+			frm.set_df_property("posting_date", "read_only", 0);
+			frm.set_df_property("posting_time", "read_only", 0);
+		}
+		else {
+			frm.set_df_property("posting_date", "read_only", 1);
+			frm.set_df_property("posting_time", "read_only", 1);
+		}
+	}
 });
 
 frappe.ui.form.on("Payment Entry Detail", {
@@ -32,7 +50,6 @@ frappe.ui.form.on("Payment Entry Detail", {
         if (existing_suppliers.length > 0) {
             // cur_frm.fields_dict.payment_entry_details.grid.toggle_display('view',false)
            cur_frm.fields_dict.payment_entry_details.grid.get_row(row.name).toggle_display('view',false);
-
         }
 
 		frappe.call({
@@ -45,20 +62,21 @@ frappe.ui.form.on("Payment Entry Detail", {
 					frappe.throw(`No pending invoice for supplier ${row.supplier}`, () => {
 					});
 				}
+
 				frappe.model.set_value(cdt, cdn, 'payment_entry_details', r.message);
 			}
 		});
 	},
 
     payment: function(frm, cdt, cdn){
+        
         var row = locals[cdt][cdn];
 
         if (row.payment){
             console.log(row.name)
             cur_frm.fields_dict.payment_entry_details.grid.get_row(row.name).toggle_editable('total_amount',true)
             cur_frm.fields_dict.payment_entry_details.grid.get_row(row.name).toggle_display('view',false);
-        }
-        
+        }        
     },
 
 	payment_entry_details: function(frm, cdt, cdn) {
@@ -69,9 +87,7 @@ frappe.ui.form.on("Payment Entry Detail", {
     	var row = locals[cdt][cdn];
         var link_field_value = row.payment_entry_details;
         var child_table_control;
-
         
-
         frappe.call({
 			        method: "digitz_erp.accounts.doctype.payment_entry.payment_entry.check_for_new_record",
 			        args: {
@@ -93,7 +109,7 @@ frappe.ui.form.on("Payment Entry Detail", {
                 callback(r) {
                     if (r.message) {
                         var doc = r.message;
-                        var child_table_data = doc.payment_allocation;
+                        var child_table_data = doc.payment_allocation;						
 
                         child_table_control = frappe.ui.form.make_control({
                             df: {
@@ -123,7 +139,7 @@ frappe.ui.form.on("Payment Entry Detail", {
                                     },
                                     {
                                         fieldtype: "Float",
-                                        fieldname: "invoice_ammount",
+                                        fieldname: "invoice_amount",
                                         label: "Invoice Amount",
                                         in_place_edit: false,
                                         in_list_view: true,
@@ -132,7 +148,7 @@ frappe.ui.form.on("Payment Entry Detail", {
                                     },
                                     {
                                         fieldtype: "Float",
-                                        fieldname: "balance_ammount",
+                                        fieldname: "balance_amount",
                                         label: "Balance Amount",
                                         in_place_edit: false,
                                         in_list_view: true,

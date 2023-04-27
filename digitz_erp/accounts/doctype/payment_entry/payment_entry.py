@@ -1,4 +1,4 @@
-# Copyright (c) 2022, Rupesh P and contributors
+# Copyright (c) 2023, Rupesh P and contributors
 # For license information, please see license.txt
 
 import frappe
@@ -7,18 +7,23 @@ import json
 
 
 class PaymentEntry(Document):
+    
 	def on_submit(self):
+     
 		total_amount = 0
-
+  
 		for payment in self.payment_entry_details:
+			print("before the condition")
 			if payment.get('payment_entry_details'):
+				print("condition true")
 				payment_entry_details = frappe.get_doc('Payment entry Details',payment.get('payment_entry_details'))
+				
 				for payment_allocation in payment_entry_details.get('payment_allocation'):
 					purchase_invoice = frappe.get_doc("Purchase Invoice",payment_allocation.get('purchase'))	
 					paid_amount = payment_allocation.get('paid_amount') + payment_allocation.get('pay')
 					purchase_invoice.paid_amount = paid_amount
 					balance_amount = purchase_invoice.rounded_total - purchase_invoice.paid_amount
-					purchase_invoice.balance_ammount = balance_amount
+					purchase_invoice.balance_amount = balance_amount
 					
 					purchase_invoice.save()
 				
@@ -47,8 +52,8 @@ def create_dr_supplier_entry(doc,supplier):
 		new_doc.append("payment_allocation",{
 					"paid_amount":data.get('paid_amount'),
 					"purchase":data.get('name'),
-					"invoice_ammount":data.get('rounded_total'),
-					"balance_ammount":balance_amount
+					"invoice_amount":data.get('rounded_total'),
+					"balance_amount":balance_amount
 					})
 		new_doc.save()
 	return new_doc.name
@@ -59,15 +64,14 @@ def update_payment(child_table_data,supplier):
 	totalPay = 0;
 
 	for allocation in child_table_data:
-		if allocation.get("pay") > allocation.get('balance_ammount'):
+		if allocation.get("pay") > allocation.get('balance_amount'):
 			frappe.throw(f"Cannot pay more than the balance amount.")
 
-		frappe.db.sql(""" UPDATE `tabPayment Allocation` SET paid_amount = {0},invoice_ammount = {1},balance_ammount = {2},pay = {3} WHERE name = {4} """.format(allocation.get('paid_amount'),allocation.get('invoice_ammount'),allocation.get('balance_ammount'),allocation.get('pay'),allocation.get('name')))
+		frappe.db.sql(""" UPDATE `tabPayment Allocation` SET paid_amount = {0},invoice_amount = {1},balance_amount = {2},pay = {3} WHERE name = {4} """.format(allocation.get('paid_amount'),allocation.get('invoice_amount'),allocation.get('balance_amount'),allocation.get('pay'),allocation.get('name')))
 
 		totalPay += allocation.get('pay');
 
 	return totalPay
-
 
 @frappe.whitelist()
 def check_for_new_record(payment_entry_details,supplier):
@@ -95,8 +99,8 @@ def check_for_new_record(payment_entry_details,supplier):
 			doc.append('payment_allocation',{
 						"paid_amount":new_pi.get('gross_total'),
 						"purchase":new_pi.get('name'),
-						"invoice_ammount":new_pi.get('rounded_total'),
-						"balance_ammount":balance_amount
+						"invoice_amount":new_pi.get('rounded_total'),
+						"balance_amount":balance_amount
 						})
 	
 			doc.save()

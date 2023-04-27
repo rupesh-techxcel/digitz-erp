@@ -12,6 +12,11 @@ def get_item_uom(item,unit):
 	)
 
 @frappe.whitelist()
+def get_item_units_query(self, query, txt, searchfield, start, page_len, filters):
+        return """SELECT unit,conversion_factor FROM `tabItem Unit` unit
+                  WHERE unit.parent = '{0}'""".format(self.name)
+
+@frappe.whitelist()
 def get_item_uoms(item):
 
  return frappe.get_all(

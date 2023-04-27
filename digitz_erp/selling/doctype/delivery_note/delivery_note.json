@@ -22,6 +22,7 @@
   "salesman",
   "salesman_code",
   "tax_id",
+  "is_delivered",
   "column_break_4",
   "company",
   "company_tax_id",
@@ -58,9 +59,9 @@
   "address_line_2",
   "area_name",
   "country",
-  "amended_from",
   "quotation",
-  "sales_order"
+  "sales_order",
+  "amended_from"
  ],
  "fields": [
   {
@@ -372,12 +373,18 @@
    "fieldtype": "Link",
    "label": "Sales Order",
    "options": "Sales Order"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_delivered",
+   "fieldtype": "Check",
+   "label": "Is Delivered"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-24 19:43:03.954844",
+ "modified": "2023-04-27 09:42:52.417296",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",
