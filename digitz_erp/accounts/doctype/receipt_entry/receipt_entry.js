@@ -262,7 +262,7 @@ allocations: function(frm, cdt, cdn)
 							label: "Customer",
 							options:"Customer",
 							in_place_edit: false,
-							in_list_view: false,
+							in_list_view: false							
 						}
 						,
 						{
@@ -273,15 +273,23 @@ allocations: function(frm, cdt, cdn)
 							in_place_edit: false,
 							in_list_view: true,
 							// width: "40%",
-							read_only:true
+							read_only:true							
+						},
+						{
+							fieldtype: "Date",
+							fieldname: "posting_date",
+							label: "Date",							
+							in_place_edit: false,
+							in_list_view: true,							
+							read_only:true,							
 						},
 						{
 							fieldtype: "Currency",
 							fieldname: "paid_amount",
 							label: "Paid Amount",
 							in_place_edit: false,
-							in_list_view: true,
-							read_only:true
+							in_list_view: false,
+							read_only:true,							
 						},
 						{
 							fieldtype: "Currency",
@@ -289,7 +297,7 @@ allocations: function(frm, cdt, cdn)
 							label: "Invoice Amount",
 							in_place_edit: false,
 							in_list_view: true,							
-							read_only:true
+							read_only:true							
 						},						
 						{
 							fieldtype: "Currency",
@@ -304,8 +312,7 @@ allocations: function(frm, cdt, cdn)
 							fieldname: "paying_amount",
 							label: "Paying Amount",
 							in_place_edit: true,
-							in_list_view: true,
-							width: "15%x",
+							in_list_view: true							
 						}
 					],
 				},				
@@ -326,7 +333,8 @@ allocations: function(frm, cdt, cdn)
 			
 				pending_invoices_data[j].paid_amount = 0;
 				pending_invoices_data[j].balance_amount =  pending_invoices_data[j].invoice_amount;
-
+				// pending_invoices_data[j].posting_date = frappe.format(pending_invoices_data[j].posting_date, { fieldtype: 'Date' })
+				
 				for (var i = allocations_exist.length - 1; i>=0; i--)
 				{
 					if(sales_invoice_no == allocations_exist[i].sales_invoice)
@@ -409,8 +417,7 @@ allocations: function(frm, cdt, cdn)
 		],
 		primary_action: function() {
 
-			var child_table_data_updated = child_table_control.get_value();
-			
+			var child_table_data_updated = child_table_control.get_value();			
 			var index = 0 ;
 			var invoice_no;
 
@@ -489,6 +496,7 @@ allocations: function(frm, cdt, cdn)
 
 
 	});
+	dialog.$wrapper.find('.modal-dialog').css("max-width", "50%").css("width", "50%");
 	dialog.show();
 },
 }
