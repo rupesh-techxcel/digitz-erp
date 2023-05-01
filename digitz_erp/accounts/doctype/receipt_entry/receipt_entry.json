@@ -11,19 +11,18 @@
   "naming_series",
   "column_break_zjjtr",
   "posting_date",
-  "section_break_knts7",
-  "payment_mode",
   "column_break_bu9j0",
-  "posting_time",
+  "amount",
   "section_break_ku1xy",
+  "payment_mode",
   "account",
   "column_break_k5acl",
+  "posting_time",
   "edit_posting_date_and_time",
-  "section_break_wgdje",
-  "amended_from",
-  "amount",
   "column_break_zp9js",
   "allocated_amount",
+  "section_break_wgdje",
+  "amended_from",
   "section_break_yppjt",
   "receipt_entry_details",
   "show_allocations",
@@ -85,10 +84,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_knts7",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "column_break_bu9j0",
    "fieldtype": "Column Break"
   },
@@ -114,6 +109,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "receipt_allocation",
    "fieldtype": "Table",
    "hidden": 1,
@@ -122,6 +118,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "False",
    "fieldname": "show_allocations",
    "fieldtype": "Check",
@@ -152,7 +149,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-04-27 06:29:31.170435",
+ "modified": "2023-05-01 05:19:33.754267",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",
