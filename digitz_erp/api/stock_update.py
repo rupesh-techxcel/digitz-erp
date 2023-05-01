@@ -5,7 +5,16 @@ from frappe.utils.data import now
 def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
         
         posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  		
-
+                
+        default_company = frappe.db.get_single_value("Global Settings",'default_company')
+                
+        company_info = frappe.get_value("Company",default_company,['allow_negative_stock'], as_dict = True)
+        
+        allow_negative_stock = company_info.allow_negative_stock
+        
+        if(not allow_negative_stock):
+            allow_negative_stock = False
+            
         for record in stock_recalc_voucher.records:
             
             new_balance_qty = 0
@@ -65,10 +74,9 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
                         for gl_posting in gl_postings:
                             gl = frappe.get_doc('GL Posting', gl_posting.name)
                             gl.change_in_stock_value = change_in_stock_value
-                            gl.save()
-                            print('GL for delivery note updated with new stock value change')
+                            gl.save()                            
                             
-                    if(new_balance_qty<0):
+                    if(new_balance_qty<0 and allow_negative_stock== False):
                         frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
                                         
                 if (sl.voucher == "Purchase Invoice"):
@@ -94,6 +102,8 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
                         new_balance_value = new_balance_qty * new_valuation_rate                    
                         change_in_stock_value = new_balance_value - previous_balance_value
                         sl.change_in_stock_value = change_in_stock_value
+                        if(new_balance_qty<0 and  allow_negative_stock== False):
+                            frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
 				
                 sl.balance_qty = new_balance_qty
                 sl.balance_value = new_balance_value
@@ -104,9 +114,13 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
                 frappe.db.delete('Stock Balance',{'item': record.item, 'warehouse': record.warehouse} )
 
             item_name,unit = frappe.get_value("Item", record.item,['item_name','base_unit'])
+            frappe.msgprint(unit)
+            print(unit)
+            
             new_stock_balance = frappe.new_doc('Stock Balance')	
             new_stock_balance.item = record.item
             new_stock_balance.unit = unit
+            
             new_stock_balance.warehouse = record.warehouse
             new_stock_balance.stock_qty = new_balance_qty
             new_stock_balance.stock_value = new_balance_value

@@ -596,41 +596,39 @@ frappe.ui.form.on('Sales Invoice Item', {
 		frm.trigger("make_taxes_and_totals");
 	},
 	unit(frm, cdt, cdn) {
+
 		let row = frappe.get_doc(cdt, cdn);
 		
-		console.log("row before get_item_uom")
-		console.log(row.item)
-	
-		// frappe.call(
-		// 	{
-		// 		method: 'digitz_erp.api.items_api.get_item_uom',
-		// 		async: false,
-		// 		args: {
-		// 			item: row.item,
-		// 			unit: row.unit
-		// 		},
-		// 		callback(r) {
-		// 			if (r.message.length == 0) {
-		// 				frappe.msgprint("Invalid unit, Unit does not exists for the item.");
-		// 				row.unit = row.base_unit;
-		// 				row.conversion_factor = 1;
-		// 			}
-		// 			else {
-		// 				console.log(r.message[0].conversion_factor);
-		// 				row.conversion_factor = r.message[0].conversion_factor;
-		// 				//row.rate = row.rate * row.conversion_factor;							
-		// 				//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
-		// 				//() => {
-		// 				//row.qty = row.qty/ row.conversion_factor;								
-		// 				//})	
-		// 			}
-		// 			frm.trigger("make_taxes_and_totals");
+		frappe.call(
+			{
+				method: 'digitz_erp.api.items_api.get_item_uom',
+				async: false,
+				args: {
+					item: row.item,
+					unit: row.unit
+				},
+				callback(r) {
+					if (r.message.length == 0) {
+						frappe.msgprint("Invalid unit, Unit does not exists for the item.");
+						row.unit = row.base_unit;
+						row.conversion_factor = 1;
+					}
+					else {
+						console.log(r.message[0].conversion_factor);
+						row.conversion_factor = r.message[0].conversion_factor;
+						//row.rate = row.rate * row.conversion_factor;							
+						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
+						//() => {
+						//row.qty = row.qty/ row.conversion_factor;								
+						//})	
+					}
+					frm.trigger("make_taxes_and_totals");
 
-		// 			frm.refresh_field("items");
-		// 		}
+					frm.refresh_field("items");
+				}
 
-		// 	}
-		// );
+			}
+		);
 	},
 	discount_percentage(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);

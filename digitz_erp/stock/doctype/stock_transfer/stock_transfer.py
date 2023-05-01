@@ -38,6 +38,11 @@ class StockTransfer(Document):
 		
 		more_records_for_source = 0
 		more_records_for_target = 0
+  
+		default_company = frappe.get_value("Default_Settings", "default_company")
+		allow_negative_stock = frappe.get_value("Company",default_company,['allow_negative_stock'])
+		if not allow_negative_stock:
+			allow_negative_stock = False
 		
 		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))  		
 		for docitem in self.items:
@@ -60,10 +65,10 @@ class StockTransfer(Document):
 			, 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
 			order_by='posting_date desc', as_dict=True)
 
-			if(not previous_stock_balance_in_source): 
+			if(not previous_stock_balance_in_source and not allow_negative_stock): 
 				frappe.throw("No stock exists for " + docitem.item )
 
-			if(previous_stock_balance_in_source.balance_qty < required_qty):
+			if(previous_stock_balance_in_source.balance_qty < required_qty and not allow_negative_stock):
 				frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
 				docitem.base_unit + "and available Qty= " + str(previous_stock_balance_in_source.balance_qty) + " " + docitem.base_unit)
 				return

@@ -29,34 +29,40 @@ class DeliveryNote(Document):
         
         if(possible_invalid >0):
             frappe.throw("There is another delivery note exist with the same date and time. Please correct the date and time.")
-
+        frappe.msgprint("before_submit sales invoice")
         self.validate_item()
         
-        if self.docstatus <2 :
-            print("before - deduct stock for delivery note")
+        if self.docstatus <2 :            
             cost_of_goods_sold = self.deduct_stock_for_delivery_note_add()
             self.insert_gl_records(cost_of_goods_sold)
 
     def validate_item(self):
-
-        print("From validate item, DN")
          
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))		        	
-      
-        for docitem in self.items:            
-            
-            # previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
-            
-            previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
-            , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
-            order_by='posting_date desc', as_dict=True)
-
-            if(not previous_stock_balance): 
-                frappe.throw("No stock exists for" + docitem.item )
         
-            if(previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
-                frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) + 
-                " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
+        default_company = frappe.db.get_single_value("Global Settings", "default_company")
+        
+        company_info = frappe.get_value("Company",default_company,['allow_negative_stock'], as_dict = True)
+        
+        allow_negative_stock = company_info.allow_negative_stock        
+        
+        if not allow_negative_stock:
+            allow_negative_stock = False
+        
+        if allow_negative_stock == False:
+            for docitem in self.items:                
+                # previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
+                
+                previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+                , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+                order_by='posting_date desc', as_dict=True)
+
+                if(not previous_stock_balance): 
+                    frappe.throw("No stock exists for" + docitem.item )
+            
+                if(previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
+                    frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) + 
+                    " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
     
 
     # def validate_item_for_existing_transactions(self, item, warehouse,posting_date_time, qty):
@@ -190,104 +196,8 @@ class DeliveryNote(Document):
 				{"Voucher_type": "Delivery Note",
 				 "voucher_no":self.name
 				})       
-   
-    # def recalculate_stock_ledgers(self,stock_recalc_voucher):
-        
-    #     posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))  		
 
-    #     for record in stock_recalc_voucher.records:
-            
-    #         new_balance_qty = 0
-    #         new_balance_value = 0
-    #         new_valuation_rate = 0
-            
-    #         if record.base_stock_ledger != "No Previous Ledger":
-            
-    #             base_stock_ledger = frappe.get_doc('Stock Ledger', record.base_stock_ledger)        	
-    #             new_balance_qty = base_stock_ledger.balance_qty
-    #             new_balance_value = base_stock_ledger.balance_value
-    #             new_valuation_rate = base_stock_ledger.valuation_rate
-            
-    #         next_stock_ledgers = frappe.get_list('Stock Ledger',{'item':record.item,
-	# 		'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]}, 'name',order_by='posting_date')
-   
-	# 		# Scenario 1- PUrchase Invoice - current row cancelled. For this assigned previous stock ledger balance to 'Stock Recalculate Voucher'
-
-    #         for sl_name in next_stock_ledgers:
-                
-    #             sl = frappe.get_doc('Stock Ledger', sl_name)                
-                
-    #             # Exit the loop if there is a manual stock entry, since the manual stock entry is considered as corrected stock entry
-    #             if(sl.voucher == "Stock Reconciliation"):
-    #                 if(sl.balance_qty > new_balance_qty):
-    #                     qty_in = sl.balance_qty - new_balance_qty
-    #                 else:
-    #                     qty_out = new_balance_qty -sl.balance_qty
-                
-    #                 sl.qty_in = qty_in
-    #                 sl.qty_out = qty_out
-                    
-    #                 # Previous stock value difference
-    #                 previous_balance_value = new_balance_value #Assign before change        
-    #                 sl.change_in_stock_value =   (sl.balance_value - previous_balance_value) 
-                                        
-    #                 new_valuation_rate = sl.valuation_rate                    
-    #                 new_balance_qty = sl.balance_qty
-    #                 new_balance_value = sl.balance_value                    
-                                        
-                    
-    #                 # Once qty adjusted exit for next item, since after manual entry subsequent entries are not considered
-    #                 sl.save()
-    #                 break;
-				
-    #             if(sl.voucher == "Delivery Note"):
-    #                 previous_balance_value = new_balance_value #Assign before change                    
-    #                 new_balance_qty = new_balance_qty - sl.qty_out
-    #                 new_balance_value = new_balance_qty * new_valuation_rate                    
-    #                 change_in_stock_value = new_balance_value - previous_balance_value
-    #                 sl.change_in_stock_value = change_in_stock_value
-                    
-    #             if(new_balance_qty<0):
-    #                 frappe.throw("Stock availability is not sufficiant to make thistransaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
-                                        
-    #             if (sl.voucher == "Purchase Invoice"):
-    #                 previous_balance_value = new_balance_value #Assign before change 
-    #                 new_balance_qty = new_balance_qty + sl.qty_in
-    #                 new_balance_value = new_balance_value  + (sl.qty_in * sl.incoming_rate)
-    #                 change_in_stock_value = new_balance_value - previous_balance_value
-    #                 sl.change_in_stock_value = change_in_stock_value
-     
-    #                 if(new_balance_qty!=0): #Avoid divisible by zero
-    #                     new_valuation_rate = new_balance_value/ new_balance_qty
-				
-    #             sl.balance_qty = new_balance_qty
-    #             sl.balance_value = new_balance_value
-    #             sl.valuation_rate = new_valuation_rate
-                
-    #             sl.save()
-    
-    #         if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):    
-    #             frappe.db.delete('Stock Balance',{'item': record.item, 'warehouse': record.warehouse} )
-
-    #         item_name,unit = frappe.get_value("Item", record.item,['item_name','base_unit'])
-    #         new_stock_balance = frappe.new_doc('Stock Balance')	
-    #         new_stock_balance.item = record.item
-    #         new_stock_balance.unit = unit
-    #         new_stock_balance.warehouse = record.warehouse
-    #         new_stock_balance.stock_qty = new_balance_qty
-    #         new_stock_balance.stock_value = new_balance_value
-    #         new_stock_balance.valuation_rate = new_valuation_rate
-
-    #         new_stock_balance.insert()
-
-    #         item_name = frappe.get_value("Item", record.item,['item_name'])
-    #         self.update_item_stock_balance(item_name)					
-
-    #     stock_recalc_voucher.status = 'Completed'
-    #     stock_recalc_voucher.end_time = now()
-    #     stock_recalc_voucher.save()
-
-    def deduct_stock_for_delivery_note_add(self):       
+    def deduct_stock_for_delivery_note_add(self):     
         
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
         stock_recalc_voucher.voucher = 'Delivery Note'
@@ -300,6 +210,14 @@ class DeliveryNote(Document):
         cost_of_goods_sold = 0
 
         more_records = 0
+        
+        default_company = frappe.db.get_single_value("Global Settings", "default_company")        
+        company_info = frappe.get_value("Company",default_company,['allow_negative_stock'], as_dict = True)        
+
+        allow_negative_stock = company_info.allow_negative_stock
+
+        if not allow_negative_stock:
+            allow_negative_stock = False
 
         for docitem in self.items:			
 
@@ -319,24 +237,33 @@ class DeliveryNote(Document):
             , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
             order_by='posting_date desc', as_dict=True)
 
-            if(not previous_stock_balance): 
-                frappe.throw("No stock exists for" + docitem.item )
+            print(previous_stock_balance)
 
-            if(previous_stock_balance.balance_qty < required_qty):
+            if(allow_negative_stock == False and not previous_stock_balance):
+                frappe.throw("No stock exists for" + docitem.item )
+                return
+
+            if(allow_negative_stock == False and previous_stock_balance and previous_stock_balance.balance_qty < required_qty ):
                 frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
                  docitem.base_unit + "and available Qty= " + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit)
                 return
-                
-            new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
-            valuation_rate = previous_stock_balance.valuation_rate
+           
+            previous_stock_balance_value = 0
+            if previous_stock_balance:
+                new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
+                valuation_rate = previous_stock_balance.valuation_rate    
+                previous_stock_balance_value = previous_stock_balance.balance_value
+            else:
+                new_balance_qty = 0 - docitem.qty_in_base_unit
+                valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
 
-            new_balance_value = previous_stock_balance.balance_value - (docitem.qty_in_base_unit * valuation_rate) 
+            new_balance_value = previous_stock_balance_value - (docitem.qty_in_base_unit * valuation_rate) 
             cost_of_goods_sold = cost_of_goods_sold + (docitem.qty_in_base_unit * valuation_rate) 
 
             if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):    
                 frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
                 
-            change_in_stock_value = new_balance_value - previous_stock_balance.balance_value
+            change_in_stock_value = new_balance_value - previous_stock_balance_value
 
             new_stock_ledger = frappe.new_doc("Stock Ledger")
             new_stock_ledger.item = docitem.item
@@ -360,10 +287,12 @@ class DeliveryNote(Document):
             if more_records_count_for_item==0: 
                 if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):    
                     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+                    
+                unit = frappe.get_value("Item", docitem.item,['base_unit'])
 
                 new_stock_balance = frappe.new_doc('Stock Balance')	
                 new_stock_balance.item = docitem.item
-                new_stock_balance.unit = docitem.unit
+                new_stock_balance.unit = unit
                 new_stock_balance.warehouse = docitem.warehouse
                 new_stock_balance.stock_qty = new_balance_qty
                 new_stock_balance.stock_value = new_balance_value
@@ -378,7 +307,6 @@ class DeliveryNote(Document):
                                                             'warehouse': docitem.warehouse,
                                                             'base_stock_ledger': new_stock_ledger.name 
                                                             })
-
         if(more_records>0):
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)      
@@ -416,8 +344,7 @@ class DeliveryNote(Document):
 
         print("From insert gl records")
 
-        default_company = frappe.db.get_single_value(
-            "Global Settings", "default_company")
+        default_company = frappe.db.get_single_value("Global Settings", "default_company")
 
         default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
                                                                          'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)

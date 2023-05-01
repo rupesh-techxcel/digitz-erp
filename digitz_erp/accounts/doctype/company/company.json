@@ -24,6 +24,7 @@
   "inventory_settings",
   "use_customer_last_price",
   "update_standard_selling_price",
+  "allow_negative_stock",
   "default_warehouse",
   "column_break_18",
   "rules_for_prices",
@@ -299,11 +300,17 @@
    "label": "Stock Adjustment A/c",
    "options": "Account",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_negative_stock",
+   "fieldtype": "Check",
+   "label": "Allow Negative Stock"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-24 16:40:36.521611",
+ "modified": "2023-04-29 05:23:50.627258",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

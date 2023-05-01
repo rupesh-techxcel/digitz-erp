@@ -39,29 +39,28 @@ class SalesInvoice(Document):
 
         # Checking needed whether Delivery Note is creating automatically, if yes, then only stock availability need to check
         # otherwise it could be done with in the delivery note itself.
+            
 
         self.validate_item()           
-
-        print("Before submit in sales invoice")
-
-        # self.created_by = frappe.user
-        # self.submitted_date = now()
-        
    
         self.insert_gl_records()
         self.insert_payment_postings()
-
-    
-    # def validate(self):
-
-    #     self.validate_item()        
+        if(self.auto_generate_delivery_note):
+            self.submit_delivery_note()
     
     def validate_item(self):
-
-        print("From validate item, SI")
          
-        posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))		        	
-      
+        posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))	
+        
+        default_company = frappe.db.get_single_value("Global Settings",'default_company')
+                        
+        company_info = frappe.get_value("Company",default_company,['allow_negative_stock'], as_dict = True)
+        
+        allow_negative_stock = company_info.allow_negative_stock
+        
+        if not allow_negative_stock:
+            allow_negative_stock = False
+        
         for docitem in self.items:
 
             print(docitem.item)
@@ -72,10 +71,10 @@ class SalesInvoice(Document):
             , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
             order_by='posting_date desc', as_dict=True)
 
-            if(not previous_stock_balance): 
-                frappe.throw("No stock exists for" + docitem.item )
+            if(not previous_stock_balance and  allow_negative_stock==False): 
+                frappe.throw("No stock exists for" + docitem.item  + " from sales invoice")
         
-            if(previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
+            if(allow_negative_stock== False and previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
                 frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) + 
                 " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
         
@@ -231,25 +230,22 @@ class SalesInvoice(Document):
             gl_doc.debit_amount = self.rounded_total
             gl_doc.aginst_account = default_accounts.default_receivable_account
             gl_doc.insert()
-
+            
     @frappe.whitelist()
-    def auto_generate_delivery_note(self):
-        
-        print("From auto generate delivery note")
-        
-        # if document already saved, do also already saved. so, if the user is submitting the sales invoice
-        # just need to submit the do as well
-        
-        print("docstatus")
-        print(self.docstatus)
-                
-        if self.docstatus == 1:
+    def submit_delivery_note(self):
+         if self.docstatus == 1:
             si_do = frappe.get_doc('Sales Invoice Delivery Notes',{'parent':self.name})
             do_no = si_do.delivery_note
             do = frappe.get_doc('Delivery Note',do_no)
-            do.submit()
-        
-            frappe.msgprint("A Delivery Note corresponding to the sales invoice is also generated.")
+            do.submit()            
+            frappe.msgprint("A Delivery Note corresponding to the sales invoice is also submitted.", indicator="green")
+            return
+
+    @frappe.whitelist()
+    def auto_generate_delivery_note(self):
+                
+        if self.docstatus == 1:
+            # Submission happening in the submit_delivery_note method            
             return
         
         delivery_note_name = ""
