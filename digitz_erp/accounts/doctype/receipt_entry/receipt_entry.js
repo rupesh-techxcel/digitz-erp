@@ -247,8 +247,10 @@ allocations: function(frm, cdt, cdn)
 			customer: selected_customer
 		},
 		callback:(r) => {
-			
-			pending_invoices_data = r.message.values;			
+			console.log(r)
+			pending_invoices_data = r.message.values;	
+			console.log("pending invoices")		
+			console.log(r.message.values)
 
 			child_table_control = frappe.ui.form.make_control({
 				df: {
@@ -256,15 +258,15 @@ allocations: function(frm, cdt, cdn)
 					fieldtype: "Table",
 					cannot_add_rows:true,
 					fields: [
-						{
-							fieldtype: "Link",
-							fieldname: "customer",
-							label: "Customer",
-							options:"Customer",
-							in_place_edit: false,
-							in_list_view: false							
-						}
-						,
+						// {
+						// 	fieldtype: "Link",
+						// 	fieldname: "customer",
+						// 	label: "Customer",
+						// 	options:"Customer",
+						// 	in_place_edit: false,
+						// 	in_list_view: false							
+						// }
+						// ,
 						{
 							fieldtype: "Link",
 							fieldname: "invoice_no",
@@ -276,21 +278,30 @@ allocations: function(frm, cdt, cdn)
 							read_only:true							
 						},
 						{
-							fieldtype: "Date",
-							fieldname: "posting_date",
-							label: "Date",							
+							fieldtype: "Data",
+							fieldname: "Ref-Date",
+							label: "Ref-Date",							
 							in_place_edit: false,
-							in_list_view: true,							
-							read_only:true,							
+							in_list_view: true,
+							// width: "40%",
+							read_only:true							
 						},
-						{
-							fieldtype: "Currency",
-							fieldname: "paid_amount",
-							label: "Paid Amount",
-							in_place_edit: false,
-							in_list_view: false,
-							read_only:true,							
-						},
+						// {
+						// 	fieldtype: "Date",
+						// 	fieldname: "posting_date",
+						// 	label: "Date",							
+						// 	in_place_edit: false,
+						// 	in_list_view: false,							
+						// 	read_only:true,							
+						// },
+						// {
+						// 	fieldtype: "Currency",
+						// 	fieldname: "paid_amount",
+						// 	label: "Paid Amount",
+						// 	in_place_edit: false,
+						// 	in_list_view: false,
+						// 	read_only:true,							
+						// },
 						{
 							fieldtype: "Currency",
 							fieldname: "invoice_amount",
@@ -496,7 +507,8 @@ allocations: function(frm, cdt, cdn)
 
 
 	});
-	dialog.$wrapper.find('.modal-dialog').css("max-width", "50%").css("width", "50%");
+	dialog.$wrapper.find('.modal-dialog').css("max-width", "90%").css("width", "90%");
+	  
 	dialog.show();
 },
 }

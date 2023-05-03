@@ -4,8 +4,8 @@ from frappe.utils import get_datetime
 @frappe.whitelist()
 def get_customer_pending_invoices(customer):
 
-    values = frappe.db.sql("""SELECT customer,name as invoice_no,posting_date,paid_amount,rounded_total as invoice_amount,rounded_total-paid_amount as balance_amount FROM `tabSales Invoice` WHERE customer = '{}' AND docstatus =0 AND credit_sale = 1 AND rounded_total != paid_amount""".format(customer),as_dict=1)
-    print(values)    
+    values = frappe.db.sql("""SELECT customer,name as invoice_no,reference_no + ' ' + posting_date as 'Ref-Date',paid_amount,rounded_total as invoice_amount,rounded_total-paid_amount as balance_amount FROM `tabSales Invoice` WHERE customer = '{}' AND (docstatus =0 or docstatus=1) AND credit_sale = 1 AND rounded_total != paid_amount""".format(customer),as_dict=1)      
+    
     return {'values': values}
 
 @frappe.whitelist()
