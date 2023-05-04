@@ -279,8 +279,8 @@ allocations: function(frm, cdt, cdn)
 						},
 						{
 							fieldtype: "Data",
-							fieldname: "Ref-Date",
-							label: "Ref-Date",							
+							fieldname: "reference_no",
+							label: "Reference No",							
 							in_place_edit: false,
 							in_list_view: true,
 							// width: "40%",
