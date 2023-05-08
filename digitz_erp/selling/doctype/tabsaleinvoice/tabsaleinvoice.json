@@ -1,13 +1,12 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-01-04 16:28:24.734771",
+ "creation": "2023-05-08 21:06:23.729609",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "warehouse",
   "item",
   "item_code",
   "display_name",
@@ -41,22 +40,22 @@
    "options": "Item"
   },
   {
+   "fetch_from": "item.item_code",
    "fieldname": "item_code",
    "fieldtype": "Data",
    "label": "Item Code"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Display Name"
   },
   {
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty"
-  },
-  {
-   "fieldname": "qty_in_base_unit",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Qty In Base Unit",
-   "read_only": 1
   },
   {
    "fieldname": "unit",
@@ -66,6 +65,12 @@
    "options": "Unit"
   },
   {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rate"
+  },
+  {
    "fieldname": "base_unit",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -73,16 +78,11 @@
    "read_only": 1
   },
   {
-   "fieldname": "conversion_factor",
+   "fieldname": "qty_in_base_unit",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Conversion Factor"
-  },
-  {
-   "fieldname": "rate",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Rate"
+   "label": "Qty In Base Unit",
+   "read_only": 1
   },
   {
    "fieldname": "rate_in_base_unit",
@@ -90,6 +90,12 @@
    "in_list_view": 1,
    "label": "Rate In Base Unit",
    "read_only": 1
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Conversion Factor"
   },
   {
    "default": "0",
@@ -103,12 +109,6 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Rate Excluded Tax"
-  },
-  {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse"
   },
   {
    "fieldname": "column_break_11",
@@ -178,20 +178,15 @@
    "fieldname": "delivery_note_item_reference_no",
    "fieldtype": "Data",
    "label": "Delivery Note Item Reference No"
-  },
-  {
-   "fieldname": "display_name",
-   "fieldtype": "Data",
-   "label": "Display Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-07 16:04:36.568400",
+ "modified": "2023-05-08 21:08:10.102650",
  "modified_by": "Administrator",
  "module": "Selling",
- "name": "Sales Invoice Item",
+ "name": "TabSaleInvoice",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

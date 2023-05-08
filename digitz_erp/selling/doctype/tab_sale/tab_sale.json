@@ -1,71 +1,236 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-05-01 05:28:45.830817",
+ "autoname": "format:TabSale-{YYYY}-{MM}-{DD}-{####}",
+ "creation": "2023-05-08 20:55:27.742632",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "customer",
-  "column_break_3",
+  "customer_name",
+  "customer_address",
+  "column_break_6",
   "posting_date",
   "posting_time",
-  "salesman",
-  "company",
-  "company_tax_id"
+  "accounts_section",
+  "credit_sale",
+  "credit_days",
+  "payment_terms",
+  "payment_mode",
+  "payment_account",
+  "column_break_25",
+  "remarks",
+  "section_break_19",
+  "items",
+  "section_break_29",
+  "selected_item_stock_qty_in_the_warehouse",
+  "section_break_25",
+  "gross_total",
+  "total_discount_in_line_items",
+  "tax_total",
+  "additional_discount",
+  "column_break_33",
+  "net_total",
+  "round_off",
+  "rounded_total",
+  "paid_amount",
+  "amended_from"
  ],
  "fields": [
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "reqd": 1
   },
   {
-   "fieldname": "column_break_3",
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.full_address",
+   "fieldname": "customer_address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "column_break_6",
    "fieldtype": "Column Break"
   },
   {
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Date"
   },
   {
    "default": "Now",
    "fieldname": "posting_time",
    "fieldtype": "Time",
-   "label": "Time"
+   "in_list_view": 1,
+   "label": "Posting Time"
   },
   {
-   "fieldname": "salesman",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Salesman",
-   "options": "Employee"
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
   },
   {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Company",
-   "options": "Company"
+   "default": "0",
+   "fieldname": "credit_sale",
+   "fieldtype": "Check",
+   "label": "Credit Sale"
   },
   {
-   "fetch_from": "company.tax_id",
-   "fieldname": "company_tax_id",
+   "depends_on": "eval:doc.credit_sale",
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "payment_terms",
    "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Company Tax Id"
+   "label": "Payment Terms "
+  },
+  {
+   "default": "Cash",
+   "depends_on": "eval:!doc.credit_sale",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode",
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "TabSaleInvoice"
+  },
+  {
+   "fieldname": "section_break_29",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "selected_item_stock_qty_in_the_warehouse",
+   "fieldtype": "Data",
+   "label": "Last Selected Item Stock Qty in the warehouse"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Tab Sale",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_25",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "gross_total",
+   "fieldtype": "Currency",
+   "label": "Gross Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_discount_in_line_items",
+   "fieldtype": "Currency",
+   "label": "Total Discount In Line Items"
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Currency",
+   "label": "Tax Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "additional_discount",
+   "fieldtype": "Currency",
+   "label": "Additional Discount"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rounded_total",
+   "fieldtype": "Currency",
+   "label": "Rounded Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Tab Sale",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2023-05-01 05:31:02.277136",
+ "modified": "2023-05-08 21:07:56.888981",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sale",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
