@@ -221,6 +221,8 @@ class DeliveryNote(Document):
         for docitem in self.items:			
 
             posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))  		
+            
+            print(posting_date_time)
    
      		# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
 	    	# in this flow itself. If more records, exists stock balance will be udpated lateer
