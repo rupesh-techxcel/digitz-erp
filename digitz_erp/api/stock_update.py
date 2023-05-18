@@ -63,7 +63,7 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
                     sl.save()
                     break;
 				
-                if(sl.voucher == "Delivery Note"):
+                if(sl.voucher == "Delivery Note" or sl.voucher == "Sales Invoice"):
                     previous_balance_value = new_balance_value #Assign before change                    
                     new_balance_qty = new_balance_qty - sl.qty_out
                     new_balance_value = new_balance_qty * new_valuation_rate                    
@@ -159,4 +159,4 @@ def update_item_stock_balance(item_name):
             
         item_to_update.stock_balance = balance_stock_qty
         item_to_update.stock_value = balance_stock_value                
-        item_to_update.save()	
+        item_to_update.save()

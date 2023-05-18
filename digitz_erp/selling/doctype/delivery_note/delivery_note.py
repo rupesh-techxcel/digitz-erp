@@ -29,7 +29,7 @@ class DeliveryNote(Document):
         
         if(possible_invalid >0):
             frappe.throw("There is another delivery note exist with the same date and time. Please correct the date and time.")
-        frappe.msgprint("before_submit sales invoice")
+        
         self.validate_item()
         
         if self.docstatus <2 :            
@@ -117,7 +117,6 @@ class DeliveryNote(Document):
         si.append('delivery_notes', {'delivery_note': deliveryNoteName})
 
         # si.docstatus = 1
-            
 
         si.save()
         

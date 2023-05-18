@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2023-01-04 16:31:16.689825",
+ "creation": "2023-05-15 16:26:31.914707",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -22,6 +22,7 @@
   "salesman",
   "salesman_code",
   "tax_id",
+  "section_break_11",
   "column_break_4",
   "company",
   "company_tax_id",
@@ -30,7 +31,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "section_break_11",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -44,7 +44,6 @@
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
-  "amended_from",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -65,20 +64,21 @@
   "auto_save_delivery_note",
   "delivery_notes",
   "delivery_notes_to_print",
-  "tab_sales",
   "address_line_1",
   "address_line_2",
   "area_name",
   "country",
   "quotation",
-  "sales_order"
+  "sales_order",
+  "amended_from",
+  "sales_invoice_no_ref"
  ],
  "fields": [
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "SI-.#####.-.MM.-.YYYY."
+   "options": "TS-.#####.-.MM.-.YYYY"
   },
   {
    "fieldname": "customer",
@@ -90,15 +90,35 @@
    "reqd": 1
   },
   {
-   "fieldname": "column_break_6",
-   "fieldtype": "Column Break"
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_preview": 1,
+   "label": "Customer Name",
+   "read_only": 1
   },
   {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company",
-   "reqd": 1
+   "fieldname": "customer_display_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Customer Display Name"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "customer_address",
+   "fieldtype": "Small Text",
+   "hidden": 1,
+   "label": "Address"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
   },
   {
    "default": "Today",
@@ -107,38 +127,86 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
-   "label": "Date",
-   "read_only": 1
+   "label": "Date"
   },
   {
    "default": "Now",
    "fieldname": "posting_time",
    "fieldtype": "Time",
    "in_list_view": 1,
-   "label": "Posting Time",
-   "read_only": 1
+   "label": "Posting Time"
   },
   {
    "default": "0",
    "fieldname": "edit_posting_date_and_time",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Edit Posting Date And Time"
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
+   "fieldname": "ship_to_location",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Ship To Location",
+   "options": "Customer Delivery Location"
   },
   {
-   "fieldname": "warehouse",
+   "fieldname": "salesman",
    "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1
+   "hidden": 1,
+   "label": "Salesman",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman Code"
+  },
+  {
+   "fetch_from": "customer.tax_id",
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Tax Id"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fetch_from": "company.tax_id",
+   "fieldname": "company_tax_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Tax Id"
+  },
+  {
+   "fieldname": "lpo_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_preview": 1,
+   "label": "LPO No"
+  },
+  {
+   "fieldname": "lpo_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "LPO Date"
   },
   {
    "default": "Standard Selling",
    "fieldname": "price_list",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Price List",
    "options": "Price List"
   },
@@ -146,12 +214,31 @@
    "default": "0",
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Rate includes tax"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Accounts"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_sale",
+   "fieldtype": "Check",
+   "label": "Credit Sale"
   },
   {
    "fieldname": "credit_days",
@@ -165,6 +252,31 @@
    "label": "Payment Terms "
   },
   {
+   "default": "Cash",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "hidden": 1,
+   "label": "Remarks"
+  },
+  {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
   },
@@ -172,7 +284,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Sales Invoice Item"
+   "options": "Tab Sales Item"
   },
   {
    "fieldname": "section_break_29",
@@ -192,7 +304,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Sales Invoice",
+   "options": "Tab Sales",
    "print_hide": 1,
    "read_only": 1
   },
@@ -210,6 +322,7 @@
   {
    "fieldname": "total_discount_in_line_items",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Total Discount In Line Items"
   },
   {
@@ -221,6 +334,7 @@
   {
    "fieldname": "additional_discount",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Additional Discount"
   },
   {
@@ -247,6 +361,12 @@
    "read_only": 1
   },
   {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Paid Amount"
+  },
+  {
    "fieldname": "section_break_33",
    "fieldtype": "Section Break"
   },
@@ -260,11 +380,13 @@
   {
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Terms And Conditions"
   },
   {
    "fieldname": "terms",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Terms",
    "options": "Terms And Conditions"
   },
@@ -274,69 +396,15 @@
    "label": "Terms and Conditions"
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
-  },
-  {
-   "fieldname": "lpo_no",
-   "fieldtype": "Data",
-   "in_preview": 1,
-   "label": "LPO No"
-  },
-  {
-   "fieldname": "lpo_date",
-   "fieldtype": "Date",
-   "label": "LPO Date"
-  },
-  {
-   "fieldname": "reference_no",
-   "fieldtype": "Data",
-   "label": "Reference No"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
+   "fieldname": "references_tab",
+   "fieldtype": "Tab Break",
+   "hidden": 1,
+   "label": "References"
   },
   {
    "fieldname": "data_53",
    "fieldtype": "Section Break",
    "label": "Related Documents"
-  },
-  {
-   "fieldname": "column_break_25",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "credit_sale",
-   "fieldtype": "Check",
-   "label": "Credit Sale"
-  },
-  {
-   "fieldname": "ship_to_location",
-   "fieldtype": "Link",
-   "label": "Ship To Location",
-   "options": "Customer Delivery Location"
-  },
-  {
-   "fieldname": "customer_address",
-   "fieldtype": "Small Text",
-   "label": "Address"
-  },
-  {
-   "fieldname": "salesman",
-   "fieldtype": "Link",
-   "label": "Salesman",
-   "options": "Employee"
-  },
-  {
-   "fetch_from": "customer.customer_name",
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "in_preview": 1,
-   "label": "Customer Name",
-   "read_only": 1
   },
   {
    "default": "0",
@@ -346,38 +414,16 @@
    "label": "Auto Save Delivery Note"
   },
   {
-   "fetch_from": "salesman.employee_code",
-   "fieldname": "salesman_code",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Salesman Code"
-  },
-  {
-   "default": "Cash",
-   "fieldname": "payment_mode",
-   "fieldtype": "Link",
-   "label": "Payment Mode",
-   "options": "Payment Mode"
-  },
-  {
-   "fetch_from": "payment_mode.account",
-   "fieldname": "payment_account",
-   "fieldtype": "Link",
-   "label": "Payment Account",
-   "options": "Account",
-   "read_only": 1
-  },
-  {
-   "fieldname": "references_tab",
-   "fieldtype": "Tab Break",
-   "label": "References"
-  },
-  {
    "fieldname": "delivery_notes",
    "fieldtype": "Table",
    "label": "Delivery Notes",
    "options": "Sales Invoice Delivery Notes",
    "read_only": 1
+  },
+  {
+   "fieldname": "delivery_notes_to_print",
+   "fieldtype": "Data",
+   "label": "Delivery Notes To Print"
   },
   {
    "fetch_from": "customer.address_line_1",
@@ -408,29 +454,6 @@
    "label": "Country"
   },
   {
-   "fetch_from": "company.tax_id",
-   "fieldname": "company_tax_id",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Company Tax Id"
-  },
-  {
-   "fetch_from": "customer.tax_id",
-   "fieldname": "tax_id",
-   "fieldtype": "Data",
-   "label": "Tax Id"
-  },
-  {
-   "fieldname": "delivery_notes_to_print",
-   "fieldtype": "Data",
-   "label": "Delivery Notes To Print"
-  },
-  {
-   "fieldname": "customer_display_name",
-   "fieldtype": "Data",
-   "label": "Customer Display Name"
-  },
-  {
    "fieldname": "quotation",
    "fieldtype": "Link",
    "label": "Quotation",
@@ -444,25 +467,27 @@
    "options": "Sales Order"
   },
   {
-   "fieldname": "paid_amount",
-   "fieldtype": "Currency",
-   "label": "Paid Amount"
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Tab Sales",
+   "print_hide": 1,
+   "read_only": 1
   },
   {
-   "fieldname": "tab_sales",
-   "fieldtype": "Link",
-   "label": "Tab Sales",
-   "options": "Tab Sales",
-   "read_only": 1
+   "fieldname": "sales_invoice_no_ref",
+   "fieldtype": "Data",
+   "label": "Sales Invoice No Ref"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-16 15:54:04.768359",
+ "modified": "2023-05-16 13:54:28.659227",
  "modified_by": "Administrator",
  "module": "Selling",
- "name": "Sales Invoice",
+ "name": "Tab Sales",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [

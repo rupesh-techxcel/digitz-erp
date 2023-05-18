@@ -1,25 +1,20 @@
 // Copyright (c) 2023, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Sales Invoice', {
+frappe.ui.form.on('Tab Sales', {
 
 	refresh: function (frm) {
 
-		// if(frm.doc.docstatus == 1) 
-		// if (!frm.doc.__islocal && !frm.doc.auto_save_delivery_note) {
-
-		// 	frm.add_custom_button('Create/Update Delivery Note', () => {
-		// 		frm.call("generate_delivery_note")
-		// 	},
-		// 	)
-		// }
-
 	},
-	after_save: function (frm) {
+	before_save: function (frm) {		 
 
-		 if (frm.doc.auto_save_delivery_note) {
-			frm.call("auto_generate_delivery_note")
-		 }
+		if(frm.doc.docstatus == 2)
+		{
+			frappe.throw("before_save");
+		}		
+	},	
+	after_save: function (frm) {		 
+			frm.call("generate_sales_invoice")
 	},	
 	validate: function (frm) {		
 
@@ -51,9 +46,6 @@ frappe.ui.form.on('Sales Invoice', {
 			frappe.message("No valid item found in the document");
 			return;
 		}
-
-		if (frm.doc.tab_sales)
-			frappe.throw("Cannot change Sales Invoice created from a Tab Sales. Do it from the correspodning Tab Sale")
 
 		if(frm.doc.__islocal) //When the invoice is created by duplicating from an existing invoice, there may be delivery notes allocated
 		{					// and it needs to be removed
@@ -131,8 +123,7 @@ frappe.ui.form.on('Sales Invoice', {
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
-		}
-		
+		}		
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -363,7 +354,7 @@ frappe.ui.form.on('Sales Invoice', {
 							frm.doc.warehouse = r2.message.default_warehouse;
 							console.log(frm.doc.warehouse);
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-							frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
+							
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
 							console.log(r2.message);
@@ -390,23 +381,10 @@ frappe.ui.form.on('Sales Invoice', {
 				)
 			}
 		})
-
 	}	
 });
 
-frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
-
-	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);	
-	// frm.set_query("warehouse", function () {
-	// 	return {
-	// 		"filters": {
-	// 			"is_group": 0
-	// 		}
-	// 	};
-	// });
-	
-	console.log(frm.doc);
+frappe.ui.form.on("Tab Sales", "onload", function (frm) {	
 	
 	if(frm.doc.__islocal)
 		frm.trigger("get_default_company_and_warehouse");
@@ -429,7 +407,7 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
 });
 
-frappe.ui.form.on('Sales Invoice Item', {
+frappe.ui.form.on('Tab Sales Item', {
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
