@@ -45,8 +45,11 @@ class SalesInvoice(Document):
         
         cost_of_goods_sold = 0
         
-        if self.tab_sales :
+        if self.tab_sales :           
+            print("tab_Sales true ") 
             cost_of_goods_sold = self.deduct_stock_for_tab_sales()
+        else:
+            print("tab_Sales false ") 
    
         self.insert_gl_records(cost_of_goods_sold)
         self.insert_payment_postings()
@@ -191,6 +194,41 @@ class SalesInvoice(Document):
             else:
                 gl_doc.debit_amount = self.round_off
 
+            gl_doc.insert()
+        if self.tab_sales:
+            
+            default_company = frappe.db.get_single_value("Global Settings", "default_company")
+
+            default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+                                                                         'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+
+            idx = idx + 1
+
+            # Inventory account Eg: Stock In Hand
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.default_inventory_account
+            gl_doc.debit_amount = cost_of_goods_sold
+            gl_doc.party_type = "Customer"
+            gl_doc.party = self.customer
+            gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
+            gl_doc.insert()
+
+            # Cost Of Goods Sold
+            idx = idx + 1
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.cost_of_goods_sold_account
+            gl_doc.credit_amount = cost_of_goods_sold
+            gl_doc.aginst_account = default_accounts.default_inventory_account
             gl_doc.insert()
 
     def insert_payment_postings(self):
@@ -458,6 +496,8 @@ class SalesInvoice(Document):
         stock_recalc_voucher.voucher_time = self.posting_time
         stock_recalc_voucher.status = 'Not Started'
         stock_recalc_voucher.source_action = "Insert"
+        
+        print("from deduct_stock")
 
         cost_of_goods_sold = 0
 
@@ -489,6 +529,7 @@ class SalesInvoice(Document):
             , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
             order_by='posting_date desc', as_dict=True)
 
+            print("previous stock balance")
             print(previous_stock_balance)
 
             if(allow_negative_stock == False and not previous_stock_balance):

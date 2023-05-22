@@ -44,6 +44,7 @@
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
+  "item_units",
   "amended_from",
   "section_break_25",
   "gross_total",
@@ -454,12 +455,17 @@
    "label": "Tab Sales",
    "options": "Tab Sales",
    "read_only": 1
+  },
+  {
+   "fieldname": "item_units",
+   "fieldtype": "Data",
+   "label": "Item Units"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-16 15:54:04.768359",
+ "modified": "2023-05-22 05:36:10.041789",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

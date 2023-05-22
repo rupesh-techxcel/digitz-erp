@@ -369,6 +369,35 @@ frappe.ui.form.on('Delivery Note', {
 	before_delete: function(frm)
 	{
 		console.log("before delete from clients side")
+	},	
+	get_item_units(frm) {
+
+		frappe.call({
+			method: 'digitz_erp.api.items_api.get_item_uoms',
+			async: false,
+			args: {
+				item: frm.item
+			},
+			callback: (r) => {
+			
+				console.log(r)
+				var units = ""
+				for(var i = 0; i < r.message.length; i++)
+				{
+					if(i==0)
+					{
+						units = r.message[i].unit
+					}
+					else
+					{
+						units = units + ", " + r.message[i].unit
+					}
+				}
+				
+				frm.doc.item_units = units
+				frm.refresh_field("item_units");
+			}
+		})
 	}
 });
 
@@ -417,6 +446,8 @@ frappe.ui.form.on('Delivery Note Item', {
 		
 		let doc = frappe.model.get_value("", row.item);		
 		row.warehouse = frm.doc.warehouse;		
+		frm.item = row.item;
+		frm.trigger("get_item_units");
 		frm.trigger("make_taxes_and_totals");
 
 		frappe.call(

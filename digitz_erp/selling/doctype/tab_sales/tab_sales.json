@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2023-05-15 16:26:31.914707",
+ "creation": "2023-05-21 09:24:01.453946",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -10,6 +10,7 @@
  "field_order": [
   "naming_series",
   "customer",
+  "sales_invoice_no_ref",
   "customer_name",
   "customer_display_name",
   "reference_no",
@@ -17,14 +18,16 @@
   "column_break_6",
   "posting_date",
   "posting_time",
+  "print_date",
   "edit_posting_date_and_time",
   "ship_to_location",
   "salesman",
+  "section_break_11",
   "salesman_code",
   "tax_id",
-  "section_break_11",
   "column_break_4",
   "company",
+  "company_address",
   "company_tax_id",
   "lpo_no",
   "lpo_date",
@@ -35,15 +38,17 @@
   "credit_sale",
   "credit_days",
   "payment_terms",
+  "column_break_z0zxb",
   "payment_mode",
   "payment_account",
-  "column_break_25",
   "remarks",
   "section_break_19",
   "items",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
+  "item_units",
+  "amended_from",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -64,21 +69,20 @@
   "auto_save_delivery_note",
   "delivery_notes",
   "delivery_notes_to_print",
+  "tab_sales",
   "address_line_1",
   "address_line_2",
   "area_name",
   "country",
   "quotation",
-  "sales_order",
-  "amended_from",
-  "sales_invoice_no_ref"
+  "sales_order"
  ],
  "fields": [
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "TS-.#####.-.MM.-.YYYY"
+   "options": "TS-.#####.-.MM.-.YYYY."
   },
   {
    "fieldname": "customer",
@@ -113,7 +117,6 @@
   {
    "fieldname": "customer_address",
    "fieldtype": "Small Text",
-   "hidden": 1,
    "label": "Address"
   },
   {
@@ -146,7 +149,6 @@
   {
    "fieldname": "ship_to_location",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Ship To Location",
    "options": "Customer Delivery Location"
   },
@@ -231,7 +233,6 @@
   {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
-   "hidden": 1,
    "label": "Accounts"
   },
   {
@@ -267,10 +268,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_25",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "hidden": 1,
@@ -304,7 +301,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Tab Sales",
+   "options": "Sales Invoice",
    "print_hide": 1,
    "read_only": 1
   },
@@ -322,7 +319,6 @@
   {
    "fieldname": "total_discount_in_line_items",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Total Discount In Line Items"
   },
   {
@@ -334,7 +330,6 @@
   {
    "fieldname": "additional_discount",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Additional Discount"
   },
   {
@@ -393,6 +388,7 @@
   {
    "fieldname": "terms_and_conditions",
    "fieldtype": "Text Editor",
+   "hidden": 1,
    "label": "Terms and Conditions"
   },
   {
@@ -424,6 +420,13 @@
    "fieldname": "delivery_notes_to_print",
    "fieldtype": "Data",
    "label": "Delivery Notes To Print"
+  },
+  {
+   "fieldname": "tab_sales",
+   "fieldtype": "Link",
+   "label": "Tab Sales",
+   "options": "Tab Sales",
+   "read_only": 1
   },
   {
    "fetch_from": "customer.address_line_1",
@@ -471,20 +474,43 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Tab Sales",
+   "options": "Sales Invoice",
    "print_hide": 1,
    "read_only": 1
   },
   {
    "fieldname": "sales_invoice_no_ref",
    "fieldtype": "Data",
-   "label": "Sales Invoice No Ref"
+   "label": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "print_date",
+   "fieldtype": "Date",
+   "label": "Print Date"
+  },
+  {
+   "fieldname": "column_break_z0zxb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_units",
+   "fieldtype": "Data",
+   "label": "Item Units"
+  },
+  {
+   "fetch_from": "company.address",
+   "fieldname": "company_address",
+   "fieldtype": "Text",
+   "hidden": 1,
+   "label": "Company Address"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-16 13:54:28.659227",
+ "modified": "2023-05-21 15:55:36.267747",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales",

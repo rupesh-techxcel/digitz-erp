@@ -402,6 +402,35 @@ frappe.ui.form.on('Sales Order', {
 			frapp.message("No valid item found in the document");
 			return;
 		}
+	},
+	get_item_units(frm) {
+
+		frappe.call({
+			method: 'digitz_erp.api.items_api.get_item_uoms',
+			async: false,
+			args: {
+				item: frm.item
+			},
+			callback: (r) => {
+			
+				console.log(r)
+				var units = ""
+				for(var i = 0; i < r.message.length; i++)
+				{
+					if(i==0)
+					{
+						units = r.message[i].unit
+					}
+					else
+					{
+						units = units + ", " + r.message[i].unit
+					}
+				}
+				
+				frm.doc.item_units = units
+				frm.refresh_field("item_units");
+			}
+		})
 	}
 });
 
@@ -460,6 +489,11 @@ frappe.ui.form.on('Sales Order Item', {
 		console.log(doc);
 		row.warehouse = frm.doc.warehouse;
 		console.log(row.warehouse);
+
+		frm.item = row.item
+
+		frm.trigger("get_item_units");
+
 		frm.trigger("make_taxes_and_totals");
 
 		frappe.call(

@@ -97,7 +97,7 @@ frappe.ui.form.on('Tab Sales', {
 			frm.doc.customer_display_name = frm.doc.customer_name
 			frm.refresh_field("customer_display_name");
 
-	},
+	},	
 	edit_posting_date_and_time(frm) {
 
 		//console.log(frm.doc.edit_posting_date_and_time);
@@ -118,7 +118,7 @@ frappe.ui.form.on('Tab Sales', {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
-		
+		frm.set_df_property("payment_terms", "hidden", !frm.doc.credit_sale);
 
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
@@ -310,20 +310,49 @@ frappe.ui.form.on('Tab Sales', {
 		console.log(frm.warehouse)
 
 		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Stock Balance',
-					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-					'fieldname': ['stock_qty']
-				},
-				callback: (r2) => {
-					console.log(r2)
-					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
-					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+		{
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Stock Balance',
+				'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+				'fieldname': ['stock_qty']
+			},
+			callback: (r2) => {
+				console.log(r2)
+				frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
+				frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
 
+			}
+		});
+	},
+	get_item_units(frm) {
+
+		frappe.call({
+			method: 'digitz_erp.api.items_api.get_item_uoms',
+			async: false,
+			args: {
+				item: frm.item
+			},
+			callback: (r) => {
+			
+				console.log(r)
+				var units = ""
+				for(var i = 0; i < r.message.length; i++)
+				{
+					if(i==0)
+					{
+						units = r.message[i].unit
+					}
+					else
+					{
+						units = units + ", " + r.message[i].unit
+					}
 				}
-			});
+				
+				frm.doc.item_units = units
+				frm.refresh_field("item_units");
+			}
+		})
 	},
 	get_default_company_and_warehouse(frm) {
 
@@ -408,6 +437,7 @@ frappe.ui.form.on("Tab Sales", "onload", function (frm) {
 });
 
 frappe.ui.form.on('Tab Sales Item', {
+	
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
@@ -453,8 +483,8 @@ frappe.ui.form.on('Tab Sales Item', {
 					frm.item = row.item
 					frm.warehouse = row.warehouse
 					console.log("before trigger")
-					frm.trigger("get_item_stock_balance");
-
+					frm.trigger("get_item_stock_balance");								
+					frm.trigger("get_item_units");
 
 					if (!r.message.tax_excluded) {
 						frappe.call(
@@ -657,5 +687,6 @@ frappe.ui.form.on('Tab Sales Item', {
 		frm.item = row.item
 		frm.warehouse = row.warehouse
 		frm.trigger("get_item_stock_balance");
+		frm.trigger("get_item_units");
 	}
 });

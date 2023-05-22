@@ -6,7 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils import now
 from frappe.model.document import Document
 
-class TabSales(Document):
+class TabSales (Document):
 
     def before_submit(self):
 
