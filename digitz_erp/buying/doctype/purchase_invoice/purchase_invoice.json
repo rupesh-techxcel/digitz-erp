@@ -50,6 +50,7 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "paid_amount",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -327,12 +328,18 @@
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-22 07:42:20.552388",
+ "modified": "2023-05-25 09:20:50.190298",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

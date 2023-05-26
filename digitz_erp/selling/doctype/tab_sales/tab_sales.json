@@ -15,6 +15,7 @@
   "customer_display_name",
   "reference_no",
   "customer_address",
+  "warehouse",
   "column_break_6",
   "posting_date",
   "posting_time",
@@ -33,7 +34,6 @@
   "lpo_date",
   "price_list",
   "rate_includes_tax",
-  "warehouse",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -222,9 +222,9 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Warehouse",
-   "options": "Warehouse"
+   "options": "Warehouse",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_11",
@@ -510,7 +510,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-21 15:55:36.267747",
+ "modified": "2023-05-25 07:44:09.206936",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales",

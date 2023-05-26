@@ -1,110 +1,182 @@
-# Copyright (c) 2023, Rupesh P and contributors
+# Copyright (c) 2022, Rupesh P and contributors
 # For license information, please see license.txt
 
 import frappe
 from frappe.model.document import Document
-import json
+from digitz_erp.api.purchase_invoice_api import get_allocations_for_invoice
 
+class PaymentEntry(Document):    
 
-class PaymentEntry(Document):
-    
-	def on_submit(self):
-     
-		total_amount = 0
+	@frappe.whitelist()
+	def get_supplier_pending_payments(supplier):
+		
+		receipt_values = frappe.get_list("Purchase Invoice", fields=['name', 'rounded_total','paid_amount'], filters =
+									{'supplier':['=',supplier],'is_credit': ['=',True], 'paid_amount':['<', 'rounded_total']}
+									)
+	
+		return {'values': receipt_values}
+
+	def before_save(self):
+		# By default allocations are not visisble. So make show_allocations make false
+		# to allow user to click on show allocations for the visibility of allocations   
   
-		for payment in self.payment_entry_details:
-			print("before the condition")
-			if payment.get('payment_entry_details'):
-				print("condition true")
-				payment_entry_details = frappe.get_doc('Payment entry Details',payment.get('payment_entry_details'))
-				
-				for payment_allocation in payment_entry_details.get('payment_allocation'):
-					purchase_invoice = frappe.get_doc("Purchase Invoice",payment_allocation.get('purchase'))	
-					paid_amount = payment_allocation.get('paid_amount') + payment_allocation.get('pay')
-					purchase_invoice.paid_amount = paid_amount
-					balance_amount = purchase_invoice.rounded_total - purchase_invoice.paid_amount
-					purchase_invoice.balance_amount = balance_amount
-					
-					purchase_invoice.save()
-				
-				payment_entry_details.docstatus  = 1
-				payment_entry_details.save(ignore_permissions=True)		
-				frappe.db.commit()
-			
-			total_amount += payment.total_amount
-		self.total_amount = total_amount
-
+		self.show_allocations = False
+  
 	def validate(self):
-		pass
+     
+		self.validate_doc_status()
+		# self.clean_deleted_allocations()
+		self.check_allocations_and_totals()
+		self.check_excess_allocation()
+    
+	def validate_doc_status(self):
+		if self.amount == 0:
+			frappe.throw("Cannot save the document with out valid inputs.")
+            
+    # Cleaning the deleted allocations is crucial, so this method should call even though it cleans with the client side javascript code
+	def clean_deleted_allocations(self):
+		
+		allocations = self.payment_allocation
+  
+		if(allocations):
+			for allocation in allocations[:]:				
+				
+				payment_details = self.payment_entry_details
+				allocation_exist = False
+				if payment_details:
+					for payment_entry in payment_details:
+						if payment_entry.supplier == allocation.supplier and payment_entry.allocated_amount and payment_entry.allocated_amount>0:
+							allocation_exist= True
+					if allocation_exist==False:
+						self.payment_allocation.remove(allocation)       
+        
+	def check_allocations_and_totals(self):
+		payment_details = self.payment_entry_details
+		total =0
+		total_allocated = 0
+		if(payment_details):
+			for payment_entry in payment_details:
+				if(payment_entry.allocated_amount and payment_entry.allocated_amount>0):
+					if(payment_entry.amount!= payment_entry.allocated_amount):
+						frappe.throw("Allocated amount mismatch.")
+				total = total+ payment_entry.amount
+				total_allocated = total_allocated +  payment_entry.allocated_amount
+    
+		if(self.amount != total):
+			frappe.throw("Mismatch in total amount. Please check the document inputs")
+   
+		if(self.allocated_amount != total_allocated):
+			frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
+    
+      
+	def check_excess_allocation(self):
+         
+		allocations = self.payment_allocation
 
+		if(allocations):
+			for allocation in allocations:
+				if(allocation.paying_amount>0):					
+					is_new = self.is_new()
+					print("self.is_new()")
+					print(self.is_new())
+		
+					payment_no = self.name
+					if self.is_new():
+						payment_no = ""
+		
+					previous_paid_amount = 0
+					allocations_exists = get_allocations_for_invoice(allocation.purchase_invoice, payment_no)
+		
+					for existing_allocation in allocations_exists:
+						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+		
+					if allocation.paying_amount > allocation.invoice_amount-previous_paid_amount:
+						frappe.throw("Excess allocation for the invoice numer " + allocation.purchase_invoice )
+      
+	def before_submit(self):     
+		self.call_before_submit()
 
-@frappe.whitelist()
-def create_dr_supplier_entry(doc,supplier):
-	pur_invoice = frappe.db.sql("""SELECT name,gross_total,supplier,rounded_total,paid_amount FROM `tabPurchase Invoice` WHERE supplier = '{}' AND docstatus = 1 AND rounded_total != paid_amount""".format(supplier),as_dict=1)
+	def call_before_submit(self):
+     	# Again make sure there is no excess allocation, before during submit
+		self.check_excess_allocation()
+		self.update_sales_invoices()
+		self.insert_gl_records()
 
-	if not pur_invoice:
-		return 'No pending invoice'
+	def update_sales_invoices(self):
+		
+		allocations = self.payment_allocation
 
-	new_doc = frappe.new_doc('Payment entry Details')
-	for data in pur_invoice:
-		balance_amount = data.get('rounded_total') if data.get('paid_amount') == 0 else data.get('rounded_total') - data.get('paid_amount')
+		if(allocations):
+			for allocation in allocations:
+				if(allocation.paying_amount>0):
+		
+					payment_no = self.name
+					if self.is_new():
+						payment_no = ""      
+		
+					previous_paid_amount = 0
+					allocations_exists = get_allocations_for_invoice(allocation.purchase_invoice, payment_no)
+		
+					for existing_allocation in allocations_exists:
+						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+      
+					invoice_total = previous_paid_amount + allocation.paying_amount
 
-		new_doc.append("payment_allocation",{
-					"paid_amount":data.get('paid_amount'),
-					"purchase":data.get('name'),
-					"invoice_amount":data.get('rounded_total'),
-					"balance_amount":balance_amount
-					})
-		new_doc.save()
-	return new_doc.name
+					frappe.db.set_value("Purchase Invoice", allocation.purchase_invoice, {'paid_amount': invoice_total})
+    
+	def insert_gl_records(self):
 
-@frappe.whitelist()
-def update_payment(child_table_data,supplier):
-	child_table_data = json.loads(child_table_data)
-	totalPay = 0;
+		print("From insert gl records")
 
-	for allocation in child_table_data:
-		if allocation.get("pay") > allocation.get('balance_amount'):
-			frappe.throw(f"Cannot pay more than the balance amount.")
+		# default_company = frappe.db.get_single_value(
+		# 	"Global Settings", "default_company")
 
-		frappe.db.sql(""" UPDATE `tabPayment Allocation` SET paid_amount = {0},invoice_amount = {1},balance_amount = {2},pay = {3} WHERE name = {4} """.format(allocation.get('paid_amount'),allocation.get('invoice_amount'),allocation.get('balance_amount'),allocation.get('pay'),allocation.get('name')))
+		# default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+		# 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+		idx = 1
 
-		totalPay += allocation.get('pay');
-
-	return totalPay
-
-@frappe.whitelist()
-def check_for_new_record(payment_entry_details,supplier):
-	if not payment_entry_details:
-		return False
-	data = frappe.get_doc('Payment entry Details',payment_entry_details)
-
-	new_record_check = frappe.db.sql("""SELECT name,gross_total,supplier,rounded_total,paid_amount FROM `tabPurchase Invoice` WHERE supplier = '{}' AND docstatus = 1 AND rounded_total != paid_amount""".format(supplier),as_dict=1)
-
-	not_matching = []
-	for name in new_record_check:
-		found_match = False
-		for purchase in data.get('payment_allocation'):
-			if name.get('name') == purchase.get('purchase'):
-				found_match = True
-				break
-		if not found_match:
-			not_matching.append(name)
-
-	if not_matching:
-		doc = frappe.get_doc('Payment entry Details',payment_entry_details)
-		for new_pi in not_matching:
-			balance_amount = new_pi.get('rounded_total') if new_pi.get('paid_amount') == 0 else new_pi.get('rounded_total') - new_pi.get('paid_amount')
-
-			doc.append('payment_allocation',{
-						"paid_amount":new_pi.get('gross_total'),
-						"purchase":new_pi.get('name'),
-						"invoice_amount":new_pi.get('rounded_total'),
-						"balance_amount":balance_amount
-						})
-	
-			doc.save()
-
-
-
-	
+		# Trade Receivable - Debit
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Payment Entry"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.posting_date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = self.account
+		gl_doc.credit_amount = self.amount
+		# gl_doc.party_type = "Customer"
+		# gl_doc.party = self.customer
+		# gl_doc.aginst_account = default_accounts.default_income_account
+		gl_doc.insert()
+  
+		payment_details = self.payment_entry_details
+		
+		if(payment_details):
+			for payment_entry in payment_details:
+				if(payment_entry.payment_type == "Supplier"):
+					idx = idx + 1
+					gl_doc = frappe.new_doc('GL Posting')
+					gl_doc.voucher_type = "Payment Entry"
+					gl_doc.voucher_no = self.name
+					gl_doc.idx = idx
+					gl_doc.posting_date = self.posting_date
+					gl_doc.posting_time = self.posting_time
+					gl_doc.account = payment_entry.account
+					gl_doc.debit_amount = payment_entry.amount
+					gl_doc.party_type = "Supplier"
+					gl_doc.party = payment_entry.supplier
+					gl_doc.aginst_account = self.account
+					gl_doc.insert()
+        
+				else:
+					idx = idx + 1
+					gl_doc = frappe.new_doc('GL Posting')
+					gl_doc.voucher_type = "Payment Entry"
+					gl_doc.voucher_no = self.name
+					gl_doc.idx = idx
+					gl_doc.posting_date = self.posting_date
+					gl_doc.posting_time = self.posting_time
+					gl_doc.account = payment_entry.account
+					gl_doc.debit_amount = payment_entry.amount					
+					gl_doc.aginst_account = self.account
+					gl_doc.insert()

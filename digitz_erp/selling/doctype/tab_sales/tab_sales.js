@@ -360,6 +360,7 @@ frappe.ui.form.on('Tab Sales', {
 
 		frappe.call({
 			method: 'frappe.client.get_value',
+			async:false,
 			args: {
 				'doctype': 'Global Settings',
 				'fieldname': 'default_company'
@@ -372,6 +373,7 @@ frappe.ui.form.on('Tab Sales', {
 				frappe.call(
 					{
 						method: 'frappe.client.get_value',
+						async:false,
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
@@ -407,13 +409,32 @@ frappe.ui.form.on('Tab Sales', {
 
 						}
 					}
-				)
+				)				
 			}
-		})
+		});
+
+		console.log("before call user warehouse")
+				
+		frappe.call(
+			{
+				method: 'digitz_erp.api.user_api.get_user_default_warehouse',
+				async: false,
+				callback(r) {					
+					if(r.message != undefined)
+					{
+						console.log(r.message.warehouse);
+						frm.doc.warehouse = r.message.warehouse
+					}
+					else
+					{
+						console.log("no warehouse assigned for the user")
+					}
+				}
+			})
 	}	
 });
 
-frappe.ui.form.on("Tab Sales", "onload", function (frm) {	
+frappe.ui.form.on("Tab Sales", "onload", function (frm) {
 	
 	if(frm.doc.__islocal)
 		frm.trigger("get_default_company_and_warehouse");
