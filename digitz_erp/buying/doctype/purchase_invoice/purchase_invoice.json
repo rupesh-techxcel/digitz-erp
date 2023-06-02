@@ -23,6 +23,7 @@
   "section_break_11",
   "supplier_inv_no",
   "supplier_inv_date",
+  "purchase_order",
   "do_no",
   "warehouse",
   "accounts_section",
@@ -334,12 +335,18 @@
    "fieldtype": "Currency",
    "label": "Paid Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-25 09:20:50.190298",
+ "modified": "2023-05-26 09:29:10.770319",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

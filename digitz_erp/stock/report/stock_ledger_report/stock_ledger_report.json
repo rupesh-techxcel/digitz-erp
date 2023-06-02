@@ -1,0 +1,33 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2023-06-02 10:55:45.702569",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "mandatory": 0,
+   "options": "Item",
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "",
+ "modified": "2023-06-02 11:30:26.486298",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Stock Ledger Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "select sl.item,sl.item_code,sl.voucher,sl.voucher_no from `tabStock Ledger` sl where sl.item= %(item)s",
+ "ref_doctype": "Stock Ledger",
+ "report_name": "Stock Ledger Report",
+ "report_type": "Script Report",
+ "roles": []
+}

@@ -21,3 +21,113 @@ class PurchaseOrder(Document):
 
 		if(possible_invalid >0):			
 			frappe.throw("There is another Order invoice exist with the same date and time. Please correct the date and time.")
+   
+	def validate(self):
+		self.validate_items()	
+  
+	def before_save(self):
+		print("before_save")
+	 	# While duplicating making sure the status is resetting
+		if self.is_new():
+			self.order_status = "Pending"
+			for item in self.items:
+				item.purchased_qty = 0
+   
+	def validate_items(self):
+
+		print("validate items")
+  
+		idx =0
+		for item in self.items:      
+			idx2 = 0
+			for item2 in self.items:
+				if(idx != idx2):
+					if item.item == item2.item and item.display_name == item2.display_name:
+						frappe.throw("Same item canot use in multiple rows with the same display name.")
+				idx2= idx2 + 1
+			idx = idx + 1
+		
+
+	@frappe.whitelist()
+	def generate_purchase_invoice(self):
+     		
+		print("purchase_invoie_name")
+		purchase_invoice_name = ""			
+		purchaseOrderName =  self.name
+	
+		print("purchase order name")
+		print(purchaseOrderName)
+  
+		purchase_invoice = self.__dict__
+		purchase_invoice['doctype'] = 'Purchase Invoice'
+		purchase_invoice['name'] = purchase_invoice_name
+		purchase_invoice['naming_series'] = ""
+		purchase_invoice['posting_date'] = self.posting_date
+		purchase_invoice['posting_time'] = self.posting_time
+		purchase_invoice['purchase_order'] = purchaseOrderName
+		
+
+		# Change the document status to draft to avoid error while submitting child table
+		purchase_invoice['docstatus'] = 0
+
+		rows_to_remove = []
+		for i, row in enumerate(purchase_invoice['items']):
+			if row.qty == row.qty_purchased:
+				rows_to_remove.append(i)
+    
+		for i in reversed(rows_to_remove):
+			purchase_invoice['items'].pop(i)
+
+		for item in purchase_invoice['items']:            
+			item.doctype = "Purchase Invoice Item"
+			# item.delivery_note_item_reference_no = item.name
+			item._meta = ""       
+			
+		purchase_invoice_doc = frappe.get_doc(
+			purchase_invoice).insert(ignore_permissions=True) 
+		
+		frappe.db.commit()
+		
+		frappe.msgprint("Purchase Invoice created successfully, in draft mode.") 
+
+	@frappe.whitelist()
+	def check_and_update_purchase_order_status(self):
+
+		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
+
+		print("purchase order")
+		print(purchase_order)
+
+		purchase_order_items = frappe.get_list("Purchase Order Item", {'parent': purchase_order},['name'])
+
+		purchased_any = False
+		at_least_one_partial_purchase = False
+		purchased_full = False #Not using for conditions
+
+		for po in self.items:
+			print(po)
+			if po.qty_purchased and po.qty_purchased > 0:
+				purchased_any = True
+				if po.qty_purchased and po.qty_purchased == po.qty:
+					purchased_full = True            
+				else:
+					at_least_one_partial_purchase = True
+					
+		if not purchased_any == False:
+			print("1")      
+			# self.status = "Pending"
+			frappe.db.set_value("Purchase Order", purchase_order.name, {'order_status': "Pending"}) 
+			print("1 set value")    
+		elif at_least_one_partial_purchase:     
+			print("2")  
+			# self.status = "Partial"
+				
+			frappe.db.set_value("Purchase Order", purchase_order.name, {'order_status': "Partial"})
+			print("2 set  value") 
+		else:
+			print("3")
+		#    self.status = "Completed"
+			frappe.db.set_value("Purchase Order", purchase_order.name, {'order_status': "Completed"})
+		#    print("3 set value")
+
+		purchase_order.save()

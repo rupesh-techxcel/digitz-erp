@@ -3,6 +3,45 @@
 
 frappe.ui.form.on('Purchase Order', {
 
+	refresh:function(frm){
+
+		if (frm.doc.docstatus == 1)
+
+			if (frm.doc.docstatus == 1) {
+				console.log("frm.doc.name")
+				console.log(frm.doc.name)
+
+			frappe.call(
+			{
+				method: 'digitz_erp.api.purchase_order_api.check_invoices_for_purchase_order',
+
+				async: false,
+				args: {
+					'purchase_order': frm.doc.name
+				},
+				callback(po_exists) {
+					console.log("po_exists.message")
+					console.log(po_exists.message)
+
+					if (po_exists.message == false)
+					{
+						frm.add_custom_button('Create Purchase Invoice', () => {
+							frm.call("generate_purchase_invoice")
+						},
+						);
+					}
+					else if (frm.doc.order_status != "Completed")
+					{
+
+						frm.add_custom_button('Create Purchase Invoice', () => {
+							frm.call("generate_purchase_invoice")
+						},
+						);
+					}
+				}
+			});
+			}
+	},
 	setup: function (frm) {
 
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')

@@ -99,10 +99,10 @@ class PaymentEntry(Document):
 	def call_before_submit(self):
      	# Again make sure there is no excess allocation, before during submit
 		self.check_excess_allocation()
-		self.update_sales_invoices()
+		self.update_purchase_invoices()
 		self.insert_gl_records()
 
-	def update_sales_invoices(self):
+	def update_purchase_invoices(self):
 		
 		allocations = self.payment_allocation
 

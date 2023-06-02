@@ -114,9 +114,6 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
             frappe.db.delete('Stock Balance',{'item': record.item, 'warehouse': record.warehouse} )
 
         item_name,unit = frappe.get_value("Item", record.item,['item_name','base_unit'])
-        frappe.msgprint(unit)
-        print(unit)
-        
         new_stock_balance = frappe.new_doc('Stock Balance')	
         new_stock_balance.item = record.item
         new_stock_balance.unit = unit

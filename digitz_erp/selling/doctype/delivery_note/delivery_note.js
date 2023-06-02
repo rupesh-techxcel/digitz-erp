@@ -25,8 +25,7 @@ frappe.ui.form.on('Delivery Note', {
 							'delivery_note': frm.doc.name
 						},
 						callback(r) {
-							console.log("DO already exists")
-							console.log(r)
+
 							if (r.message != 1)
 
 								frm.add_custom_button('Create Sale Invoice', () => {

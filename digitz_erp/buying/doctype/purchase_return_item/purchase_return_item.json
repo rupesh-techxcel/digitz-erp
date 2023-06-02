@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-05-26 06:18:22.344492",
+ "creation": "2023-05-26 10:48:23.169504",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -15,8 +15,6 @@
   "rate",
   "base_unit",
   "qty_in_base_unit",
-  "qty_purchased",
-  "qty_returned",
   "rate_in_base_unit",
   "conversion_factor",
   "rate_included_tax",
@@ -38,7 +36,6 @@
   {
    "fieldname": "item",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Item",
    "options": "Item"
   },
@@ -55,20 +52,17 @@
   {
    "fieldname": "qty",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Qty"
   },
   {
    "fieldname": "unit",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Unit",
    "options": "Unit"
   },
   {
    "fieldname": "rate",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Rate"
   },
   {
@@ -118,7 +112,6 @@
    "description": "Qty * Rate Excluded Tax",
    "fieldname": "gross_amount",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Gross Amount"
   },
   {
@@ -169,28 +162,15 @@
   {
    "fieldname": "section_break_23",
    "fieldtype": "Section Break"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "qty_purchased",
-   "fieldtype": "Float",
-   "hidden": 1,
-   "label": "Qty Purchasedsq"
-  },
-  {
-   "fieldname": "qty_returned",
-   "fieldtype": "Float",
-   "hidden": 1,
-   "label": "Qty Returned"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-28 15:18:51.517042",
+ "modified": "2023-05-26 10:48:23.169504",
  "modified_by": "Administrator",
  "module": "Buying",
- "name": "Purchase Order Item",
+ "name": "Purchase Return Item",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

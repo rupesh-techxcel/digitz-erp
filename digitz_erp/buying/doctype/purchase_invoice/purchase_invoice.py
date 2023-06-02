@@ -6,7 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
-
+from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
 class PurchaseInvoice(Document):
 
 	def before_submit(self):		
@@ -16,8 +16,7 @@ class PurchaseInvoice(Document):
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
 		# Also in add_stock_for_purchase_receipt method only checking for < date_time in order avoid difficulty to get exact last record 
 		# to get balance qty and balance value.
-
-		print(possible_invalid)
+		
 
 		if(possible_invalid >0):			
 			frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
@@ -25,6 +24,62 @@ class PurchaseInvoice(Document):
 		self.insert_gl_records()
 		self.insert_payment_postings()		
 		self.add_stock_for_purchase_receipt()
+	
+  
+	def before_save(self):	
+		print("before_save")
+		if self.purchase_order:			
+			self.update_purchase_order_quantities_before_save()	
+			check_and_update_purchase_order_status(self.purchase_order)
+   
+	def before_cancel(self):
+		print("before_cancel")
+		if self.purchase_order:			
+			self.update_purchase_order_quantities_before_cancel()
+			check_and_update_purchase_order_status(self.purchase_order)
+   
+	def update_purchase_order_quantities_before_cancel(self):
+		
+		for item in self.items:
+			
+			print("item")
+			print(item.item)
+
+			item_in_purchase_order= frappe.get_value("Purchase Order Item", {'item':item.item, 'display_name':item.display_name},['name'] )
+			purchase_order_item = frappe.get_doc("Purchase Order Item", item_in_purchase_order)
+			purchase_order_item.qty_purchased = item.qty
+
+			total_used_qty = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi JOIN `tabPurchase Invoice` pinv on pinv.name= pinvi.parent WHERE pinvi.item=%s AND pinvi.display_name=%s AND pinv.purchase_order=%s AND pinv.name !=%s""",(item.item,item.display_name, self.purchase_order,self.name))[0][0]     
+								
+			if(total_used_qty):
+				purchase_order_item.qty_purchased =  total_used_qty
+			else:
+				purchase_order_item.qty_purchased =  0
+		
+			purchase_order_item.save()
+   
+	def update_purchase_order_quantities_before_save(self):
+     
+		# Get the purchase order and verify the qty purchased against each line items
+		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
+		
+		for item in purchase_order.items:
+   
+			item.qty_purchased = 0
+   
+			for pi_item in self.items:
+       
+       
+				if(pi_item.item == item.item and pi_item.display_name == item.display_name):
+					
+					item.qty_purchased = pi_item.qty
+      			
+			total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi JOIN `tabPurchase Invoice` pinv on pinv.name= pinvi.parent WHERE pinvi.item=%s AND pinvi.display_name=%s AND pinv.purchase_order=%s AND pinv.name !=%s""",(item.item,item.display_name, self.purchase_order,self.name))[0][0]     
+   
+			if total_used_qty_not_in_this_pi:
+				item.qty_purchased = item.qty_purchased + total_used_qty_not_in_this_pi      
+	
+		purchase_order.save()
 
 	def add_stock_for_purchase_receipt(self):
 
