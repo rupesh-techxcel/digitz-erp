@@ -44,7 +44,8 @@ def get_data(filters):
 			print(dl.item)
 			print(dl.warehouse)
 
-			opening_qty = frappe.get_value('Stock Ledger',{'item':dl.item,'warehouse':dl.warehouse, 'posting_date':['<', dl.posting_date]}, 'balance_qty')
+			opening_qty = frappe.get_value('Stock Ledger',{'item':dl.item,'warehouse':dl.warehouse, 'posting_date':['<', dl.posting_date]}, 'balance_qty', order_by='posting_date')
+   
 			if(opening_qty):
 				dl.update({"opening_qty":round(opening_qty,2)})
 			else:
@@ -52,7 +53,7 @@ def get_data(filters):
     
 			print(opening_qty)
 		else:
-			dl.update({"opening_qty":last_qty})
+			dl.update({"opening_qty":round(last_qty,2)})
 
 		last_item = dl.item
 		last_qty = dl.balance_qty
