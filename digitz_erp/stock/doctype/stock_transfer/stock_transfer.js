@@ -118,7 +118,36 @@ frappe.ui.form.on('Stock Transfer', {
 			frm.doc.net_total = net_total
 			frm.refresh_field("items");
 			frm.refresh_field("net_total");
-		}	
+		},
+		get_item_units(frm) {
+
+			frappe.call({
+				method: 'digitz_erp.api.items_api.get_item_uoms',
+				async: false,
+				args: {
+					item: frm.item
+				},
+				callback: (r) => {
+				
+					console.log(r)
+					var units = ""
+					for(var i = 0; i < r.message.length; i++)
+					{
+						if(i==0)
+						{
+							units = r.message[i].unit
+						}
+						else
+						{
+							units = units + ", " + r.message[i].unit
+						}
+					}
+					
+					frm.doc.item_units = units
+					frm.refresh_field("item_units");
+				}
+			})
+		}		
 });
 
 frappe.ui.form.on("Stock Transfer", "onload", function (frm) {
@@ -244,6 +273,8 @@ frappe.ui.form.on('Stock Transfer Item', {
 					frm.refresh_field("items");
 				}
 			});
+			frm.item = row.item
+			frm.trigger("get_item_units");
 	},
 	source_warehouse(frm, cdt, cdn) {
 
@@ -290,7 +321,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
-						//row.rate = row.rate * row.conversion_factor;							
+						row.rate = row.rate_in_base_unit * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {
 						//row.qty = row.qty/ row.conversion_factor;								
