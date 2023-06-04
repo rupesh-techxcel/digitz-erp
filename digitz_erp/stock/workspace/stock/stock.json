@@ -5,7 +5,7 @@
    "label": "Stock Value"
   }
  ],
- "content": "[{\"id\":\"g81iZvOoGu\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Value\",\"col\":12}},{\"id\":\"ZAgyd27Lvn\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters</b></span>\",\"col\":12}},{\"id\":\"Qj8Qtw77TC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"TjGzSKhY6q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Group\",\"col\":3}},{\"id\":\"9hVIz2klf8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"id\":\"qiX5gWBSwZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"6bo7rV2juK\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"id\":\"_ZVjvXdVAp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Reconciliation\",\"col\":3}},{\"id\":\"D2SIqYG9nl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Transfer\",\"col\":3}},{\"id\":\"jNARmVCL-v\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"neif5jUQpG\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"eMPK0SGMcQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance Report\",\"col\":3}}]",
+ "content": "[{\"id\":\"g81iZvOoGu\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Value\",\"col\":12}},{\"id\":\"ZAgyd27Lvn\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters</b></span>\",\"col\":12}},{\"id\":\"Qj8Qtw77TC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"TjGzSKhY6q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Group\",\"col\":3}},{\"id\":\"9hVIz2klf8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"id\":\"qiX5gWBSwZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"6bo7rV2juK\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"id\":\"_ZVjvXdVAp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Reconciliation\",\"col\":3}},{\"id\":\"D2SIqYG9nl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Transfer\",\"col\":3}},{\"id\":\"jNARmVCL-v\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"neif5jUQpG\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"eMPK0SGMcQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance Report\",\"col\":3}},{\"id\":\"U59b8cn7Vm\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Movement Report\",\"col\":3}},{\"id\":\"HcCTDlfYuu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Report\",\"col\":3}}]",
  "creation": "2022-12-21 18:15:28.263676",
  "docstatus": 0,
  "doctype": "Workspace",
@@ -16,7 +16,7 @@
  "is_hidden": 0,
  "label": "Stock",
  "links": [],
- "modified": "2023-06-02 08:04:11.677493",
+ "modified": "2023-06-04 17:13:43.847507",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock",
@@ -34,6 +34,20 @@
    "label": "Item",
    "link_to": "Item",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Stock Movement Report",
+   "link_to": "Stock Movement Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Stock Ledger Report",
+   "link_to": "Stock Ledger Report",
+   "type": "Report"
   },
   {
    "color": "Grey",

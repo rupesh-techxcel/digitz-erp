@@ -47,7 +47,7 @@ def get_data(filters):
 			from_date = filters.get('from_date')
 			opening_qty = frappe.get_value('Stock Ledger',{'item':dl.item,'warehouse':dl.warehouse, 'posting_date':['<', from_date]}, 'balance_qty',order_by='posting_date')
 			if(opening_qty):
-				dl.update({"opening_qty":opening_qty})
+				dl.update({"opening_qty":round(opening_qty,2)})
 			else:
 				dl.update({"opening_qty":0})
 	
