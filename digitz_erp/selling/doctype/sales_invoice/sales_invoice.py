@@ -6,6 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from frappe.www.printview import get_html_and_style
 
 class SalesInvoice(Document):
     """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
@@ -605,3 +606,16 @@ class SalesInvoice(Document):
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)      
             
         return cost_of_goods_sold
+    
+    @frappe.whitelist()
+    def get_print_format(self):
+        
+        si = frappe.get_doc("Sales Invoice", self.name)
+        
+        ret= frappe.www.printview.get_html_and_style(doc=si.as_json(), print_format="Tab Sales Print 2", no_letterhead=1)        
+
+        return ret['html']
+        
+        
+        
+        

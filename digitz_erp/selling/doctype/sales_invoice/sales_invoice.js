@@ -3,18 +3,12 @@
 
 frappe.ui.form.on('Sales Invoice', {
 
-	refresh: function (frm) {
-
-		// if(frm.doc.docstatus == 1) 
-		// if (!frm.doc.__islocal && !frm.doc.auto_save_delivery_note) {
-
-		// 	frm.add_custom_button('Create/Update Delivery Note', () => {
-		// 		frm.call("generate_delivery_note")
-		// 	},
-		// 	)
-		// }
-
-	},
+	 refresh: function (frm) {
+		frm.add_custom_button('Print In Tab', () => {
+			frm.trigger("print_in_tab");
+		},
+		)
+	 },
 	after_save: function (frm) {
 
 		 if (frm.doc.auto_save_delivery_note) {
@@ -336,7 +330,9 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 	get_default_company_and_warehouse(frm) {
 
-		var default_company = ""		
+		var default_company = ""
+		
+		
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -389,7 +385,7 @@ frappe.ui.form.on('Sales Invoice', {
 					}
 				)
 			}
-		})
+		})	
 
 	},
 	get_item_units(frm) {
@@ -420,7 +416,37 @@ frappe.ui.form.on('Sales Invoice', {
 				frm.refresh_field("item_units");
 			}
 		})
-	}	
+	},
+	print_in_tab(frm){
+
+		console.log("print_in_tab")
+
+		if (frm.doc.__unsaved) {
+			frappe.throw("Please save the document before print.")
+		}
+		else
+		{
+			frm.call("get_print_format", {
+				// Optional arguments
+			}, function(response) {
+				
+				var responseText = response.message;
+				console.log("responseText")
+				console.log(responseText);
+				var printWindow = window.open('', '_blank');
+				printWindow.document.write(responseText);
+				printWindow.document.close();
+				printWindow.print();
+			});
+
+			// var htmlObj = frm.call("get_print_format")
+			// console.log(htmlObj)
+			// var printWindow = window.open('', '_blank');
+			// printWindow.document.write(html.responseText);
+			// printWindow.document.close();
+			// printWindow.print();
+		}
+	}
 });
 
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
