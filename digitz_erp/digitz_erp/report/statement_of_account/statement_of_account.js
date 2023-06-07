@@ -26,14 +26,6 @@ frappe.query_reports["Statement Of Account"] = {
 			"label": "To Date",
 			"width": 150,
 	
-		},
-		{
-			"fieldname": "show_all_invoices",
-			"fieldtype": "Check",
-			"label": "Show All Invoices",
-			"width": 150,
-	
-		},
-
+		}
 	]
 };
