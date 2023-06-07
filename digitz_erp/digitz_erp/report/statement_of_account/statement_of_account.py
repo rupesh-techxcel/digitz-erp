@@ -30,7 +30,7 @@ def get_data(filters):
 		data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where si.docstatus = 1 and si.credit_sale=1 and si.customer = '{0}'  and (paid_amount< rounded_total or ('{1}'))  order by posting_date""".format(filters.get('customer'),format(filters.get('show_all_invoices')),as_dict=True)
 
 	else:
-		data = frappe.db.sql(""" SELECT si.customer,si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where si.docstatus = 1 and si.credit_sale=1  and (paid_amount< rounded_total or ('{0}')) order by posting_date""".format(filters.get('show_all__invoices'),as_dict=True)
+		data = frappe.db.sql(""" SELECT si.customer,si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where si.docstatus = 1 and si.credit_sale=1  and (paid_amount< rounded_total or ('{0}')) order by posting_date""".format(filters.get('show_all__invoices')),as_dict=True)
 
 	for dl in data:
 		delivery_note_name = frappe.db.get_value("Sales Invoice Delivery Notes",{"parent":dl.get('sales_invoice_name')},'delivery_note')
