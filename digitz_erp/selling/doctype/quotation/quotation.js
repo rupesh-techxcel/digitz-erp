@@ -25,10 +25,10 @@ frappe.ui.form.on('Quotation', {
 
 					if (r.message)
 					{
-						salesInvoiceCreated = true							
+						salesInvoiceCreated = true
 					}
 				}
-			});	
+			});
 
 			frappe.call(
 				{
@@ -38,13 +38,13 @@ frappe.ui.form.on('Quotation', {
 						'qtn_no': frm.doc.name
 					},
 					callback(r) {
-	
+
 						if (r.message)
 						{
-							salesOrderCreated = true							
+							salesOrderCreated = true
 						}
 					}
-				});	
+				});
 
 				frappe.call(
 					{
@@ -54,14 +54,14 @@ frappe.ui.form.on('Quotation', {
 							'qtn_no': frm.doc.name
 						},
 						callback(r) {
-		
+
 							if (r.message)
 							{
-								deliveryNoteCreated = true							
+								deliveryNoteCreated = true
 							}
 						}
-					});	
-	
+					});
+
 				if(deliveryNoteCreated  || salesOrderCreated || salesInvoiceCreated)
 				{
 					alreadyUsed = true
@@ -70,7 +70,7 @@ frappe.ui.form.on('Quotation', {
 				{
 					alreadyUsed = false
 				}
-			
+
 				console.log("alreadyused")
 				console.log(alreadyUsed)
 
@@ -81,7 +81,7 @@ frappe.ui.form.on('Quotation', {
 					'fieldname': 'default_company'
 				},
 				callback: (r) => {
-					
+
 					frm.doc.company = r.message.default_company
 					frm.refresh_field("company");
 					frappe.call(
@@ -97,19 +97,19 @@ frappe.ui.form.on('Quotation', {
 								console.log(r2.message.default_warehouse);
 								frm.doc.warehouse = r2.message.default_warehouse;
 								console.log(frm.doc.warehouse);
-								frm.doc.rate_includes_tax = r2.message.rate_includes_tax;							
+								frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 								frm.refresh_field("warehouse");
 								frm.refresh_field("rate_includes_tax");
 								console.log(r2.message);
-								frm.refresh_field("auto_save_delivery_note");							
+								frm.refresh_field("auto_save_delivery_note");
 
 								//Have a button to create delivery note in case delivery note is not integrated with SI
 								if (frm.doc.docstatus==1 && !alreadyUsed) {
-									
+
 									frm.add_custom_button('Create Sales Order', () => {
 										frm.call("generate_sales_order")
 									});
-								
+
 									frm.add_custom_button('Delivery Note', () => {
 										frm.call("generate_delivery_note")
 									});
@@ -126,7 +126,7 @@ frappe.ui.form.on('Quotation', {
 											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
 										});
 									}
-									
+
 								}
 							}
 						}
@@ -242,9 +242,9 @@ frappe.ui.form.on('Quotation', {
 			entry.net_amount = 0
 			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
 
-			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation 
+			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
-				// also this implementation is streight forward than the other way										
+				// also this implementation is streight forward than the other way
 				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 				entry.rate_excluded_tax = entry.rate - tax_in_rate;
 				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
@@ -274,7 +274,7 @@ frappe.ui.form.on('Quotation', {
 
 			entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
 			entry.rate_in_base_unit = entry.rate / entry.conversion_factor;
-			
+
 			if (!isNaN(entry.qty) && !isNaN(entry.rate)) {
 
 				frappe.call({
@@ -292,10 +292,10 @@ frappe.ui.form.on('Quotation', {
 						var output2 = "";
 						entry.unit_conversion_details = "";
 						$.each(units, (a, b) => {
-							
+
 							var conversion = b.conversion_factor
 							var unit = b.unit
-							console.log("uomqty")							
+							console.log("uomqty")
 
 							var uomqty = entry.qty_in_base_unit / conversion;
 							console.log("uomrate")
@@ -312,7 +312,7 @@ frappe.ui.form.on('Quotation', {
 							}
 							else
 							{
-								if (uomqty > Math.trunc(uomqty)) {	
+								if (uomqty > Math.trunc(uomqty)) {
 									var excessqty = Math.round((uomqty - Math.trunc(uomqty)) * conversion, 0);
 									uomqty2 = uomqty + " " + unit + "(" + Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit + ")" + " @ " + uomrate;
 								}
@@ -320,7 +320,7 @@ frappe.ui.form.on('Quotation', {
 								{
 									uomqty2 = uomqty + " " + unit + " @ " + uomrate
 								}
-							}	
+							}
 
 							output = output + uomqty2 + "\n";
 							//output2 = output2 + unit + " rate: " + uomrate + "\n";
@@ -328,7 +328,7 @@ frappe.ui.form.on('Quotation', {
 						}
 						)
 						console.log(output + output2);
-						entry.unit_conversion_details = output 
+						entry.unit_conversion_details = output
 					}
 				}
 
@@ -445,7 +445,7 @@ frappe.ui.form.on('Quotation', {
 				item: frm.item
 			},
 			callback: (r) => {
-			
+
 				console.log(r)
 				var units = ""
 				for(var i = 0; i < r.message.length; i++)
@@ -459,7 +459,7 @@ frappe.ui.form.on('Quotation', {
 						units = units + ", " + r.message[i].unit
 					}
 				}
-				
+
 				frm.doc.item_units = units
 				frm.refresh_field("item_units");
 			}
@@ -470,7 +470,7 @@ frappe.ui.form.on('Quotation', {
 frappe.ui.form.on("Quotation", "onload", function (frm) {
 
 	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);	
+	//frm.set_df_property("date","read_only",1);
 	// frm.set_query("warehouse", function () {
 	// 	return {
 	// 		"filters": {
@@ -539,7 +539,7 @@ frappe.ui.form.on('Quotation Item', {
 					console.log(r.message.tax);
 					console.log(r.message.tax_excluded);
 					row.item_code = r.message.item_code;
-					//row.uom = r.message.base_unit;	
+					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
@@ -681,9 +681,9 @@ frappe.ui.form.on('Quotation Item', {
 		//  		'fieldname':['unit','conversion_factor']
 		//  		},
 		//  		callback:(r2)=>
-		//  		{					
+		//  		{
 		//  			console.log(r2.message);
-		//  		}	
+		//  		}
 		//  	});
 
 		console.log(row.item);
@@ -705,11 +705,11 @@ frappe.ui.form.on('Quotation Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
-						//row.rate = row.rate * row.conversion_factor;							
+						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {
-						//row.qty = row.qty/ row.conversion_factor;								
-						//})	
+						//row.qty = row.qty/ row.conversion_factor;
+						//})
 					}
 					frm.trigger("make_taxes_and_totals");
 
@@ -763,7 +763,12 @@ frappe.ui.form.on('Quotation Item', {
 		frm.trigger("make_taxes_and_totals");
 
 		frm.refresh_field("items");
+	},
+	items_add(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	},
+	items_remove(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
 	}
-
 
 });

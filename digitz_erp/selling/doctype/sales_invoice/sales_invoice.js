@@ -14,8 +14,8 @@ frappe.ui.form.on('Sales Invoice', {
 		 if (frm.doc.auto_save_delivery_note) {
 			frm.call("auto_generate_delivery_note")
 		 }
-	},	
-	validate: function (frm) {		
+	},
+	validate: function (frm) {
 
 		var valid = false;
 
@@ -64,7 +64,7 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.add_fetch('customer', 'tax_id', 'tax_id')
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
-		
+
 
 		frm.set_query("ship_to_location", function () {
 			return {
@@ -76,8 +76,8 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 	customer(frm) {
 		console.log("customer")
-		console.log(frm.doc.customer)		
-		
+		console.log(frm.doc.customer)
+
 		console.log("customer default price list")
 		frappe.call(
 			{
@@ -115,18 +115,18 @@ frappe.ui.form.on('Sales Invoice', {
 		}
 	},
 	credit_sale(frm) {
-		
+
 		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
-		
+
 
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
-		
+
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -171,9 +171,9 @@ frappe.ui.form.on('Sales Invoice', {
 			entry.net_amount = 0
 			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
 
-			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation 
+			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
-				// also this implementation is streight forward than the other way										
+				// also this implementation is streight forward than the other way
 				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 				entry.rate_excluded_tax = entry.rate - tax_in_rate;
 				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
@@ -203,7 +203,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 			entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
 			entry.rate_in_base_unit = entry.rate / entry.conversion_factor;
-			
+
 			if (!isNaN(entry.qty) && !isNaN(entry.rate)) {
 
 				frappe.call({
@@ -221,10 +221,10 @@ frappe.ui.form.on('Sales Invoice', {
 						var output2 = "";
 						entry.unit_conversion_details = "";
 						$.each(units, (a, b) => {
-							
+
 							var conversion = b.conversion_factor
 							var unit = b.unit
-							console.log("uomqty")							
+							console.log("uomqty")
 
 							var uomqty = entry.qty_in_base_unit / conversion;
 							console.log("uomrate")
@@ -241,7 +241,7 @@ frappe.ui.form.on('Sales Invoice', {
 							}
 							else
 							{
-								if (uomqty > Math.trunc(uomqty)) {	
+								if (uomqty > Math.trunc(uomqty)) {
 									var excessqty = Math.round((uomqty - Math.trunc(uomqty)) * conversion, 0);
 									uomqty2 = uomqty + " " + unit + "(" + Math.trunc(uomqty) + " " + unit + " " + excessqty + " " + entry.base_unit + ")" + " @ " + uomrate;
 								}
@@ -249,7 +249,7 @@ frappe.ui.form.on('Sales Invoice', {
 								{
 									uomqty2 = uomqty + " " + unit + " @ " + uomrate
 								}
-							}	
+							}
 
 							output = output + uomqty2 + "\n";
 							//output2 = output2 + unit + " rate: " + uomrate + "\n";
@@ -257,7 +257,7 @@ frappe.ui.form.on('Sales Invoice', {
 						}
 						)
 						console.log(output + output2);
-						entry.unit_conversion_details = output 
+						entry.unit_conversion_details = output
 					}
 				}
 
@@ -331,8 +331,8 @@ frappe.ui.form.on('Sales Invoice', {
 	get_default_company_and_warehouse(frm) {
 
 		var default_company = ""
-		
-		
+
+
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -363,7 +363,7 @@ frappe.ui.form.on('Sales Invoice', {
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
 							console.log(r2.message);
-							frm.refresh_field("auto_save_delivery_note");							
+							frm.refresh_field("auto_save_delivery_note");
 
 							//Have a button to create delivery note in case delivery note is not integrated with SI
 							if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
@@ -385,7 +385,7 @@ frappe.ui.form.on('Sales Invoice', {
 					}
 				)
 			}
-		})	
+		})
 
 	},
 	get_item_units(frm) {
@@ -397,7 +397,7 @@ frappe.ui.form.on('Sales Invoice', {
 				item: frm.item
 			},
 			callback: (r) => {
-			
+
 				console.log(r)
 				var units = ""
 				for(var i = 0; i < r.message.length; i++)
@@ -411,7 +411,7 @@ frappe.ui.form.on('Sales Invoice', {
 						units = units + ", " + r.message[i].unit
 					}
 				}
-				
+
 				frm.doc.item_units = units
 				frm.refresh_field("item_units");
 			}
@@ -429,7 +429,7 @@ frappe.ui.form.on('Sales Invoice', {
 			frm.call("get_print_format", {
 				// Optional arguments
 			}, function(response) {
-				
+
 				var responseText = response.message;
 				console.log("responseText")
 				console.log(responseText);
@@ -452,7 +452,7 @@ frappe.ui.form.on('Sales Invoice', {
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
 	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);	
+	//frm.set_df_property("date","read_only",1);
 	// frm.set_query("warehouse", function () {
 	// 	return {
 	// 		"filters": {
@@ -460,9 +460,9 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 	// 		}
 	// 	};
 	// });
-	
+
 	console.log(frm.doc);
-	
+
 	if(frm.doc.__islocal)
 		frm.trigger("get_default_company_and_warehouse");
 
@@ -480,7 +480,7 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 				"is_disabled": 0
 			}
 		};
-	});	
+	});
 
 });
 
@@ -522,7 +522,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					console.log(r.message.tax);
 					console.log(r.message.tax_excluded);
 					row.item_code = r.message.item_code;
-					//row.uom = r.message.base_unit;	
+					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
@@ -658,7 +658,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 	unit(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
-		
+
 		frappe.call(
 			{
 				method: 'digitz_erp.api.items_api.get_item_uom',
@@ -676,11 +676,11 @@ frappe.ui.form.on('Sales Invoice Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
-						//row.rate = row.rate * row.conversion_factor;							
+						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {
-						//row.qty = row.qty/ row.conversion_factor;								
-						//})	
+						//row.qty = row.qty/ row.conversion_factor;
+						//})
 					}
 					frm.trigger("make_taxes_and_totals");
 
@@ -695,7 +695,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 		console.log("from discount_percentage")
 		console.log("Gross Amount %f", row.gross_amount);
 
-		var discount_percentage = row.discount_percentage;	
+		var discount_percentage = row.discount_percentage;
 
 		if (row.discount_percentage > 0) {
 			console.log("Apply Discount Percentage")
@@ -736,5 +736,11 @@ frappe.ui.form.on('Sales Invoice Item', {
 		frm.item = row.item
 		frm.warehouse = row.warehouse
 		frm.trigger("get_item_stock_balance");
+	},
+	items_add(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	},
+	items_remove(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
 	}
 });
