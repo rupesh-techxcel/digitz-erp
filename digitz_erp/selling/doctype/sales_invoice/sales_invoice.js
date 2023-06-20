@@ -426,17 +426,12 @@ frappe.ui.form.on('Sales Invoice', {
 		}
 		else
 		{
-			frm.call("get_print_format", {
+			frm.call("generate_pdf_from_print", {
 				// Optional arguments
 			}, function(response) {
-
-				var responseText = response.message;
-				console.log("responseText")
-				console.log(responseText);
-				var printWindow = window.open('', '_blank');
-				printWindow.document.write(responseText);
-				printWindow.document.close();
-				printWindow.print();
+				if (response && response.message){
+					window.open(response.message, '_blank');
+				}
 			});
 
 			// var htmlObj = frm.call("get_print_format")
