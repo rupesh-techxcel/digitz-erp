@@ -49,7 +49,7 @@ frappe.ui.form.on('Purchase Order', {
 		frm.add_fetch('supplier', 'full_address', 'supplier_address')
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
-		//frm.get_field('taxes').grid.cannot_add_rows = true;		
+		//frm.get_field('taxes').grid.cannot_add_rows = true;
 
 	},
 	validate:function(frm){
@@ -173,9 +173,9 @@ frappe.ui.form.on('Purchase Order', {
 			entry.net_amount = 0
 			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
 
-			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation 
+			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
-				// also this implementation is streight forward than the other way										
+				// also this implementation is streight forward than the other way
 				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 				entry.rate_excluded_tax = entry.rate - tax_in_rate;
 				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
@@ -350,7 +350,7 @@ frappe.ui.form.on('Purchase Order', {
 				item: frm.item
 			},
 			callback: (r) => {
-			
+
 				console.log(r)
 				var units = ""
 				for(var i = 0; i < r.message.length; i++)
@@ -364,12 +364,12 @@ frappe.ui.form.on('Purchase Order', {
 						units = units + ", " + r.message[i].unit
 					}
 				}
-				
+
 				frm.doc.item_units = units
 				frm.refresh_field("item_units");
 			}
 		})
-	}	
+	}
 
 });
 
@@ -377,7 +377,7 @@ frappe.ui.form.on('Purchase Order', {
 frappe.ui.form.on("Purchase Order", "onload", function (frm) {
 
 	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);	
+	//frm.set_df_property("date","read_only",1);
 	// frm.set_query("warehouse", function () {
 	// 	return {
 	// 		"filters": {
@@ -414,9 +414,9 @@ frappe.ui.form.on('Purchase Order Item', {
 	item(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
 
-		
-		let doc = frappe.model.get_value("", row.item);	
-		row.warehouse = frm.doc.warehouse;	
+
+		let doc = frappe.model.get_value("", row.item);
+		row.warehouse = frm.doc.warehouse;
 		frm.item = row.item;
 		frm.trigger("get_item_units");
 		frm.trigger("make_taxes_and_totals");
@@ -429,9 +429,9 @@ frappe.ui.form.on('Purchase Order Item', {
 					'filters': { 'item_name': row.item },
 					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
 				},
-				callback: (r) => {					
+				callback: (r) => {
 					row.item_code = r.message.item_code;
-					//row.uom = r.message.base_unit;	
+					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
@@ -579,9 +579,9 @@ frappe.ui.form.on('Purchase Order Item', {
 		//  		'fieldname':['unit','conversion_factor']
 		//  		},
 		//  		callback:(r2)=>
-		//  		{					
+		//  		{
 		//  			console.log(r2.message);
-		//  		}	
+		//  		}
 		//  	});
 
 		console.log(row.item);
@@ -603,11 +603,11 @@ frappe.ui.form.on('Purchase Order Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
-						//row.rate = row.rate * row.conversion_factor;							
+						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {
-						//row.qty = row.qty/ row.conversion_factor;								
-						//})	
+						//row.qty = row.qty/ row.conversion_factor;
+						//})
 					}
 					frm.trigger("make_taxes_and_totals");
 
@@ -665,7 +665,11 @@ frappe.ui.form.on('Purchase Order Item', {
 		frm.item = row.item
 		frm.warehouse = row.warehouse
 		frm.trigger("get_item_stock_balance");
+	},
+	items_add(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	},
+	items_remove(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
 	}
 });
-
-
