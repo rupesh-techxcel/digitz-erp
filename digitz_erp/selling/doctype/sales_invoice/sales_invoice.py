@@ -16,6 +16,9 @@ class SalesInvoice(Document):
     @frappe.whitelist()
     def generate_pdf_from_print(self):
         file_url = create_pdf_attachment(self.doctype, self.name, 'Tab Sales Print 2')
+        frappe.db.set_value('Sales Invoice', self.name, 'print_in_progress', 1)
+        frappe.db.set_value('Sales Invoice', self.name, 'pdf_url', file_url)
+        frappe.db.commit()
         return file_url
 
     # def before_save(self):

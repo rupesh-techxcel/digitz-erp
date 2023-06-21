@@ -430,6 +430,7 @@ frappe.ui.form.on('Sales Invoice', {
 				// Optional arguments
 			}, function(response) {
 				if (response && response.message){
+					frm.reload_doc()
 					window.open(response.message, '_blank');
 				}
 			});
