@@ -30,6 +30,8 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
+  "print_in_progress",
+  "pdf_url",
   "section_break_11",
   "accounts_section",
   "credit_sale",
@@ -460,12 +462,26 @@
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
+  },
+  {
+   "default": "0",
+   "fieldname": "print_in_progress",
+   "fieldtype": "Check",
+   "label": "Print In Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pdf_url",
+   "fieldtype": "Data",
+   "label": "PDF URL",
+   "options": "URL",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-22 05:36:10.041789",
+ "modified": "2023-06-20 14:37:51.756899",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
