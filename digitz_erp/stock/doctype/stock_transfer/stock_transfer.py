@@ -66,7 +66,6 @@ class StockTransfer(Document):
 																'posting_date':['<', posting_date_time]},['valuation_rate'],
 							order_by='posting_date desc', as_dict=True)
    
-			
 			previous_stock_balance_in_source = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.source_warehouse]
 			, 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
 			order_by='posting_date desc', as_dict=True)
@@ -77,16 +76,26 @@ class StockTransfer(Document):
 			if(not previous_stock_balance_in_source and not allow_negative_stock): 
 				frappe.throw("No stock exists for " + docitem.item )
 
-			if(previous_stock_balance_in_source.balance_qty < required_qty and not allow_negative_stock):
+			if(previous_stock_balance_in_source and previous_stock_balance_in_source.balance_qty < required_qty and not allow_negative_stock):
 				frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
 				docitem.base_unit + "and available Qty= " + str(previous_stock_balance_in_source.balance_qty) + " " + docitem.base_unit)
 				return
-     
-			new_balance_qty = previous_stock_balance_in_source.balance_qty - docitem.qty_in_base_unit
-			valuation_rate = previous_stock_balance_in_source.valuation_rate
-			new_balance_value = new_balance_qty * valuation_rate
+
+			change_in_stock_value = 0
+			new_balance_qty = 0
+			valuation_rate = 0
+			new_balance_value = 0
    
-			change_in_stock_value = new_balance_value - previous_stock_balance_in_source.balance_value
+			if not previous_stock_balance_in_source:
+				new_balance_qty = new_balance_qty * -1
+				valuation_rate = docitem.rate
+				new_balance_value = new_balance_qty * valuation_rate
+				change_in_stock_value = new_balance_value 
+			else:
+				new_balance_qty = previous_stock_balance_in_source.balance_qty - docitem.qty_in_base_unit
+				valuation_rate = previous_stock_balance_in_source.valuation_rate
+				new_balance_value = new_balance_qty * valuation_rate
+				change_in_stock_value = new_balance_value - previous_stock_balance_in_source.balance_value
 
 			new_stock_ledger_source = frappe.new_doc("Stock Ledger")
 			new_stock_ledger_source.item = docitem.item
@@ -107,7 +116,7 @@ class StockTransfer(Document):
 			new_stock_ledger_source.insert()
 
 			if(more_records_count_for_item_for_source>0):				
-									stock_recalc_voucher_for_source.append('records',{'item': docitem.item, 
+				stock_recalc_voucher_for_source.append('records',{'item': docitem.item, 
 																				'warehouse': docitem.source_warehouse,                                                        
 																				'base_stock_ledger': new_stock_ledger_source.name
 																	})
