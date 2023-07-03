@@ -10,6 +10,7 @@
  "field_order": [
   "naming_series",
   "supplier",
+  "supplier_balance",
   "supplier_address",
   "tax_id",
   "column_break_6",
@@ -41,7 +42,6 @@
   "column_break_30",
   "item_units",
   "column_break_31",
-  "amended_from",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -348,15 +348,21 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Purchase Return",
+   "options": "Purchase Invoice",
    "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_balance",
+   "fieldtype": "Currency",
+   "label": "Supplier Balance",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-26 10:48:47.936066",
+ "modified": "2023-06-28 11:13:07.167283",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

@@ -13,6 +13,16 @@ frappe.ui.form.on('Purchase Invoice', {
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
 
 	},
+	refresh:function (frm) {
+		if(!frm.is_new()){
+			frm.add_custom_button('Purchase Return', () =>{
+				frappe.model.open_mapped_doc({
+	        method: 'digitz_erp.buying.doctype.purchase_invoice.purchase_invoice.create_purchase_return',
+					frm: cur_frm
+	      });
+			})
+		}
+	},
 	validate:function(frm){
 
 		if(!frm.doc.credit_purchase)
@@ -43,6 +53,18 @@ frappe.ui.form.on('Purchase Invoice', {
 					frm.refresh_field("price_list");
 				}
 			});
+			frappe.call(
+				{
+					method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+					args: {
+						'party_type': 'Supplier',
+						'party': frm.doc.supplier
+					},
+					callback: (r) => {
+						frm.set_value('supplier_balance',r.message)
+						frm.refresh_field("supplier_balance");
+					}
+				});
 	},
 	edit_posting_date_and_time(frm) {
 

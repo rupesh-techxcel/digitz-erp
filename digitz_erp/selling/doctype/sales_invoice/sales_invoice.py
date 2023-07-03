@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from frappe.www.printview import get_html_and_style
 from digitz_erp.utils import *
+from frappe.model.mapper import *
 
 
 class SalesInvoice(Document):
@@ -625,3 +626,15 @@ class SalesInvoice(Document):
         ret= frappe.www.printview.get_html_and_style(doc=si.as_json(), print_format="Tab Sales Print 2", no_letterhead=1)
 
         return ret['html']
+
+@frappe.whitelist()
+def create_sales_return(source_name, target_doc = None):
+    doc = get_mapped_doc(
+        'Sales Invoice',
+        source_name,
+        {
+            'Sales Invoice': {
+                'doctype': 'Sales Return',
+                },
+        },target_doc)
+    return doc
