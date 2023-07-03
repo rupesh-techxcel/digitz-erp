@@ -8,6 +8,14 @@ frappe.ui.form.on('Sales Invoice', {
 			frm.trigger("print_in_tab");
 		},
 		)
+		if(!frm.is_new()){
+			frm.add_custom_button('Sales Return', () =>{
+				frappe.model.open_mapped_doc({
+	        method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.create_sales_return',
+					frm: cur_frm
+	      });
+			})
+		}
 	 },
 	after_save: function (frm) {
 
@@ -95,6 +103,18 @@ frappe.ui.form.on('Sales Invoice', {
 					frm.refresh_field("price_list");
 				}
 			});
+			frappe.call(
+				{
+					method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+					args: {
+						'party_type': 'Customer',
+						'party': frm.doc.customer
+					},
+					callback: (r) => {
+						frm.set_value('customer_balance',r.message)
+						frm.refresh_field("customer_balance");
+					}
+				});
 
 			frm.doc.customer_display_name = frm.doc.customer_name
 			frm.refresh_field("customer_display_name");
