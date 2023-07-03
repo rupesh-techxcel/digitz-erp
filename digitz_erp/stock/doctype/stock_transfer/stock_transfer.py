@@ -39,10 +39,16 @@ class StockTransfer(Document):
 		more_records_for_source = 0
 		more_records_for_target = 0
   
-		default_company = frappe.get_value("Default_Settings", "default_company")
+		default_company = frappe.db.get_single_value("Global Settings",'default_company')
+  
+		print(default_company)
+
 		allow_negative_stock = frappe.get_value("Company",default_company,['allow_negative_stock'])
+		
 		if not allow_negative_stock:
 			allow_negative_stock = False
+   
+		print(allow_negative_stock)
 		
 		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))  		
 		for docitem in self.items:
@@ -64,6 +70,9 @@ class StockTransfer(Document):
 			previous_stock_balance_in_source = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.source_warehouse]
 			, 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
 			order_by='posting_date desc', as_dict=True)
+   
+			print("allow_negative_stock")
+			print(allow_negative_stock)			
 
 			if(not previous_stock_balance_in_source and not allow_negative_stock): 
 				frappe.throw("No stock exists for " + docitem.item )
