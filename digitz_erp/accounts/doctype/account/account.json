@@ -15,7 +15,9 @@
   "old_parent",
   "parent_account",
   "account_type",
-  "root_type"
+  "root_type",
+  "balance",
+  "balance_dr_cr"
  ],
  "fields": [
   {
@@ -75,12 +77,22 @@
    "label": "Root Type",
    "options": "Asset\nLiability\nIncome\nExpense",
    "reqd": 1
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Currency",
+   "label": "Balance"
+  },
+  {
+   "fieldname": "balance_dr_cr",
+   "fieldtype": "Data",
+   "label": "Balance Dr Cr"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2023-01-04 19:52:57.541154",
+ "modified": "2023-07-06 09:32:04.796739",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

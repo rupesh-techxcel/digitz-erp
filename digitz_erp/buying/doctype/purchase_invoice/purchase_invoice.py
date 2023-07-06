@@ -10,28 +10,28 @@ from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_st
 from frappe.model.mapper import *
 class PurchaseInvoice(Document):
 
-	def before_submit(self):
 
+	def before_submit(self):
 		possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
 		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
 		# Also in add_stock_for_purchase_receipt method only checking for < date_time in order avoid difficulty to get exact last record
 		# to get balance qty and balance value.
-
-
 		if(possible_invalid >0):
 			frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
 
-		self.insert_gl_records()
-		self.insert_payment_postings()
-		self.add_stock_for_purchase_receipt()
+
+	def on_submit(self):
+		frappe.enqueue(self.insert_gl_records, queue="long")
+		frappe.enqueue(self.insert_payment_postings, queue="long")
+		frappe.enqueue(self.add_stock_for_purchase_receipt, queue="long")
 
 
 	def before_save(self):
 		print("before_save")
 		if self.purchase_order:
-			self.update_purchase_order_quantities_before_save()
-			check_and_update_purchase_order_status(self.purchase_order)
+			frappe.enqueue(self.update_purchase_order_quantities_before_save, queue="long")
+			frappe.enqueue(check_and_update_purchase_order_status, purchase_order_name=self.purchase_order, queue="long")
 
 	def before_cancel(self):
 		print("before_cancel")
@@ -60,6 +60,7 @@ class PurchaseInvoice(Document):
 			purchase_order_item.save()
 
 	def update_purchase_order_quantities_before_save(self):
+		print('update_purchase_order_quantities_before_save')
 
 		# Get the purchase order and verify the qty purchased against each line items
 		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
@@ -83,7 +84,6 @@ class PurchaseInvoice(Document):
 		purchase_order.save()
 
 	def add_stock_for_purchase_receipt(self):
-
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher.voucher = 'Purchase Invoice'
 		stock_recalc_voucher.voucher_no = self.name
@@ -212,7 +212,7 @@ class PurchaseInvoice(Document):
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
 	def on_cancel(self):
-		self.cancel_purchase()
+		frappe.enqueue(self.cancel_purchase, queue="long")
 
 	def cancel_purchase(self):
 
@@ -426,7 +426,6 @@ class PurchaseInvoice(Document):
 	# 	stock_recalc_voucher.save()
 
 	def insert_gl_records(self):
-
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
@@ -434,7 +433,6 @@ class PurchaseInvoice(Document):
 		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
 
 		idx =1
-
 		# Trade Payavble - Debit
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Invoice"
@@ -520,9 +518,6 @@ class PurchaseInvoice(Document):
 		gl_doc.credit_amount = self.net_total - self.tax_total
 		gl_doc.aginst_account = default_accounts.default_inventory_account
 		gl_doc.insert()
-
-		# Round Off
-
 
 	def insert_payment_postings(self):
 

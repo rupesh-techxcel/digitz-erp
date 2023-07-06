@@ -3,9 +3,48 @@
 
 import frappe
 from frappe.model.document import Document
+from digitz_erp.pdf_utils import *
+from datetime import *
+from frappe.utils import *
 
 class GLPosting(Document):
 	pass
+
+	def on_update(self):
+		self.ledger_closing_balance_updation()
+
+	@frappe.whitelist()
+	def ledger_closing_balance_updation(self):
+		''' Method used for updating balance in account'''
+		current_date = nowdate()
+		current_time = nowtime()
+		credit_sum = {}
+		debit_sum = {}
+		accounts = []
+		gl_postings = frappe.db.get_all('GL Posting', filters={'posting_date': ['<=', current_date], 'posting_time': ['<=', current_time]})
+		for gl_posting in gl_postings:
+			account = frappe.db.get_value('GL Posting', gl_posting.name, 'account')
+			if account not in accounts:
+				accounts.append(account)
+			if credit_sum.get(account):
+				credit_sum[account]= credit_sum.get(account) + frappe.db.get_value('GL Posting', gl_posting.name, 'credit_amount')
+			else:
+				credit_sum[account] = frappe.db.get_value('GL Posting', gl_posting.name, 'credit_amount')
+
+			if debit_sum.get(account):
+				debit_sum[account]= debit_sum.get(account) + frappe.db.get_value('GL Posting', gl_posting.name, 'debit_amount')
+			else:
+				debit_sum[account] = frappe.db.get_value('GL Posting', gl_posting.name, 'debit_amount')
+
+		for account in accounts:
+			if credit_sum.get(account) > debit_sum.get(account):
+				balance = credit_sum.get(account) - debit_sum.get(account)
+				frappe.db.set_value('Account', account, 'balance_dr_cr', 'Cr')
+			else:
+				balance = debit_sum.get(account) - credit_sum.get(account)
+				frappe.db.set_value('Account', account, 'balance_dr_cr', 'Dr')
+			frappe.db.set_value('Account', account, 'balance', balance)
+			frappe.db.commit()
 
 @frappe.whitelist()
 def get_party_balance(party_type, party):

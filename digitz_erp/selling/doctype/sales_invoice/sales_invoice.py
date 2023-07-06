@@ -35,7 +35,6 @@ class SalesInvoice(Document):
         #     self.auto_generate_delivery_note()
         # frappe.msgprint("before save event")
         # print("before save")
-
     def before_submit(self):
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
@@ -49,10 +48,7 @@ class SalesInvoice(Document):
         if(possible_invalid >0):
             frappe.throw("There is another sales invoice exist with the same date and time. Please correct the date and time.")
 
-        # Checking needed whether Delivery Note is creating automatically, if yes, then only stock availability need to check
-        # otherwise it could be done with in the delivery note itself.
-
-
+    def on_submit(self):
         self.validate_item()
 
         cost_of_goods_sold = 0
@@ -63,8 +59,9 @@ class SalesInvoice(Document):
         else:
             print("tab_Sales false ")
 
-        self.insert_gl_records(cost_of_goods_sold)
-        self.insert_payment_postings()
+        # self.insert_gl_records(cost_of_goods_sold)
+        frappe.enqueue(self.insert_gl_records, queue="long")
+        frappe.enqueue(self.insert_payment_postings, queue="long")
 
         if(self.auto_generate_delivery_note):
             self.submit_delivery_note()
