@@ -135,6 +135,7 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Warehouse",
    "options": "Warehouse",
    "reqd": 1
@@ -315,6 +316,7 @@
    "default": "0",
    "fieldname": "credit_sale",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Credit Sale"
   },
   {
@@ -360,6 +362,7 @@
    "default": "Cash",
    "fieldname": "payment_mode",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
@@ -487,7 +490,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-06-25 18:43:50.005403",
+ "modified": "2023-07-12 19:59:56.469177",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

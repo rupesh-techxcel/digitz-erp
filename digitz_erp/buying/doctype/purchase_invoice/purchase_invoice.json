@@ -71,6 +71,7 @@
    "fieldname": "supplier",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Supplier",
    "options": "Supplier",
    "reqd": 1
@@ -88,6 +89,7 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_standard_filter": 1,
    "label": "Date",
    "read_only": 1
   },
@@ -115,6 +117,7 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Warehouse",
    "options": "Warehouse",
    "reqd": 1
@@ -128,6 +131,7 @@
    "default": "1",
    "fieldname": "credit_purchase",
    "fieldtype": "Check",
+   "in_standard_filter": 1,
    "label": "Credit Purchase"
   },
   {
@@ -353,7 +357,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-06-25 20:47:16.608690",
+ "modified": "2023-07-12 19:51:18.048869",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",
