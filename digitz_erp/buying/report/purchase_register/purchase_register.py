@@ -170,24 +170,26 @@ def get_columns():
 			"fieldname": "paid_amount",
 			"fieldtype": "Currency",
 			"label": "Paid Amount",
-			"width": 120,
+			"width": 100,
 		},
   		{
 			"fieldname": "balance_amount",
 			"fieldtype": "Currency",
 			"label": "Balance Amount",
-			"width": 120,
+			"width": 100,
 		},
 		{
 			"fieldname": "payment_mode",
-			"fieldtype": "Data",
+			"fieldtype": "Link",
 			"label": "Payment Mode",
+			"options": "Payment Mode",
 			"width": 120,
 		},
 		{
 			"fieldname": "payment_account",
-			"fieldtype": "Data",
-			"label": "Payment Account",
+			"fieldtype": "Link",
+			"label": "Account",
+			"options": "Account" ,
 			"width": 120,
 		}
 	]
