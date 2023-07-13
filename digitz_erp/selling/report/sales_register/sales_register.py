@@ -138,7 +138,7 @@ def get_columns():
 			"fieldtype": "Link",
 			"label": "Customer",
 			"options": "Customer",
-			"width": 150,
+			"width": 210,
 
 		},
 		{
@@ -179,13 +179,14 @@ def get_columns():
 		},
 		{
 			"fieldname": "payment_mode",
-			"fieldtype": "Data",
+			"fieldtype": "Link",
 			"label": "Payment Mode",
+			"options": "Payment Mode",
 			"width": 120,
 		},
 		{
 			"fieldname": "payment_account",
-			"fieldtype": "LInk",
+			"fieldtype": "Link",
 			"label": "Account",
 			"options": "Account" ,
 			"width": 120,

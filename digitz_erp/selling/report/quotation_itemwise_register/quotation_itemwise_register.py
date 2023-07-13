@@ -12,25 +12,30 @@ def execute(filters=None):
     chart = get_chart_data(filters)
     return columns, data, None, chart
 
-
 def get_chart_data(filters=None):
     query = """
         SELECT
-			item,
-			qty
+            item,
+            qty
         FROM
-			`tabDelivery Note Item` pi
+            `tabQuotation Item` qi
         INNER JOIN
-			`tabDelivery Note` p ON p.name = pi.parent
+            `tabQuotation` q ON q.name = qi.parent
         WHERE 1
     """
     if filters:
         if filters.get('customer'):
-            query += " AND p.customer = %(customer)s"
+            query += " AND q.customer = %(customer)s"
         if filters.get('from_date'):
-            query += " AND p.posting_date >= %(from_date)s"
+            query += " AND q.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND p.posting_date <= %(to_date)s"
+            query += " AND q.posting_date <= %(to_date)s"
+        if filters.get('item'):
+            query += " AND qi.item = %(item)s"
+        if filters.get('item_group'):
+            query += " AND EXISTS (SELECT 1 FROM `tabItem` i WHERE i.name = qi.item AND i.item_group = %(item_group)s)"
+        if filters.get('warehouse'):
+            query += " AND qi.warehouse = %(warehouse)s"
 
     query += " ORDER BY posting_date, item"
     data = frappe.db.sql(query, filters, as_list=True)
@@ -68,29 +73,39 @@ def get_chart_data(filters=None):
 def get_data(filters):
     query = """
         SELECT
-            p.customer,
-            posting_date,
-            item,
+            q.customer,
+            q.posting_date,
+            qi.item,
+            i.item_group,
+            qi.warehouse,
             qty,
             rate,
             gross_amount AS 'Amount',
             tax_amount AS 'Tax Amount',
             net_amount AS 'Net Amount'
         FROM
-            `tabDelivery Note Item` pi
+            `tabQuotation Item` qi
         INNER JOIN
-            `tabDelivery Note` p ON p.name = pi.parent
+            `tabQuotation` q ON q.name = qi.parent
+        INNER JOIN
+            `tabItem` i ON i.name = qi.item
         WHERE 1
     """
     if filters:
         if filters.get('customer'):
-            query += " AND p.customer = %(customer)s"
+            query += " AND q.customer = %(customer)s"
         if filters.get('from_date'):
-            query += " AND p.posting_date >= %(from_date)s"
+            query += " AND q.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND p.posting_date <= %(to_date)s"
+            query += " AND q.posting_date <= %(to_date)s"
+        if filters.get('item'):
+            query += " AND qi.item = %(item)s"
+        if filters.get('item_group'):
+            query += " AND i.item_group = %(item_group)s"
+        if filters.get('warehouse'):
+            query += " AND qi.warehouse = %(warehouse)s"
 
-    query += " ORDER BY posting_date, item"
+    query += " ORDER BY posting_date, qi.item"
     data = frappe.db.sql(query, filters, as_list=True)
 
     return data
@@ -103,7 +118,7 @@ def get_columns():
             "fieldname": "customer",
             "fieldtype": "Link",
             "options": "Customer",
-            "width": 300
+            "width": 200
         },
         {
             "label": _("Posting Date"),
@@ -116,7 +131,21 @@ def get_columns():
             "fieldname": "item",
             "fieldtype": "Link",
             "options": "Item",
-            "width": 300
+            "width": 200
+        },
+        {
+            "label": _("Item Group"),
+            "fieldname": "item_group",
+            "fieldtype": "Link",
+            "options": "Item Group",
+            "width": 100
+        },
+        {
+            "label": _("Warehouse"),
+            "fieldname": "warehouse",
+            "fieldtype": "Link",
+            "options": "Warehouse",
+            "width": 100
         },
         {
             "label": _("Qty"),
