@@ -2,7 +2,7 @@ import frappe
 from frappe.utils import get_datetime
 from frappe.utils.data import now
 
-def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
+def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
         
     posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  		
             
@@ -130,6 +130,11 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
     stock_recalc_voucher.status = 'Completed'
     stock_recalc_voucher.end_time = now()
     stock_recalc_voucher.save()
+    
+
+def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
+    frappe.enqueue(do_recalculate_stock_ledgers, stock_recalc_voucher= stock_recalc_voucher, posting_date=posting_date, posting_time=posting_time, queue="long")
+
         
 def update_item_stock_balance(item_name):
      

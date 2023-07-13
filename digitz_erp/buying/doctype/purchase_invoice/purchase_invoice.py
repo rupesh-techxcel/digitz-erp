@@ -22,16 +22,16 @@ class PurchaseInvoice(Document):
 
 
 	def on_submit(self):
-		frappe.enqueue(self.insert_gl_records, queue="long")
-		frappe.enqueue(self.insert_payment_postings, queue="long")
-		frappe.enqueue(self.add_stock_for_purchase_receipt, queue="long")
+		self.insert_gl_records()
+		self.insert_payment_postings()
+		self.add_stock_for_purchase_receipt()
 
 
 	def before_save(self):
 		print("before_save")
 		if self.purchase_order:
-			frappe.enqueue(self.update_purchase_order_quantities_before_save, queue="long")
-			frappe.enqueue(check_and_update_purchase_order_status, purchase_order_name=self.purchase_order, queue="long")
+			self.update_purchase_order_quantities_before_save()
+			check_and_update_purchase_order_status(self.purchase_order)
 
 	def before_cancel(self):
 		print("before_cancel")
@@ -212,7 +212,7 @@ class PurchaseInvoice(Document):
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
 	def on_cancel(self):
-		frappe.enqueue(self.cancel_purchase, queue="long")
+		self.cancel_purchase()
 
 	def cancel_purchase(self):
 
