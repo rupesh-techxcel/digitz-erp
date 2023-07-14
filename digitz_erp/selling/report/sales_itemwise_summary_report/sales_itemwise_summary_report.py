@@ -139,5 +139,5 @@ def get_columns_customer():
         "options": "customer",
         "width": 200
     }]
-    columns.append(get_columns())
+    columns.extend(get_columns())
     return columns
