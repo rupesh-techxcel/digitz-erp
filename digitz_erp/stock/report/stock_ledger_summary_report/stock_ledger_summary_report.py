@@ -123,14 +123,16 @@ def get_columns():
 		},
   		{
 			"fieldname": "voucher",
-			"fieldtype": "Data",
+			"fieldtype": "Link",
 			"label": "Voucher Type",
-			"width": 110,
+			"options": "DocType",
+			"width": 100,
 		},
     	{
 			"fieldname": "voucher_no",
-			"fieldtype": "Data",
+			"fieldtype": "Dynamic Link",
 			"label": "Voucher No",
+			"options": "voucher",
 			"width": 100,
 		},
      	{
