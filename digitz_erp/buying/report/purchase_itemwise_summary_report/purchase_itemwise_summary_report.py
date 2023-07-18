@@ -7,8 +7,8 @@ from frappe import _
 
 
 def execute(filters=None):
-    if filters.get('customer'):
-        columns = get_columns_customer()
+    if filters.get('supplier'):
+        columns = get_columns_supplier()
     else:
         columns = get_columns()
     data = get_data(filters)
@@ -21,24 +21,24 @@ def get_chart_data(filters=None):
             item,
             sum(qty)
         FROM
-            `tabSales Invoice Item` sii
+            `tabPurchase Invoice Item` pii
         INNER JOIN
-            `tabSales Invoice` si ON si.name = sii.parent
+            `tabPurchase Invoice` pi ON pi.name = pii.parent
         WHERE 1
     """
     if filters:
-        if filters.get('customer'):
-            query += " AND si.customer = %(customer)s"
+        if filters.get('supplier'):
+            query += " AND pi.supplier = %(supplier)s"
         if filters.get('from_date'):
-            query += " AND si.posting_date >= %(from_date)s"
+            query += " AND pi.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND si.posting_date <= %(to_date)s"
+            query += " AND pi.posting_date <= %(to_date)s"
         if filters.get('item'):
-            query += " AND sii.item = %(item)s"
+            query += " AND pii.item = %(item)s"
         if filters.get('item_group'):
-            query += " AND EXISTS (SELECT 1 FROM `tabItem` i WHERE i.name = sii.item AND i.item_group = %(item_group)s)"
+            query += " AND EXISTS (SELECT 1 FROM `tabItem` i WHERE i.name = pii.item AND i.item_group = %(item_group)s)"
         if filters.get('warehouse'):
-            query += " AND sii.warehouse = %(warehouse)s"
+            query += " AND pii.warehouse = %(warehouse)s"
 
     query += " GROUP BY item ORDER BY item"
     data = frappe.db.sql(query, filters, as_list=True)
@@ -73,58 +73,58 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters):
-    if filters.get('customer'):
+    if filters.get('supplier'):
         query = """
             SELECT
-                si.customer,
-                sii.item,
+                pi.supplier,
+                pii.item,
                 i.item_group,
-                sii.warehouse,
+                pii.warehouse,
                 sum(qty),
                 rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
             FROM
-                `tabSales Invoice Item` sii
+                `tabPurchase Invoice Item` pii
             INNER JOIN
-                `tabSales Invoice` si ON si.name = sii.parent
+                `tabPurchase Invoice` pi ON pi.name = pii.parent
             INNER JOIN
-                `tabItem` i ON i.name = sii.item
+                `tabItem` i ON i.name = pii.item
             WHERE 1
         """
     else:
         query = """
             SELECT
-                sii.item,
+                pii.item,
                 i.item_group,
-                sii.warehouse,
+                pii.warehouse,
                 sum(qty),
                 rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
             FROM
-                `tabSales Invoice Item` sii
+                `tabPurchase Invoice Item` pii
             INNER JOIN
-                `tabSales Invoice` si ON si.name = sii.parent
+                `tabPurchase Invoice` pi ON pi.name = pii.parent
             INNER JOIN
-                `tabItem` i ON i.name = sii.item
+                `tabItem` i ON i.name = pii.item
             WHERE 1
         """
     if filters:
-        if filters.get('customer'):
-            query += " AND si.customer = %(customer)s"
+        if filters.get('supplier'):
+            query += " AND pi.supplier = %(supplier)s"
         if filters.get('from_date'):
-            query += " AND si.posting_date >= %(from_date)s"
+            query += " AND pi.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND si.posting_date <= %(to_date)s"
+            query += " AND pi.posting_date <= %(to_date)s"
         if filters.get('item'):
-            query += " AND sii.item = %(item)s"
+            query += " AND pii.item = %(item)s"
         if filters.get('item_group'):
             query += " AND i.item_group = %(item_group)s"
         if filters.get('warehouse'):
-            query += " AND sii.warehouse = %(warehouse)s"
+            query += " AND pii.warehouse = %(warehouse)s"
 
     query += " GROUP BY item ORDER BY item"
     data = frappe.db.sql(query, filters, as_list=True)
@@ -139,14 +139,14 @@ def get_columns():
             "fieldname": "item",
             "fieldtype": "Link",
             "options": "Item",
-            "width": 200
+            "width": 255
         },
         {
             "label": _("Item Group"),
             "fieldname": "item_group",
             "fieldtype": "Link",
             "options": "Item Group",
-            "width": 200
+            "width": 205
         },
         {
             "label": _("Warehouse"),
@@ -188,12 +188,12 @@ def get_columns():
     ]
 
 
-def get_columns_customer():
+def get_columns_supplier():
     columns = [{
-        "label": _("customer"),
-        "fieldname": "customer",
+        "label": _("supplier"),
+        "fieldname": "supplier",
         "fieldtype": "Link",
-        "options": "customer",
+        "options": "supplier",
         "width": 200
     }]
     columns.extend(get_columns())

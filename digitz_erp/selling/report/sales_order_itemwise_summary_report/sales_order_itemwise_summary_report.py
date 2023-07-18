@@ -21,24 +21,24 @@ def get_chart_data(filters=None):
             item,
             sum(qty)
         FROM
-            `tabSales Invoice Item` sii
+            `tabSales Order Item` soi
         INNER JOIN
-            `tabSales Invoice` si ON si.name = sii.parent
+            `tabSales Order` so ON so.name = soi.parent
         WHERE 1
     """
     if filters:
         if filters.get('customer'):
-            query += " AND si.customer = %(customer)s"
+            query += " AND so.customer = %(customer)s"
         if filters.get('from_date'):
-            query += " AND si.posting_date >= %(from_date)s"
+            query += " AND so.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND si.posting_date <= %(to_date)s"
+            query += " AND so.posting_date <= %(to_date)s"
         if filters.get('item'):
-            query += " AND sii.item = %(item)s"
+            query += " AND soi.item = %(item)s"
         if filters.get('item_group'):
-            query += " AND EXISTS (SELECT 1 FROM `tabItem` i WHERE i.name = sii.item AND i.item_group = %(item_group)s)"
+            query += " AND EXISTS (SELECT 1 FROM `tabItem` i WHERE i.name = soi.item AND i.item_group = %(item_group)s)"
         if filters.get('warehouse'):
-            query += " AND sii.warehouse = %(warehouse)s"
+            query += " AND soi.warehouse = %(warehouse)s"
 
     query += " GROUP BY item ORDER BY item"
     data = frappe.db.sql(query, filters, as_list=True)
@@ -76,55 +76,55 @@ def get_data(filters):
     if filters.get('customer'):
         query = """
             SELECT
-                si.customer,
-                sii.item,
+                so.customer,
+                soi.item,
                 i.item_group,
-                sii.warehouse,
+                soi.warehouse,
                 sum(qty),
                 rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
             FROM
-                `tabSales Invoice Item` sii
+                `tabSales Order Item` soi
             INNER JOIN
-                `tabSales Invoice` si ON si.name = sii.parent
+                `tabSales Order`  so ON so.name = soi.parent
             INNER JOIN
-                `tabItem` i ON i.name = sii.item
+                `tabItem` i ON i.name = soi.item
             WHERE 1
         """
     else:
         query = """
             SELECT
-                sii.item,
+                soi.item,
                 i.item_group,
-                sii.warehouse,
+                soi.warehouse,
                 sum(qty),
                 rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
             FROM
-                `tabSales Invoice Item` sii
+                `tabSales Order Item` soi
             INNER JOIN
-                `tabSales Invoice` si ON si.name = sii.parent
+                `tabSales Order` so ON so.name = soi.parent
             INNER JOIN
-                `tabItem` i ON i.name = sii.item
+                `tabItem` i ON i.name = soi.item
             WHERE 1
         """
     if filters:
         if filters.get('customer'):
-            query += " AND si.customer = %(customer)s"
+            query += " AND so.customer = %(customer)s"
         if filters.get('from_date'):
-            query += " AND si.posting_date >= %(from_date)s"
+            query += " AND so.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND si.posting_date <= %(to_date)s"
+            query += " AND so.posting_date <= %(to_date)s"
         if filters.get('item'):
-            query += " AND sii.item = %(item)s"
+            query += " AND soi.item = %(item)s"
         if filters.get('item_group'):
             query += " AND i.item_group = %(item_group)s"
         if filters.get('warehouse'):
-            query += " AND sii.warehouse = %(warehouse)s"
+            query += " AND soi.warehouse = %(warehouse)s"
 
     query += " GROUP BY item ORDER BY item"
     data = frappe.db.sql(query, filters, as_list=True)
@@ -139,14 +139,14 @@ def get_columns():
             "fieldname": "item",
             "fieldtype": "Link",
             "options": "Item",
-            "width": 200
+            "width": 250
         },
         {
             "label": _("Item Group"),
             "fieldname": "item_group",
             "fieldtype": "Link",
             "options": "Item Group",
-            "width": 200
+            "width": 210
         },
         {
             "label": _("Warehouse"),
