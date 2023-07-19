@@ -22,7 +22,7 @@ class PurchaseInvoice(Document):
 
 
 	def on_submit(self):
-		self.insert_gl_records()
+		frappe.enqueue(self.insert_gl_records, queue="long")
 		self.insert_payment_postings()
 		self.add_stock_for_purchase_receipt()
 

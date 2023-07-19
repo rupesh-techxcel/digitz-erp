@@ -59,8 +59,8 @@ class SalesInvoice(Document):
         else:
             print("tab_Sales false ")
 
-        # self.insert_gl_records(cost_of_goods_sold)
-        self.insert_gl_records()
+        self.insert_gl_records(cost_of_goods_sold)
+        # self.insert_gl_records()
         self.insert_payment_postings()
 
         if(self.auto_generate_delivery_note):
