@@ -8,11 +8,11 @@ from frappe.model.document import Document
 from digitz_erp.utils import *
 from frappe.model.mapper import *
 class SalesReturn(Document):
-    def before_submit(self):
+    def on_submit(self):
         cost_of_goods_sold = 0
 
-        self.insert_gl_records(cost_of_goods_sold)
-        self.insert_payment_postings()
+        frappe.enqueue(self.insert_gl_records, self=self, cost_of_goods_sold=cost_of_goods_sold, queue="long")
+        frappe.enqueue(self.insert_payment_postings, queue="long")
 
     def insert_gl_records(self, cost_of_goods_sold):
         default_company = frappe.db.get_single_value(

@@ -10,11 +10,10 @@ from frappe.model.mapper import *
 
 class PurchaseReturn(Document):
 
-	def before_submit(self):
-		self.insert_gl_records()
-		self.insert_payment_postings()
-		self.add_stock_for_purchase_receipt()
-
+	def on_submit(self):
+		frappe.enqueue(self.insert_gl_records, queue="long")
+		frappe.enqueue(self.insert_payment_postings, queue="long")
+		frappe.enqueue(self.add_stock_for_purchase_receipt, queue="long")
 
 	def before_save(self):
 		if self.purchase_order:
