@@ -59,12 +59,11 @@ class SalesInvoice(Document):
         else:
             print("tab_Sales false ")
 
-        self.insert_gl_records(cost_of_goods_sold)
-        # self.insert_gl_records()
-        self.insert_payment_postings()
+        frappe.enqueue(self.insert_gl_records, self=self, cost_of_goods_sold=cost_of_goods_sold, queue="long")
+        frappe.enqueue(self.insert_payment_postings, queue="long")
 
         if(self.auto_generate_delivery_note):
-            self.submit_delivery_note()
+            frappe.enqueue(self.submit_delivery_note, queue="long")
 
     def validate_item(self):
 
