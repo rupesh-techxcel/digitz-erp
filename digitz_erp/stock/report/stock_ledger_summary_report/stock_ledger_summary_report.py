@@ -115,19 +115,6 @@ def get_columns():
 			"options": "Item",
 			"width": 200,
 		},
-		{
-			"fieldname": "opening_qty",
-			"fieldtype": "Data",
-			"label": "Opening Qty",
-			"width": 125,
-		},
-  		{
-			"fieldname": "voucher",
-			"fieldtype": "Link",
-			"label": "Voucher Type",
-			"options": "DocType",
-			"width": 100,
-		},
     	{
 			"fieldname": "voucher_no",
 			"fieldtype": "Dynamic Link",
@@ -148,6 +135,19 @@ def get_columns():
 			"options": "Warehouse",
 			"width": 140,
 		},
+       {
+			"fieldname": "voucher",
+			"fieldtype": "Link",
+			"label": "Voucher Type",
+			"options": "DocType",
+			"width": 100,
+		},
+        {
+			"fieldname": "opening_qty",
+			"fieldtype": "Data",
+			"label": "Opening Qty",
+			"width": 125,
+		},
         {
 			"fieldname": "qty_in",
 			"fieldtype": "Data",
@@ -166,13 +166,7 @@ def get_columns():
 			"fieldtype": "Data",
 			"label": "Qty Out",
 			"width": 80,
-		},
-        {
-			"fieldname": "valuation_rate",
-			"fieldtype": "Data",
-			"label": "Valuation Rate",
-			"width": 120,
-		},
+		},       
         {
 			"fieldname": "balance_qty",
 			"fieldtype": "Data",
