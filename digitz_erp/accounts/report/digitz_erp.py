@@ -1,0 +1,25 @@
+# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# License: GNU General Public License v3. See license.txt
+
+import frappe
+import functools
+from frappe import _
+from six import itervalues
+
+def filter_accounts(accounts, depth=20):
+    parent_children_map = {}
+    accounts_by_name = {}
+    for d in accounts:
+        accounts_by_name[d.name] = d
+        parent_children_map.setdefault(d.parent_account or None, []).append(d)
+    filtered_accounts = []
+
+    def add_to_list(parent, level):
+        if level < depth:
+            children = parent_children_map.get(parent) or []
+            for child in children:
+                child.indent = level
+                filtered_accounts.append(child)
+                add_to_list(child.name, level + 1)
+    add_to_list(None, 0)
+    return filtered_accounts, accounts_by_name, parent_children_map
