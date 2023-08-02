@@ -23,3 +23,18 @@ def filter_accounts(accounts, depth=20):
                 add_to_list(child.name, level + 1)
     add_to_list(None, 0)
     return filtered_accounts, accounts_by_name, parent_children_map
+
+@frappe.whitelist()
+def get_posting_years():
+    years = []
+    data = frappe.db.sql("""
+        SELECT
+            DISTINCT YEAR(posting_date) AS posting_year
+        FROM
+            `tabGL Posting`
+        ORDER BY
+            posting_date
+        """, as_dict=True)
+    for d in data:
+        years.append(str(d.get('posting_year')))
+    return years

@@ -9,12 +9,10 @@ def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     chart = get_chart_data(filters)
-    print(chart)
     return columns, data, None, chart
 
 def get_chart_data(filters=None):
     data = get_data(filters)
-    print(data)
     datasets = []
     values = []
     labels = ['Income', 'Expense', 'Net Profit/Loss']
@@ -58,6 +56,12 @@ def get_data(filters=None):
     net_profit = total_income_credit - total_expense_debit
 
     # Append the total_income_credit and total_expense_debit to the data as the last row
+    total_row = {
+        'account': 'Total Income (Credit)',
+        'amount':  '<span style="color: blue;">{0}</span>'.format(total_income_credit),
+        'parent_account': '',
+        'indent': 0
+    }
     total_row = {
         'account': 'Total Income (Credit)',
         'amount': total_income_credit,
@@ -107,10 +111,15 @@ def get_account_details(account, parent_account, indent, filters):
             (a.name = '{0}' or a.parent_account = '{0}') AND
             glp.account = a.name
     """.format(account)
-    if filters.get('from_date'):
-        query += "AND glp.posting_date >= '{0}'".format(filters.get('from_date'))
-    if filters.get('to_date'):
-        query += "AND glp.posting_date <= '{0}'".format(filters.get('to_date'))
+    if filters.get('year_selection') == 'Date Range':
+        if filters.get('from_date'):
+            query += "AND glp.posting_date >= '{0}'".format(filters.get('from_date'))
+        if filters.get('to_date'):
+            query += "AND glp.posting_date <= '{0}'".format(filters.get('to_date'))
+    elif filters.get('year_selection') == 'Fiscal Year':
+        fiscal_year = filters.get('select_year')
+        if fiscal_year:
+            query += " AND glp.posting_date >= '{0}-01-01' AND glp.posting_date <= '{0}-12-31'".format(fiscal_year)
     result = frappe.db.sql(query, as_dict=True)[0]
 
     data = {
