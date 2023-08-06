@@ -2,14 +2,15 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Statement Of Account"] = {
+frappe.query_reports["Customer Statement Of Account"] = {
 	"filters": [
 		{		
 			"fieldname": "customer",
 			"fieldtype": "Link",
 			"label": "Customer",
-			"options": "Customer",			      
-			"width": 150,	
+			"options": "Customer",
+			"width": 150,
+	
 		},
 		{
 		
@@ -28,3 +29,4 @@ frappe.query_reports["Statement Of Account"] = {
 		}
 	]
 };
+

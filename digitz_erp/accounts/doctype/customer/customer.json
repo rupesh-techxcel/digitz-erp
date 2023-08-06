@@ -14,6 +14,7 @@
   "salesman",
   "salesman_name",
   "default_price_list",
+  "exclude_from_showing_in_soa",
   "column_break_10",
   "credit_days",
   "credit_amount",
@@ -231,11 +232,17 @@
    "fieldtype": "Data",
    "label": "Area Name",
    "read_only": 1
+  },
+  {
+   "description": "Avoid showing the customer from the outstanding receipt list.",
+   "fieldname": "exclude_from_showing_in_soa",
+   "fieldtype": "Check",
+   "label": "Exclude from showing in SOA"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-26 03:34:05.090000",
+ "modified": "2023-08-03 18:41:07.769546",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
