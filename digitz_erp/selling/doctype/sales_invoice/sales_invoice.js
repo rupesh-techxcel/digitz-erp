@@ -393,13 +393,13 @@ frappe.ui.form.on('Sales Invoice', {
 								)
 							}
 
-							if (frm.doc.__islocal) {
-								frm.add_custom_button('Get Items from Delivery Notes', () => {
-									// Commented for correction
-									// frm.trigger("get_items_from_delivery_notes");
-								},
-								)
-							}
+							// if (frm.doc.__islocal) {
+							// 	frm.add_custom_button('Get Items from Delivery Notes', () => {
+							// 		// Commented for correction
+							// 		// frm.trigger("get_items_from_delivery_notes");
+							// 	},
+							// 	)
+							// }
 
 						}
 					}

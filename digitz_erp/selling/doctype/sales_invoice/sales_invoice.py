@@ -423,7 +423,11 @@ class SalesInvoice(Document):
 
                 frappe.msgprint("Delivery Note for the Sales Invoice updated successfully.")
 
-            else:
+            else:                   
+                
+                if(self.amended_from):                    
+                    frappe.msgprint("Corresponding Delivery cannot amend automatically. System generates a new delivery note instead.")
+
                 delivery_note = self.__dict__
                 delivery_note['doctype'] = 'Delivery Note'
                 # delivery_note['against_sales_invoice'] = delivery_note['name']
@@ -431,6 +435,7 @@ class SalesInvoice(Document):
                 delivery_note['naming_series'] = ""
                 delivery_note['posting_date'] = self.posting_date
                 delivery_note['posting_time'] = self.posting_time
+                delivery_note['amended_from'] = ""
 
                 delivery_note['auto_generated_from_sales_invoice'] = 1
 
