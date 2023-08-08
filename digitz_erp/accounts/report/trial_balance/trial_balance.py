@@ -23,7 +23,15 @@ def get_data(filters=None):
 	accounts = frappe.db.sql(
 		"""
 			select
-				name, parent_account, lft, rgt, 0 as opening_debit, 0 as opening_credit, 0 as debit, 0 as credit, 0 as closing_debit, 0 as closing_credit
+				name,
+				parent_account,
+				lft,
+				rgt,
+				0 as opening_debit,
+				0 as opening_credit,
+				0 as debit, 0 as credit,
+				0 as closing_debit,
+				0 as closing_credit
 			from
 				`tabAccount` order by lft
 		""",as_dict=True
@@ -32,7 +40,8 @@ def get_data(filters=None):
 	min_lft, max_rgt = frappe.db.sql(
 		"""
 			select
-				min(lft), max(rgt)
+				min(lft),
+				max(rgt)
 			from
 				`tabAccount`
 		""",)[0]
@@ -44,7 +53,6 @@ def prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_
 	data = []
 	for d in accounts:
 		row = get_account_details(d.name, d.parent_account, d.indent, filters)
-		print(row)
 		for key in value_fields:
 			amt = row.get(key) or 0
 			accounts_by_name[d.name][key] += amt
@@ -58,45 +66,34 @@ def prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_
 		data.append(row)
 	return data
 
+
 def get_account_details(account, parent_account, indent, filters):
-	query = """
-		SELECT
-			glp.account,
-			0,
-			0,
-			SUM(glp.debit_amount) as debit,
-			SUM(glp.credit_amount) as credit,
-			CASE
-				WHEN SUM(glp.debit_amount) > SUM(glp.credit_amount) THEN SUM(glp.debit_amount) - SUM(glp.credit_amount)
-				ELSE 0
-			END AS closing_debit,
-			CASE
-				WHEN SUM(glp.debit_amount) < SUM(glp.credit_amount) THEN SUM(glp.credit_amount) - SUM(glp.debit_amount)
-				ELSE 0
-			END AS closing_credit
-		FROM
-			`tabGL Posting` as glp,
-			`tabAccount` as a
-		WHERE
-			(a.name = '{0}' or a.parent_account = '{0}') AND
-			glp.account = a.name
-	""".format(account)
-	if filters.get('from_date'):
-		query += "AND glp.posting_date >= '{0}'".format(filters.get('from_date'))
-	if filters.get('to_date'):
-		query += "AND glp.posting_date <= '{0}'".format(filters.get('to_date'))
-	data = frappe.db.sql(query, as_dict=True)[0]
-	data['parent_account'] = parent_account
-	data['indent'] = indent
-	data['account'] = account
-	data['opening_debit'] = 0
-	data['opening_credit'] = 0
-	opening_balance = get_opening_balance(account, filters)
-	if opening_balance.get('opening_debit'):
-		data['opening_debit'] = opening_balance.get('opening_debit')
-	if opening_balance.get('opening_credit'):
-		data['opening_credit'] = opening_balance.get('opening_credit')
-	return data
+    data = {}
+    data['parent_account'] = parent_account
+    data['indent'] = indent
+    data['account'] = account
+    data['opening_debit'] = 0
+    data['opening_credit'] = 0
+    opening_balance = get_opening_balance(account, filters)
+
+    if opening_balance.get('opening_debit'):
+        data['opening_debit'] = opening_balance.get('opening_debit')
+    if opening_balance.get('opening_credit'):
+        data['opening_credit'] = opening_balance.get('opening_credit')
+
+    data['debit'] = 0
+    data['credit'] = 0
+    data['closing_debit'] = 0
+    data['closing_credit'] = 0
+    data['debit'] = opening_balance.get('debit')
+    data['credit'] = opening_balance.get('credit')
+
+    if data['opening_debit'] > 0:
+        data['closing_debit'] = data['debit'] + data['opening_debit'] - data['credit']
+    elif data['opening_credit'] > 0:
+        data['closing_credit'] = data['credit'] + data['opening_credit'] - data['debit']
+
+    return data
 
 def get_columns():
 	return [
@@ -155,8 +152,16 @@ def get_opening_balance(account, filters):
 	query = """
 		SELECT
 			glp.account,
-			IFNULL(SUM(glp.debit_amount),0) as opening_debit,
-			IFNULL(SUM(glp.credit_amount),0) as opening_credit
+			SUM(glp.debit_amount) as debit,
+			SUM(glp.credit_amount) as credit,
+			CASE
+				WHEN SUM(glp.debit_amount) > SUM(glp.credit_amount) THEN SUM(glp.debit_amount) - SUM(glp.credit_amount)
+				ELSE 0
+			END AS opening_debit,
+			CASE
+				WHEN SUM(glp.debit_amount) < SUM(glp.credit_amount) THEN SUM(glp.credit_amount) - SUM(glp.debit_amount)
+				ELSE 0
+			END AS opening_credit
 		FROM
 			`tabGL Posting` as glp,
 			`tabAccount` as a
