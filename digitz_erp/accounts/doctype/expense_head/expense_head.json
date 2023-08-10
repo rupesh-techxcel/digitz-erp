@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "field:expense_head",
  "creation": "2023-07-19 13:00:28.519879",
  "default_view": "List",
@@ -44,7 +43,8 @@
    "fetch_from": "tax.tax_rate",
    "fieldname": "tax_rate",
    "fieldtype": "Int",
-   "label": "Tax Rate"
+   "label": "Tax Rate",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -55,7 +55,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-09 13:55:25.022408",
+ "modified": "2023-08-09 16:23:40.073410",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Head",
