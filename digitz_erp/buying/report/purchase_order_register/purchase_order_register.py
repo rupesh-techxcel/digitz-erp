@@ -1,6 +1,3 @@
-# Copyright (c) 2023, Rupesh P and contributors
-# For license information, please see license.txt
-
 import frappe
 
 def execute(filters=None):
@@ -10,10 +7,14 @@ def execute(filters=None):
     return columns, data, None, chart
 
 def get_chart_data(filters=None):
-    if filters.get('credit_purchase'):
+    credit_purchase = filters.get("credit_purchase")
+    if credit_purchase == "Credit":
         is_credit_purchase = 1
-    else:
+    elif credit_purchase == "Cash":
         is_credit_purchase = 0
+    else:
+        is_credit_purchase = None
+
     query = """
         SELECT
             po.supplier,
@@ -21,8 +22,8 @@ def get_chart_data(filters=None):
         FROM
             `tabPurchase Order` po
         WHERE
-            po.credit_purchase = {0}
-    """.format(is_credit_purchase)
+            (%(is_credit_purchase)s IS NULL OR po.credit_purchase = %(is_credit_purchase)s)
+    """
     if filters:
         if filters.get('supplier'):
             query += " AND po.supplier = %(supplier)s"
@@ -32,7 +33,7 @@ def get_chart_data(filters=None):
             query += " AND po.posting_date <= %(to_date)s"
 
     query += " GROUP BY po.supplier ORDER BY po.supplier"
-    data = frappe.db.sql(query, filters, as_list=True)
+    data = frappe.db.sql(query, {"is_credit_purchase": is_credit_purchase, **filters}, as_list=True)
 
     suppliers = []
     supplier_wise_amount = {}
@@ -64,99 +65,41 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters):
-    data = ""
-    if filters.get('credit_purchase'):
+    credit_purchase = filters.get("credit_purchase")
+    if credit_purchase == "Credit":
         is_credit_purchase = 1
-    else:
+    elif credit_purchase == "Cash":
         is_credit_purchase = 0
-
-    if filters.get('supplier') and filters.get('from_date') and filters.get('to_date'):
-        data = frappe.db.sql("""
-            SELECT
-                po.name AS purchase_order_name,
-                po.supplier,
-                po.posting_date AS posting_date,
-                CASE
-                    WHEN po.docstatus = 1 THEN 'Submitted'
-                    WHEN po.docstatus = 0 THEN 'Draft'
-                    WHEN po.docstatus = 2 THEN 'Cancelled'
-                    ELSE ''
-                END AS docstatus,
-                po.rounded_total AS amount
-            FROM
-                `tabPurchase Order` po
-            WHERE
-                po.supplier = '{0}'
-                AND po.posting_date BETWEEN '{1}' AND '{2}'
-                AND po.credit_purchase = {3}
-            ORDER BY
-                po.posting_date
-            """.format(filters.get('supplier'), filters.get('from_date'), filters.get('to_date'), is_credit_purchase), as_dict=True)
-
-    elif filters.get('from_date') and filters.get('to_date'):
-        data = frappe.db.sql("""
-            SELECT
-                po.supplier,
-                po.name AS purchase_order_name,
-                po.posting_date,
-                CASE
-                    WHEN po.docstatus = 1 THEN 'Submitted'
-                    WHEN po.docstatus = 0 THEN 'Draft'
-                    WHEN po.docstatus = 2 THEN 'Cancelled'
-                    ELSE ''
-                END AS docstatus,
-                po.posting_date,
-                po.rounded_total AS amount
-            FROM
-                `tabPurchase Order` po
-            WHERE
-                po.posting_date BETWEEN '{0}' AND '{1}'
-                AND po.credit_purchase = {2}
-            ORDER BY
-                po.posting_date
-            """.format(filters.get('from_date'), filters.get('to_date'), is_credit_purchase), as_dict=True)
-
-    elif filters.get('supplier'):
-        data = frappe.db.sql("""
-            SELECT
-                po.name AS purchase_order_name,
-                po.supplier,
-                po.posting_date,
-                CASE
-                    WHEN po.docstatus = 1 THEN 'Submitted'
-                    WHEN po.docstatus = 0 THEN 'Draft'
-                    WHEN po.docstatus = 2 THEN 'Cancelled'
-                    ELSE ''
-                END AS docstatus,
-                po.rounded_total AS amount
-            FROM
-                `tabPurchase Order` po
-            WHERE
-                po.supplier = '{0}'
-                AND po.credit_purchase = {1}
-            ORDER BY
-                posting_date
-            """.format(filters.get('supplier'), is_credit_purchase), as_dict=True)
     else:
-        data = frappe.db.sql("""
-            SELECT
-                po.supplier,
-                po.name AS purchase_order_name,
-                po.posting_date AS posting_date,
-                CASE
-                    WHEN po.docstatus = 1 THEN 'Submitted'
-                    WHEN po.docstatus = 0 THEN 'Draft'
-                    WHEN po.docstatus = 2 THEN 'Cancelled'
-                    ELSE ''
-                END AS docstatus,
-                po.rounded_total AS amount
-            FROM
-                `tabPurchase Order` po
-            WHERE
-                po.credit_purchase = {0}
-            ORDER BY
-                posting_date
-            """.format(is_credit_purchase), as_dict=True)
+        is_credit_purchase = None
+
+    query = """
+        SELECT
+            po.supplier,
+            po.name AS purchase_order_name,
+            po.posting_date AS posting_date,
+            CASE
+                WHEN po.docstatus = 1 THEN 'Submitted'
+                ELSE ''
+            END AS docstatus,
+            po.rounded_total AS amount
+        FROM
+            `tabPurchase Order` po
+        WHERE
+            (%(is_credit_purchase)s IS NULL OR po.credit_purchase = %(is_credit_purchase)s)
+            AND (%(supplier)s IS NULL OR po.supplier = %(supplier)s)
+            AND (%(from_date)s IS NULL OR po.posting_date >= %(from_date)s)
+            AND (%(to_date)s IS NULL OR po.posting_date <= %(to_date)s)
+            AND po.docstatus = 1
+        ORDER BY
+            po.posting_date
+    """
+    data = frappe.db.sql(query, {
+        "is_credit_purchase": is_credit_purchase,
+        "supplier": filters.get('supplier'),
+        "from_date": filters.get('from_date'),
+        "to_date": filters.get('to_date')
+    }, as_dict=True)
 
     return data
 
@@ -193,5 +136,6 @@ def get_columns():
             "fieldtype": "Currency",
             "label": "Invoice Amount",
             "width": 200
-        }
+        },
+        
     ]

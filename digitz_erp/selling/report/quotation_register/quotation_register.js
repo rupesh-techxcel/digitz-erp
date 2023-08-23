@@ -29,9 +29,9 @@ frappe.query_reports["Quotation Register"] = {
 		},
 		{
 			"fieldname": "credit_sale",
-			"fieldtype": "Check",
-			"label": "Credit Sale",
-			"width": 150,
+			"label": __("Credit Sale"),
+			"fieldtype": "Select",
+			"options": "Credit\nCash\nAll"
 		}
 	]
 };

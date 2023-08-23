@@ -14,14 +14,15 @@
   "edit_posting_date_and_time",
   "accounts_section",
   "credit_expense",
-  "rate_includes_tax",
   "credit_days",
   "payment_mode",
   "payment_account",
+  "rate_includes_tax",
   "expense_entry_details",
   "total_expense_amount",
   "total_tax_amount",
   "grand_total",
+  "paid_amount",
   "amended_from"
  ],
  "fields": [
@@ -79,21 +80,20 @@
    "label": "Accounts"
   },
   {
-   "depends_on": "eval:doc.credit_purchase == 1",
+   "depends_on": "eval:doc.credit_expense == 1",
    "fieldname": "credit_days",
    "fieldtype": "Int",
-   "label": "Credit Days",
-   "mandatory_depends_on": "eval:doc.credit_purchase == 1"
+   "label": "Credit Days"
   },
   {
-   "depends_on": "eval:doc.credit_purchase == 0",
+   "depends_on": "eval:doc.credit_expense == 0",
    "fieldname": "payment_mode",
    "fieldtype": "Link",
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
   {
-   "depends_on": "eval:doc.credit_purchase == 0",
+   "depends_on": "eval:doc.credit_expense == 0",
    "fetch_from": "payment_mode.account",
    "fieldname": "payment_account",
    "fieldtype": "Link",
@@ -124,12 +124,17 @@
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
    "label": "Rate includes tax"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-08 10:56:21.464751",
+ "modified": "2023-08-17 13:24:20.786178",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",
