@@ -27,10 +27,10 @@ frappe.query_reports["Purchase Register"] = {
 			"width": 150,
 		},
 		{
-			"fieldname": "credit_purchase",
-			"fieldtype": "Check",
-			"label": "Credit Purchase",
-			"width": 150,
+				"fieldname": "credit_purchase",
+				"label": ("Credit Purchase"),
+				"fieldtype": "Select",
+				"options": "Credit\nCash\nAll"
 		}
 	]
 };

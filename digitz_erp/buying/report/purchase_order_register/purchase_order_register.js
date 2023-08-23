@@ -28,10 +28,10 @@ frappe.query_reports["Purchase Order Register"] = {
 			"default":frappe.datetime.month_end()
 		},
 		{
-			"fieldname": "credit_purchase",
-			"fieldtype": "Check",
-			"label": "Credit Purchase",
-			"width": 150,
-		},
+				"fieldname": "credit_purchase",
+				"label": ("Credit Purchase"),
+				"fieldtype": "Select",
+				"options": "Credit\nCash\nAll"
+		}
 	]
 };

@@ -69,8 +69,6 @@ def get_data(filters):
 				dn.posting_date AS posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
-					WHEN dn.docstatus = 0 THEN 'Draft'
-					WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.rounded_total AS amount
@@ -79,6 +77,7 @@ def get_data(filters):
 			WHERE
 				dn.customer = '{0}'
 				AND dn.posting_date BETWEEN '{1}' AND '{2}'
+				AND dn.docstatus = 1
 			ORDER BY
 				dn.posting_date
 			""".format(filters.get('customer'), filters.get('from_date'), filters.get('to_date')), as_dict=True)
@@ -91,8 +90,6 @@ def get_data(filters):
 				dn.posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
-					WHEN dn.docstatus = 0 THEN 'Draft'
-					WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.posting_date,
@@ -101,6 +98,7 @@ def get_data(filters):
 				`tabDelivery Note` dn
 			WHERE
 				dn.posting_date BETWEEN '{0}' AND '{1}'
+				AND dn.docstatus = 1
 			ORDER BY
 				dn.posting_date
 			""".format(filters.get('from_date'), filters.get('to_date')), as_dict=True)
@@ -113,8 +111,6 @@ def get_data(filters):
 				dn.posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
-					WHEN dn.docstatus = 0 THEN 'Draft'
-					WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.rounded_total AS amount
@@ -122,6 +118,7 @@ def get_data(filters):
 				`tabDelivery Note` dn
 			WHERE
 				dn.customer = '{0}'
+				AND dn.docstatus = 1
 			ORDER BY
 				posting_date
 			""".format(filters.get('customer')), as_dict=True)
@@ -133,11 +130,10 @@ def get_data(filters):
 				dn.posting_date AS posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
-					WHEN dn.docstatus = 0 THEN 'Draft'
-					WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.rounded_total AS amount
+				AND dn.docstatus = 1
 			FROM
 				`tabDelivery Note` dn
 			ORDER BY

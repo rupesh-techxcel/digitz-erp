@@ -1,19 +1,20 @@
-# Copyright (c) 2023, Rupesh P and contributors
-# For license information, please see license.txt
-
 import frappe
 
 def execute(filters=None):
-	columns = get_columns()
-	data = get_data(filters)
-	chart = get_chart_data(filters)
-	return columns, data, None, chart
+    columns = get_columns()
+    data = get_data(filters)
+    chart = get_chart_data(filters)
+    return columns, data, None, chart
 
 def get_chart_data(filters=None):
-    if filters.get('credit_purchase'):
+    credit_purchase = filters.get("credit_purchase")
+    if credit_purchase == "Credit":
         is_credit_purchase = 1
-    else:
+    elif credit_purchase == "Cash":
         is_credit_purchase = 0
+    else:
+        is_credit_purchase = None
+
     query = """
         SELECT
             pi.supplier,
@@ -21,8 +22,8 @@ def get_chart_data(filters=None):
         FROM
             `tabPurchase Invoice` pi
         WHERE
-            pi.credit_purchase = {0}
-    """.format(is_credit_purchase)
+            (%(is_credit_purchase)s IS NULL OR pi.credit_purchase = %(is_credit_purchase)s)
+    """
     if filters:
         if filters.get('supplier'):
             query += " AND pi.supplier = %(supplier)s"
@@ -32,7 +33,7 @@ def get_chart_data(filters=None):
             query += " AND pi.posting_date <= %(to_date)s"
 
     query += " GROUP BY pi.supplier ORDER BY pi.supplier"
-    data = frappe.db.sql(query, filters, as_list=True)
+    data = frappe.db.sql(query, {"is_credit_purchase": is_credit_purchase, **filters}, as_list=True)
 
     suppliers = []
     supplier_wise_amount = {}
@@ -64,187 +65,106 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters):
-	data = ""
-	if filters.get('credit_purchase'):
-		is_credit_purchase = 1
-	else:
-		is_credit_purchase = 0
-	if filters.get('supplier') and  filters.get('from_date') and filters.get('to_date'):
+    credit_purchase = filters.get("credit_purchase")
+    if credit_purchase == "Credit":
+        is_credit_purchase = 1
+    elif credit_purchase == "Cash":
+        is_credit_purchase = 0
+    else:
+        is_credit_purchase = None
 
-		data = frappe.db.sql("""
-		SELECT
-			pi.supplier,
-			pi.name AS purchase_invoice_name,
-			pi.posting_date AS posting_date,
-			CASE
-				WHEN pi.docstatus = 1 THEN 'Submitted'
-				WHEN pi.docstatus = 0 THEN 'Draft'
-				WHEN pi.docstatus = 2 THEN 'Cancelled'
-				ELSE ''
-			END AS docstatus,
-			pi.rounded_total AS amount,
-			pi.paid_amount,
-			pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
-			pi.payment_mode,
-	  		pi.payment_account
-		FROM
-			`tabPurchase Invoice` pi
-		WHERE
-			pi.supplier = '{0}'
-			AND pi.posting_date BETWEEN '{1}' AND '{2}'
-			AND pi.credit_purchase = {3}
-		ORDER BY
-			pi.posting_date
-		""".format(filters.get('supplier'), filters.get('from_date'), filters.get('to_date'), is_credit_purchase), as_dict=True)
-	elif filters.get('from_date') and filters.get('to_date') and not frappe.get('supplier'):
-		data = frappe.db.sql("""
-		SELECT
-			pi.supplier,
-			pi.name AS purchase_invoice_name,
-			pi.posting_date,
-			CASE
-				WHEN pi.docstatus = 1 THEN 'Submitted'
-				WHEN pi.docstatus = 0 THEN 'Draft'
-				WHEN pi.docstatus = 2 THEN 'Cancelled'
-				ELSE ''
-			END AS docstatus,
-			pi.posting_date,
-			pi.rounded_total AS amount,
-			pi.paid_amount,
-			pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
-			pi.payment_mode,
-			pi.payment_account
-		FROM
-			`tabPurchase Invoice` pi
-		WHERE
-			pi.posting_date BETWEEN '{0}' AND '{1}'
-			AND pi.credit_purchase = {2}
-		ORDER BY
-			pi.posting_date
-		""".format(filters.get('from_date'), filters.get('to_date'), is_credit_purchase), as_dict=True)
+    query = """
+        SELECT
+            pi.supplier,
+            pi.name AS purchase_invoice_name,
+            pi.posting_date AS posting_date,
+            CASE
+                WHEN pi.docstatus = 1 THEN 'Submitted'
+                ELSE ''
+            END AS docstatus,
+            pi.rounded_total AS amount,
+            pi.paid_amount,
+            pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
+            pi.payment_mode,
+            pi.payment_account
+        FROM
+            `tabPurchase Invoice` pi
+        WHERE
+            (%(is_credit_purchase)s IS NULL OR pi.credit_purchase = %(is_credit_purchase)s)
+            AND (%(supplier)s IS NULL OR pi.supplier = %(supplier)s)
+            AND (%(from_date)s IS NULL OR pi.posting_date >= %(from_date)s)
+            AND (%(to_date)s IS NULL OR pi.posting_date <= %(to_date)s)
+            AND pi.docstatus = 1
+        ORDER BY
+            pi.posting_date
+    """
+    data = frappe.db.sql(query, {
+        "is_credit_purchase": is_credit_purchase,
+        "supplier": filters.get('supplier'),
+        "from_date": filters.get('from_date'),
+        "to_date": filters.get('to_date')
+    }, as_dict=True)
 
-
-	elif filters.get('supplier') and not(filters.get('from_date') and filters.get('to_date')):
-		data = frappe.db.sql("""
-		SELECT
-			pi.supplier,
-			pi.name AS purchase_invoice_name,
-			pi.posting_date,
-			CASE
-				WHEN pi.docstatus = 1 THEN 'Submitted'
-				WHEN pi.docstatus = 0 THEN 'Draft'
-				WHEN pi.docstatus = 2 THEN 'Cancelled'
-				ELSE ''
-			END AS docstatus,
-			pi.rounded_total AS amount,
-			pi.paid_amount,
-			pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
-			pi.payment_mode,
-			pi.payment_account
-		FROM
-			`tabPurchase Invoice` pi
-		WHERE
-			pi.supplier = '{0}'
-			AND pi.credit_purchase = {1}
-		ORDER BY
-			posting_date
-		""".format(filters.get('supplier'), is_credit_purchase), as_dict=True)
-	else:
-		data = frappe.db.sql("""
-			SELECT
-				pi.supplier,
-				pi.name AS purchase_invoice_name,
-				pi.posting_date AS posting_date,
-				CASE
-					WHEN pi.docstatus = 1 THEN 'Submitted'
-					WHEN pi.docstatus = 0 THEN 'Draft'
-					WHEN pi.docstatus = 2 THEN 'Cancelled'
-					ELSE ''
-				END AS docstatus,
-				pi.rounded_total AS amount,
-				pi.paid_amount,
-				pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
-				pi.payment_mode,
-  				pi.payment_account
-
-			FROM
-				`tabPurchase Invoice` pi
-			WHERE
-				pi.credit_purchase = {0}
-			ORDER BY
-				posting_date
-			""".format(is_credit_purchase), as_dict=True)
-
-
-	return data
+    return data
 
 def get_columns():
-	return [
-		{
-
-			"fieldname": "supplier",
-			"fieldtype": "Link",
-			"label": "Supplier",
-			"options": "Supplier",
-			"width": 150,
-		},
-		{
-
-			"fieldname": "purchase_invoice_name",
-			"fieldtype": "Link",
-			"label": "Invoice No",
-			"options": "Purchase Invoice",
-			"width": 150,
-
-		},
-		{
-
-			"fieldname": "posting_date",
-			"fieldtype": "Date",
-			"label": "Date",
-			"width": 120,
-
-		},
-  		{
-
-			"fieldname": "docstatus",
-			"fieldtype": "Data",
-			"label": "Status",
-			"width": 120,
-
-		},
-		{
-
-			"fieldname": "amount",
-			"fieldtype": "Currency",
-			"label": "Invoice Amount",
-			"width": 120,
-
-		},
-		{
-			"fieldname": "paid_amount",
-			"fieldtype": "Currency",
-			"label": "Paid Amount",
-			"width": 100,
-		},
-  		{
-			"fieldname": "balance_amount",
-			"fieldtype": "Currency",
-			"label": "Balance Amount",
-			"width": 100,
-		},
-		{
-			"fieldname": "payment_mode",
-			"fieldtype": "Link",
-			"label": "Payment Mode",
-			"options": "Payment Mode",
-			"width": 120,
-		},
-		{
-			"fieldname": "payment_account",
-			"fieldtype": "Link",
-			"label": "Account",
-			"options": "Account" ,
-			"width": 120,
-		}
-	]
+    return [
+        {
+            "fieldname": "supplier",
+            "fieldtype": "Link",
+            "label": "Supplier",
+            "options": "Supplier",
+            "width": 150,
+        },
+        {
+            "fieldname": "purchase_invoice_name",
+            "fieldtype": "Link",
+            "label": "Invoice No",
+            "options": "Purchase Invoice",
+            "width": 150,
+        },
+        {
+            "fieldname": "posting_date",
+            "fieldtype": "Date",
+            "label": "Date",
+            "width": 120,
+        },
+        {
+            "fieldname": "docstatus",
+            "fieldtype": "Data",
+            "label": "Status",
+            "width": 120,
+        },
+        {
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "label": "Invoice Amount",
+            "width": 120,
+        },
+        {
+            "fieldname": "paid_amount",
+            "fieldtype": "Currency",
+            "label": "Paid Amount",
+            "width": 100,
+        },
+        {
+            "fieldname": "balance_amount",
+            "fieldtype": "Currency",
+            "label": "Balance Amount",
+            "width": 100,
+        },
+        {
+            "fieldname": "payment_mode",
+            "fieldtype": "Link",
+            "label": "Payment Mode",
+            "options": "Payment Mode",
+            "width": 120,
+        },
+        {
+            "fieldname": "payment_account",
+            "fieldtype": "Link",
+            "label": "Account",
+            "options": "Account",
+            "width": 120,
+        }
+    ]
