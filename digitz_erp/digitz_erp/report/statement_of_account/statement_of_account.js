@@ -16,8 +16,7 @@ frappe.query_reports["Statement Of Account"] = {
 			"fieldname": "from_date",
 			"fieldtype": "Date",
 			"label": "From Date",
-			"width": 150,
-	
+			"width": 150,	
 		},
 		{
 			"fieldname": "to_date",
