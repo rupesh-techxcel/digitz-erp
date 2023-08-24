@@ -36,7 +36,8 @@ def get_data(filters=None):
             a.parent_account,
             a.lft,
             a.rgt,
-            a.root_type
+            a.root_type,
+            0 as amount
         FROM
             `tabAccount` a
         WHERE
@@ -49,7 +50,7 @@ def get_data(filters=None):
         as_dict=True
     )
     accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
-    data = prepare_data(accounts, filters, parent_children_map)
+    data = prepare_data(accounts, filters, parent_children_map, accounts_by_name)
 
     total_income_credit = sum(row['amount'] for row in data if row.get('root_type') == 'Income')
     total_expense_debit = sum(row['amount'] for row in data if row.get('root_type') == 'Expense')
@@ -85,13 +86,27 @@ def get_data(filters=None):
         'indent': 0
     }
     data.append(total_row)
-
     return data
 
-def prepare_data(accounts, filters, parent_children_map):
+value_fields = (
+	"amount",
+)
+
+def prepare_data(accounts, filters, parent_children_map, accounts_by_name):
     data = []
     for d in accounts:
         row = get_account_details(d.name, d.parent_account, d.indent, filters)
+        for key in value_fields:
+            amt = row.get(key) or 0
+            accounts_by_name[d.name][key] += amt
+    accumulate_values_into_parents(accounts, accounts_by_name)
+    for d in accounts:
+        row = {}
+        row['account'] = d.name
+        row['root_type'] = d.root_type
+        for key in value_fields:
+            row[key] = accounts_by_name[d.name][key]
+        row['indent'] = d.indent
         data.append(row)
     return data
 
@@ -100,15 +115,15 @@ def get_account_details(account, parent_account, indent, filters):
         SELECT
             a.root_type,
             CASE
-				WHEN a.root_type='Expense' THEN SUM(glp.debit_amount)
-                WHEN a.root_type='Income' THEN SUM(glp.credit_amount)
+				WHEN SUM(glp.debit_amount) < SUM(glp.credit_amount) THEN SUM(glp.credit_amount) - SUM(glp.debit_amount)
+                WHEN SUM(glp.debit_amount) > SUM(glp.credit_amount) THEN SUM(glp.debit_amount) - SUM(glp.credit_amount)
 				ELSE 0
 			END AS amount
         FROM
             `tabGL Posting` as glp,
             `tabAccount` as a
         WHERE
-            (a.name = '{0}' or a.parent_account = '{0}') AND
+            a.name = '{0}' AND
             glp.account = a.name
     """.format(account)
     if filters.get('year_selection') == 'Date Range':
@@ -147,3 +162,9 @@ def get_columns():
             "width": 600,
         }
     ]
+
+def accumulate_values_into_parents(accounts, accounts_by_name):
+	for d in reversed(accounts):
+		if d.parent_account:
+			for key in value_fields:
+				accounts_by_name[d.parent_account][key] += d[key]
