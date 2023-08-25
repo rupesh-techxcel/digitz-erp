@@ -12,8 +12,6 @@ def get_chart_data(filters=None):
         is_credit_purchase = 1
     elif credit_purchase == "Cash":
         is_credit_purchase = 0
-    else:
-        is_credit_purchase = None
 
     query = """
         SELECT
@@ -33,7 +31,7 @@ def get_chart_data(filters=None):
             query += " AND pi.posting_date <= %(to_date)s"
 
     query += " GROUP BY pi.supplier ORDER BY pi.supplier"
-    data = frappe.db.sql(query, {"is_credit_purchase": is_credit_purchase, **filters}, as_list=True)
+    data = frappe.db.sql(query,as_list=True)
 
     suppliers = []
     supplier_wise_amount = {}
@@ -70,11 +68,9 @@ def get_data(filters):
         is_credit_purchase = 1
     elif credit_purchase == "Cash":
         is_credit_purchase = 0
-    else:
-        is_credit_purchase = None
 
     query = """
-        SELECT
+            SELECT
             pi.supplier,
             pi.name AS purchase_invoice_name,
             pi.posting_date AS posting_date,
@@ -88,7 +84,7 @@ def get_data(filters):
             pi.payment_mode,
             pi.payment_account
         FROM
-            `tabPurchase Invoice` pi
+            `tabPurchase Invoice` pi)
         WHERE
             (%(is_credit_purchase)s IS NULL OR pi.credit_purchase = %(is_credit_purchase)s)
             AND (%(supplier)s IS NULL OR pi.supplier = %(supplier)s)
@@ -98,12 +94,7 @@ def get_data(filters):
         ORDER BY
             pi.posting_date
     """
-    data = frappe.db.sql(query, {
-        "is_credit_purchase": is_credit_purchase,
-        "supplier": filters.get('supplier'),
-        "from_date": filters.get('from_date'),
-        "to_date": filters.get('to_date')
-    }, as_dict=True)
+    data = frappe.db.sql(query, as_dict=True)
 
     return data
 

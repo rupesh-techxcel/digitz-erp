@@ -4,6 +4,7 @@ def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     chart = get_chart_data(filters)
+    
     return columns, data, None, chart
 
 def get_chart_data(filters=None):
@@ -12,28 +13,30 @@ def get_chart_data(filters=None):
         is_credit_sale = 1
     elif credit_sale == "Cash":
         is_credit_sale = 0
-    else:
-        is_credit_sale = None
 
     query = """
-        SELECT
-            si.customer,
-            SUM(si.rounded_total) AS amount
-        FROM
-            `tabSales Invoice` si
-        WHERE
-            (%(is_credit_sale)s IS NULL OR si.credit_sale = %(is_credit_sale)s)
+    SELECT
+        si.customer,
+        SUM(si.rounded_total) AS amount
+    FROM
+        `tabSales Invoice` si
     """
+
     if filters:
         if filters.get('customer'):
-            query += " AND si.customer = %(customer)s"
+            query += "si.customer = %(customer)s"
         if filters.get('from_date'):
             query += " AND si.posting_date >= %(from_date)s"
         if filters.get('to_date'):
             query += " AND si.posting_date <= %(to_date)s"
+        if is_credit_sale == 1 or is_credit_sale == 0:  # Changed OR to lower case
+            query += " AND si.credit_sale = %(is_credit_sale)s"  # Fixed column name
 
-    query += " GROUP BY si.customer ORDER BY si.customer"
-    data = frappe.db.sql(query, {"is_credit_sale": is_credit_sale, **filters}, as_list=True)
+        query += " GROUP BY si.customer"  # Removed ORDER BY from here
+        query += " ORDER BY si.customer"  # Added ORDER BY here
+
+    data = frappe.db.sql(query, as_list=True)  # Changed as_list=True to as_dict=True
+
 
     customers = []
     customer_wise_amount = {}
@@ -65,13 +68,13 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters):
+    
     credit_sale = filters.get("credit_sale")
-    if credit_sale == "Credit":
+    is_credit_sale = None
+    if credit_sale == "Credit" :
         is_credit_sale = 1
     elif credit_sale == "Cash":
         is_credit_sale = 0
-    else:
-        is_credit_sale = None
 
     query = """
         SELECT
@@ -98,14 +101,11 @@ def get_data(filters):
         ORDER BY
             si.posting_date
     """
-    data = frappe.db.sql(query, {
-        "is_credit_sale": is_credit_sale,
-        "customer": filters.get('customer'),
-        "from_date": filters.get('from_date'),
-        "to_date": filters.get('to_date')
-    }, as_dict=True)
+
+    data = frappe.db.sql(query, as_dict=True)
 
     return data
+
 
 def get_columns():
     return [
