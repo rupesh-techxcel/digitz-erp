@@ -1,42 +1,41 @@
+# Copyright (c) 2023, Rupesh P and contributors
+# For license information, please see license.txt
+
 import frappe
 
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     chart = get_chart_data(filters)
-    
     return columns, data, None, chart
 
 def get_chart_data(filters=None):
-    credit_sale = filters.get("credit_sale")
-    if credit_sale == "Credit":
-        is_credit_sale = 1
-    elif credit_sale == "Cash":
-        is_credit_sale = 0
-
+    credit_sale = filters.get('credit_sale')
     query = """
-    SELECT
-        si.customer,
-        SUM(si.rounded_total) AS amount
-    FROM
-        `tabSales Invoice` si
+        SELECT
+            si.customer,
+            SUM(si.rounded_total) AS amount
+        FROM
+            `tabSales Invoice` si
+        WHERE
+            1
     """
-
     if filters:
+        if credit_sale == 'Credit':
+            sub_query = "AND si.credit_sale = 1"
+            query += sub_query
+        if credit_sale == 'Cash':
+            sub_query = "AND si.credit_sale = 0"
+            query += sub_query
         if filters.get('customer'):
-            query += "si.customer = %(customer)s"
+            query += " AND si.customer = %(customer)s"
         if filters.get('from_date'):
             query += " AND si.posting_date >= %(from_date)s"
         if filters.get('to_date'):
             query += " AND si.posting_date <= %(to_date)s"
-        if is_credit_sale == 1 or is_credit_sale == 0:  # Changed OR to lower case
-            query += " AND si.credit_sale = %(is_credit_sale)s"  # Fixed column name
 
-        query += " GROUP BY si.customer"  # Removed ORDER BY from here
-        query += " ORDER BY si.customer"  # Added ORDER BY here
-
-    data = frappe.db.sql(query, as_list=True)  # Changed as_list=True to as_dict=True
-
+    query += " GROUP BY si.customer ORDER BY si.customer"
+    data = frappe.db.sql(query, filters, as_list=True)
 
     customers = []
     customer_wise_amount = {}
@@ -68,103 +67,237 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters):
-    
-    credit_sale = filters.get("credit_sale")
-    is_credit_sale = None
-    if credit_sale == "Credit" :
-        is_credit_sale = 1
-    elif credit_sale == "Cash":
-        is_credit_sale = 0
+    data = ""
 
-    query = """
-        SELECT
-            si.name AS sales_invoice_name,
-            si.customer,
-            si.posting_date AS posting_date,
-            CASE
-                WHEN si.docstatus = 1 THEN 'Submitted'
-                ELSE ''
-            END AS docstatus,
-            si.rounded_total AS amount,
-            si.paid_amount,
-            si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
-            si.payment_mode,
-            si.payment_account
-        FROM
-            `tabSales Invoice` si
-        WHERE
-            (%(is_credit_sale)s IS NULL OR si.credit_sale = %(is_credit_sale)s)
-            AND (%(customer)s IS NULL OR si.customer = %(customer)s)
-            AND (%(from_date)s IS NULL OR si.posting_date >= %(from_date)s)
-            AND (%(to_date)s IS NULL OR si.posting_date <= %(to_date)s)
-            AND si.docstatus = 1
-        ORDER BY
-            si.posting_date
-    """
+    credit_sale = filters.get('credit_sale')
+    status = filters.get('status')
 
-    data = frappe.db.sql(query, as_dict=True)
+    if filters.get('customer') and filters.get('from_date') and filters.get('to_date'):
+        query = """
+            SELECT
+                si.name AS sales_invoice_name,
+                si.customer,
+                si.posting_date AS posting_date,
+                CASE
+                    WHEN si.docstatus = 1 THEN 'Submitted'
+                    WHEN si.docstatus = 0 THEN 'Draft'
+				    WHEN si.docstatus = 2 THEN 'Cancelled'
+                    ELSE ''
+                END AS docstatus,
+                si.rounded_total AS amount,
+                si.paid_amount,
+                si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
+                si.payment_mode,
+                si.payment_account
+            FROM
+                `tabSales Invoice` si
+            WHERE
+                si.customer = '{0}'
+                AND si.posting_date BETWEEN '{1}' AND '{2}'
+            """.format(filters.get('customer'), filters.get('from_date'), filters.get('to_date'))
+        if credit_sale == 'Credit':
+            sub_query = "AND si.credit_sale = 1 "
+            query += sub_query
+        if credit_sale == 'Cash':
+            sub_query = "AND si.credit_sale = 0 "
+            query += sub_query
+        if status == 'Draft':
+            sub_query = "AND si.docstatus = 0 "
+            query += sub_query
+        elif status == 'Submitted':
+            sub_query = "AND si.docstatus = 1 "
+            query += sub_query
+        elif status == 'Cancelled':
+            sub_query = "AND si.docstatus = 2 "
+            query += sub_query
+        query += "ORDER BY si.posting_date"
+        data = frappe.db.sql(query, as_dict=True)
+
+    elif filters.get('from_date') and filters.get('to_date'):
+        query = """
+            SELECT
+                si.name AS sales_invoice_name,
+                si.customer,
+                si.posting_date,
+                CASE
+                    WHEN si.docstatus = 1 THEN 'Submitted'
+                    WHEN si.docstatus = 0 THEN 'Draft'
+				    WHEN si.docstatus = 2 THEN 'Cancelled'
+                    ELSE ''
+                END AS docstatus,
+                si.posting_date,
+                si.rounded_total AS amount,
+                si.paid_amount,
+                si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
+                si.payment_mode,
+                si.payment_account
+            FROM
+                `tabSales Invoice` si
+            WHERE
+                si.posting_date BETWEEN '{0}' AND '{1}'
+            """.format(filters.get('from_date'), filters.get('to_date'))
+        if credit_sale == 'Credit':
+            sub_query = "AND si.credit_sale = 1 "
+            query += sub_query
+        if credit_sale == 'Cash':
+            sub_query = "AND si.credit_sale = 0 "
+            query += sub_query
+        if status == 'Draft':
+            sub_query = "AND si.docstatus = 0 "
+            query += sub_query
+        elif status == 'Submitted':
+            sub_query = "AND si.docstatus = 1 "
+            query += sub_query
+        elif status == 'Cancelled':
+            sub_query = "AND si.docstatus = 2 "
+            query += sub_query
+        data = frappe.db.sql(query, as_dict=True)
+
+    elif filters.get('customer'):
+        query = """
+            SELECT
+                si.name AS sales_invoice_name,
+                si.customer,
+                si.posting_date,
+                CASE
+                    WHEN si.docstatus = 1 THEN 'Submitted'
+                    WHEN si.docstatus = 0 THEN 'Draft'
+				    WHEN si.docstatus = 2 THEN 'Cancelled'
+                    ELSE ''
+                END AS docstatus,
+                si.rounded_total AS amount,
+                si.paid_amount,
+                si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
+                si.payment_mode,
+                si.payment_account
+            FROM
+                `tabSales Invoice` si
+            WHERE
+                si.customer = '{0}'
+            """.format(filters.get('customer'))
+        if credit_sale == 'Credit':
+            sub_query = "AND si.credit_sale = 1 "
+            query += sub_query
+        if credit_sale == 'Cash':
+            sub_query = "AND si.credit_sale = 0 "
+            query += sub_query
+        if status == 'Draft':
+            sub_query = "AND si.docstatus = 0 "
+            query += sub_query
+        elif status == 'Submitted':
+            sub_query = "AND si.docstatus = 1 "
+            query += sub_query
+        elif status == 'Cancelled':
+            sub_query = "AND si.docstatus = 2 "
+            query += sub_query
+        data = frappe.db.sql(query, as_dict=True)
+    else:
+        query = """
+            SELECT
+                si.name AS sales_invoice_name,
+                si.customer,
+                si.posting_date AS posting_date,
+                CASE
+                    WHEN si.docstatus = 1 THEN 'Submitted'
+                    WHEN si.docstatus = 0 THEN 'Draft'
+				    WHEN si.docstatus = 2 THEN 'Cancelled'
+                    ELSE ''
+                END AS docstatus,
+                si.rounded_total AS amount,
+                si.paid_amount,
+                si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount
+            FROM
+                `tabSales Invoice` si
+            WHERE
+                1
+            """
+        if credit_sale == 'Credit':
+            sub_query = "AND si.credit_sale = 1 "
+            query += sub_query
+        if credit_sale == 'Cash':
+            sub_query = "AND si.credit_sale = 0 "
+            query += sub_query
+        if status == 'Draft':
+            sub_query = "AND si.docstatus = 0 "
+            query += sub_query
+        elif status == 'Submitted':
+            sub_query = "AND si.docstatus = 1 "
+            query += sub_query
+        elif status == 'Cancelled':
+            sub_query = "AND si.docstatus = 2 "
+            query += sub_query
+        data = frappe.db.sql(query, as_dict=True)
 
     return data
 
-
 def get_columns():
-    return [
-        {
-            "fieldname": "sales_invoice_name",
-            "fieldtype": "Link",
-            "label": "Invoice No",
-            "options": "Sales Invoice",
-            "width": 150,
-        },
-        {
-            "fieldname": "customer",
-            "fieldtype": "Link",
-            "label": "Customer",
-            "options": "Customer",
-            "width": 210,
-        },
-        {
-            "fieldname": "posting_date",
-            "fieldtype": "Date",
-            "label": "Date",
-            "width": 120,
-        },
-        {
-            "fieldname": "docstatus",
-            "fieldtype": "Data",
-            "label": "Status",
-            "width": 120,
-        },
-        {
-            "fieldname": "amount",
-            "fieldtype": "Currency",
-            "label": "Invoice Amount",
-            "width": 120,
-        },
-        {
-            "fieldname": "paid_amount",
-            "fieldtype": "Currency",
-            "label": "Paid Amount",
-            "width": 120,
-        },
-        {
-            "fieldname": "balance_amount",
-            "fieldtype": "Currency",
-            "label": "Balance Amount",
-            "width": 120,
-        },
-        {
-            "fieldname": "payment_mode",
-            "fieldtype": "Link",
-            "label": "Payment Mode",
-            "options": "Payment Mode",
-            "width": 120,
-        },
-        {
-            "fieldname": "payment_account",
-            "fieldtype": "Link",
-            "label": "Account",
-            "options": "Account",
-            "width": 120,
-        }
-    ]
+	return [
+		{
+
+			"fieldname": "sales_invoice_name",
+			"fieldtype": "Link",
+			"label": "Invoice No",
+			"options": "Sales Invoice",
+			"width": 150,
+
+		},
+		{
+
+			"fieldname": "customer",
+			"fieldtype": "Link",
+			"label": "Customer",
+			"options": "Customer",
+			"width": 210,
+
+		},
+		{
+
+			"fieldname": "posting_date",
+			"fieldtype": "Date",
+			"label": "Date",
+			"width": 120,
+
+		},
+  		{
+
+			"fieldname": "docstatus",
+			"fieldtype": "Data",
+			"label": "Status",
+			"width": 120,
+
+		},
+		{
+
+			"fieldname": "amount",
+			"fieldtype": "Currency",
+			"label": "Invoice Amount",
+			"width": 120,
+
+		},
+		{
+			"fieldname": "paid_amount",
+			"fieldtype": "Currency",
+			"label": "Paid Amount",
+			"width": 120,
+		},
+  		{
+			"fieldname": "balance_amount",
+			"fieldtype": "Currency",
+			"label": "Balance Amount",
+			"width": 120,
+		},
+		{
+			"fieldname": "payment_mode",
+			"fieldtype": "Link",
+			"label": "Payment Mode",
+			"options": "Payment Mode",
+			"width": 120,
+		},
+		{
+			"fieldname": "payment_account",
+			"fieldtype": "Link",
+			"label": "Account",
+			"options": "Account" ,
+			"width": 120,
+		}
+	]

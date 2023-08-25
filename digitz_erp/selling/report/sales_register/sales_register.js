@@ -33,6 +33,12 @@ frappe.query_reports["Sales Register"] = {
 			"label": __("Credit Sale"),
 			"fieldtype": "Select",
 			"options": "Credit\nCash\nAll"
+		},
+		{
+			"fieldname": "status",
+			"label": __("Status"),
+			"fieldtype": "Select",
+			"options": "Draft\nSubmitted\nCancelled"
 		}
 
 	]
