@@ -16,8 +16,10 @@ def execute(filters=None):
 def get_data(filters=None):
     query = """
          SELECT
+            name as 'invoice_no',
              posting_date,
              customer,
+             
              net_total,
              tax_total
         FROM
@@ -76,13 +78,12 @@ def get_chart_data(filters=None):
 
 
 def get_columns():
-    return [
+    return [        
         {
-            "label": _("Customer"),
-            "fieldname": "customer",
-            "fieldtype": "Link",
-            "options": "Customer",
-            "width": 400
+            "label": _("Invoice No"),
+            "fieldname": "invoice_no",
+            "fieldtype": "Data",            
+            "width": 161
         },
         {
             "label": _("Posting Date"),
@@ -90,6 +91,13 @@ def get_columns():
             "fieldtype": "Date",
             "width": 200
         },
+        {
+            "label": _("Customer"),
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "options": "Customer",
+            "width": 400
+        },        
         {
             "label": _("Net Total"),
             "fieldname": "net_total",
