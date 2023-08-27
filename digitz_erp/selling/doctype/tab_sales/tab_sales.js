@@ -354,9 +354,30 @@ frappe.ui.form.on('Tab Sales', {
 			}
 		})
 	},
+	get_user_warehouse(frm)
+	{
+		frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'User Warehouse',
+                filters: {
+                    user: frappe.session.user
+                },
+                fieldname: 'warehouse'
+            },
+            callback: function(response) {
+				if (response && response.message && response.message.warehouse) {
+					window.warehouse = response.message.warehouse;					
+					// Do something with warehouseValue
+				}
+			}
+		});
+	},
 	get_default_company_and_warehouse(frm) {
 
 		var default_company = ""
+
+		frm.trigger("get_user_warehouse")
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -382,8 +403,19 @@ frappe.ui.form.on('Tab Sales', {
 						callback: (r2) => {
 							console.log("Before assign default warehouse");
 							console.log(r2.message.default_warehouse);
-							frm.doc.warehouse = r2.message.default_warehouse;
+							if (typeof window.warehouse !== 'undefined') {
+								// The value is assigned to window.warehouse
+								// You can use it here
+								frm.doc.warehouse = window.warehouse;
+							}
+							else
+							{
+								frm.doc.warehouse = r2.message.default_warehouse;
+							}
+
+							console.log("warehouse assigned")	
 							console.log(frm.doc.warehouse);
+							
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 
 							frm.refresh_field("warehouse");

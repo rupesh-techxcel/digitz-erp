@@ -288,6 +288,25 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.refresh_field("rounded_total");
 
 	},
+	get_user_warehouse(frm)
+	{
+		frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'User Warehouse',
+                filters: {
+                    user: frappe.session.user
+                },
+                fieldname: 'warehouse'
+            },
+            callback: function(response) {
+				if (response && response.message && response.message.warehouse) {
+					window.warehouse = response.message.warehouse;					
+					// Do something with warehouseValue
+				}
+			}
+		});
+	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
 		console.log("From Get Default Warehouse Method in the parent form")
@@ -312,9 +331,18 @@ frappe.ui.form.on('Purchase Invoice', {
 							'fieldname': ['default_warehouse', 'rate_includes_tax']
 						},
 						callback: (r2) => {
-							console.log("Before assign default warehouse");
-							console.log(r2.message.default_warehouse);
-							frm.doc.warehouse = r2.message.default_warehouse;
+
+
+							if (typeof window.warehouse !== 'undefined') {
+								// The value is assigned to window.warehouse
+								// You can use it here
+								frm.doc.warehouse = window.warehouse;
+							}
+							else
+							{
+								frm.doc.warehouse = r2.message.default_warehouse;
+							}
+							
 							console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");

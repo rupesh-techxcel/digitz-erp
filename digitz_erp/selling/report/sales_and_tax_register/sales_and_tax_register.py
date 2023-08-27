@@ -36,55 +36,42 @@ def get_data(filters=None):
     data = frappe.db.sql(query, filters, as_dict=True)
     return data
 
-
 def get_chart_data(filters=None):
     query = """
          SELECT
-             customer,
-             net_total
+            c.emirate,
+            SUM(ts.net_total) AS total_net_total,
+            SUM(ts.tax_total) AS total_tax_total
         FROM
-            `tabSales Invoice`
+            `tabSales Invoice` ts
+        INNER JOIN
+            `tabCustomer` c ON c.name = ts.customer
         WHERE
-            docstatus != 2
-            AND posting_date >= %(from_date)s
-            AND posting_date <= %(to_date)s
+            ts.docstatus != 2
+            AND ts.posting_date >= %(from_date)s
+            AND ts.posting_date <= %(to_date)s
     """
     if filters:
         if filters.get('customer'):
-            query += " AND customer = %(customer)s"
+            query += " AND ts.customer = %(customer)s"
         if filters.get('from_date'):
-            query += " AND posting_date >= %(from_date)s"
+            query += " AND ts.posting_date >= %(from_date)s"
         if filters.get('to_date'):
-            query += " AND posting_date <= %(to_date)s"
+            query += " AND ts.posting_date <= %(to_date)s"
+    query += " GROUP BY c.emirate"
     data = frappe.db.sql(query, filters, as_list=True)
 
-    customers = []
-    customer_wise_amount = {}
-    for row in data:
-        if row[0] not in customers:
-            customers.append(row[0])
-        if customer_wise_amount.get(row[0]):
-            customer_wise_amount[row[0]] += row[1]
-        else:
-            customer_wise_amount[row[0]] = row[1]
-    data = list(customer_wise_amount.items())
+    chart = {
+        "data": {
+            "labels": [row[0] for row in data],
+            "datasets": [
+                {"name": "Net Total", "values": [row[1] for row in data]},
+                {"name": "Tax Total", "values": [row[2] for row in data]}
+            ]
+        },
+        "type": "bar"
+    }
 
-    datasets = []
-    labels = []
-    chart = {}
-
-    if data:
-        for d in data:
-            labels.append(d[0])
-            datasets.append(d[1])
-
-        chart = {
-            "data": {
-                "labels": labels,
-                "datasets": [{"values": datasets}]
-            },
-            "type": "bar"
-        }
     return chart
 
 

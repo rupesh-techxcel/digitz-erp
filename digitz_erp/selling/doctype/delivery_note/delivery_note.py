@@ -120,7 +120,7 @@ class DeliveryNote(Document):
 
         si.save()
         
-        frappe.msgprint("Sales Invoice created successfully, in draft mode.")
+        frappe.msgprint("Sales Invoice created successfully, in draft mode.", is_alert=1)
 
     def cancel_delivery_note(self):
         
