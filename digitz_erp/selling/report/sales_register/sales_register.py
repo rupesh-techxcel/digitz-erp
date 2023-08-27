@@ -18,7 +18,7 @@ def get_chart_data(filters=None):
         FROM
             `tabSales Invoice` si
         WHERE
-            1
+            docstatus = 1 or docstatus=0
     """
     if filters:
         if credit_sale == 'Credit':
@@ -114,7 +114,7 @@ def get_data(filters):
             sub_query = "AND si.docstatus = 2 "
             query += sub_query
         elif status == 'Not Cancelled':
-            sub_query = "(AND si.docstatus = 0 OR si.docstatus =1)"
+            sub_query = "AND (si.docstatus = 0 OR si.docstatus =1)"
             query += sub_query
         query += "ORDER BY si.posting_date"
         data = frappe.db.sql(query, as_dict=True)
