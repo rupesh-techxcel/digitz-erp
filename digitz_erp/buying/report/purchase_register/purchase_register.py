@@ -96,6 +96,8 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.gross_total,
+                pi.tax_total,
                 pi.rounded_total AS amount,
                 pi.paid_amount,
                 pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
@@ -141,6 +143,8 @@ def get_data(filters):
                     ELSE ''
                 END AS docstatus,
                 pi.posting_date,
+                pi.gross_total,
+                pi.tax_total,
                 pi.rounded_total AS amount,
                 pi.paid_amount,
                 pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
@@ -184,6 +188,8 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.gross_total,
+                pi.tax_total,                
                 pi.rounded_total AS amount,
                 pi.paid_amount,
                 pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount,
@@ -226,6 +232,8 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.gross_total,
+                pi.tax_total,
                 pi.rounded_total AS amount,
                 pi.paid_amount,
                 pi.rounded_total - IFNULL(pi.paid_amount, 0) AS balance_amount
@@ -296,6 +304,21 @@ def get_columns():
 
 		},
 		{
+
+			"fieldname": "gross_total",
+			"fieldtype": "Currency",
+			"label": "Taxable Amount",
+			"width": 120,
+
+		},
+  		{
+
+			"fieldname": "tax_total",
+			"fieldtype": "Currency",
+			"label": "Tax",
+			"width": 120,
+		},
+    	{
 
 			"fieldname": "amount",
 			"fieldtype": "Currency",
