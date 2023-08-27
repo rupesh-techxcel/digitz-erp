@@ -22,14 +22,14 @@ def get_columns():
             "label": "Posting Date",
             "fieldname": "posting_date",
             "fieldtype": "Date",
-            "width": 200
+            "width": 120
         },
         {
             "label": "Supplier",
             "fieldname": "supplier",
             "fieldtype": "Link",
             "options": "Supplier",
-            "width": 400
+            "width": 290
         },        
         {
             "label": "Taxable Total",

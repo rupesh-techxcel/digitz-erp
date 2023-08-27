@@ -18,6 +18,7 @@ frappe.query_reports["Purchase Register"] = {
 			"fieldtype": "Date",
 			"label": "From Date",
 			"width": 150,
+			"default":frappe.datetime.month_start()
 
 		},
 		{
@@ -25,6 +26,7 @@ frappe.query_reports["Purchase Register"] = {
 			"fieldtype": "Date",
 			"label": "To Date",
 			"width": 150,
+			"default":frappe.datetime.month_end()
 		},
 		{
 				"fieldname": "credit_purchase",

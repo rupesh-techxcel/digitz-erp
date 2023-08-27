@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
  "creation": "2023-08-27 15:30:37.001062",
  "disable_prepared_report": 0,
@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "sales invoice footer",
- "modified": "2023-08-27 15:30:37.001062",
+ "modified": "2023-08-27 18:58:11.507906",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Input Tax Report",

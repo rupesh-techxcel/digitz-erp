@@ -89,14 +89,14 @@ def get_columns():
             "label": _("Posting Date"),
             "fieldname": "posting_date",
             "fieldtype": "Date",
-            "width": 150
+            "width": 110
         },
         {
             "label": _("Customer"),
             "fieldname": "customer",
             "fieldtype": "Link",
             "options": "Customer",
-            "width": 390
+            "width": 290
         },  
         {
             "label": _("Taxable Total"),
