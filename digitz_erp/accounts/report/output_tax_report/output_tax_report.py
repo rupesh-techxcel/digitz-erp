@@ -19,7 +19,7 @@ def get_data(filters=None):
             name as 'invoice_no',
              posting_date,
              customer,
-             
+             gross_total,             
              net_total,
              tax_total
         FROM
@@ -89,14 +89,14 @@ def get_columns():
             "label": _("Posting Date"),
             "fieldname": "posting_date",
             "fieldtype": "Date",
-            "width": 200
+            "width": 150
         },
         {
             "label": _("Customer"),
             "fieldname": "customer",
             "fieldtype": "Link",
             "options": "Customer",
-            "width": 400
+            "width": 390
         },  
         {
             "label": _("Taxable Total"),
