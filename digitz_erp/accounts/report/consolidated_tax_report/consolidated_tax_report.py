@@ -14,7 +14,7 @@ def get_purchase_data(filters=None):
     query = """
         SELECT
             'Standard Rated Expenses' AS label,
-            ROUND(SUM(net_total),2) AS total_net_total,
+            ROUND(SUM(gross_total),2) AS total_gross_total,
             ROUND(SUM(tax_total),2) AS total_tax_total
         FROM
             `tabPurchase Invoice`
@@ -34,7 +34,7 @@ def get_sales_data(filters=None):
     query = """
          SELECT
             CONCAT('Standard rated supplies in ', c.emirate) as label,
-            ROUND(SUM(ts.net_total),2) AS total_net_total,
+            ROUND(SUM(ts.gross_total),2) AS total_gross_total,
             ROUND(SUM(ts.tax_total),2) AS total_tax_total
         FROM
             `tabSales Invoice` ts
@@ -55,27 +55,27 @@ def get_sales_data(filters=None):
     query += " GROUP BY emirate"
 
     data = frappe.db.sql(query, filters, as_dict=True)
-    total_net_total = sum(entry['total_net_total'] for entry in data)
+    total_gross_total = sum(entry['total_gross_total'] for entry in data)
     total_tax_total = sum(entry['total_tax_total'] for entry in data)
-    total_net_total = round(total_net_total,2)
+    total_gross_total = round(total_gross_total,2)
     total_tax_total = round(total_tax_total,2)
 
     # Add the total row
     data.append({
         'label': 'Total',
-        'total_net_total': total_net_total,
+        'total_gross_total': total_gross_total,
         'total_tax_total': total_tax_total
     })    
     
 
-    return data,total_net_total,total_tax_total
+    return data,total_gross_total,total_tax_total
 
 def get_combined_data(filters=None):
-    sales_data, total_net_sales,total_tax_sales = get_sales_data(filters)
+    sales_data, total_gross_sales,total_tax_sales = get_sales_data(filters)
     purchase_data = get_purchase_data(filters)
         
     # Calculate totals from the last row of purchase_data
-    total_net_purchase = purchase_data[0]['total_net_total']
+    total_gross_purchase = purchase_data[0]['total_gross_total']
     total_tax_purchase = purchase_data[0]['total_tax_total']
 
     # Add Sl.No column to sales_data
@@ -91,7 +91,7 @@ def get_combined_data(filters=None):
         {
             'sl_no': '',
             'label': 'Consolidated Tax',
-            'total_net_total': round(total_net_sales-total_net_purchase,2),
+            'total_gross_total': round(total_gross_sales-total_gross_purchase,2),
             'total_tax_total': round(total_tax_sales-total_tax_purchase,2)
         }
     ]
@@ -109,8 +109,8 @@ def get_columns():
             "width": 400
         },        
         {
-            "label": "Net Total",
-            "fieldname": "total_net_total",
+            "label": "Taxable Total",
+            "fieldname": "total_gross_total",
             "fieldtype": "Data",
             "width": 200
         },

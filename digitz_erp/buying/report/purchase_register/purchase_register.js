@@ -36,7 +36,8 @@ frappe.query_reports["Purchase Register"] = {
 			"fieldname": "status",
 			"label": __("Status"),
 			"fieldtype": "Select",
-			"options": "Draft\nSubmitted\nCancelled"
+			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
+			"default": "Not Cancelled"
 		}
 	]
 };

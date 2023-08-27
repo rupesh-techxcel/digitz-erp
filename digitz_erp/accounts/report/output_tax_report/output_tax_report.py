@@ -97,7 +97,13 @@ def get_columns():
             "fieldtype": "Link",
             "options": "Customer",
             "width": 400
-        },        
+        },  
+        {
+            "label": _("Taxable Total"),
+            "fieldname": "gross_total",
+            "fieldtype": "Currency",
+            "width": 200
+        },              
         {
             "label": _("Net Total"),
             "fieldname": "net_total",

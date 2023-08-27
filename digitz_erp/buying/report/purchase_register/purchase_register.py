@@ -33,6 +33,18 @@ def get_chart_data(filters=None):
             query += " AND pi.posting_date >= %(from_date)s"
         if filters.get('to_date'):
             query += " AND pi.posting_date <= %(to_date)s"
+        if filters.get("status") == 'Draft':
+            sub_query = "AND pi.docstatus = 0 "
+            query += sub_query
+        if filters.get("status") == 'Submitted':
+            sub_query = "AND pi.docstatus = 1 "
+            query += sub_query
+        if filters.get("status") == 'Cancelled':
+            sub_query = "AND pi.docstatus = 2 "
+            query += sub_query
+        if filters.get("status") == 'Not Cancelled':
+            sub_query = "AND (pi.docstatus = 0 OR pi.docstatus = 1) "
+            query += sub_query
 
     query += " GROUP BY pi.supplier ORDER BY pi.supplier"
     data = frappe.db.sql(query, filters, as_list=True)
@@ -109,6 +121,9 @@ def get_data(filters):
             query += sub_query
         elif status == 'Cancelled':
             sub_query = "AND pi.docstatus = 2 "
+            query += sub_query
+        elif status == 'Not Cancelled':
+            sub_query = "AND (pi.docstatus = 0 OR pi.docstatus = 1) "
             query += sub_query
         query += "ORDER BY pi.posting_date"
         data = frappe.db.sql(query, as_dict=True)

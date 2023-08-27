@@ -97,7 +97,7 @@ class SalesOrder(Document):
 						
 			frappe.msgprint("Sales Invoice and Delivery Note created successfully with draft mode.")
 		else:
-			frappe.msgprint("Sales Invoice created successfully with draft mode.")
+			frappe.msgprint("Sales Invoice created successfully with draft mode.", is_alert=1)
       
    
 	@frappe.whitelist()

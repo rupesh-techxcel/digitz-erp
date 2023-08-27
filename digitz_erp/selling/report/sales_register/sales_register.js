@@ -38,7 +38,8 @@ frappe.query_reports["Sales Register"] = {
 			"fieldname": "status",
 			"label": __("Status"),
 			"fieldtype": "Select",
-			"options": "Draft\nSubmitted\nCancelled"
+			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
+			"default": "Not Cancelled"
 		}
 
 	]

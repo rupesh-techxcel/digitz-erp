@@ -10,7 +10,6 @@ def execute(filters=None):
     chart = []
     return columns, data, None, chart
 
-
 def get_columns():
     return [        
         {
@@ -33,6 +32,12 @@ def get_columns():
             "width": 400
         },        
         {
+            "label": "Taxable Total",
+            "fieldname": "gross_total",
+            "fieldtype": "Currency",
+            "width": 200
+        },        
+        {
             "label": "Net Total",
             "fieldname": "net_total",
             "fieldtype": "Currency",
@@ -53,6 +58,7 @@ def get_data(filters=None):
             name as 'invoice_no',
              posting_date,
              supplier,             
+             gross_total,
              net_total,
              tax_total
         FROM

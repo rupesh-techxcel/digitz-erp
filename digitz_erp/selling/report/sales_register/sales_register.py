@@ -84,6 +84,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.gross_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
@@ -110,6 +111,9 @@ def get_data(filters):
         elif status == 'Cancelled':
             sub_query = "AND si.docstatus = 2 "
             query += sub_query
+        elif status == 'Not Cancelled':
+            sub_query = "(AND si.docstatus = 0 OR si.docstatus =1)"
+            query += sub_query
         query += "ORDER BY si.posting_date"
         data = frappe.db.sql(query, as_dict=True)
 
@@ -126,6 +130,7 @@ def get_data(filters):
                     ELSE ''
                 END AS docstatus,
                 si.posting_date,
+                si.gross_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
@@ -165,6 +170,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.gross_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
@@ -203,6 +209,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.gross_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount
@@ -266,6 +273,14 @@ def get_columns():
 			"width": 120,
 
 		},
+    	{
+
+			"fieldname": "gross_total",
+			"fieldtype": "Currency",
+			"label": "Taxable Amount",
+			"width": 120,
+
+		},    
 		{
 
 			"fieldname": "amount",
