@@ -46,7 +46,7 @@ def get_chart_data(filters=None):
             sub_query = "AND (pi.docstatus = 0 OR pi.docstatus = 1) "
             query += sub_query
 
-    query += " GROUP BY pi.supplier ORDER BY pi.supplier"
+    query += " GROUP BY pi.supplier ORDER BY pi.rounded_total DESC LIMIT 20"
     data = frappe.db.sql(query, filters, as_list=True)
 
     suppliers = []

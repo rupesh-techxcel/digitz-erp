@@ -34,7 +34,8 @@ def get_chart_data(filters=None):
         if filters.get('to_date'):
             query += " AND si.posting_date <= %(to_date)s"
 
-    query += " GROUP BY si.customer ORDER BY si.customer"
+    query += " GROUP BY si.customer ORDER BY si.rounded_total DESC LIMIT 20"
+    
     data = frappe.db.sql(query, filters, as_list=True)
 
     customers = []
@@ -85,6 +86,7 @@ def get_data(filters):
                     ELSE ''
                 END AS docstatus,
                 si.gross_total,
+                si.tax_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
@@ -131,6 +133,7 @@ def get_data(filters):
                 END AS docstatus,
                 si.posting_date,
                 si.gross_total,
+                si.tax_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
@@ -171,6 +174,7 @@ def get_data(filters):
                     ELSE ''
                 END AS docstatus,
                 si.gross_total,
+                si.tax_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount,
@@ -210,6 +214,7 @@ def get_data(filters):
                     ELSE ''
                 END AS docstatus,
                 si.gross_total,
+                si.tax_total,
                 si.rounded_total AS amount,
                 si.paid_amount,
                 si.rounded_total - IFNULL(si.paid_amount, 0) AS balance_amount
@@ -245,7 +250,7 @@ def get_columns():
 			"fieldtype": "Link",
 			"label": "Invoice No",
 			"options": "Sales Invoice",
-			"width": 150,
+			"width": 120,
 
 		},
 		{
@@ -262,8 +267,7 @@ def get_columns():
 			"fieldname": "posting_date",
 			"fieldtype": "Date",
 			"label": "Date",
-			"width": 120,
-
+			"width": 90,
 		},
   		{
 
@@ -279,7 +283,13 @@ def get_columns():
 			"fieldtype": "Currency",
 			"label": "Taxable Amount",
 			"width": 120,
+		},    
+        {
 
+			"fieldname": "tax_total",
+			"fieldtype": "Currency",
+			"label": "Tax",
+			"width": 120,
 		},    
 		{
 
