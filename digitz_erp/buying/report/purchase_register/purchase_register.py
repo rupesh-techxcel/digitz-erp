@@ -46,7 +46,7 @@ def get_chart_data(filters=None):
             sub_query = "AND (pi.docstatus = 0 OR pi.docstatus = 1) "
             query += sub_query
 
-    query += " GROUP BY pi.supplier ORDER BY pi.rounded_total DESC LIMIT 20"
+    query += " GROUP BY pi.supplier ORDER BY pi.supplier LIMIT 20"
     data = frappe.db.sql(query, filters, as_list=True)
 
     suppliers = []
@@ -108,22 +108,22 @@ def get_data(filters):
                 AND pi.posting_date BETWEEN '{1}' AND '{2}'
             """.format(filters.get('supplier'), filters.get('from_date'), filters.get('to_date'))
         if credit_purchase == 'Credit':
-            sub_query = "AND pi.credit_purchase = 1 "
+            sub_query = " AND pi.credit_purchase = 1 "
             query += sub_query
         if credit_purchase == 'Cash':
-            sub_query = "AND pi.credit_purchase = 0 "
+            sub_query = " AND pi.credit_purchase = 0 "
             query += sub_query
         if status == 'Draft':
-            sub_query = "AND pi.docstatus = 0 "
+            sub_query = " AND pi.docstatus = 0 "
             query += sub_query
         elif status == 'Submitted':
-            sub_query = "AND pi.docstatus = 1 "
+            sub_query = " AND pi.docstatus = 1 "
             query += sub_query
         elif status == 'Cancelled':
-            sub_query = "AND pi.docstatus = 2 "
+            sub_query = " AND pi.docstatus = 2 "
             query += sub_query
         elif status == 'Not Cancelled':
-            sub_query = "AND (pi.docstatus = 0 OR pi.docstatus = 1) "
+            sub_query = " AND (pi.docstatus = 0 OR pi.docstatus = 1) "
             query += sub_query
         query += "ORDER BY pi.posting_date"
         data = frappe.db.sql(query, as_dict=True)
@@ -152,19 +152,19 @@ def get_data(filters):
                 pi.posting_date BETWEEN '{0}' AND '{1}'
             """.format(filters.get('from_date'), filters.get('to_date'))
         if credit_purchase == 'Credit':
-            sub_query = "AND pi.credit_purchase = 1 "
+            sub_query = " AND pi.credit_purchase = 1 "
             query += sub_query
         if credit_purchase == 'Cash':
-            sub_query = "AND pi.credit_purchase = 0 "
+            sub_query = " AND pi.credit_purchase = 0 "
             query += sub_query
         if status == 'Draft':
-            sub_query = "AND pi.docstatus = 0 "
+            sub_query = " AND pi.docstatus = 0 "
             query += sub_query
         elif status == 'Submitted':
-            sub_query = "AND pi.docstatus = 1 "
+            sub_query = " AND pi.docstatus = 1 "
             query += sub_query
         elif status == 'Cancelled':
-            sub_query = "AND pi.docstatus = 2 "
+            sub_query = " AND pi.docstatus = 2 "
             query += sub_query
         data = frappe.db.sql(query, as_dict=True)
 
@@ -191,10 +191,10 @@ def get_data(filters):
                 pi.supplier = '{0}'
             """.format(filters.get('supplier'))
         if credit_purchase == 'Credit':
-            sub_query = "AND pi.credit_purchase = 1 "
+            sub_query = " AND pi.credit_purchase = 1 "
             query += sub_query
         if credit_purchase == 'Cash':
-            sub_query = "AND pi.credit_purchase = 0 "
+            sub_query = " AND pi.credit_purchase = 0 "
             query += sub_query
         if status == 'Draft':
             sub_query = "AND pi.docstatus = 0 "
@@ -227,22 +227,24 @@ def get_data(filters):
                 1
             """
         if credit_purchase == 'Credit':
-            sub_query = "AND pi.credit_purchase = 1 "
+            sub_query = " AND pi.credit_purchase = 1 "
             query += sub_query
         if credit_purchase == 'Cash':
-            sub_query = "AND pi.credit_purchase = 0 "
+            sub_query = " AND pi.credit_purchase = 0 "
             query += sub_query
         if status == 'Draft':
-            sub_query = "AND pi.docstatus = 0 "
+            sub_query = " AND pi.docstatus = 0 "
             query += sub_query
         elif status == 'Submitted':
-            sub_query = "AND pi.docstatus = 1 "
+            sub_query = " AND pi.docstatus = 1 "
             query += sub_query
         elif status == 'Cancelled':
-            sub_query = "AND pi.docstatus = 2 "
+            sub_query = " AND pi.docstatus = 2 "
             query += sub_query
         data = frappe.db.sql(query, as_dict=True)
 
+    print("query")
+    print(query)
     return data
 
 
