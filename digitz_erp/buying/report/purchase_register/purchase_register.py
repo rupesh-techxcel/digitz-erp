@@ -43,7 +43,7 @@ def get_chart_data(filters=None):
             sub_query = "AND pi.docstatus = 2 "
             query += sub_query
         if filters.get("status") == 'Not Cancelled':
-            sub_query = "AND (pi.docstatus = 0 OR pi.docstatus = 1) "
+            sub_query = "AND pi.docstatus != 2 "
             query += sub_query
 
     query += " GROUP BY pi.supplier ORDER BY pi.supplier LIMIT 20"
@@ -123,7 +123,7 @@ def get_data(filters):
             sub_query = " AND pi.docstatus = 2 "
             query += sub_query
         elif status == 'Not Cancelled':
-            sub_query = " AND (pi.docstatus = 0 OR pi.docstatus = 1) "
+            sub_query = "AND pi.docstatus != 2 "
             query += sub_query
         query += "ORDER BY pi.posting_date"
         data = frappe.db.sql(query, as_dict=True)
@@ -166,6 +166,10 @@ def get_data(filters):
         elif status == 'Cancelled':
             sub_query = " AND pi.docstatus = 2 "
             query += sub_query
+        elif status == 'Not Cancelled':
+            sub_query = "AND pi.docstatus != 2 "
+            query += sub_query
+
         data = frappe.db.sql(query, as_dict=True)
 
     elif filters.get('supplier'):
@@ -205,6 +209,10 @@ def get_data(filters):
         elif status == 'Cancelled':
             sub_query = "AND pi.docstatus = 2 "
             query += sub_query
+        elif status == 'Not Cancelled':
+            sub_query = "AND pi.docstatus != 2 "
+            query += sub_query
+
         data = frappe.db.sql(query, as_dict=True)
     else:
         query = """
@@ -241,6 +249,10 @@ def get_data(filters):
         elif status == 'Cancelled':
             sub_query = " AND pi.docstatus = 2 "
             query += sub_query
+        elif status == 'Not Cancelled':
+            sub_query = "AND pi.docstatus != 2 "
+            query += sub_query
+
         data = frappe.db.sql(query, as_dict=True)
 
     print("query")
