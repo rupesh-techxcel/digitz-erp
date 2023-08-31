@@ -26,6 +26,13 @@ frappe.query_reports["Delivery Note Register"] = {
 			"label": "To Date",
 			"width": 150,
 			"default":frappe.datetime.month_end()
+		},
+		{
+			"fieldname": "status",
+			"label": __("Status"),
+			"fieldtype": "Select",
+			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
+			"default": "Not Cancelled"
 		}
 	]
 };

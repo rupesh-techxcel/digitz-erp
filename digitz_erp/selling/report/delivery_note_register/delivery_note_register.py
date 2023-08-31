@@ -26,7 +26,7 @@ def get_chart_data(filters=None):
         if filters.get('to_date'):
             query += " AND dn.posting_date <= %(to_date)s"
 
-    query += " GROUP BY dn.customer ORDER BY dn.customer"
+    query += " GROUP BY dn.customer ORDER BY dn.customer DESC LIMIT 20"
     data = frappe.db.sql(query, filters, as_list=True)
 
     customers = []
@@ -59,16 +59,19 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters):
-	data = []
+	data = ""
+	status = filters.get('status')
 
 	if filters.get('customer') and filters.get('from_date') and filters.get('to_date'):
-		data = frappe.db.sql("""
+		query = """
 			SELECT
 				dn.name AS delivery_note_name,
 				dn.customer,
 				dn.posting_date AS posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
+					WHEN dn.docstatus = 0 THEN 'Draft'
+				    WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.rounded_total AS amount
@@ -77,19 +80,32 @@ def get_data(filters):
 			WHERE
 				dn.customer = '{0}'
 				AND dn.posting_date BETWEEN '{1}' AND '{2}'
-				AND dn.docstatus = 1
-			ORDER BY
-				dn.posting_date
-			""".format(filters.get('customer'), filters.get('from_date'), filters.get('to_date')), as_dict=True)
+			""".format(filters.get('customer'), filters.get('from_date'), filters.get('to_date'), as_dict=True)
+		if status == 'Draft':
+			sub_query = "AND dn.docstatus = 0 "
+			query += sub_query
+		elif status == 'Submitted':
+			sub_query = "AND dn.docstatus = 1 "
+			query += sub_query
+		elif status == 'Cancelled':
+			sub_query = "AND dn.docstatus = 2 "
+			query += sub_query
+		elif status == 'Not Cancelled':
+			sub_query = "AND dn.docstatus !=2 "
+			query += sub_query
+		query += "ORDER BY dn.posting_date"
+		data = frappe.db.sql(query, as_dict=True)
 
 	elif filters.get('from_date') and filters.get('to_date'):
-		data = frappe.db.sql("""
+		query = """
 			SELECT
 				dn.customer,
 				dn.name AS delivery_note_name,
 				dn.posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
+					WHEN dn.docstatus = 0 THEN 'Draft'
+				    WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.posting_date,
@@ -98,19 +114,32 @@ def get_data(filters):
 				`tabDelivery Note` dn
 			WHERE
 				dn.posting_date BETWEEN '{0}' AND '{1}'
-				AND dn.docstatus = 1
-			ORDER BY
-				dn.posting_date
-			""".format(filters.get('from_date'), filters.get('to_date')), as_dict=True)
+			""".format(filters.get('from_date'), filters.get('to_date'), as_dict=True)
+		if status == 'Draft':
+			sub_query = "AND dn.docstatus = 0 "
+			query += sub_query
+		elif status == 'Submitted':
+			sub_query = "AND dn.docstatus = 1 "
+			query += sub_query
+		elif status == 'Cancelled':
+			sub_query = "AND dn.docstatus = 2 "
+			query += sub_query
+		elif status == 'Not Cancelled':
+			sub_query = "AND dn.docstatus !=2 "
+			query += sub_query
+		query += "ORDER BY dn.posting_date"
+		data = frappe.db.sql(query, as_dict=True)
 
 	elif filters.get('customer'):
-		data = frappe.db.sql("""
+		query = """
 			SELECT
 				dn.name AS delivery_note_name,
 				dn.customer,
 				dn.posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
+					WHEN dn.docstatus = 0 THEN 'Draft'
+				    WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.rounded_total AS amount
@@ -118,27 +147,54 @@ def get_data(filters):
 				`tabDelivery Note` dn
 			WHERE
 				dn.customer = '{0}'
-				AND dn.docstatus = 1
-			ORDER BY
-				posting_date
-			""".format(filters.get('customer')), as_dict=True)
+			""".format(filters.get('customer'), as_dict=True)
+		if status == 'Draft':
+			sub_query = "AND dn.docstatus = 0 "
+			query += sub_query
+		elif status == 'Submitted':
+			sub_query = "AND dn.docstatus = 1 "
+			query += sub_query
+		elif status == 'Cancelled':
+			sub_query = "AND dn.docstatus = 2 "
+			query += sub_query
+		elif status == 'Not Cancelled':
+			sub_query = "AND dn.docstatus !=2 "
+			query += sub_query
+		query += "ORDER BY dn.posting_date"
+		data = frappe.db.sql(query, as_dict=True)
+
 	else:
-		data = frappe.db.sql("""
+		query = """
 			SELECT
 				dn.customer,
 				dn.name AS delivery_note_name,
 				dn.posting_date AS posting_date,
 				CASE
 					WHEN dn.docstatus = 1 THEN 'Submitted'
+					WHEN dn.docstatus = 0 THEN 'Draft'
+				    WHEN dn.docstatus = 2 THEN 'Cancelled'
 					ELSE ''
 				END AS docstatus,
 				dn.rounded_total AS amount
-				AND dn.docstatus = 1
 			FROM
 				`tabDelivery Note` dn
-			ORDER BY
-				posting_date
-			""", as_dict=True)
+			WHERE
+				1
+			"""
+		if status == 'Draft':
+			sub_query = "AND dn.docstatus = 0 "
+			query += sub_query
+		elif status == 'Submitted':
+			sub_query = "AND dn.docstatus = 1 "
+			query += sub_query
+		elif status == 'Cancelled':
+			sub_query = "AND dn.docstatus = 2 "
+			query += sub_query
+		elif status == 'Not Cancelled':
+			sub_query = "AND dn.docstatus !=2 "
+			query += sub_query
+		query += "ORDER BY dn.posting_date"
+		data = frappe.db.sql(query, as_dict=True)
 
 	return data
 
