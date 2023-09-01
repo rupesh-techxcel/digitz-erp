@@ -32,6 +32,13 @@ frappe.query_reports["Purchase Order Register"] = {
 				"label": ("Credit Purchase"),
 				"fieldtype": "Select",
 				"options": "Credit\nCash\nAll"
+		},
+		{
+			"fieldname": "status",
+			"label": __("Status"),
+			"fieldtype": "Select",
+			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
+			"default": "Not Cancelled"
 		}
 	]
 };

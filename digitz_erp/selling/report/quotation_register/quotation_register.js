@@ -32,6 +32,14 @@ frappe.query_reports["Quotation Register"] = {
 			"label": __("Credit Sale"),
 			"fieldtype": "Select",
 			"options": "Credit\nCash\nAll"
+		},
+		{
+			"fieldname": "status",
+			"label": __("Status"),
+			"fieldtype": "Select",
+			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
+			"default": "Not Cancelled"
 		}
+
 	]
 };
