@@ -310,6 +310,7 @@ frappe.ui.form.on('Purchase Invoice', {
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
 		console.log("From Get Default Warehouse Method in the parent form")
+		frm.trigger("get_user_warehouse")
 
 		frappe.call({
 			method: 'frappe.client.get_value',

@@ -6,6 +6,12 @@ import frappe
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
+    # Apply an additional filter to the data based on filters.get("warehouse")
+    warehouse_filter = filters.get("warehouse")
+
+    if warehouse_filter:
+        data = [item for item in data if item.get("warehouse") == warehouse_filter]
+
     chart = get_chart_data(filters)
     return columns, data, None, chart
 
@@ -34,7 +40,7 @@ def get_chart_data(filters=None):
         if filters.get('to_date'):
             query += " AND si.posting_date <= %(to_date)s"
 
-    query += " GROUP BY si.customer ORDER BY si.rounded_total DESC LIMIT 20"
+    query += " GROUP BY si.customer ORDER BY amount DESC LIMIT 20"
     
     data = frappe.db.sql(query, filters, as_list=True)
 
@@ -85,6 +91,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.warehouse,
                 si.gross_total,
                 si.tax_total,
                 si.rounded_total AS amount,
@@ -132,6 +139,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.warehouse,
                 si.posting_date,
                 si.gross_total,
                 si.tax_total,
@@ -180,6 +188,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.warehouse,
                 si.gross_total,
                 si.tax_total,
                 si.rounded_total AS amount,
@@ -228,6 +237,7 @@ def get_data(filters):
 				    WHEN si.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                si.warehouse,
                 si.gross_total,
                 si.tax_total,
                 si.rounded_total AS amount,
@@ -296,6 +306,14 @@ def get_columns():
 			"fieldname": "docstatus",
 			"fieldtype": "Data",
 			"label": "Status",
+			"width": 120,
+
+		},
+        {
+
+			"fieldname": "warehouse",
+			"fieldtype": "Data",
+			"label": "Warehouse",
 			"width": 120,
 
 		},

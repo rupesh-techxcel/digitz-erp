@@ -2,32 +2,8 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Sales Register"] = {
+frappe.query_reports["Daily Report"] = {
 	"filters": [
-		{
-			"fieldname": "customer",
-			"fieldtype": "Link",
-			"label": "Customer",
-			"options": "Customer",
-			"width": 150,
-
-		},
-		{
-
-			"fieldname": "from_date",
-			"fieldtype": "Date",
-			"label": "From Date",
-			"width": 150,
-			"default":frappe.datetime.month_start()
-
-		},
-		{
-			"fieldname": "to_date",
-			"fieldtype": "Date",
-			"label": "To Date",
-			"width": 150,
-			"default":frappe.datetime.month_end()
-		},
 		{
 			"fieldname": "warehouse",
 			"fieldtype": "Link",
@@ -53,18 +29,19 @@ frappe.query_reports["Sales Register"] = {
             },
 		},
 		{
-			"fieldname": "credit_sale",
-			"label": __("Credit Sale"),
-			"fieldtype": "Select",
-			"options": "Credit\nCash\nAll"
+			"fieldname": "from_date",
+			"fieldtype": "Date",
+			"label": "From Date",
+			"width": 150,
+			"default": [frappe.datetime.get_today(), frappe.datetime.get_today()],
 		},
 		{
-			"fieldname": "status",
-			"label": __("Status"),
-			"fieldtype": "Select",
-			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
-			"default": "Not Cancelled"
-		}
+			"fieldname": "to_date",
+			"fieldtype": "Date",
+			"label": "To Date",
+			"width": 150,
+			"default": [frappe.datetime.get_today(), frappe.datetime.get_today()],
+		},
 
 	]
 };

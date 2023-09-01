@@ -30,7 +30,24 @@ frappe.query_reports["Purchase Itemwise Summary Report"] = {
 			"fieldtype": "Link",
 			"label": "Warehouse",
 			"options": "Warehouse",
-			"width": 150
+			"width": 150,
+			"default": function () {
+                var defaultWarehouse = "";
+                frappe.call({
+                    method: "digitz_erp.api.user_api.get_user_default_warehouse", 
+                    async: false,
+                    callback: function (r) {
+                        if (r && r.message) {
+							console.log(r.message)							
+                            defaultWarehouse = r.message;                    
+						}
+						
+						console.log(r)
+                    },
+                });
+				
+                return defaultWarehouse;
+            },
 		},
 		{
 			"fieldname": "from_date",

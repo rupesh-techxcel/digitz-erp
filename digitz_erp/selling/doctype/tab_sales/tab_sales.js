@@ -449,7 +449,7 @@ frappe.ui.form.on('Tab Sales', {
 
 		frappe.call(
 			{
-				method: 'digitz_erp.api.user_api.get_user_default_warehouse',
+				method: 'digitz_erp.api.user_api.',
 				async: false,
 				callback(r) {
 					if(r.message != undefined)

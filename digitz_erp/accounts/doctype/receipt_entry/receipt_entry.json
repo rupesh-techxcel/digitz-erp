@@ -11,7 +11,8 @@
   "naming_series",
   "column_break_zjjtr",
   "posting_date",
-  "column_break_bu9j0",
+  "column_break_dxaps",
+  "warehouse",
   "amount",
   "section_break_ku1xy",
   "payment_mode",
@@ -84,10 +85,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_bu9j0",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "section_break_wgdje",
    "fieldtype": "Section Break"
   },
@@ -144,12 +141,22 @@
    "label": "Account",
    "options": "Account",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dxaps",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-01 05:19:33.754267",
+ "modified": "2023-08-30 10:21:16.587665",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

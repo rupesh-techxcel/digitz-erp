@@ -4,10 +4,16 @@
 import frappe
 
 def execute(filters=None):
-	columns = get_columns()
-	data = get_data(filters)
-	chart = get_chart_data(filters)
-	return columns, data, None, chart
+    columns = get_columns()
+    data = get_data(filters)
+
+    warehouse_filter = filters.get("warehouse")
+
+    if warehouse_filter:
+        data = [item for item in data if item.get("warehouse") == warehouse_filter]
+
+    chart = get_chart_data(filters)
+    return columns, data, None, chart
 
 def get_chart_data(filters=None):
     credit_purchase = filters.get('credit_purchase')
@@ -29,6 +35,8 @@ def get_chart_data(filters=None):
             query += sub_query
         if filters.get('supplier'):
             query += " AND pi.supplier = %(supplier)s"
+        if filters.get('warehouse'):
+            query += " AND pi.warehouse = %(warehouse)s"
         if filters.get('from_date'):
             query += " AND pi.posting_date >= %(from_date)s"
         if filters.get('to_date'):
@@ -96,6 +104,7 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.warehouse,
                 pi.gross_total,
                 pi.tax_total,
                 pi.rounded_total AS amount,
@@ -142,6 +151,7 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.warehouse,
                 pi.posting_date,
                 pi.gross_total,
                 pi.tax_total,
@@ -188,6 +198,7 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.warehouse,
                 pi.gross_total,
                 pi.tax_total,                
                 pi.rounded_total AS amount,
@@ -232,6 +243,7 @@ def get_data(filters):
 				    WHEN pi.docstatus = 2 THEN 'Cancelled'
                     ELSE ''
                 END AS docstatus,
+                pi.warehouse,
                 pi.gross_total,
                 pi.tax_total,
                 pi.rounded_total AS amount,
@@ -296,12 +308,16 @@ def get_columns():
 
 		},
   		{
-
 			"fieldname": "docstatus",
 			"fieldtype": "Data",
 			"label": "Status",
 			"width": 120,
-
+		},
+        {
+			"fieldname": "warehouse",
+			"fieldtype": "Data",
+			"label": "Warehouse",
+			"width": 120,
 		},
 		{
 

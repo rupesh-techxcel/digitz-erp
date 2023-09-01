@@ -63,7 +63,13 @@ class ReceiptEntry(Document):
 					if(receipt_entry.amount!= receipt_entry.allocated_amount):
 						frappe.throw("Allocated amount mismatch.")
 				total = total+ receipt_entry.amount
-				total_allocated = total_allocated +  receipt_entry.allocated_amount
+    
+				print("total_allocated")
+				print(total_allocated)
+				print("receipt_entry.allocated_amount")
+				print(receipt_entry.allocated_amount)    
+				
+				total_allocated = total_allocated + (receipt_entry.allocated_amount if receipt_entry.allocated_amount is not None else 0)
     
 		if(self.amount != total):
 			frappe.throw("Mismatch in total amount. Please check the document inputs")
