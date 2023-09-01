@@ -374,14 +374,12 @@ frappe.ui.form.on('Tab Sales', {
 		});
 	},
 	get_default_company_and_warehouse(frm) {
-
 		var default_company = ""
-
+		console.log("From Get Default Warehouse Method in the parent form")
 		frm.trigger("get_user_warehouse")
 
 		frappe.call({
 			method: 'frappe.client.get_value',
-			async:false,
 			args: {
 				'doctype': 'Global Settings',
 				'fieldname': 'default_company'
@@ -394,15 +392,14 @@ frappe.ui.form.on('Tab Sales', {
 				frappe.call(
 					{
 						method: 'frappe.client.get_value',
-						async:false,
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
+							'fieldname': ['default_warehouse', 'rate_includes_tax']
 						},
 						callback: (r2) => {
-							console.log("Before assign default warehouse");
-							console.log(r2.message.default_warehouse);
+
+
 							if (typeof window.warehouse !== 'undefined') {
 								// The value is assigned to window.warehouse
 								// You can use it here
@@ -412,57 +409,18 @@ frappe.ui.form.on('Tab Sales', {
 							{
 								frm.doc.warehouse = r2.message.default_warehouse;
 							}
-
-							console.log("warehouse assigned")	
-							console.log(frm.doc.warehouse);
 							
-							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-
+							console.log(frm.doc.warehouse);
+							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
-							console.log(r2.message);
-							frm.refresh_field("auto_save_delivery_note");
-
-							//Have a button to create delivery note in case delivery note is not integrated with SI
-							if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
-								frm.add_custom_button('Create/Update Delivery Note', () => {
-									frm.call("auto_generate_delivery_note")
-								},
-								)
-							}
-
-							if (frm.doc.__islocal) {
-								frm.add_custom_button('Get Items from Delivery Notes', () => {
-									// Commented for correction
-									// frm.trigger("get_items_from_delivery_notes");
-								},
-								)
-							}
-
 						}
 					}
+
 				)
 			}
-		});
+		})
 
-		console.log("before call user warehouse")
-
-		frappe.call(
-			{
-				method: 'digitz_erp.api.user_api.',
-				async: false,
-				callback(r) {
-					if(r.message != undefined)
-					{
-						console.log(r.message.warehouse);
-						frm.doc.warehouse = r.message.warehouse
-					}
-					else
-					{
-						console.log("no warehouse assigned for the user")
-					}
-				}
-			})
 	}
 });
 
