@@ -107,14 +107,13 @@ class ReceiptEntry(Document):
 					if allocation.paying_amount > allocation.invoice_amount-previous_paid_amount:
 						frappe.throw("Excess allocation for the invoice numer " + allocation.sales_invoice )
       
-	def before_submit(self):     
-		self.call_before_submit()
+	def before_submit(self): 
+  
+		frappe.enqueue(self.check_excess_allocation, self=self,queue="long")  
+		frappe.enqueue(self.update_sales_invoices, self=self,queue="long")
+		frappe.enqueue(self.insert_gl_records, self=self,queue="long")
+		
 
-	def call_before_submit(self):
-     	# Again make sure there is no excess allocation, before during submit
-		self.check_excess_allocation()
-		self.update_sales_invoices()
-		self.insert_gl_records()
 
 	def update_sales_invoices(self):
 		
