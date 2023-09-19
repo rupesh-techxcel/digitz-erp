@@ -510,22 +510,25 @@ allocations: function(frm, cdt, cdn)
 			var index = 0 ;
 			var invoice_no;
 
+			console.log("child_table_data_updated")
+			console.log(child_table_data_updated)
+
 			//Check for excess allocation
 			child_table_data_updated.forEach(element => {
 				
-				index = index + 1;
+			index = index + 1;
 
-				invoice_no = element.invoice_no
+			invoice_no = element.invoice_no
 
-				if(element.paying_amount> element.balance_amount)
-				{
-					frappe.throw("Wrong input at line number " + index + ", Invoice No -"+ invoice_no + ". Paying amount cannot be more than the balance amount")
-				}
+			if(element.paying_amount> element.balance_amount)
+			{
+				frappe.throw("Wrong input at line number " + index + ", Invoice No -"+ invoice_no + ". Paying amount cannot be more than the balance amount")
+			}
 			});
 		
 		//Existing allocation
-		var child_table_data = cur_frm.doc.receipt_allocation;
-			
+			var child_table_data = cur_frm.doc.receipt_allocation;
+
 			// Remove all existging allocation for the customer
 			if(child_table_data != undefined)
 			{
@@ -544,6 +547,11 @@ allocations: function(frm, cdt, cdn)
 			var totalPay = 0;
 
 			child_table_data_updated.forEach(element => {
+
+				console.log("element")	
+				console.log(element)	
+				console.log("element.paying_amount")
+				console.log(element.paying_amount)
 				
 				if(element.paying_amount>0)
 				{
@@ -564,7 +572,6 @@ allocations: function(frm, cdt, cdn)
 					row_allocation.receipt_entry_detail = frm.doc.receipt_entry_details[row.idx]
 
 					cur_frm.add_child('receipt_allocation', row_allocation);
-
 					cur_frm.refresh_field('receipt_allocation');
 
 					console.log("row_allocation")
@@ -572,7 +579,7 @@ allocations: function(frm, cdt, cdn)
 
 				}				
 			}
-			
+
 			);
 
 			frappe.model.set_value(cdt, cdn, 'amount', totalPay);	
@@ -581,7 +588,7 @@ allocations: function(frm, cdt, cdn)
 			frm.trigger("calculate_total_and_set_fields");
 
 			dialog.hide();
-		},
+			},
 
 
 	});

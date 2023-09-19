@@ -79,7 +79,7 @@ class ReceiptEntry(Document):
     
       
 	def check_excess_allocation(self):
-         
+		print("from check excces allocation")
 		allocations = self.receipt_allocation
 
 		if(allocations):
@@ -104,19 +104,25 @@ class ReceiptEntry(Document):
 					for existing_allocation in allocations_exists:
 						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
 		
-					if allocation.paying_amount > allocation.invoice_amount-previous_paid_amount:
+					if allocation.paying_amount > allocation.invoice_amount-previous_paid_amount:         
+						print("throws error")      
 						frappe.throw("Excess allocation for the invoice numer " + allocation.sales_invoice )
       
-	def before_submit(self): 
-  
-		frappe.enqueue(self.check_excess_allocation, self=self,queue="long")  
-		frappe.enqueue(self.update_sales_invoices, self=self,queue="long")
-		frappe.enqueue(self.insert_gl_records, self=self,queue="long")
-		
+		print("checking control")
+      
+	def before_submit(self):   
+		self.do_posting()
+		# frappe.enqueue(self.do_posting, self=self,queue="long")
+
+	def do_posting(self):
+		self.check_excess_allocation()
+		print("before calliong update_sales_invoices")
+		self.update_sales_invoices()
+		self.insert_gl_records()
 
 
 	def update_sales_invoices(self):
-		
+		print("from update_sales_invoices")
 		allocations = self.receipt_allocation
 
 		if(allocations):
