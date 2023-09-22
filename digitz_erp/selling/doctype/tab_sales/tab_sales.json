@@ -13,6 +13,7 @@
   "sales_invoice_no_ref",
   "customer_name",
   "customer_display_name",
+  "column_break_dplkz",
   "reference_no",
   "customer_address",
   "warehouse",
@@ -20,6 +21,7 @@
   "posting_date",
   "posting_time",
   "print_date",
+  "column_break_u7g3h",
   "edit_posting_date_and_time",
   "ship_to_location",
   "salesman",
@@ -505,12 +507,20 @@
    "fieldtype": "Text",
    "hidden": 1,
    "label": "Company Address"
+  },
+  {
+   "fieldname": "column_break_dplkz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_u7g3h",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-10 18:45:12.214552",
+ "modified": "2023-09-04 19:52:38.707970",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales",
