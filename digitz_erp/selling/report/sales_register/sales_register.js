@@ -34,7 +34,6 @@ frappe.query_reports["Sales Register"] = {
 			"label": "Warehouse",
 			"options": "Warehouse",
 			"width": 150,
-<<<<<<< Updated upstream
 			"default": function () {
                 var defaultWarehouse = "";
                 frappe.call({
@@ -65,16 +64,6 @@ frappe.query_reports["Sales Register"] = {
 			"fieldtype": "Select",
 			"options": "Draft\nSubmitted\nCancelled\nNot Cancelled",
 			"default": "Not Cancelled"
-=======
-		},
-		{
-			"fieldname": "payment_type",
-			"fieldtype": "Select",
-			"label": "Payment Type",
-			"options": "Cash\nCredit\nAll",
-			"width": 150,
-			"default": "All"
->>>>>>> Stashed changes
 		}
 
 	]
