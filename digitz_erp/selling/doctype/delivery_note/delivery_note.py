@@ -23,7 +23,7 @@ class DeliveryNote(Document):
     def on_cancel(self):
         self.cancel_delivery_note()
 
-    def before_submit(self):
+    def on_submit(self):
 
         possible_invalid= frappe.db.count('Delivery Note', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
 
@@ -34,7 +34,7 @@ class DeliveryNote(Document):
 
         if self.docstatus <2 :
             cost_of_goods_sold = self.deduct_stock_for_delivery_note_add()
-            frappe.enqueue(self.insert_gl_records, self=self, cost_of_goods_sold = cost_of_goods_sold, queue="long")
+            frappe.enqueue(self.insert_gl_records,cost_of_goods_sold = cost_of_goods_sold, queue="long")
 
     def validate_item(self):
 
@@ -341,7 +341,7 @@ class DeliveryNote(Document):
     #     item_to_update.stock_value = balance_stock_value
     #     item_to_update.save()
 
-    def insert_gl_records(self, cost_of_goods__sold):
+    def insert_gl_records(self, cost_of_goods_sold):
 
         print("From insert gl records")
 
@@ -360,7 +360,7 @@ class DeliveryNote(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_inventory_account
-        gl_doc.debit_amount = cost_of_goods__sold
+        gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.party_type = "Customer"
         gl_doc.party = self.customer
         gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
@@ -375,6 +375,6 @@ class DeliveryNote(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.cost_of_goods_sold_account
-        gl_doc.credit_amount = cost_of_goods__sold
+        gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.aginst_account = default_accounts.default_inventory_account
         gl_doc.insert()

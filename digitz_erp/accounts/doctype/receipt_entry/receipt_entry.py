@@ -110,9 +110,9 @@ class ReceiptEntry(Document):
       
 		print("checking control")
       
-	def before_submit(self):   
-		self.do_posting()
-		# frappe.enqueue(self.do_posting, self=self,queue="long")
+	def on_submit(self):   
+		# self.do_posting()
+		frappe.enqueue(self.do_posting,queue="long")
 
 	def do_posting(self):
 		self.check_excess_allocation()
@@ -199,3 +199,30 @@ class ReceiptEntry(Document):
 					gl_doc.credit_amount = receipt_entry.amount					
 					gl_doc.aginst_account = self.account
 					gl_doc.insert()
+     
+	def on_cancel(self):
+     
+		print("from on_cancel")
+  
+		allocations = self.receipt_allocation
+
+		if(allocations):
+			for allocation in allocations:
+				if(allocation.paying_amount>0):
+        
+					allocation.paying_amount =0					
+      
+					sales_invoice = frappe.get_doc("Sales Invoice", allocation.sales_invoice,{'paid_amount' }, as_dict=1)
+					print("sales invoice")
+					print(sales_invoice)
+     
+					new_paid_amount = sales_invoice.paid_amount - allocation.paying_amount
+
+					frappe.db.set_value("Sales Invoice", allocation.sales_invoice, {'paid_amount': new_paid_amount})
+					frappe.db.commit()
+		
+					frappe.db.delete("GL Posting",
+							{"Voucher_type": "Receipt Entry",
+							"voucher_no": self.name
+							})
+     
