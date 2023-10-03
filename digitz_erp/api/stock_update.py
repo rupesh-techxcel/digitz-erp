@@ -63,12 +63,14 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 sl.save()
                 break;
             
-            if(sl.voucher == "Delivery Note" or sl.voucher == "Sales Invoice"):
+            if(sl.voucher == "Delivery Note"):
                 previous_balance_value = new_balance_value #Assign before change                    
                 new_balance_qty = new_balance_qty - sl.qty_out
                 new_balance_value = new_balance_qty * new_valuation_rate                    
                 change_in_stock_value = new_balance_value - previous_balance_value
                 sl.change_in_stock_value = change_in_stock_value
+                
+                # If there is a value change for stock, make adjustment in GL Posting
                 if(previous_stock_value != change_in_stock_value):
                     gl_postings = frappe.get_list('GL Posting',{'voucher_type': 'Delivery Note','voucher_no': sl.voucher_no},['name'])
                     for gl_posting in gl_postings:
@@ -78,6 +80,8 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                         
                 if(new_balance_qty<0 and allow_negative_stock== False):
                     frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
+                
+                update_purchase_usage_for_delivery_note(sl.voucher_no)
                                     
             if (sl.voucher == "Purchase Invoice"):
                 previous_balance_value = new_balance_value #Assign before change 
@@ -162,3 +166,86 @@ def update_item_stock_balance(item_name):
     item_to_update.stock_balance = balance_stock_qty
     item_to_update.stock_value = balance_stock_value                
     item_to_update.save()
+
+def update_purchase_usage_for_delivery_note(delivery_note_no):
+    
+    delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_no)    
+    do_posting_date = delivery_note_doc.posting_date
+    delivery_note_items = frappe.get_list('Delivery Note Item',{'parent': delivery_note_no },['name','item_code','qty','rate'])
+    
+    print("Delivery Note No")
+    print(delivery_note_no)
+    
+    frappe.db.delete("Purchase Stock Usage", {"delivery_note":delivery_note_no})
+    frappe.db.commit()
+    
+    for item in delivery_note_items:
+        
+        # query = """SELECT p.name as p_name, pi.name as pi_name,pi.item_code,pi_item,pi.qty- sum(su.sold_qty) as qty  from `tabPurchase Invoice Item` as pi left   outer join `tabPurchase Stock Usage` su on su.purchase_invoice_item = pi.name and su.item_code= pi.item_code inner join `tabPurchase Invoice` p on p.name= pi.parent  WHERE pi.posting_date<={do_date} and  pi.item_code={item} pi.qty > sum(su.sold_qty) group by pi.name,pi.item_code,pi.item,pi.qty. p.name order by pi.posting_date""".format(item=item.item_code, do_date=do_posting_date)
+        
+        # result = frappe.db.sql(query, as_dict = True)
+        
+        
+        query = """
+        SELECT
+            p.name AS p_name,
+            pi.name AS pi_name,
+            pi.item_code,
+            pi.item,
+            pi.qty - COALESCE(SUM(su.sold_qty), 0) AS qty
+        FROM
+            `tabPurchase Invoice Item` AS pi
+        LEFT JOIN
+            `tabPurchase Stock Usage` AS su
+        ON
+            su.purchase_invoice_item = pi.name AND su.item_code = pi.item_code
+        INNER JOIN
+            `tabPurchase Invoice` AS p
+        ON
+            p.name = pi.parent
+        WHERE
+            p.posting_date <= '{do_date}'
+            AND pi.item_code = '{item_code}'
+            AND pi.qty > COALESCE((SELECT SUM(sold_qty) FROM `tabPurchase Stock Usage` WHERE purchase_invoice_item = pi.name AND item_code = pi.item_code), 0)
+        GROUP BY
+            pi.name, pi.item_code, pi.item, pi.qty, p.name
+        ORDER BY
+            p.posting_date
+        """.format(item_code=item.item_code, do_date=do_posting_date)
+        
+        print("query2")
+        print(query)
+
+        result = frappe.db.sql(query, as_dict=True)
+
+        print("result")
+        print(result)
+        
+        qtyRequired = item.qty
+        
+        for result_item in result:
+            if(result_item.qty > 0):
+                # When purchase qty is less than qty required then need to iterate again.
+                if(result_item.qty < qtyRequired):
+                    # Insert a record in the tabPurchase Stock Usage table                    
+                    su_doc = frappe.new_doc("Purchase Stock Usage")
+                    su_doc.purchase_invoice = result_item.p_name
+                    su_doc.purchase_invoice_item = result_item.pi_name
+                    su_doc.item = result_item.item
+                    su_doc.item_code = result_item.item_code
+                    su_doc.delivery_note = delivery_note_no
+                    su_doc.delivery_note_item = item.name
+                    su_doc.sold_qty = result_item.qty
+                    su_doc.insert()
+                    qtyRequired = qtyRequired - result_item.qty
+                else:
+                    su_doc = frappe.new_doc("Purchase Stock Usage")
+                    su_doc.purchase_invoice = result_item.p_name
+                    su_doc.purchase_invoice_item = result_item.pi_name
+                    su_doc.item = result_item.item
+                    su_doc.item_code = result_item.item_code
+                    su_doc.delivery_note = delivery_note_no
+                    su_doc.delivery_note_item = item.name
+                    su_doc.sold_qty = qtyRequired
+                    su_doc.insert()
+                    continue

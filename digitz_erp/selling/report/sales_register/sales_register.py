@@ -16,6 +16,7 @@ def execute(filters=None):
     return columns, data, None, chart
 
 def get_chart_data(filters=None):
+<<<<<<< Updated upstream
     credit_sale = filters.get('credit_sale')
     query = """
         SELECT
@@ -72,6 +73,78 @@ def get_chart_data(filters=None):
             "type": "bar"
         }
     return chart
+=======
+    	
+	is_cash = 0
+	is_credit = 0	
+
+	if(filters.get('payment_type') == "Cash"):
+		is_cash = 1
+	elif (filters.get('payment_type') == "Credit"):
+		is_credit = 1	
+	query = ""
+	if(is_credit ==1 or is_cash ==1):
+		query = """
+			SELECT
+				si.customer,
+				SUM(si.rounded_total) AS amount
+			FROM
+				`tabSales Invoice` si
+			WHERE
+				si.docstatus != 2 and
+				si.credit_sale = {0}
+			""".format(is_credit)
+	else:
+		query = """
+			SELECT
+				si.customer,
+				SUM(si.rounded_total) AS amount
+			FROM
+				`tabSales Invoice` si
+			WHERE
+				si.docstatus !=2		
+			"""
+
+	if filters:
+		if filters.get('customer'):
+			query += " AND si.customer = %(customer)s"
+		if filters.get('from_date'):
+			query += " AND si.posting_date >= %(from_date)s"
+		if filters.get('to_date'):
+			query += " AND si.posting_date <= %(to_date)s"
+
+	query += " GROUP BY si.customer ORDER BY si.customer"
+	data = frappe.db.sql(query, filters, as_list=True)
+
+	customers = []
+	customer_wise_amount = {}
+	for row in data:
+		if row[0] not in customers:
+			customers.append(row[0])
+		if customer_wise_amount.get(row[0]):
+			customer_wise_amount[row[0]] += row[1]
+		else:
+			customer_wise_amount[row[0]] = row[1]
+	data = list(customer_wise_amount.items())
+
+	datasets = []
+	labels = []
+	chart = {}
+
+	if data:
+		for d in data:
+			labels.append(d[0])
+			datasets.append(d[1])
+
+		chart = {
+			"data": {
+				"labels": labels,
+				"datasets": [{"values": datasets}]
+			},
+			"type": "bar"
+		}
+	return chart
+>>>>>>> Stashed changes
 
 def get_data(filters):
     data = ""

@@ -6,7 +6,7 @@ from frappe.utils import get_datetime
 from datetime import datetime
 from frappe.model.document import Document
 from frappe.utils.data import now
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance, update_purchase_usage_for_delivery_note
 
 class DeliveryNote(Document):
 
@@ -34,7 +34,12 @@ class DeliveryNote(Document):
 
         if self.docstatus <2 :
             cost_of_goods_sold = self.deduct_stock_for_delivery_note_add()
+<<<<<<< Updated upstream
             frappe.enqueue(self.insert_gl_records,cost_of_goods_sold = cost_of_goods_sold, queue="long")
+=======
+            self.insert_gl_records(cost_of_goods_sold)
+            update_purchase_usage_for_delivery_note(self.name)
+>>>>>>> Stashed changes
 
     def validate_item(self):
 
@@ -198,6 +203,15 @@ class DeliveryNote(Document):
 
     def deduct_stock_for_delivery_note_add(self):
 
+<<<<<<< Updated upstream
+=======
+        frappe.db.delete("Purchase Stock Usage",
+                        {"Delivery Note No": self.name                        
+                        })       
+
+    def deduct_stock_for_delivery_note_add(self):     
+        
+>>>>>>> Stashed changes
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
         stock_recalc_voucher.voucher = 'Delivery Note'
         stock_recalc_voucher.voucher_no = self.name
