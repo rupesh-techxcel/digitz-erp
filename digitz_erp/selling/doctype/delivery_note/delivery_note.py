@@ -10,11 +10,8 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_s
 
 class DeliveryNote(Document):
 
-    # def validate(self):
-    #     self.validate_stock()
-
-    def validate_stock(self):
-        posting_date_time = get_datetime(self.posting_date + " " + self.posting_time)
+    def validate(self):
+        self.validate_item()
 
     def before_cancel(self):
         print("before cancel in DN")
@@ -25,18 +22,18 @@ class DeliveryNote(Document):
 
     def on_submit(self):
 
-        possible_invalid= frappe.db.count('Delivery Note', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
+        # possible_invalid= frappe.db.count('Delivery Note', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
 
-        if(possible_invalid >0):
-            frappe.throw("There is another delivery note exist with the same date and time. Please correct the date and time.")
-
-        self.validate_item()
+        # if(possible_invalid >0):
+        #     frappe.throw("There is another delivery note exist with the same date and time. Please correct the date and time.")
 
         if self.docstatus <2 :
             cost_of_goods_sold = self.deduct_stock_for_delivery_note_add()
             frappe.enqueue(self.insert_gl_records, cost_of_goods_sold = cost_of_goods_sold, queue="long")
 
     def validate_item(self):
+        
+        print("validate item")
 
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
@@ -341,7 +338,7 @@ class DeliveryNote(Document):
     #     item_to_update.stock_value = balance_stock_value
     #     item_to_update.save()
 
-    def insert_gl_records(self, cost_of_goods__sold):
+    def insert_gl_records(self, cost_of_goods_sold):
 
         print("From insert gl records")
 
@@ -360,7 +357,7 @@ class DeliveryNote(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_inventory_account
-        gl_doc.debit_amount = cost_of_goods__sold
+        gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.party_type = "Customer"
         gl_doc.party = self.customer
         gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
@@ -375,6 +372,6 @@ class DeliveryNote(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.cost_of_goods_sold_account
-        gl_doc.credit_amount = cost_of_goods__sold
+        gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.aginst_account = default_accounts.default_inventory_account
         gl_doc.insert()

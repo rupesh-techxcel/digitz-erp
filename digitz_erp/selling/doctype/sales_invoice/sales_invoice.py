@@ -21,8 +21,14 @@ class SalesInvoice(Document):
         frappe.db.set_value('Sales Invoice', self.name, 'pdf_url', file_url)
         frappe.db.commit()
         return file_url
+    
+    def validate(self): 
+        self.validate_item()
 
     # def before_save(self):
+        
+        # if the document is duplicating make paid_amount zero
+        # self.paid_amount =0
         # for i in self.items:
         #     if i.delivery_note:
         #         frappe.db.set_value(
@@ -35,7 +41,7 @@ class SalesInvoice(Document):
         #     self.auto_generate_delivery_note()
         # frappe.msgprint("before save event")
         # print("before save")
-    def before_submit(self):
+    # def before_submit(self):
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
@@ -43,13 +49,12 @@ class SalesInvoice(Document):
         # Store the current document name to the variable to use it after delete the variable
 
 
-        possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
+        # possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
 
-        if(possible_invalid >0):
-            frappe.throw("There is another sales invoice exist with the same date and time. Please correct the date and time.")
+        # if(possible_invalid >0):
+            # frappe.throw("There is another sales invoice exist with the same date and time. Please correct the date and time.")
 
-    def on_submit(self):
-        self.validate_item()
+    def on_submit(self):        
 
         cost_of_goods_sold = 0
 
@@ -59,7 +64,7 @@ class SalesInvoice(Document):
         else:
             print("tab_Sales false ")
 
-        frappe.enqueue(self.insert_gl_records, self=self, cost_of_goods_sold=cost_of_goods_sold, queue="long")
+        frappe.enqueue(self.insert_gl_records, cost_of_goods_sold=cost_of_goods_sold, queue="long")
         frappe.enqueue(self.insert_payment_postings, queue="long")
 
         if(self.auto_generate_delivery_note):
@@ -627,15 +632,3 @@ class SalesInvoice(Document):
         ret= frappe.www.printview.get_html_and_style(doc=si.as_json(), print_format="Tab Sales Print 2", no_letterhead=1)
 
         return ret['html']
-
-@frappe.whitelist()
-def create_sales_return(source_name, target_doc = None):
-    doc = get_mapped_doc(
-        'Sales Invoice',
-        source_name,
-        {
-            'Sales Invoice': {
-                'doctype': 'Sales Return',
-                },
-        },target_doc)
-    return doc
