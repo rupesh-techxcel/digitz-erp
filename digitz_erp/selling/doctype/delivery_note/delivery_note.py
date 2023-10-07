@@ -34,12 +34,7 @@ class DeliveryNote(Document):
 
         if self.docstatus <2 :
             cost_of_goods_sold = self.deduct_stock_for_delivery_note_add()
-<<<<<<< Updated upstream
             frappe.enqueue(self.insert_gl_records,cost_of_goods_sold = cost_of_goods_sold, queue="long")
-=======
-            self.insert_gl_records(cost_of_goods_sold)
-            update_purchase_usage_for_delivery_note(self.name)
->>>>>>> Stashed changes
 
     def validate_item(self):
 
@@ -203,15 +198,6 @@ class DeliveryNote(Document):
 
     def deduct_stock_for_delivery_note_add(self):
 
-<<<<<<< Updated upstream
-=======
-        frappe.db.delete("Purchase Stock Usage",
-                        {"Delivery Note No": self.name                        
-                        })       
-
-    def deduct_stock_for_delivery_note_add(self):     
-        
->>>>>>> Stashed changes
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
         stock_recalc_voucher.voucher = 'Delivery Note'
         stock_recalc_voucher.voucher_no = self.name
