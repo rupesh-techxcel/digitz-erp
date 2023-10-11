@@ -18,7 +18,7 @@ frappe.ui.form.on('Delivery Note', {
 
 				frappe.call(
 					{
-						method: 'digitz_erp.api.delivery_note_api.delivery_note_exists_for_sales_invoice',
+						method: 'digitz_erp.api.delivery_note_api.sales_invoice_exists_for_delivery_note',
 						async: false,
 
 						args: {
@@ -361,9 +361,9 @@ frappe.ui.form.on('Delivery Note', {
 			frappe.msgprint("No valid item found in the document");
 			return;
 		}
-
-		if (frm.doc.auto_generated_from_sales_invoice)
-			frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
+		
+		// if (frm.doc.auto_generated_from_sales_invoice)
+		// 	frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
 	},
 	before_delete: function(frm)
 	{
