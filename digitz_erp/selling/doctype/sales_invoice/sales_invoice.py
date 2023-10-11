@@ -68,7 +68,7 @@ class SalesInvoice(Document):
         frappe.enqueue(self.insert_payment_postings, queue="long")
 
         if(self.auto_generate_delivery_note):
-            frappe.enqueue(self.submit_delivery_note, queue="long")
+            self.submit_delivery_note()
 
     def validate_item(self):
 
