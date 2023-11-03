@@ -120,6 +120,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         item_name,unit = frappe.get_value("Item", record.item,['item_name','base_unit'])
         new_stock_balance = frappe.new_doc('Stock Balance')	
         new_stock_balance.item = record.item
+        new_stock_balance.item_name = item_name
         new_stock_balance.unit = unit
         
         new_stock_balance.warehouse = record.warehouse
@@ -129,8 +130,11 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
 
         new_stock_balance.insert()
 
-        item_name = frappe.get_value("Item", record.item,['item_name'])
-        update_item_stock_balance(item_name)
+        # item_name = frappe.get_value("Item", record.item,['item_name'])
+        print("record.item")
+        print(record.item)
+        
+        update_item_stock_balance(record.item)
     stock_recalc_voucher.status = 'Completed'
     stock_recalc_voucher.end_time = now()
     stock_recalc_voucher.save()
@@ -140,9 +144,9 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
     frappe.enqueue(do_recalculate_stock_ledgers, stock_recalc_voucher= stock_recalc_voucher, posting_date=posting_date, posting_time=posting_time, queue="long")
 
         
-def update_item_stock_balance(item_name):
-     
-    item_balances_in_warehouses = frappe.get_list('Stock Balance',{'item': item_name},['stock_qty','stock_value'])
+def update_item_stock_balance(item):
+    
+    item_balances_in_warehouses = frappe.get_list('Stock Balance',{'item': item},['stock_qty','stock_value'])
 
     balance_stock_qty = 0
     balance_stock_value = 0
@@ -156,7 +160,7 @@ def update_item_stock_balance(item_name):
                 balance_stock_value = balance_stock_value + item_stock.stock_value
 
     
-    item_to_update = frappe.get_doc('Item', item_name)	
+    item_to_update = frappe.get_doc('Item', item)	
             
     if(not item_to_update.stock_balance):	
     
@@ -172,9 +176,6 @@ def update_purchase_usage_for_delivery_note(delivery_note_no):
     delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_no)    
     do_posting_date = delivery_note_doc.posting_date
     delivery_note_items = frappe.get_list('Delivery Note Item',{'parent': delivery_note_no },['name','item_code','qty','rate'])
-    
-    print("Delivery Note No")
-    print(delivery_note_no)
     
     frappe.db.delete("Purchase Stock Usage", {"delivery_note":delivery_note_no})
     frappe.db.commit()
@@ -211,16 +212,10 @@ def update_purchase_usage_for_delivery_note(delivery_note_no):
             pi.name, pi.item_code, pi.item, pi.qty, p.name
         ORDER BY
             p.posting_date
-        """.format(item_code=item.item_code, do_date=do_posting_date)
+        """.format(item_code=item.item, do_date=do_posting_date)
         
-        print("query2")
-        print(query)
 
         result = frappe.db.sql(query, as_dict=True)
-
-        print("result")
-        print(result)
-        
         qtyRequired = item.qty
         
         for result_item in result:
@@ -231,8 +226,8 @@ def update_purchase_usage_for_delivery_note(delivery_note_no):
                     su_doc = frappe.new_doc("Purchase Stock Usage")
                     su_doc.purchase_invoice = result_item.p_name
                     su_doc.purchase_invoice_item = result_item.pi_name
-                    su_doc.item = result_item.item
-                    su_doc.item_code = result_item.item_code
+                    su_doc.item = result_item.item_code
+                    su_doc.item_name = result_item.item
                     su_doc.delivery_note = delivery_note_no
                     su_doc.delivery_note_item = item.name
                     su_doc.sold_qty = result_item.qty
@@ -241,9 +236,9 @@ def update_purchase_usage_for_delivery_note(delivery_note_no):
                 else:
                     su_doc = frappe.new_doc("Purchase Stock Usage")
                     su_doc.purchase_invoice = result_item.p_name
-                    su_doc.purchase_invoice_item = result_item.pi_name
-                    su_doc.item = result_item.item
-                    su_doc.item_code = result_item.item_code
+                    su_doc.purchase_invoice_item = result_item.pi_name                    
+                    su_doc.item_name = result_item.item
+                    su_doc.item = result_item.item_code
                     su_doc.delivery_note = delivery_note_no
                     su_doc.delivery_note_item = item.name
                     su_doc.sold_qty = qtyRequired

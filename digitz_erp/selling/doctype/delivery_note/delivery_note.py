@@ -33,7 +33,7 @@ class DeliveryNote(Document):
 
     def validate_item(self):
         
-        print("validate item")
+        print("DN validate item")
 
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
@@ -219,8 +219,6 @@ class DeliveryNote(Document):
 
             posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
-            print(posting_date_time)
-
      		# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
 	    	# in this flow itself. If more records, exists stock balance will be udpated lateer
             more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
@@ -235,8 +233,6 @@ class DeliveryNote(Document):
             , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
             order_by='posting_date desc', as_dict=True)
 
-            print(previous_stock_balance)
-
             if(allow_negative_stock == False and not previous_stock_balance):
                 frappe.throw("No stock exists for" + docitem.item )
                 return
@@ -245,13 +241,15 @@ class DeliveryNote(Document):
                 frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
                  docitem.base_unit + "and available Qty= " + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit)
                 return
-
+            
             previous_stock_balance_value = 0
             if previous_stock_balance:
+                
                 new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
                 valuation_rate = previous_stock_balance.valuation_rate
                 previous_stock_balance_value = previous_stock_balance.balance_value
             else:
+
                 new_balance_qty = 0 - docitem.qty_in_base_unit
                 valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
 
@@ -260,11 +258,12 @@ class DeliveryNote(Document):
 
             if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
                 frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
-
+            
             change_in_stock_value = new_balance_value - previous_stock_balance_value
 
             new_stock_ledger = frappe.new_doc("Stock Ledger")
             new_stock_ledger.item = docitem.item
+            new_stock_ledger.item_name = docitem.item_name
             new_stock_ledger.warehouse = docitem.warehouse
             new_stock_ledger.posting_date = posting_date_time
 
@@ -280,9 +279,10 @@ class DeliveryNote(Document):
             new_stock_ledger.source = "Delivery Note Item"
             new_stock_ledger.source_document_id = docitem.name
             new_stock_ledger.insert()
-
+            
             # If no more records for the item, update balances. otherwise it updates in the flow
             if more_records_count_for_item==0:
+                
                 if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
                     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
@@ -298,14 +298,18 @@ class DeliveryNote(Document):
 
                 new_stock_balance.insert()
 
-                item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(item_name)
-            else:
+                # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                # print("item_name")
+                # print(item_name)
+                update_item_stock_balance(docitem.item)        
+            else:                
                 stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                       'item_name': docitem.item_name,
                                                             'warehouse': docitem.warehouse,
                                                             'base_stock_ledger': new_stock_ledger.name
                                                             })
-        if(more_records>0):
+                
+        if(more_records>0):            
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 

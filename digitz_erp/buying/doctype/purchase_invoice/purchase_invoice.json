@@ -21,7 +21,6 @@
   "price_list",
   "rate_includes_tax",
   "column_break_10",
-  "section_break_11",
   "supplier_inv_no",
   "supplier_inv_date",
   "purchase_order",
@@ -292,11 +291,6 @@
    "label": "DO No"
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Heading",
-   "label": "Supplier Documents"
-  },
-  {
    "fieldname": "column_break_30",
    "fieldtype": "Column Break"
   },
@@ -357,7 +351,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-10 18:45:56.418103",
+ "modified": "2023-10-30 16:13:42.559905",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

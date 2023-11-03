@@ -23,6 +23,7 @@
   "salesman",
   "salesman_code",
   "tax_id",
+  "update_rates_in_price_list",
   "column_break_4",
   "company",
   "company_tax_id",
@@ -471,6 +472,7 @@
    "default": "0",
    "fieldname": "print_in_progress",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Print In Progress",
    "read_only": 1
   },
@@ -485,12 +487,18 @@
    "fieldtype": "Currency",
    "label": "Customer Balance",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "update_rates_in_price_list",
+   "fieldtype": "Check",
+   "label": "Update Rates In Price List"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-12 19:59:56.469177",
+ "modified": "2023-10-30 16:31:28.428301",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

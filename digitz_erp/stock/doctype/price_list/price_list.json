@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "field:price_list_name",
  "creation": "2022-12-21 18:45:30.030464",
  "default_view": "List",
@@ -10,8 +9,7 @@
  "field_order": [
   "price_list_name",
   "is_buying",
-  "is_selling",
-  "items"
+  "is_selling"
  ],
  "fields": [
   {
@@ -35,17 +33,11 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Is Selling"
-  },
-  {
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "label": "Items",
-   "options": "Price List Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-04 09:52:48.638608",
+ "modified": "2023-10-25 19:11:20.810973",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Price List",

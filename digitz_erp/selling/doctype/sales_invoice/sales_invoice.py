@@ -9,66 +9,61 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_s
 from frappe.www.printview import get_html_and_style
 from digitz_erp.utils import *
 from frappe.model.mapper import *
+from digitz_erp.api.item_price_api import update_item_price
+from digitz_erp.api.settings_api import get_default_currency
 
 
-class SalesInvoice(Document):
-    """if need of autoupdate of delivery note in case of any update in sales invoice then uncomment the before_save controller"""
-
-    @frappe.whitelist()
-    def generate_pdf_from_print(self):
-        file_url = create_pdf_attachment(self.doctype, self.name, 'Tab Sales Print 2')
-        frappe.db.set_value('Sales Invoice', self.name, 'print_in_progress', 1)
-        frappe.db.set_value('Sales Invoice', self.name, 'pdf_url', file_url)
-        frappe.db.commit()
-        return file_url
+class SalesInvoice(Document):    
+    
+    def before_validate(self):
+        
+        # Fix for paid_amount copies while duplicating the document
+        if self.is_new():            
+            self.paid_amount = 0
+        
+        if self.credit_sale == 0:
+            self.paid_amount = self.rounded_total            
+        else:
+            self.payment_mode = ""
+            self.payment_account = ""
+            self.meta.get_field("payment_mode").hidden = 1
+            self.meta.get_field("payment_account").hidden = 1
     
     def validate(self): 
         self.validate_item()
-
-    # def before_save(self):
-        
-        # if the document is duplicating make paid_amount zero
-        # self.paid_amount =0
-        # for i in self.items:
-        #     if i.delivery_note:
-        #         frappe.db.set_value(
-        #             'Delivery Note', i.delivery_note, 'against_sales_invoice', self.name)
-        #         frappe.db.commit()
-
-        # if not self.is_new() and self.auto_save_delivery_note:
-
-        # if self.auto_save_delivery_note:
-        #     self.auto_generate_delivery_note()
-        # frappe.msgprint("before save event")
-        # print("before save")
-    # def before_submit(self):
-
-        # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
-		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
-
-        # Store the current document name to the variable to use it after delete the variable
-
-
-        # possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
-
-        # if(possible_invalid >0):
-            # frappe.throw("There is another sales invoice exist with the same date and time. Please correct the date and time.")
 
     def on_submit(self):        
 
         cost_of_goods_sold = 0
 
-        if self.tab_sales :
-            print("tab_Sales true ")
+        if self.tab_sales :       
             cost_of_goods_sold = self.deduct_stock_for_tab_sales()
-        else:
-            print("tab_Sales false ")
-
+        
+        # self.update_item_prices()
+       
         frappe.enqueue(self.insert_gl_records, cost_of_goods_sold=cost_of_goods_sold, queue="long")
         frappe.enqueue(self.insert_payment_postings, queue="long")
 
         if(self.auto_generate_delivery_note):
             self.submit_delivery_note()
+    
+    def update_item_prices(self):
+        
+        currency = get_default_currency()
+        print(self.items)
+        for docitem in self.items:
+            print("docitem to update price")
+            print(docitem)
+            item = docitem.item
+            price_list = self.price_list
+            base_unit = docitem.base_unit
+            rate = docitem.rate_in_base_unit
+            print("item")
+            print(item)
+            
+            print(self.price_list)
+            if(self.update_rates_in_price_list):
+                update_item_price(item,self.price_list,currency,rate)            
 
     def validate_item(self):
 
@@ -112,31 +107,6 @@ class SalesInvoice(Document):
                          {"Voucher_type": "Sales Invoice",
                           "voucher_no": self.name
                           })
-
-    # def before_cancel(self):
-
-
-
-    # def on_trash(self):
-        # if self.auto_save_delivery_note:
-            # delivery_note = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
-            # frappe.delete_doc('Delivery Note', delivery_note)
-
-
-
-
-    # def after_delete(self):
-
-        # print("after delete SI event")
-
-        # if self.auto_save_delivery_note:
-        #     delivery_note = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.doc_name}, ['delivery_note'])
-        #     print(delivery_note)
-        #     frappe.delete_doc('Delivery Note', delivery_note)
-
-    # def after_save():
-    #     frappe.msgprint("after save")
-    #     print("after save")
 
     def insert_gl_records(self, cost_of_goods_sold):
 
@@ -296,7 +266,7 @@ class SalesInvoice(Document):
                 do_no = si_do.delivery_note
                 do = frappe.get_doc('Delivery Note',do_no)
                 do.submit()
-                frappe.msgprint("A Delivery Note corresponding to the sales invoice is also submitted.", indicator="green")
+                frappe.msgprint("A Delivery Note corresponding to the sales invoice is also submitted.", indicator="green", alert=True)
                 return
 
     @frappe.whitelist()
@@ -399,7 +369,7 @@ class SalesInvoice(Document):
                     delivery_note_item = frappe.new_doc("Delivery Note Item")
                     delivery_note_item.warehouse = item.warehouse
                     delivery_note_item.item = item.item
-                    delivery_note_item.item_code = item.item_code
+                    delivery_note_item.item_name = item.item_name
                     delivery_note_item.display_name = item.display_name
                     delivery_note_item.qty =item.qty
                     delivery_note_item.unit = item.unit
@@ -426,7 +396,7 @@ class SalesInvoice(Document):
 
                 delivery_note_doc.save()
 
-                frappe.msgprint("Delivery Note for the Sales Invoice updated successfully.")
+                frappe.msgprint("Delivery Note for the Sales Invoice updated successfully.", alert=True)
 
             else:                   
                 
@@ -457,10 +427,7 @@ class SalesInvoice(Document):
         #     frappe.rename_doc('Delivery Note', doNo.name, delivery_note_name)
 
         # do = frappe.get_doc('Delivery Note', delivery_note_name)
-        si = frappe.get_doc('Sales Invoice',si_name)
-
-        print("do_exists")
-        print(do_exists)
+        si = frappe.get_doc('Sales Invoice',si_name)        
 
         # if frappe.db.exists('Sales Invoice Delivery Notes', {'parent': self.name}):
         if(not do_exists):
@@ -578,6 +545,7 @@ class SalesInvoice(Document):
             change_in_stock_value = new_balance_value - previous_stock_balance_value
             new_stock_ledger = frappe.new_doc("Stock Ledger")
             new_stock_ledger.item = docitem.item
+            new_stock_ledger.item_name = docitem.item_name
             new_stock_ledger.warehouse = docitem.warehouse
             new_stock_ledger.posting_date = posting_date_time
 
@@ -603,6 +571,7 @@ class SalesInvoice(Document):
 
                 new_stock_balance = frappe.new_doc('Stock Balance')
                 new_stock_balance.item = docitem.item
+                new_stock_balance.item_name = docitem.item_name
                 new_stock_balance.unit = unit
                 new_stock_balance.warehouse = docitem.warehouse
                 new_stock_balance.stock_qty = new_balance_qty
@@ -624,11 +593,3 @@ class SalesInvoice(Document):
 
         return cost_of_goods_sold
 
-    @frappe.whitelist()
-    def get_print_format(self):
-
-        si = frappe.get_doc("Sales Invoice", self.name)
-
-        ret= frappe.www.printview.get_html_and_style(doc=si.as_json(), print_format="Tab Sales Print 2", no_letterhead=1)
-
-        return ret['html']

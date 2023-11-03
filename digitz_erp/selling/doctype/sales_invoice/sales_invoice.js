@@ -4,10 +4,7 @@
 frappe.ui.form.on('Sales Invoice', {
 
 	 refresh: function (frm) {
-		frm.add_custom_button('Print In Tab', () => {
-			frm.trigger("print_in_tab");
-		},
-		)
+		
 		if(!frm.is_new()){
 			frm.add_custom_button('Sales Return', () =>{
 				frappe.model.open_mapped_doc({
@@ -41,6 +38,8 @@ frappe.ui.form.on('Sales Invoice', {
 		{
 			valid = false;
 			frappe.msgprint("Select payment account")
+			frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+			frm.refresh_field("payment_account");
 		}
 
 		if(!frm.doc.credit_sale && !frm.doc.payment_mode)
@@ -333,15 +332,12 @@ frappe.ui.form.on('Sales Invoice', {
 					
 					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
 					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-
 				}
 			});
 	},
 	get_default_company_and_warehouse(frm) {
 
 		var default_company = ""
-
-
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -360,17 +356,18 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice']
 						},
-						callback: (r2) => {
-							
+						callback: (r2) => {							
 							
 							frm.doc.warehouse = r2.message.default_warehouse;
 							
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
+							frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_sales_invoice;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
+							frm.refresh_field("update_rates_in_price_list");
 							
 							frm.refresh_field("auto_save_delivery_note");
 
@@ -424,33 +421,7 @@ frappe.ui.form.on('Sales Invoice', {
 				frm.refresh_field("item_units");
 			}
 		})
-	},
-	print_in_tab(frm){
-
-		console.log("print_in_tab")
-
-		if (frm.doc.__unsaved) {
-			frappe.throw("Please save the document before print.")
-		}
-		else
-		{
-			frm.call("generate_pdf_from_print", {
-				// Optional arguments
-			}, function(response) {
-				if (response && response.message){
-					frm.reload_doc()
-					window.open(response.message, '_blank');
-				}
-			});
-
-			// var htmlObj = frm.call("get_print_format")
-			// console.log(htmlObj)
-			// var printWindow = window.open('', '_blank');
-			// printWindow.document.write(html.responseText);
-			// printWindow.document.close();
-			// printWindow.print();
-		}
-	}
+	},	
 });
 
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
@@ -500,19 +471,20 @@ frappe.ui.form.on('Sales Invoice Item', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Item',
-					'filters': { 'item_name': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+					'filters': { 'item_code': row.item },
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					row.item_code = r.message.item_code;
+					
+					row.item_name = r.message.item_name;
+					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
-					row.conversion_factor = 1;
-					row.display_name = row.item
-
-					frm.item = row.item
+					row.conversion_factor = 1;					
+					
+					frm.item = row.item;
 					frm.warehouse = row.warehouse
 
 					frm.trigger("get_item_stock_balance");
@@ -539,56 +511,95 @@ frappe.ui.form.on('Sales Invoice Item', {
 						row.tax_rate = 0;
 					}
 
-					var applyStandrPricing = false;
+					var currency = ""
+					console.log("before call digitz_erp.api.settings_api.get_default_currency")
+					frappe.call(
+						{
+							method:'digitz_erp.api.settings_api.get_default_currency',
+							async:false,
+							callback(r){								
+								console.log(r)
+								currency = r.message
+								console.log("currency")
+								console.log(currency)
+							}
+						}
+					);
 
-					if (frm.doc.price_list != "Standard Buying") {
+					var use_customer_last_price =0 ;
+					console.log("before call digitz_erp.api.settings_api.get_company_settings")
+
+					frappe.call(
+						{
+							method:'digitz_erp.api.settings_api.get_company_settings',
+							async:false,
+							callback(r){								
+								console.log("digitz_erp.api.settings_api.get_company_settings")
+								console.log(r)								
+								use_customer_last_price = r.message[0].use_customer_last_price								
+								console.log("use_customer_last_price")
+								console.log(use_customer_last_price)
+							}
+						}
+					);
+
+
+
+					var use_price_list_price = 1
+					if(use_customer_last_price == 1)
+					{
+						console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
 						frappe.call(
 							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
+								method:'digitz_erp.api.item_price_api.get_customer_last_price_for_item',
+								args:{
+									'item': row.item,
+									'customer': frm.doc.customer
+								},
+								async:false,
+								callback(r){
+
+									console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+									console.log(r)
+									if(r.message != undefined)
+									{
+										row.rate = r.message;
+										row.rate_in_base_unit = r.message;		
+									}
+
+									console.log("customer last price")
+									console.log(row.rate)
+									
+									if(r.message != undefined && r.message > 0 )
+									{
+										use_price_list_price = 0
+									}
+								}
+							}
+						);
+					}
+				
+					if(use_price_list_price ==1)
+					{
+						console.log("digitz_erp.api.item_price_api.get_item_price")
+						frappe.call(
+							{
+								method: 'digitz_erp.api.item_price_api.get_item_price',
 								async: false,
 
 								args: {
 									'item': row.item,
-									'price_list': frm.doc.price_list
+									'price_list': frm.doc.price_list,
+									'currency': currency								
 								},
 								callback(r) {
-									if (r.message.length == 1) {
-										
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
+									console.log("digitz_erp.api.item_price_api.get_item_price")
+									console.log(r)
+									row.rate = r.message;
+									row.rate_in_base_unit = r.message;
 								}
-							});
-					}
-					else {
-						applyStandrPricing = true;
-					}
-
-					if (applyStandrPricing) {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
-
-								args: {
-									'item': row.item,
-									'price_list': 'Standard Selling'
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
+							});			
+					}	
 
 					frm.refresh_field("items");
 				}

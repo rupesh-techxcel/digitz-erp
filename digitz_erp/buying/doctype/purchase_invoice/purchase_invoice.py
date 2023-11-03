@@ -11,77 +11,90 @@ from frappe.model.mapper import *
 class PurchaseInvoice(Document):
 
 
-	def before_submit(self):
-		possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
+	# def before_submit(self):
+		# possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
 		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
 		# Also in add_stock_for_purchase_receipt method only checking for < date_time in order avoid difficulty to get exact last record
 		# to get balance qty and balance value.
-		if(possible_invalid >0):
-			frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
-
-
+		# if(possible_invalid >0):
+		# 	frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
+  
+	def before_validate(self):
+		if not self.credit_purchase or self.credit_purchase  == False:
+			self.paid_amount = self.rounded_total
+		else:			
+			self.paid_amount = 0	
+    
+	def validate(self):
+		if not self.credit_purchase and self.payment_mode == None:
+			frappe.throw("Select Payment Mode")
+   
 	def on_submit(self):
 		frappe.enqueue(self.insert_gl_records, queue="long")
 		self.insert_payment_postings()
 		self.add_stock_for_purchase_receipt()
 
-
-	def before_save(self):
-		print("before_save")
+	def on_update(self):
+		print("on_update")
 		if self.purchase_order:
 			self.update_purchase_order_quantities_before_save()
-			check_and_update_purchase_order_status(self.purchase_order)
+			check_and_update_purchase_order_status(self.purchase_order)   
 
 	def before_cancel(self):
 		print("before_cancel")
 		if self.purchase_order:
-			self.update_purchase_order_quantities_before_cancel()
+			self.update_purchase_order_quantities_before_cancel_or_delete()
 			check_and_update_purchase_order_status(self.purchase_order)
 
-	def update_purchase_order_quantities_before_cancel(self):
+	def update_purchase_order_quantities_before_cancel_or_delete(self):
 
+		po_reference_any = False
 		for item in self.items:
-
-			print("item")
-			print(item.item)
-
-			item_in_purchase_order= frappe.get_value("Purchase Order Item", {'item':item.item, 'display_name':item.display_name},['name'] )
-			purchase_order_item = frappe.get_doc("Purchase Order Item", item_in_purchase_order)
-			purchase_order_item.qty_purchased = item.qty
-
-			total_used_qty = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi JOIN `tabPurchase Invoice` pinv on pinv.name= pinvi.parent WHERE pinvi.item=%s AND pinvi.display_name=%s AND pinv.purchase_order=%s AND pinv.name !=%s""",(item.item,item.display_name, self.purchase_order,self.name))[0][0]
-
-			if(total_used_qty):
-				purchase_order_item.qty_purchased =  total_used_qty
+			if not item.po_item_reference:
+				continue
 			else:
-				purchase_order_item.qty_purchased =  0
+				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
+				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
+    
+				print("po_item")
+				print(po_item)    
 
-			purchase_order_item.save()
+				if total_used_qty_not_in_this_pi: 
+					po_item.qty_purchased = total_used_qty_not_in_this_pi
+				else:
+					po_item.qty_purchased = 0
 
-	def update_purchase_order_quantities_before_save(self):
-		print('update_purchase_order_quantities_before_save')
+				po_item.save()
+				po_reference_any = True
+    
+		print("po_reference_any")
+		print(po_reference_any)
 
-		# Get the purchase order and verify the qty purchased against each line items
-		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
-
-		for item in purchase_order.items:
-
-			item.qty_purchased = 0
-
-			for pi_item in self.items:
+    
+		if(po_reference_any):
+			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
+		
 
 
-				if(pi_item.item == item.item and pi_item.display_name == item.display_name):
-
-					item.qty_purchased = pi_item.qty
-
-			total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi JOIN `tabPurchase Invoice` pinv on pinv.name= pinvi.parent WHERE pinvi.item=%s AND pinvi.display_name=%s AND pinv.purchase_order=%s AND pinv.name !=%s""",(item.item,item.display_name, self.purchase_order,self.name))[0][0]
-
-			if total_used_qty_not_in_this_pi:
-				item.qty_purchased = item.qty_purchased + total_used_qty_not_in_this_pi
-
-		purchase_order.save()
+	def update_purchase_order_quantities_before_save(self):		
+  
+		po_reference_any = False
+		for item in self.items:
+			if not item.po_item_reference:
+				continue
+			else:
+				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
+				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
+				if(total_used_qty_not_in_this_pi):
+					po_item.qty_purchased = total_used_qty_not_in_this_pi + item.qty
+				else:
+					po_item.qty_purchased = item.qty
+				po_item.save()
+				po_reference_any = True
+    
+		if(po_reference_any):
+			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
 
 	def add_stock_for_purchase_receipt(self):
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
@@ -127,7 +140,7 @@ class PurchaseInvoice(Document):
 
 			# posting_date<= consider because to take the dates with in the same minute
 			# dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]})
-			dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse],
+			dbCount = frappe.db.count('Stock Ledger',{'item': ['=', docitem.item],'warehouse':['=', docitem.warehouse],
                                              'posting_date': ['<', posting_date_time]})
 
 			if(dbCount>0):
@@ -138,7 +151,7 @@ class PurchaseInvoice(Document):
 				# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
 				# from the balance qty in the existing rows x actual incoming rate
 
-				last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item_code': ['=', docitem.item_code], 'warehouse':['=', docitem.warehouse],
+				last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse],
                                                         'posting_date':['<', posting_date_time]},
                                             ['balance_qty', 'balance_value', 'valuation_rate'],order_by='posting_date desc', as_dict=True)
 
@@ -155,6 +168,7 @@ class PurchaseInvoice(Document):
 
 			new_stock_ledger = frappe.new_doc("Stock Ledger")
 			new_stock_ledger.item = docitem.item
+			new_stock_ledger.item_name = docitem.item_name
 			new_stock_ledger.warehouse = docitem.warehouse
 			new_stock_ledger.posting_date = posting_date_time
 
@@ -189,6 +203,7 @@ class PurchaseInvoice(Document):
 
 				new_stock_balance = frappe.new_doc('Stock Balance')
 				new_stock_balance.item = docitem.item
+				new_stock_balance.item_name = docitem.item_name
 				new_stock_balance.unit = docitem.unit
 				new_stock_balance.warehouse = docitem.warehouse
 				new_stock_balance.stock_qty = new_balance_qty
@@ -199,8 +214,11 @@ class PurchaseInvoice(Document):
 				print("new stock balance qty")
 				print(new_balance_qty)
 
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)
+				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+				# print("item_name")
+				# print(item_name)
+
+				update_item_stock_balance(docitem.item)
 
 			else:
 				stock_recalc_voucher.append('records',{'item': docitem.item,
@@ -213,6 +231,13 @@ class PurchaseInvoice(Document):
 
 	def on_cancel(self):
 		self.cancel_purchase()
+  
+	def on_trash(self):
+       	
+		if self.purchase_order:
+			self.update_purchase_order_quantities_before_cancel_or_delete()
+			check_and_update_purchase_order_status(self.purchase_order)
+     
 
 	def cancel_purchase(self):
 
@@ -285,9 +310,8 @@ class PurchaseInvoice(Document):
 				stock_balance_for_item.stock_value = balance_value
 				stock_balance_for_item.valuation_rate = valuation_rate
 				stock_balance_for_item.save()
-
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)
+				
+				update_item_stock_balance(docitem.item)
 
 		if(more_records>0):
 			stock_recalc_voucher.insert()
@@ -302,128 +326,6 @@ class PurchaseInvoice(Document):
 				{"Voucher_type": "Purchase Invoice",
 					"voucher_no":self.name
 				})
-
-	# def update_item_stock_balance(self, item):
-
-	# 	print(item)
-
-	# 	item_balances_in_warehouses = frappe.get_list('Stock Balance',{'item': item},['stock_qty','stock_value'])
-
-	# 	balance_stock_qty = 0
-	# 	balance_stock_value = 0
-
-	# 	if(item_balances_in_warehouses):
-	# 		for item_stock in item_balances_in_warehouses:
-
-	# 			if item_stock.stock_qty:
-	# 				balance_stock_qty = balance_stock_qty + item_stock.stock_qty
-
-	# 			if item_stock.stock_value:
-	# 				balance_stock_value = balance_stock_value + item_stock.stock_value
-
-	# 	item_to_update = frappe.get_doc('Item', item)
-
-	# 	if(not item_to_update.stock_balance):
-	# 		item_to_update.stock_balance = 0
-	# 		item_to_update.stock_value = 0
-	# 	item_to_update.stock_balance = balance_stock_qty
-	# 	item_to_update.stock_value = balance_stock_value
-
-	# 	item_to_update.save()
-
-	# def recalculate_stock_ledgers(self,stock_recalc_voucher):
-
-	# 	posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
-
-	# 	for record in stock_recalc_voucher.records:
-
-	# 		new_balance_qty = 0
-	# 		new_balance_value = 0
-	# 		new_valuation_rate = 0
-	# 		if record.base_stock_ledger != "No Previous Ledger":
-	# 			base_stock_ledger = frappe.get_doc('Stock Ledger', record.base_stock_ledger)
-	# 			new_balance_qty = base_stock_ledger.balance_qty
-	# 			new_balance_value = base_stock_ledger.balance_value
-	# 			new_valuation_rate = base_stock_ledger.valuation_rate
-
-	# 		next_stock_ledgers = frappe.get_list('Stock Ledger',{'item':record.item,
-	# 		'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]}, 'name',order_by='posting_date')
-
-	# 		# Scenario 1- PUrchase Invoice - current row cancelled. For this assigned previous stock ledger balance to 'Stock Recalculate Voucher'
-
-	# 		for sl_name in next_stock_ledgers:
-
-	# 			sl = frappe.get_doc('Stock Ledger', sl_name)
-	# 			qty_in = 0
-	# 			qty_out = 0
-
-	# 			# Exit the loop if there is a manual stock entry, since the manual stock entry is considered as corrected stock entry
-	# 			if(sl.voucher == "Stock Reconciliation"):
-	# 				if(sl.balance_qty > new_balance_qty):
-	# 					qty_in = sl.balance_qty - new_balance_qty
-	# 				else:
-	# 					qty_out = new_balance_qty -sl.balance_qty
-
-	# 				sl.qty_in = qty_in
-	# 				sl.qty_out = qty_out
-
-	# 				# Previous stock value difference
-	# 				previous_balance_value = new_balance_value #Assign before change
-	# 				sl.change_in_stock_value =   (sl.balance_value - previous_balance_value)
-
-	# 				new_valuation_rate = sl.valuation_rate
-	# 				new_balance_qty = sl.balance_qty
-	# 				new_balance_value = sl.balance_value
-
-	# 				# Once qty adjusted exit for next item, since after manual entry subsequent entries are not considered
-	# 				sl.save()
-	# 				break;
-
-	# 			if(sl.voucher == "Delivery Note"):
-	# 				previous_balance_value = new_balance_value #Assign before change
-	# 				new_balance_qty = new_balance_qty - sl.qty_out
-	# 				new_balance_value = new_balance_qty * new_valuation_rate
-	# 				change_in_stock_value = new_balance_value - previous_balance_value
-	# 				sl.change_in_stock_value = change_in_stock_value
-
-	# 			if(new_balance_qty<0):
-	# 				frappe.throw("Stock availability is not sufficiant to make thistransaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
-
-	# 			if (sl.voucher == "Purchase Invoice"):
-	# 				previous_balance_value = new_balance_value #Assign before change
-	# 				new_balance_qty = new_balance_qty + sl.qty_in
-	# 				new_balance_value = new_balance_value  + (sl.qty_in * sl.incoming_rate)
-	# 				change_in_stock_value = new_balance_value - previous_balance_value
-	# 				sl.change_in_stock_value = change_in_stock_value
-
-	# 				if(new_balance_qty!=0): #Avoid divisible by zero
-	# 					new_valuation_rate = new_balance_value/ new_balance_qty
-
-	# 			sl.balance_qty = new_balance_qty
-	# 			sl.balance_value = new_balance_value
-	# 			sl.valuation_rate = new_valuation_rate
-	# 			sl.save()
-
-	# 		if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):
-	# 			frappe.db.delete('Stock Balance',{'item': record.item, 'warehouse': record.warehouse} )
-
-	# 		item_name,unit = frappe.get_value("Item", record.item,['item_name','base_unit'])
-	# 		new_stock_balance = frappe.new_doc('Stock Balance')
-	# 		new_stock_balance.item = record.item
-	# 		new_stock_balance.unit = unit
-	# 		new_stock_balance.warehouse = record.warehouse
-	# 		new_stock_balance.stock_qty = new_balance_qty
-	# 		new_stock_balance.stock_value = new_balance_value
-	# 		new_stock_balance.valuation_rate = new_valuation_rate
-
-	# 		new_stock_balance.insert()
-
-
-	# 		self.update_item_stock_balance(item_name)
-
-	# 	stock_recalc_voucher.status = 'Completed'
-	# 	stock_recalc_voucher.end_time = now()
-	# 	stock_recalc_voucher.save()
 
 	def insert_gl_records(self):
 		default_company = frappe.db.get_single_value("Global Settings","default_company")

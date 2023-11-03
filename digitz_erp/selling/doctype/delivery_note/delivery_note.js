@@ -302,7 +302,6 @@ frappe.ui.form.on('Delivery Note', {
 					console.log(r2)
 					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
 					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-
 				}
 			});
 	},
@@ -362,8 +361,8 @@ frappe.ui.form.on('Delivery Note', {
 			return;
 		}
 		
-		// if (frm.doc.auto_generated_from_sales_invoice)
-		// 	frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
+		if (frm.doc.auto_generated_from_sales_invoice)
+			frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
 	},
 	before_delete: function(frm)
 	{
@@ -454,18 +453,18 @@ frappe.ui.form.on('Delivery Note Item', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Item',
-					'filters': { 'item_name': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+					'filters': { 'item_code': row.item },
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
 
-					row.item_code = r.message.item_code;
+					row.item_name = r.message.item_name;
+					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
-					row.conversion_factor = 1;
-					row.display_name = row.item
+					row.conversion_factor = 1;					
 					frm.item = row.item
 					frm.warehouse = row.warehouse
 					frm.trigger("get_item_stock_balance");

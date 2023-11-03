@@ -8,7 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "item",
-  "item_code",
+  "item_name",
   "display_name",
   "qty",
   "unit",
@@ -41,11 +41,6 @@
    "in_list_view": 1,
    "label": "Item",
    "options": "Item"
-  },
-  {
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "label": "Item Code"
   },
   {
    "fieldname": "display_name",
@@ -182,12 +177,17 @@
    "fieldtype": "Float",
    "hidden": 1,
    "label": "Qty Returned"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-28 15:18:51.517042",
+ "modified": "2023-10-27 12:30:07.884370",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

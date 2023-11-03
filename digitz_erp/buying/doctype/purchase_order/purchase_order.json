@@ -18,14 +18,12 @@
   "posting_time",
   "edit_posting_date_and_time",
   "price_list",
-  "rate_includes_tax",
   "column_break_10",
-  "section_break_11",
-  "supplier_inv_no",
-  "supplier_inv_date",
   "do_no",
   "warehouse",
   "order_status",
+  "due_date",
+  "rate_includes_tax",
   "accounts_section",
   "credit_purchase",
   "credit_days",
@@ -133,22 +131,6 @@
   {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_11",
-   "fieldtype": "Heading",
-   "label": "Supplier Documents"
-  },
-  {
-   "fieldname": "supplier_inv_no",
-   "fieldtype": "Data",
-   "label": "Supplier Inv No"
-  },
-  {
-   "description": "Note: Acounts and Stock postings based on Date and Posting Time",
-   "fieldname": "supplier_inv_date",
-   "fieldtype": "Date",
-   "label": "Supplier Inv Date"
   },
   {
    "fieldname": "do_no",
@@ -347,12 +329,17 @@
    "fieldtype": "Select",
    "label": "Order Status",
    "options": "Pending\nPartial\nCompleted"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-06-01 10:53:06.213559",
+ "modified": "2023-10-29 08:42:06.022759",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

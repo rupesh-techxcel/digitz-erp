@@ -19,11 +19,14 @@
   "column_break_9",
   "company_logo",
   "company_logo_display",
+  "default_currency",
   "section_break_12",
   "inventory_settings_tab",
   "inventory_settings",
   "use_customer_last_price",
-  "update_standard_selling_price",
+  "use_supplier_last_price",
+  "update_price_list_price_with_sales_invoice",
+  "update_price_list_price_with_purchase_invoice",
   "allow_negative_stock",
   "default_warehouse",
   "column_break_18",
@@ -106,19 +109,13 @@
   {
    "fieldname": "inventory_settings_tab",
    "fieldtype": "Tab Break",
-   "label": "Inventory Settings"
+   "label": "Inventory & Price Settings"
   },
   {
    "default": "0",
    "fieldname": "use_customer_last_price",
    "fieldtype": "Check",
    "label": "Use customer last price"
-  },
-  {
-   "default": "0",
-   "fieldname": "update_standard_selling_price",
-   "fieldtype": "Check",
-   "label": "Update Standard Selling Price On Transactions"
   },
   {
    "fieldname": "accounts_settings_tab",
@@ -306,11 +303,36 @@
    "fieldname": "allow_negative_stock",
    "fieldtype": "Check",
    "label": "Allow Negative Stock"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "use_supplier_last_price",
+   "fieldtype": "Check",
+   "label": "Use Supplier Last Price"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_price_list_price_with_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Update price list price with sales invoice"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_price_list_price_with_purchase_invoice",
+   "fieldtype": "Check",
+   "label": "Update price list price with purchase invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-29 05:23:50.627258",
+ "modified": "2023-10-30 16:37:28.692952",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

@@ -8,7 +8,8 @@
  "field_order": [
   "item",
   "warehouse",
-  "base_stock_ledger"
+  "base_stock_ledger",
+  "item_name"
  ],
  "fields": [
   {
@@ -30,12 +31,17 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Base Stock Ledger"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-07-05 08:51:13.042352",
+ "modified": "2023-10-24 11:07:53.636848",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Recalculate Voucher Records",

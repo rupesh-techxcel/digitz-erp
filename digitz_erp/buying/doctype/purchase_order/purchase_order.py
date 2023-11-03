@@ -23,7 +23,18 @@ class PurchaseOrder(Document):
 			frappe.throw("There is another Order invoice exist with the same date and time. Please correct the date and time.")
    
 	def validate(self):
+     
+		if not self.credit_purchase and self.payment_mode == None:
+			frappe.throw("Select Payment Mode")
+   
 		self.validate_items()	
+  
+	def before_validate(self):
+		if not self.credit_purchase or self.credit_purchase  == False:
+			self.paid_amount = self.rounded_total
+		else:
+			if self.is_new():
+				self.paid_amount = 0	
   
 	def before_save(self):
 		print("before_save")
@@ -34,8 +45,6 @@ class PurchaseOrder(Document):
 				item.purchased_qty = 0
    
 	def validate_items(self):
-
-		print("validate items")
   
 		idx =0
 		for item in self.items:      
@@ -49,14 +58,10 @@ class PurchaseOrder(Document):
 		
 
 	@frappe.whitelist()
-	def generate_purchase_invoice(self):
-     		
-		print("purchase_invoie_name")
+	def generate_purchase_invoice(self):     		
+		
 		purchase_invoice_name = ""			
-		purchaseOrderName =  self.name
-	
-		print("purchase order name")
-		print(purchaseOrderName)
+		purchaseOrderName =  self.name	
   
 		purchase_invoice = self.__dict__
 		purchase_invoice['doctype'] = 'Purchase Invoice'
@@ -65,7 +70,6 @@ class PurchaseOrder(Document):
 		purchase_invoice['posting_date'] = self.posting_date
 		purchase_invoice['posting_time'] = self.posting_time
 		purchase_invoice['purchase_order'] = purchaseOrderName
-		
 
 		# Change the document status to draft to avoid error while submitting child table
 		purchase_invoice['docstatus'] = 0
@@ -80,6 +84,8 @@ class PurchaseOrder(Document):
 
 		for item in purchase_invoice['items']:            
 			item.doctype = "Purchase Invoice Item"
+			item.qty = item.qty - item.qty_purchased
+			item.po_item_reference = item.name
 			# item.delivery_note_item_reference_no = item.name
 			item._meta = ""       
 			

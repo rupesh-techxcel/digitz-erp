@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "field:item_name",
+ "autoname": "field:item_code",
  "creation": "2022-12-09 06:24:45.198426",
  "default_view": "List",
  "doctype": "DocType",
@@ -33,7 +33,8 @@
   "tab_break_14",
   "customer_rates",
   "supplier_prices_tab",
-  "supplier_rates"
+  "supplier_rates",
+  "do_not_update_price"
  ],
  "fields": [
   {
@@ -180,11 +181,18 @@
    "fieldname": "stock_value",
    "fieldtype": "Currency",
    "label": "Stock Value"
+  },
+  {
+   "default": "0",
+   "fieldname": "do_not_update_price",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Do Not Update Price"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-05 19:19:32.471506",
+ "modified": "2023-10-30 13:14:10.811449",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

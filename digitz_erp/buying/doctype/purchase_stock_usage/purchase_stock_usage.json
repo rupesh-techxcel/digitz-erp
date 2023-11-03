@@ -8,7 +8,7 @@
  "field_order": [
   "purchase_invoice",
   "item",
-  "item_code",
+  "item_name",
   "delivery_note",
   "purchase_invoice_item",
   "delivery_note_item",
@@ -39,12 +39,6 @@
    "label": "Sold Qty"
   },
   {
-   "fetch_from": "item.item_code",
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "label": "item_code"
-  },
-  {
    "fieldname": "delivery_note",
    "fieldtype": "Link",
    "label": "Delivery Note",
@@ -55,11 +49,16 @@
    "fieldtype": "Link",
    "label": "Delivery Note Item",
    "options": "Delivery Note Item"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-14 08:16:06.671786",
+ "modified": "2023-10-24 13:18:07.177872",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Stock Usage",

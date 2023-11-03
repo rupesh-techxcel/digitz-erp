@@ -28,7 +28,7 @@ def get_item_uoms(item):
 @frappe.whitelist()
 def get_item_price_for_price_list(item, price_list):
 	 return frappe.get_all(
-		"Price List Item",
+		"Item List Item",
 		filters={"item": item,
 		 "parent": price_list},
 		fields=["price"]	  

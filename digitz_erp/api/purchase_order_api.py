@@ -1,4 +1,7 @@
 import frappe
+from datetime import datetime
+from frappe.utils import getdate
+
 
 @frappe.whitelist()
 def check_invoices_for_purchase_order(purchase_order):
@@ -61,4 +64,31 @@ def check_and_update_purchase_order_status(purchase_order_name):
        print("3 set value. here")
        
     
-        
+@frappe.whitelist()
+def get_purchase_order_due_dates():
+
+    data = []
+
+    # Calculate the start and end dates for the current year
+    
+    current_year = datetime.now().year
+    year_start_date = datetime(current_year, 1, 1)
+    year_end_date = datetime(current_year, 12, 31)
+
+    # Example query to fetch relevant data from Purchase Order with due dates in the current year
+    purchase_orders = frappe.get_all(
+        "Purchase Order",
+        filters={
+            "docstatus": 1,  # Filter for submitted Purchase Orders
+            "due_date": [">=", year_start_date, "<=", year_end_date]
+        },
+        fields=["name", "due_date"],
+    )
+
+    for po in purchase_orders:
+        data.append({
+            "name": po.name,
+            "due_date": getdate(po.due_date).strftime('%Y-%m-%d')  # Format the date as needed
+        })
+
+    return data
