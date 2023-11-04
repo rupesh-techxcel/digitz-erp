@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include digitz_erp *.css
+recursive-include digitz_erp *.csv
+recursive-include digitz_erp *.html
+recursive-include digitz_erp *.ico
+recursive-include digitz_erp *.js
+recursive-include digitz_erp *.json
+recursive-include digitz_erp *.md
+recursive-include digitz_erp *.png
+recursive-include digitz_erp *.py
+recursive-include digitz_erp *.svg
+recursive-include digitz_erp *.txt
+recursive-exclude digitz_erp *.pyc

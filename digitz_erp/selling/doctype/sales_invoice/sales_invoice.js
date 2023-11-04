@@ -356,15 +356,20 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price']
 						},
 						callback: (r2) => {							
 							
 							frm.doc.warehouse = r2.message.default_warehouse;
 							
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+
 							frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
-							frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_sales_invoice;
+
+							if(r2.message.use_customer_last_price  == 0)
+							{
+								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_sales_invoice;
+							}
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
 							frm.refresh_field("update_rates_in_price_list");
@@ -590,7 +595,8 @@ frappe.ui.form.on('Sales Invoice Item', {
 								args: {
 									'item': row.item,
 									'price_list': frm.doc.price_list,
-									'currency': currency								
+									'currency': currency,
+									'date': frm.doc.posting_date								
 								},
 								callback(r) {
 									console.log("digitz_erp.api.item_price_api.get_item_price")

@@ -20,6 +20,7 @@
   "edit_posting_date_and_time",
   "price_list",
   "rate_includes_tax",
+  "update_rates_in_price_list",
   "column_break_10",
   "supplier_inv_no",
   "supplier_inv_date",
@@ -40,7 +41,6 @@
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
-  "column_break_31",
   "amended_from",
   "section_break_25",
   "gross_total",
@@ -319,12 +319,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "fieldname": "column_break_31",
-   "fieldtype": "Check",
-   "label": "Update Rates in price list"
-  },
-  {
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
@@ -346,12 +340,18 @@
    "fieldtype": "Currency",
    "label": "Supplier Balance",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "update_rates_in_price_list",
+   "fieldtype": "Check",
+   "label": "Update Rates in price list"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-10-30 16:13:42.559905",
+ "modified": "2023-11-03 13:28:15.470707",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

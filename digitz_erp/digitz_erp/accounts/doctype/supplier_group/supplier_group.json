@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:supplier_group_name",
+ "creation": "2022-12-21 17:18:42.946540",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "supplier_group_name",
+  "lft",
+  "rgt",
+  "is_group",
+  "parent_supplier_group",
+  "credit_days",
+  "credit_amount",
+  "is_active",
+  "default_price_list"
+ ],
+ "fields": [
+  {
+   "fieldname": "supplier_group_name",
+   "fieldtype": "Data",
+   "label": "Supplier Group Name",
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "is Active"
+  },
+  {
+   "fieldname": "lft",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Left",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "rgt",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Right",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "parent_supplier_group",
+   "fieldtype": "Link",
+   "label": "Parent Supplier Group",
+   "options": "Supplier Group"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "credit_amount",
+   "fieldtype": "Float",
+   "label": "Credit Amount"
+  },
+  {
+   "fieldname": "default_price_list",
+   "fieldtype": "Link",
+   "label": "Default Price List",
+   "options": "Price List"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_tree": 1,
+ "links": [],
+ "modified": "2022-12-21 18:49:48.627421",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Supplier Group",
+ "naming_rule": "By fieldname",
+ "nsm_parent_field": "parent_supplier_group",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

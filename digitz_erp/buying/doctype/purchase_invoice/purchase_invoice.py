@@ -8,8 +8,10 @@ from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
 from frappe.model.mapper import *
-class PurchaseInvoice(Document):
+from digitz_erp.api.item_price_api import update_item_price
+from digitz_erp.api.settings_api import get_default_currency
 
+class PurchaseInvoice(Document):
 
 	# def before_submit(self):
 		# possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
@@ -231,6 +233,24 @@ class PurchaseInvoice(Document):
 
 	def on_cancel(self):
 		self.cancel_purchase()
+  
+	def update_item_prices(self):
+		
+		currency = get_default_currency()
+		print(self.items)
+		for docitem in self.items:
+			print("docitem to update price")
+			print(docitem)
+			item = docitem.item
+			price_list = self.price_list
+			base_unit = docitem.base_unit
+			rate = docitem.rate_in_base_unit
+			print("item")
+			print(item)
+			
+			print(self.price_list)
+			if(self.update_rates_in_price_list):
+				update_item_price(item,self.price_list,currency,rate)   
   
 	def on_trash(self):
        	

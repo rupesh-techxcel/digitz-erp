@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-12-22 13:25:29.208165",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_name",
+  "doc_type",
+  "next_expiry_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_name",
+   "fieldtype": "Data",
+   "label": "Document Name"
+  },
+  {
+   "fieldname": "doc_type",
+   "fieldtype": "Select",
+   "label": "Doc Type",
+   "options": "Passport\nVisa\nGovernment Issued Id (Eg: Emirates Id)\nLabour Contract No\nInsurance No\nOther"
+  },
+  {
+   "fieldname": "next_expiry_date",
+   "fieldtype": "Date",
+   "label": "Next Expiry Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-12-22 13:26:31.150177",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Employee Document",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

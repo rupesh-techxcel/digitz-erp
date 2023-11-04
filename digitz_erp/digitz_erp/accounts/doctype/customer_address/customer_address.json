@@ -1,0 +1,166 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-01-08 14:01:50.539607",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "address",
+  "address_line_1",
+  "address_line_2",
+  "emirate",
+  "area",
+  "country",
+  "customer",
+  "column_break_7",
+  "communication",
+  "phone",
+  "email_id",
+  "contact_person",
+  "contact_person_designation",
+  "contact_phone_no",
+  "contact_email_id",
+  "column_break_18",
+  "defaults",
+  "billing_address",
+  "shipping_address",
+  "is_default",
+  "full_address"
+ ],
+ "fields": [
+  {
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address LIne 1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "label": "Area",
+   "reqd": 1
+  },
+  {
+   "fieldname": "emirate",
+   "fieldtype": "Select",
+   "label": "Emirate",
+   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "contact_person_designation",
+   "fieldtype": "Data",
+   "label": "Contact Person Designation"
+  },
+  {
+   "fieldname": "contact_phone_no",
+   "fieldtype": "Data",
+   "label": "Contact Phone No"
+  },
+  {
+   "fieldname": "contact_email_id",
+   "fieldtype": "Data",
+   "label": "Contact Email Id"
+  },
+  {
+   "default": "0",
+   "fieldname": "billing_address",
+   "fieldtype": "Check",
+   "label": "Billing Address"
+  },
+  {
+   "default": "0",
+   "fieldname": "shipping_address",
+   "fieldtype": "Check",
+   "label": "Shipping Address"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "description": "Automatically links when saving from Customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "full_address",
+   "fieldtype": "Small Text",
+   "label": "Full Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "communication",
+   "fieldtype": "Heading",
+   "label": "Communication"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Heading",
+   "label": "Address"
+  },
+  {
+   "fieldname": "defaults",
+   "fieldtype": "Heading",
+   "label": "Defaults"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-01-12 09:02:34.899466",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Customer Address",
+ "name_case": "Title Case",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

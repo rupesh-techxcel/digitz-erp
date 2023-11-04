@@ -331,7 +331,7 @@ frappe.ui.form.on('Purchase Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
+							'fieldname': ['default_warehouse', 'rate_includes_tax','update_price_list_price_with_purchase_invoice','use_supplier_last_price']
 						},
 						callback: (r2) => {
 
@@ -350,6 +350,20 @@ frappe.ui.form.on('Purchase Invoice', {
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
+							console.log("use_supplier_last_price")
+							console.log(r2.message.use_supplier_last_price)
+
+							console.log("update_price_list_price_with_purchase_invoice")
+
+							console.log(r2.message.update_price_list_price_with_purchase_invoice)
+
+							if(r2.message.use_supplier_last_price  == 0)
+							{
+								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_purchase_invoice;
+								frm.refresh_field("update_rates_in_price_list");
+							}
+
+							
 						}
 					}
 

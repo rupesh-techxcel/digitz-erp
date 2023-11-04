@@ -1,0 +1,199 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:supplier_name",
+ "creation": "2022-12-21 17:13:58.451628",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "supplier_name",
+  "supplier_group",
+  "address",
+  "city",
+  "state",
+  "emirate",
+  "country",
+  "full_address",
+  "column_break_11",
+  "email_id",
+  "phone_no",
+  "mobile_no",
+  "contact_person",
+  "contact_person_designation",
+  "contact_mobile_no",
+  "tax_id",
+  "credit_days",
+  "credit_amount",
+  "default_price_list",
+  "default_terms",
+  "is_disabled",
+  "section_break_20",
+  "terms",
+  "section_break_22"
+ ],
+ "fields": [
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City (Area)"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "fieldname": "phone_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone No"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "contact_person_designation",
+   "fieldtype": "Data",
+   "label": "Contact Person Designation"
+  },
+  {
+   "fieldname": "contact_mobile_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contact Mobile No"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "TRN No"
+  },
+  {
+   "default": "All Supplier Groups",
+   "fieldname": "supplier_group",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier Group",
+   "options": "Supplier Group"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "credit_amount",
+   "fieldtype": "Float",
+   "label": "Credit Amount"
+  },
+  {
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name",
+   "unique": 1
+  },
+  {
+   "default": "Standard Buying",
+   "fieldname": "default_price_list",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Default Price List",
+   "options": "Price List",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_terms",
+   "fieldtype": "Link",
+   "label": "Default Terms",
+   "options": "Terms And Conditions"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "terms",
+   "fieldtype": "Text Editor",
+   "label": "Terms"
+  },
+  {
+   "fieldname": "section_break_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_22",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "emirate",
+   "fieldtype": "Select",
+   "label": "Emirate",
+   "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_disabled",
+   "fieldtype": "Check",
+   "label": "Is Disabled"
+  },
+  {
+   "description": "Address shows in prints",
+   "fieldname": "full_address",
+   "fieldtype": "Small Text",
+   "label": "Full Address",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-01-12 11:12:02.278333",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Supplier",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

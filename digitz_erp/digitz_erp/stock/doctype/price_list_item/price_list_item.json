@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2023-01-02 07:19:20.777459",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "price",
+  "item_code",
+  "item_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price"
+  },
+  {
+   "fetch_from": "item.item_code",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "label": "item_code"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "item_name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-10-17 16:59:51.871164",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Price List Item",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
