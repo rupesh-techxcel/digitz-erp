@@ -65,7 +65,7 @@ frappe.ui.form.on('Delivery Note', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Customer',
-					'filters': { 'customer_name': frm.doc.customer },
+					'filters': { 'customer_name': frm.doc.customer_name },
 					'fieldname': ['default_price_list']
 				},
 				callback: (r) => {
@@ -74,7 +74,7 @@ frappe.ui.form.on('Delivery Note', {
 					if (r.message.default_price_list) {
 						frm.doc.price_list = r.message.default_price_list;
 					}
-
+					
 					frm.refresh_field("price_list");
 				}
 			});

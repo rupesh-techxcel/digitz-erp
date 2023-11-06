@@ -27,10 +27,9 @@ class ItemPrice(Document):
 				   			        
 				if(record.from_date and record.to_date):
 					
-					if ((date.fromisoformat(self.from_date) <= record.to_date and date.fromisoformat(self.to_date) >= record.from_date)
-				or (date.fromisoformat(self.from_date) <= record.from_date and date.fromisoformat(self.to_date) >= record.from_date)
-				or (date.fromisoformat(self.from_date) <= record.to_date and date.fromisoformat(self.to_date) >= record.to_date)
-				):
+					if ((self.from_date <= record.to_date and self.to_date >= record.from_date)
+				or (self.from_date <= record.from_date and self.to_date >= record.from_date)
+				or (self.from_date <= record.to_date and self.to_date >= record.to_date)):
 						frappe.throw("Another ItemPrice with the same item/pricelist has overlapping date range.")
 		else:
    

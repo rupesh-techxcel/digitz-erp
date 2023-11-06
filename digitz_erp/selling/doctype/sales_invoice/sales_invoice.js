@@ -88,15 +88,21 @@ frappe.ui.form.on('Sales Invoice', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Customer',
-					'filters': { 'customer_name': frm.doc.customer },
+					'filters': { 'customer_name': frm.doc.customer_name },
 					'fieldname': ['default_price_list','customer_name']
 				},
 				callback: (r) => {
+					
+					console.log("r.message.default_price_list")
+					console.log(r.message.default_price_list)
+
 					if (r.message.default_price_list) {
 						frm.doc.price_list = r.message.default_price_list;
 					}
 
 					frm.refresh_field("price_list");
+					console.log("frm.doc.price_list")
+					console.log(frm.doc.price_list)
 				}
 			});
 			frappe.call(

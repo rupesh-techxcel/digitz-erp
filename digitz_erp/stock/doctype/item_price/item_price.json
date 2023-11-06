@@ -85,11 +85,13 @@
   {
    "fieldname": "from_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "From Date"
   },
   {
    "fieldname": "to_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "To Date"
   },
   {
@@ -106,7 +108,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-05 08:15:11.582533",
+ "modified": "2023-11-06 16:04:01.335104",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Price",

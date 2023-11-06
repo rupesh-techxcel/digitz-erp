@@ -439,6 +439,7 @@ class SalesInvoice(Document):
                 
                 print("delivery note name")
                 print(delivery_note_name)
+                frappe.msgprint("A Delivery Note corresponding to the  Sales invoice createdsuccessfully", alert = True)
                 
 
         # Rename the delivery note to the original dnoNo which is deleted
@@ -496,6 +497,7 @@ class SalesInvoice(Document):
         # Need to remove the next line to set auto_save_delivery_note
         si.auto_save_delivery_note = True
         si.save()
+        
         print("From end of auto gen delivery note")
 
     def cancel_delivery_note_for_sales_invoice(self):
@@ -503,7 +505,7 @@ class SalesInvoice(Document):
         delivery_note = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
         do = frappe.get_doc('Delivery Note',delivery_note)
         do.cancel()
-        frappe.msgprint("Sales invoice and delivery note cancelled successfully")
+        frappe.msgprint("Sales invoice and delivery note cancelled successfully", alert= True)
 
         # frappe.msgprint("Delivery Note cancelled")
     def deduct_stock_for_tab_sales(self):
