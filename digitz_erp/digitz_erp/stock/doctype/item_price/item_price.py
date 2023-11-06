@@ -19,19 +19,33 @@ class ItemPrice(Document):
 			WHERE item=%(item)s AND price_list=%(price_list)s AND from_date IS NOT NULL AND to_date IS NOT NULL AND name != %(name)s
 			""", {"item": self.item, "price_list": self.price_list, "name": self.name}, as_dict=1)
    
+			print("existing_records")
 			print(existing_records)
    
 			for record_item_price in existing_records:
        
 				record = frappe.get_doc("Item Price", record_item_price.name)
+    
+				print("record")    
+				print(record)
+    
+				print("record from_date")    
+				print(record.from_date)
+				
 				   			        
 				if(record.from_date and record.to_date):
-					
-					if ((date.fromisoformat(self.from_date) <= record.to_date and date.fromisoformat(self.to_date) >= record.from_date)
-				or (date.fromisoformat(self.from_date) <= record.from_date and date.fromisoformat(self.to_date) >= record.from_date)
-				or (date.fromisoformat(self.from_date) <= record.to_date and date.fromisoformat(self.to_date) >= record.to_date)
+        	
+					if ((self.from_date <= record.to_date and self.to_date >= record.from_date)
+				or (self.from_date <= record.from_date and self.to_date >= record.from_date)
+				or (self.from_date <= record.to_date and self.to_date >= record.to_date)
 				):
 						frappe.throw("Another ItemPrice with the same item/pricelist has overlapping date range.")
+					
+				# 	if ((date.fromisoformat(self.from_date) <= record.to_date and date.fromisoformat(self.to_date) >= record.from_date)
+				# or (date.fromisoformat(self.from_date) <= record.from_date and date.fromisoformat(self.to_date) >= record.from_date)
+				# or (date.fromisoformat(self.from_date) <= record.to_date and date.fromisoformat(self.to_date) >= record.to_date)
+				# ):
+				# 		frappe.throw("Another ItemPrice with the same item/pricelist has overlapping date range.")
 		else:
    
 			prices = frappe.db.sql("""
@@ -74,7 +88,7 @@ class ItemPrice(Document):
 				frappe.db.sql(sql, (self.rate, self.item))
 				print("before show alert from 'item price', standard selling, update ")
 				frappe.msgprint(f"Standard selling price updated for the item, {self.item}", alert=True)
-
+		
 
 
 			

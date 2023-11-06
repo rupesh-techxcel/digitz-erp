@@ -42,6 +42,8 @@ class PurchaseInvoice(Document):
 		if self.purchase_order:
 			self.update_purchase_order_quantities_before_save()
 			check_and_update_purchase_order_status(self.purchase_order)   
+   
+		self.update_item_prices()
 
 	def before_cancel(self):
 		print("before_cancel")
@@ -76,8 +78,7 @@ class PurchaseInvoice(Document):
     
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
-		
-
+	
 
 	def update_purchase_order_quantities_before_save(self):		
   
@@ -235,22 +236,15 @@ class PurchaseInvoice(Document):
 		self.cancel_purchase()
   
 	def update_item_prices(self):
-		
-		currency = get_default_currency()
-		print(self.items)
-		for docitem in self.items:
-			print("docitem to update price")
-			print(docitem)
-			item = docitem.item
-			price_list = self.price_list
-			base_unit = docitem.base_unit
-			rate = docitem.rate_in_base_unit
-			print("item")
-			print(item)
-			
-			print(self.price_list)
-			if(self.update_rates_in_price_list):
-				update_item_price(item,self.price_list,currency,rate)   
+     
+		if(self.update_rates_in_price_list):				
+			currency = get_default_currency()			
+			for docitem in self.items:
+				print("docitem to update price")
+				print(docitem)
+				item = docitem.item
+				rate = docitem.rate_in_base_unit
+				update_item_price(item,self.price_list,currency,rate, self.posting_date)
   
 	def on_trash(self):
        	

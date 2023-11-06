@@ -1,75 +1,100 @@
 import frappe
 from frappe.utils import get_datetime
 from digitz_erp.api.settings_api import get_default_currency
+from datetime import datetime
 
 @frappe.whitelist()
 def update_item_price(item, price_list, currency, rate, date):
-    
-    item_doc = frappe.get_doc('Item', item)
-    
-     # Check if there's a matching Item Price record for the given item, price_list, currency, and date
+   
+    # Check if there's a matching Item Price record for the given item, price_list, currency, and date
     item_price = frappe.get_all("Item Price", filters={
-        "item_code": item,
+        "item": item,
         "price_list": price_list,
         "currency": currency,
-        "from_date": ('<=', date),
-        "to_date": ('>=', date)
-    }, fields=["name"], limit=1)
+    }, fields=["rate","name","from_date", "to_date"])    
     
-    # Check price list exists without a date
-    if not item_price:
-        item_price = frappe.get_all("Item Price", filters={
-            "item_code": item,
-            "price_list": price_list,
-            "currency": currency
-        }, fields=["name"], limit=1)
-        
+    date = str(date)
+    
+    date = datetime.strptime(date, '%Y-%m-%d').date()  # Convert date to datetime object
+   
+    item_price_doc_no_dates_name = ""
+
     if item_price:
+        for ip in item_price:           
+            
+            if ip.from_date and ip.to_date:
+                if ip.from_date <= date and ip.to_date >=date:                    
+                    item_price_with_dates =frappe.get_doc("Item Price", ip.name)
+                    item_price_with_dates.rate = rate
+                    item_price_with_dates.save()
+                    return
+             
+            if(ip.from_date == None and ip.to_date == None):
+                 item_price_doc_no_dates_name = ip.name   
         
-        item_price_doc = frappe.get_doc("Item Price", item_price)
-        item_price_doc.rate = rate
-        item_price_doc.save()            
-    else:    
+        if(item_price_doc_no_dates_name !="" ):
+            item_price_no_dates =frappe.get_doc("Item Price", item_price_doc_no_dates_name)
+            item_price_no_dates.rate = rate
+            item_price_no_dates.save()
+            return
+        else: 
+            # This case happens only if there is an item price already exists which has
+            # different date range and not with even default price with out dates
+            # and its not likely to occur
+            item_doc = frappe.get_doc("Item", item)
+            
+            
+            doc = frappe.new_doc("Item Price")
+            doc.item = item	
+            doc.item_name = item_doc.item_name
+            doc.unit = item_doc.base_unit			
+            doc.price_list = price_list
+            doc.currency = currency
+            doc.rate = rate
+            doc.insert()
+    else:
+        item_doc = frappe.get_doc("Item", item)
         doc = frappe.new_doc("Item Price")
         doc.item = item	
         doc.item_name = item_doc.item_name
         doc.unit = item_doc.base_unit			
         doc.price_list = price_list
         doc.currency = currency
-        doc.rate = rate  
-        print("doc")          
-        print(doc)          
-        doc.insert()	
-    
-                
+        doc.rate = rate
+        doc.insert()
+        
 @frappe.whitelist()
 def get_item_price(item, price_list, currency, date):
-    
+   
     # Check if there's a matching Item Price record for the given item, price_list, currency, and date
     item_price = frappe.get_all("Item Price", filters={
-        "item_code": item,
+        "item": item,
         "price_list": price_list,
         "currency": currency,
-        "from_date": ('<=', date),
-        "to_date": ('>=', date)
-    }, fields=["rate"], limit=1)
+    }, fields=["rate","name","from_date", "to_date"]) 
+   
+    date = datetime.strptime(date, '%Y-%m-%d').date()  # Convert date to datetime object
+   
+    item_price_doc_no_dates_name = ""
 
     if item_price:
-        # Return the rate from the matching record
-        return item_price[0].rate
-    else:
-        # Add your additional condition within the else block
-        item_price = frappe.get_all("Item Price", filters={
-            "item_code": item,
-            "price_list": price_list,
-            "currency": currency
-        }, fields=["rate"], limit=1)
+        for ip in item_price:           
+            
+            if ip.from_date and ip.to_date:
+                if ip.from_date <= date and ip.to_date >= date:                
+                    return ip.rate
+             
+            if(ip.from_date == None and ip.to_date == None):
+                 item_price_doc_no_dates_name = ip.name   
         
-        if item_price:
-            return item_price[0].rate
-        else:
-            return 0
-
+        if(item_price_doc_no_dates_name !="" ):
+            item_price_with_rate =  frappe.get_doc("Item Price", item_price_doc_no_dates_name)
+            
+            if item_price_with_rate:
+                return item_price_with_rate.rate    
+        
+        return 0
+        
 @frappe.whitelist()
 def get_customer_last_price_for_item(item,customer):
 

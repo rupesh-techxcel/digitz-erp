@@ -17,6 +17,9 @@ frappe.ui.form.on('Sales Invoice', {
 	after_save: function (frm) {
 
 		 if (frm.doc.auto_save_delivery_note) {
+			console.log("frm.doc.name")
+			console.log(frm.doc.name)
+			console.log("before call auto_genreate_delivery_note")
 			frm.call("auto_generate_delivery_note")
 		 }
 	},

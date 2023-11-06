@@ -581,7 +581,8 @@ frappe.ui.form.on('Purchase Invoice Item', {
 								args: {
 									'item': row.item,
 									'price_list': frm.doc.price_list,
-									'currency': currency								
+									'currency': currency,
+									'date': frm.doc.posting_date
 								},
 								callback(r) {
 									console.log("digitz_erp.api.item_price_api.get_item_price")

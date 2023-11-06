@@ -24,7 +24,9 @@
   {
    "fieldname": "item",
    "fieldtype": "Link",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Item",
    "options": "Item"
   },
@@ -38,7 +40,9 @@
   {
    "fieldname": "price_list",
    "fieldtype": "Link",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Price List",
    "options": "Price List"
   },
@@ -102,7 +106,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-30 13:14:30.187319",
+ "modified": "2023-11-05 08:15:11.582533",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Price",

@@ -31,6 +31,9 @@ class SalesInvoice(Document):
     
     def validate(self): 
         self.validate_item()
+    
+    def on_update(self):
+        self.update_item_prices()
 
     def on_submit(self):        
 
@@ -49,21 +52,22 @@ class SalesInvoice(Document):
     
     def update_item_prices(self):
         
-        currency = get_default_currency()
-        print(self.items)
-        for docitem in self.items:
-            print("docitem to update price")
-            print(docitem)
-            item = docitem.item
-            price_list = self.price_list
-            base_unit = docitem.base_unit
-            rate = docitem.rate_in_base_unit
-            print("item")
-            print(item)
-            
-            print(self.price_list)
-            if(self.update_rates_in_price_list):
-                update_item_price(item,self.price_list,currency,rate)            
+        if(self.update_rates_in_price_list):        
+            currency = get_default_currency()
+            print(self.items)
+            for docitem in self.items:
+                print("docitem to update price")
+                print(docitem)
+                item = docitem.item
+                rate = docitem.rate_in_base_unit
+                print("update_item_price arguments")
+                print(item)
+                print(self.price_list)
+                print(currency)
+                print(rate)
+                print(self.posting_date)
+                
+                update_item_price(item, self.price_list,currency,rate, self.posting_date)            
 
     def validate_item(self):
 
@@ -281,6 +285,9 @@ class SalesInvoice(Document):
         doNo = ""
 
         si_name = self.name
+        
+        print("si_name")
+        print(si_name)
 
         # Before delete the existing Delivery Note to insert it again, remove the link in the Sales Invoice
         # to avoid the reference error
@@ -293,9 +300,12 @@ class SalesInvoice(Document):
         do_exists = False
 
         if self.auto_save_delivery_note:
+            
             if frappe.db.exists('Sales Invoice Delivery Notes', {'parent': self.name}):
                 do_exists = True
+                
                 delivery_note_name =  frappe.db.get_value('Sales Invoice Delivery Notes',{'parent':self.name},['delivery_note'] )
+                
                 # Remove the reference first before deleting the actual document
                 # frappe.db.delete('Sales Invoice Delivery Notes',{'parent':self.name})
                 delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_name)
@@ -403,6 +413,8 @@ class SalesInvoice(Document):
                 if(self.amended_from):                    
                     frappe.msgprint("Corresponding Delivery cannot amend automatically. System generates a new delivery note instead.")
 
+                print("create delivery note")
+                
                 delivery_note = self.__dict__
                 delivery_note['doctype'] = 'Delivery Note'
                 # delivery_note['against_sales_invoice'] = delivery_note['name']
@@ -420,7 +432,14 @@ class SalesInvoice(Document):
 
                 delivery_note_doc = frappe.get_doc(delivery_note).insert()
                 frappe.db.commit()
+                
+                print("delivery note created")
+                
                 delivery_note_name = delivery_note_doc.name
+                
+                print("delivery note name")
+                print(delivery_note_name)
+                
 
         # Rename the delivery note to the original dnoNo which is deleted
         # if(do_exists):
@@ -434,17 +453,32 @@ class SalesInvoice(Document):
             si.append('delivery_notes', {'delivery_note': delivery_note_name})
 
         si.save()
+        
+        print("si saved")
 
-        delivery_notes = frappe.db.get_list('Sales Invoice Delivery Notes', {'parent': ['=', si_name]},['delivery_note'], as_list=True)
+        # delivery_notes = frappe.db.get_all('Sales Invoice Delivery Notes', {'parent': ['=', si_name]},{'delivery_note'})
+        delivery_notes = frappe.db.get_all('Sales Invoice Delivery Notes', 
+                                   filters={'parent': si_name},
+                                   fields=['delivery_note'])
+
+        
+        print("delivery notes")
+        print(delivery_notes)
 
         # It is likely that there will be only one delivery note for the sales invoice for this method.
         index = 0
         maxIndex = 3
         doNos = ""
 
-        for delivery_noteName in delivery_notes:
-            delivery_note = frappe.get_doc('Delivery Note',delivery_noteName )
-            doNos = doNos + delivery_note.name + "   "
+        for delivery_note_saved in delivery_notes:
+            do_created = frappe.get_doc('Delivery Note',delivery_note_saved.delivery_note )
+            
+            print(doNo)
+            if(doNos == ""):
+                doNos = do_created.name
+            else:
+                doNos = doNos + ", " + do_created.name
+                
             index= index + 1
             if index == maxIndex:
                 break
