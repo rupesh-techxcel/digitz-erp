@@ -12,6 +12,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
 
+
 	},
 	refresh:function (frm) {
 		if(!frm.is_new()){
@@ -53,18 +54,34 @@ frappe.ui.form.on('Purchase Invoice', {
 					frm.refresh_field("price_list");
 				}
 			});
+		frappe.call(
+			{
+				method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+				args: {
+					'party_type': 'Supplier',
+					'party': frm.doc.supplier
+				},
+				callback: (r) => {
+					frm.set_value('supplier_balance',r.message)
+					frm.refresh_field("supplier_balance");
+				}
+			});
 			frappe.call(
 				{
-					method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
-					args: {
-						'party_type': 'Supplier',
-						'party': frm.doc.supplier
-					},
-					callback: (r) => {
-						frm.set_value('supplier_balance',r.message)
-						frm.refresh_field("supplier_balance");
+					method:'digitz_erp.api.settings_api.get_supplier_terms',
+					args:{
+						'supplier': frm.doc.supplier
+					},					
+					callback(r){								
+						frm.doc.terms = r.message.template_name,
+						frm.doc.terms_and_conditions = r.message.terms
+						frm.refresh_field("terms_and_conditions");
+						frm.refresh_field("terms");
 					}
-				});
+				}
+			);
+
+			frm.trigger("fill_payment_schedule");
 	},
 	edit_posting_date_and_time(frm) {
 
@@ -88,6 +105,50 @@ frappe.ui.form.on('Purchase Invoice', {
 		if (frm.doc.credit_purchase) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
+		}
+		
+		frm.trigger("fill_payment_schedule", refresh= true);		
+	},	
+	fill_payment_schedule(frm, refresh=false)
+	{
+		if(refresh)
+		{
+			frm.doc.payment_schedule = [];
+        	refresh_field("payment_schedule");
+		}
+
+		if (frm.doc.credit_purchase) {
+            var postingDate = frm.doc.posting_date;
+            var creditDays = frm.doc.credit_days;
+            var roundedTotal = frm.doc.rounded_total;
+
+			if (!frm.doc.payment_schedule) {
+				frm.doc.payment_schedule = [];
+			}
+
+            var paymentRow = null;
+
+            // Check if a Payment Schedule row already exists
+            frm.doc.payment_schedule.forEach(function(row) {
+                if (row.date === postingDate) {
+                    paymentRow = row;
+                }
+            });
+
+            if (!paymentRow) {
+                // Calculate payment schedule and add a new row
+                paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
+                paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				paymentRow.payment_mode = "Cash"				
+            }
+
+            paymentRow.amount = roundedTotal;
+            refresh_field("payment_schedule");
+        }
+		else
+		{
+			frm.doc.payment_schedule = [];
+            refresh_field("payment_schedule");
 		}
 	},
 	warehouse(frm) {
@@ -272,13 +333,7 @@ frappe.ui.form.on('Purchase Invoice', {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
 
-		console.log("Totals");
-
-		console.log(frm.doc.gross_total);
-		console.log(frm.doc.tax_total);
-		console.log(frm.doc.net_total);
-		console.log(frm.doc.round_off);
-		console.log(frm.doc.rounded_total);
+		frm.trigger("fill_payment_schedule");
 
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
@@ -331,10 +386,11 @@ frappe.ui.form.on('Purchase Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax','update_price_list_price_with_purchase_invoice','use_supplier_last_price']
+							'fieldname': ['default_warehouse', 'rate_includes_tax','update_price_list_price_with_purchase_invoice','use_supplier_last_price', 'supplier_terms']
 						},
 						callback: (r2) => {
 
+							console.log(r2)
 
 							if (typeof window.warehouse !== 'undefined') {
 								// The value is assigned to window.warehouse
@@ -361,9 +417,26 @@ frappe.ui.form.on('Purchase Invoice', {
 							{
 								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_purchase_invoice;
 								frm.refresh_field("update_rates_in_price_list");
-							}
-
+							}	
 							
+							if(r2.message.supplier_terms)
+							{
+								frm.doc.terms = r2.message.supplier_terms
+								frm.refresh_field("terms");
+
+								frappe.call(
+									{
+										method:'digitz_erp.api.settings_api.get_terms_for_template',
+										args:{
+											'template': r2.message.supplier_terms
+										},					
+										callback(r){								
+											
+											frm.doc.terms_and_conditions = r.message.terms
+											frm.refresh_field("terms_and_conditions");											
+										}
+									});
+							}
 						}
 					}
 
@@ -433,6 +506,7 @@ frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 		};
 	});
 
+	frm.trigger("fill_payment_schedule");
 
 });
 

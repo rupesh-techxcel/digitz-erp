@@ -20,6 +20,7 @@
   "against_account",
   "party_type",
   "party",
+  "remarks",
   "is_debit"
  ],
  "fields": [
@@ -95,11 +96,16 @@
    "fieldtype": "Select",
    "label": "Series",
    "options": "GL-.YY.-"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-25 10:27:39.664649",
+ "modified": "2023-11-07 18:31:33.789507",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "GL Posting",

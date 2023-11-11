@@ -16,6 +16,17 @@ frappe.ui.form.on('Supplier', {
 		});		        		
 			
     },
+	refresh: function(frm) {
+        frm.add_custom_button(__('Show Account Ledger'), function() {
+			
+            // Handle button click action here
+            // You can use `frm.doc` to access the current document
+            // For example, you can perform custom logic or open a dialog
+        });
+		
+		frm.set_df_property("default_terms","hidden", frm.doc.use_default_supplier_terms)
+		frm.set_df_property("terms","hidden", frm.doc.use_default_supplier_terms)
+    },
 	before_save: function(frm){
 
 		var address = frm.doc.address;
@@ -53,6 +64,11 @@ frappe.ui.form.on('Supplier', {
 		var country = "\n" + frm.doc.country;
 		
 		frm.doc.full_address = address + city + state + country;
+	},
+	use_default_supplier_terms(frm)
+	{
+		frm.set_df_property("default_terms","hidden", frm.doc.use_default_supplier_terms)
+		frm.set_df_property("terms","hidden", frm.doc.use_default_supplier_terms)
 	}
 });
 	
@@ -61,3 +77,4 @@ frappe.ui.form.on("Supplier", "onload", function(frm) {
 	
 		
 	});
+

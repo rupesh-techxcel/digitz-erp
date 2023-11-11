@@ -24,14 +24,15 @@
   "contact_person_designation",
   "contact_mobile_no",
   "tax_id",
+  "column_break_04uh",
   "credit_days",
   "credit_amount",
   "default_price_list",
-  "default_terms",
   "is_disabled",
   "section_break_20",
-  "terms",
-  "section_break_22"
+  "use_default_supplier_terms",
+  "default_terms",
+  "terms"
  ],
  "fields": [
   {
@@ -139,16 +140,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "fetch_from": "default_terms.terms",
    "fieldname": "terms",
    "fieldtype": "Text Editor",
-   "label": "Terms"
+   "label": "Terms",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_20",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "section_break_22",
    "fieldtype": "Section Break"
   },
   {
@@ -169,11 +168,21 @@
    "fieldtype": "Small Text",
    "label": "Full Address",
    "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "use_default_supplier_terms",
+   "fieldtype": "Check",
+   "label": "Use Default Supplier Terms from company settings"
+  },
+  {
+   "fieldname": "column_break_04uh",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-12 11:12:02.278333",
+ "modified": "2023-11-10 10:26:43.741948",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

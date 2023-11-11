@@ -3,7 +3,7 @@
 
 frappe.ui.form.on('Customer', {
 	
-	setup:function(frm)
+	refresh:function(frm)
 	{
 
 		frm.set_query("area", function() {
@@ -13,6 +13,9 @@ frappe.ui.form.on('Customer', {
 				}
 			};
 		});	
+
+		frm.set_df_property("default_terms","hidden", frm.doc.use_default_customer_terms)
+		frm.set_df_property("terms","hidden", frm.doc.use_default_customer_terms)
 	},	 
 	before_save: function(frm){
 
@@ -69,6 +72,11 @@ frappe.ui.form.on('Customer', {
 	emirate(frm)
 	{
 		frm.doc.area = ""; //Change default area for the emirate selected
+	},
+	use_default_customer_terms(frm)
+	{
+		frm.set_df_property("default_terms","hidden", frm.doc.use_default_customer_terms)
+		frm.set_df_property("terms","hidden", frm.doc.use_default_customer_terms)
 	}
 
 });

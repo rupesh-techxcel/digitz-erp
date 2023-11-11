@@ -34,6 +34,8 @@
   "payment_mode",
   "payment_account",
   "column_break_24",
+  "payment_schedule",
+  "column_break_yo6a",
   "remarks",
   "section_break_19",
   "items",
@@ -44,11 +46,12 @@
   "amended_from",
   "section_break_25",
   "gross_total",
-  "total_discount_in_line_items",
   "tax_total",
-  "additional_discount",
-  "column_break_33",
   "net_total",
+  "column_break_33",
+  "total_discount_in_line_items",
+  "additional_discount",
+  "column_break_5kr0",
   "round_off",
   "rounded_total",
   "paid_amount",
@@ -56,8 +59,20 @@
   "taxes",
   "terms_and_conditions_section",
   "terms",
+  "column_break_ytde",
+  "column_break_h1ti",
+  "section_break_e8ur",
   "terms_and_conditions",
-  "section_break_27"
+  "section_break_27",
+  "postings_start_time",
+  "stock_posted",
+  "stock_posted_time",
+  "stock_recalc_required",
+  "stock_recalc_voucher",
+  "stock_recalc_done_time",
+  "stock_recalc_done",
+  "gl_posted_time",
+  "payment_posted_time"
  ],
  "fields": [
   {
@@ -346,12 +361,104 @@
    "fieldname": "update_rates_in_price_list",
    "fieldtype": "Check",
    "label": "Update Rates in price list"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "stock_recalc_voucher",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Stock Recalc Voucher"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "stock_posted_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Stock Posted Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payment_posted_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Payment Posted Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "gl_posted_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "GL Posted Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "postings_start_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Postings Start Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "stock_posted",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Stock Posted"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "stock_recalc_required",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Stock Recalc Required"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "stock_recalc_done_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Stock Recalc Done Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "stock_recalc_done",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Stock Recalc Done"
+  },
+  {
+   "fieldname": "column_break_yo6a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Purchase Payment Schedule"
+  },
+  {
+   "fieldname": "column_break_5kr0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_e8ur",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ytde",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_h1ti",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-03 13:28:15.470707",
+ "modified": "2023-11-10 16:54:38.877755",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

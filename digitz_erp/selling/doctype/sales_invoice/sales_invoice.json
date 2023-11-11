@@ -41,6 +41,8 @@
   "payment_terms",
   "payment_mode",
   "payment_account",
+  "column_break_zjj2",
+  "receipt_schedule",
   "column_break_25",
   "remarks",
   "section_break_19",
@@ -52,11 +54,12 @@
   "amended_from",
   "section_break_25",
   "gross_total",
-  "total_discount_in_line_items",
   "tax_total",
+  "net_total",
+  "column_break_e6g4",
+  "total_discount_in_line_items",
   "additional_discount",
   "column_break_33",
-  "net_total",
   "round_off",
   "rounded_total",
   "paid_amount",
@@ -493,12 +496,26 @@
    "fieldname": "update_rates_in_price_list",
    "fieldtype": "Check",
    "label": "Update Rates In Price List"
+  },
+  {
+   "fieldname": "column_break_e6g4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zjj2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receipt_schedule",
+   "fieldtype": "Table",
+   "label": "Receipt Schedule",
+   "options": "Sales Receipt Schedule"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-10-30 16:31:28.428301",
+ "modified": "2023-11-10 20:27:16.018724",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

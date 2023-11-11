@@ -23,7 +23,7 @@ frappe.query_reports["Supplier Statement Of Account"] = {
 			"fieldtype": "Date",
 			"label": "To Date",
 			"width": 150,
-			"default":frappe.datetime.month_start()	
+			"default":frappe.datetime.month_end()	
 		},
 		{
 			"fieldname": "group_by",

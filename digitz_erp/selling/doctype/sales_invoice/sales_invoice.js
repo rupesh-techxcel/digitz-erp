@@ -120,7 +120,21 @@ frappe.ui.form.on('Sales Invoice', {
 
 			frm.doc.customer_display_name = frm.doc.customer_name
 			frm.refresh_field("customer_display_name");
-
+		
+		frappe.call(
+			{
+				method:'digitz_erp.api.settings_api.get_customer_terms',
+				args:{
+					'customer': frm.doc.customer
+				},					
+				callback(r){								
+					frm.doc.terms = r.message.template_name,
+					frm.doc.terms_and_conditions = r.message.terms
+					frm.refresh_field("terms_and_conditions");
+					frm.refresh_field("terms");
+				}
+			}
+		);
 	},
 	edit_posting_date_and_time(frm) {
 
@@ -146,6 +160,48 @@ frappe.ui.form.on('Sales Invoice', {
 			frm.doc.payment_account = "";
 		}
 
+	},
+	fill_receipt_schedule(frm, refresh=false)
+	{
+		if(refresh)
+		{
+			frm.doc.receipt_schedule = [];
+        	refresh_field("receipt_schedule");
+		}
+
+		if (frm.doc.credit_sale) {
+            var postingDate = frm.doc.posting_date;
+            var creditDays = frm.doc.credit_days;
+            var roundedTotal = frm.doc.rounded_total;
+
+			if (!frm.doc.receipt_schedule) {
+				frm.doc.receipt_schedule = [];
+			}
+
+            var paymentRow = null;
+
+            // Check if a Payment Schedule row already exists
+            frm.doc.receipt_schedule.forEach(function(row) {
+                if (row.date === postingDate) {
+                    paymentRow = row;
+                }
+            });
+
+            if (!paymentRow) {
+                // Calculate payment schedule and add a new row
+                paymentRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
+                paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				paymentRow.payment_mode = "Cash"				
+            }
+
+            paymentRow.amount = roundedTotal;
+            refresh_field("payment_schedule");
+        }
+		else
+		{
+			frm.doc.payment_schedule = [];
+            refresh_field("payment_schedule");
+		}
 	},
 	warehouse(frm) {
 		
@@ -362,7 +418,7 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms']
 						},
 						callback: (r2) => {							
 							
@@ -390,13 +446,26 @@ frappe.ui.form.on('Sales Invoice', {
 								)
 							}
 
-							// if (frm.doc.__islocal) {
-							// 	frm.add_custom_button('Get Items from Delivery Notes', () => {
-							// 		// Commented for correction
-							// 		// frm.trigger("get_items_from_delivery_notes");
-							// 	},
-							// 	)
-							// }
+							if(r2.message.customer_terms)
+							{
+								frm.doc.terms = r2.message.customer_terms
+								frm.refresh_field("terms");
+
+								frappe.call(
+									{
+										method:'digitz_erp.api.settings_api.get_terms_for_template',
+										args:{
+											'template': r2.message.customer_terms
+										},					
+										callback(r){								
+											
+											frm.doc.terms_and_conditions = r.message.terms
+											frm.refresh_field("terms_and_conditions");											
+										}
+									});
+							}
+
+							
 
 						}
 					}

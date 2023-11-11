@@ -10,6 +10,7 @@ from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_st
 from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
+from datetime import datetime
 
 class PurchaseInvoice(Document):
 
@@ -33,10 +34,22 @@ class PurchaseInvoice(Document):
 			frappe.throw("Select Payment Mode")
    
 	def on_submit(self):
-		frappe.enqueue(self.insert_gl_records, queue="long")
-		self.insert_payment_postings()
-		self.add_stock_for_purchase_receipt()
+     
+		print("remarks")
+		print(self.remarks)
+    
+		# assign posting_start_time before the background thread start to get the real time
+		# because a lagging may happen to start the thread
+		self.postings_start_time = datetime.now()		
+		frappe.enqueue(self.do_postings_on_submit, queue="long")
 
+	def do_postings_on_submit(self):		
+
+		self.insert_gl_records(self.remarks)
+		self.insert_payment_postings()  
+		self.add_stock_for_purchase_receipt()  
+		self.save()
+  
 	def on_update(self):
 		print("on_update")
 		if self.purchase_order:
@@ -127,19 +140,8 @@ class PurchaseInvoice(Document):
 			# Default balance value calculating withe the current row only
 			new_balance_value = new_balance_qty * valuation_rate
 
-			print("Item")
-			print(docitem.item)
-			print("Qty")
-			print(new_balance_qty)
-			print("Value")
-			print(new_balance_value)
-
 			# Assigned current stock value to use if previous values not exist
 			change_in_stock_value = new_balance_value
-			print("Change in stock value")
-			print(change_in_stock_value)
-
-			print(posting_date_time)
 
 			# posting_date<= consider because to take the dates with in the same minute
 			# dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]})
@@ -147,10 +149,7 @@ class PurchaseInvoice(Document):
                                              'posting_date': ['<', posting_date_time]})
 
 			if(dbCount>0):
-
-				print("dbCount")
-				print(dbCount)
-
+			
 				# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
 				# from the balance qty in the existing rows x actual incoming rate
 
@@ -188,18 +187,10 @@ class PurchaseInvoice(Document):
 			new_stock_ledger.source_document_id = docitem.name
 			new_stock_ledger.insert()
 
-			print("Change in stock value 2nd")
-			print(change_in_stock_value)
-
 			sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
-			print("from sl")
-			print(sl.change_in_stock_value)
-
 
 			# If no more records for the item, update balances. otherwise it updates in the flow
 			if more_records_count_for_item==0:
-
-				print("more_records_count_for_item==0" + docitem.item)
 
 				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
 					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
@@ -213,13 +204,8 @@ class PurchaseInvoice(Document):
 				new_stock_balance.stock_value = new_balance_value
 				new_stock_balance.valuation_rate = valuation_rate
 
-				new_stock_balance.insert()
-				print("new stock balance qty")
-				print(new_balance_qty)
+				new_stock_balance.insert()				
 
-				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				# print("item_name")
-				# print(item_name)
 
 				update_item_stock_balance(docitem.item)
 
@@ -229,8 +215,24 @@ class PurchaseInvoice(Document):
                                                         'base_stock_ledger': new_stock_ledger.name
                                                             })
 		if(more_records>0):
-			stock_recalc_voucher.insert()
-			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+			self.stock_posted = True
+			self.stock_posted_time = datetime.now()
+			self.stock_recalc_required = True
+			
+			stock_recalc_voucher.insert()			
+			self.stock_recalc_voucher = stock_recalc_voucher.name   
+			
+			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)	
+						
+			self.stock_recalc_done = True
+			self.stock_recalc_done_time = datetime.now()   
+			
+   
+		else:
+			self.stock_posted = True
+			self.stock_posted_time = datetime.now()
+			self.stock_recalc_required = False			
+   
 
 	def on_cancel(self):
 		self.cancel_purchase()
@@ -341,7 +343,7 @@ class PurchaseInvoice(Document):
 					"voucher_no":self.name
 				})
 
-	def insert_gl_records(self):
+	def insert_gl_records(self, remarks):
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
@@ -361,6 +363,7 @@ class PurchaseInvoice(Document):
 		gl_doc.party_type = "Supplier"
 		gl_doc.party = self.supplier
 		gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 
 
@@ -375,6 +378,7 @@ class PurchaseInvoice(Document):
 		gl_doc.account = default_accounts.stock_received_but_not_billed
 		gl_doc.debit_amount =  self.net_total - self.tax_total
 		gl_doc.aginst_account = self.supplier
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 
 
@@ -389,6 +393,7 @@ class PurchaseInvoice(Document):
 		gl_doc.account = default_accounts.tax_account
 		gl_doc.debit_amount = self.tax_total
 		gl_doc.aginst_account = self.supplier
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 
 		if self.round_off!=0.00:
@@ -407,6 +412,7 @@ class PurchaseInvoice(Document):
 				gl_doc.credit_amount = self.round_off
 
 			gl_doc.aginst_account = default_accounts.default_payable_account
+			gl_doc.remarks = remarks
 
 			gl_doc.insert()
 
@@ -421,6 +427,7 @@ class PurchaseInvoice(Document):
 		gl_doc.account = default_accounts.default_inventory_account
 		gl_doc.debit_amount = self.net_total - self.tax_total
 		gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 
 		idx =idx + 1
@@ -433,7 +440,10 @@ class PurchaseInvoice(Document):
 		gl_doc.account = default_accounts.stock_received_but_not_billed
 		gl_doc.credit_amount = self.net_total - self.tax_total
 		gl_doc.aginst_account = default_accounts.default_inventory_account
+		gl_doc.remarks = remarks
 		gl_doc.insert()
+  
+		self.gl_posted_time = datetime.now()		
 
 	def insert_payment_postings(self):
 
@@ -476,7 +486,8 @@ class PurchaseInvoice(Document):
 			gl_doc.credit_amount = self.rounded_total
 			gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
 			gl_doc.insert()
-
+   
+			self.payment_posted_time = datetime.now()
 
 
 @frappe.whitelist()

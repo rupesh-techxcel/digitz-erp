@@ -26,7 +26,6 @@
   "area",
   "area_name",
   "country",
-  "delivery_locations",
   "column_break_27",
   "contact",
   "phone",
@@ -36,12 +35,13 @@
   "contact_phone",
   "contact_email_id",
   "full_address",
+  "column_break_wyer",
+  "delivery_locations",
+  "is_disabled",
   "section_break_24",
   "use_default_customer_terms",
   "default_terms",
-  "terms",
-  "is_disabled",
-  "section_break_32"
+  "terms"
  ],
  "fields": [
   {
@@ -78,7 +78,7 @@
   {
    "fieldname": "default_terms",
    "fieldtype": "Link",
-   "label": "Default Terms",
+   "label": "Terms and Conditions",
    "options": "Terms And Conditions"
   },
   {
@@ -99,6 +99,7 @@
    "label": "Is Disabled"
   },
   {
+   "fetch_from": "default_terms.terms",
    "fieldname": "terms",
    "fieldtype": "Text Editor",
    "label": "Terms",
@@ -116,7 +117,7 @@
    "default": "1",
    "fieldname": "use_default_customer_terms",
    "fieldtype": "Check",
-   "label": "Use default customer terms"
+   "label": "Use default customer terms from company settings"
   },
   {
    "fieldname": "delivery_locations",
@@ -216,10 +217,6 @@
    "label": "Contact"
   },
   {
-   "fieldname": "section_break_32",
-   "fieldtype": "Section Break"
-  },
-  {
    "fetch_from": "salesman.employee_name",
    "fieldname": "salesman_name",
    "fieldtype": "Data",
@@ -234,15 +231,20 @@
    "read_only": 1
   },
   {
+   "default": "0",
    "description": "Avoid showing the customer from the outstanding receipt list.",
    "fieldname": "exclude_from_showing_in_soa",
    "fieldtype": "Check",
    "label": "Exclude from showing in SOA"
+  },
+  {
+   "fieldname": "column_break_wyer",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-03 18:41:07.769546",
+ "modified": "2023-11-10 10:33:30.935201",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
