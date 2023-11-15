@@ -20,7 +20,6 @@
   "company_logo",
   "company_logo_display",
   "default_currency",
-  "section_break_12",
   "inventory_settings_tab",
   "inventory_settings",
   "use_customer_last_price",
@@ -33,7 +32,7 @@
   "rules_for_prices",
   "accounts_settings_tab",
   "tax_details",
-  "tax_not_applicable",
+  "tax_excluded",
   "tax_type",
   "tax",
   "tax_account",
@@ -103,10 +102,6 @@
    "label": "Company Logo Display"
   },
   {
-   "fieldname": "section_break_12",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "inventory_settings_tab",
    "fieldtype": "Tab Break",
    "label": "Inventory & Price Settings"
@@ -157,12 +152,6 @@
    "fieldname": "tax_details",
    "fieldtype": "Heading",
    "label": "Tax Details"
-  },
-  {
-   "default": "0",
-   "fieldname": "tax_not_applicable",
-   "fieldtype": "Check",
-   "label": "Tax Not Applicable"
   },
   {
    "fieldname": "tax",
@@ -328,11 +317,17 @@
    "fieldname": "update_price_list_price_with_purchase_invoice",
    "fieldtype": "Check",
    "label": "Update price list price with purchase invoice"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-30 16:37:28.692952",
+ "modified": "2023-11-13 09:41:08.334092",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

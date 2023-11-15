@@ -70,6 +70,7 @@ def get_voucher_balance(voucher_type, party):
 				si.customer = '{0}' AND
 				si.docstatus = 1
 		""".format(party), as_dict=True)
+  
 		if data:
 			if data[0].get('balance_amount'):
 				balance = data[0].get('balance_amount')

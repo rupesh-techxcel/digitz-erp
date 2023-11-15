@@ -57,6 +57,7 @@ class PurchaseInvoice(Document):
 			check_and_update_purchase_order_status(self.purchase_order)   
    
 		self.update_item_prices()
+		self.update_payment_schedules()
 
 	def before_cancel(self):
 		print("before_cancel")
@@ -247,6 +248,34 @@ class PurchaseInvoice(Document):
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_item_price(item,self.price_list,currency,rate, self.posting_date)
+    
+	def update_payment_schedules(self):
+		# Check for existing payment schedules
+		existing_entries = frappe.get_all("Payment Schedule", filters={"payment_against": "Purchase", "document_no": self.name})
+    
+    # Delete existing payment schedules if found
+		for entry in existing_entries:
+			try:
+				frappe.delete_doc("Payment Schedule", entry.name)
+			except Exception as e:
+				frappe.log_error("Error deleting payment schedule: " + str(e))
+
+		# If credit purchase, create/update payment schedules
+		if self.credit_purchase and self.payment_schedule:
+			for schedule in self.payment_schedule:
+				new_payment_schedule = frappe.new_doc("Payment Schedule")
+				new_payment_schedule.payment_against = "Purchase"
+				new_payment_schedule.supplier = self.supplier
+				new_payment_schedule.document_no = self.name
+				new_payment_schedule.document_date = self.posting_date
+				new_payment_schedule.scheduled_date = schedule.date
+				new_payment_schedule.amount = schedule.amount
+				
+				try:
+					new_payment_schedule.insert()
+				except Exception as e:
+					frappe.log_error("Error creating payment schedule: " + str(e))
+
   
 	def on_trash(self):
        	

@@ -105,7 +105,8 @@ frappe.ui.form.on('Sales Invoice', {
 					console.log(frm.doc.price_list)
 				}
 			});
-			frappe.call(
+
+		frappe.call(
 				{
 					method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
 					args: {
@@ -135,6 +136,8 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			}
 		);
+
+		fill_receipt_schedule(frm);
 	},
 	edit_posting_date_and_time(frm) {
 
@@ -160,51 +163,11 @@ frappe.ui.form.on('Sales Invoice', {
 			frm.doc.payment_account = "";
 		}
 
+		fill_receipt_schedule(frm,refresh= true)
 	},
-	fill_receipt_schedule(frm, refresh=false)
+	credit_days(frn)
 	{
-		if(refresh)
-		{
-			frm.doc.receipt_schedule = [];
-        	refresh_field("receipt_schedule");
-		}
-
-		if (frm.doc.credit_sale) {
-            var postingDate = frm.doc.posting_date;
-            var creditDays = frm.doc.credit_days;
-            var roundedTotal = frm.doc.rounded_total;
-
-			if (!frm.doc.receipt_schedule) {
-				frm.doc.receipt_schedule = [];
-			}
-
-            var paymentRow = null;
-
-            // Check if a Payment Schedule row already exists
-            frm.doc.receipt_schedule.forEach(function(row) {
-                if (row.date === postingDate) {
-                    paymentRow = row;
-                }
-            });
-
-            if (!paymentRow) {
-                // Calculate payment schedule and add a new row
-                paymentRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
-                paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
-				paymentRow.payment_mode = "Cash"				
-            }
-
-            paymentRow.amount = roundedTotal;
-            refresh_field("payment_schedule");
-        }
-		else
-		{
-			frm.doc.payment_schedule = [];
-            refresh_field("payment_schedule");
-		}
-	},
-	warehouse(frm) {
-		
+		fill_receipt_schedule(frm,refresh_credit_days= true);
 	},
 	additional_discount(frm) {
 		frm.trigger("make_taxes_and_totals");
@@ -237,14 +200,14 @@ frappe.ui.form.on('Sales Invoice', {
 			
 			var tax_in_rate = 0;
 
-			//rate_included_tax column in items table is readonly and it depends the form's rate_includes_tax column
-			entry.rate_included_tax = frm.doc.rate_includes_tax;
+			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column
+			entry.rate_includes_tax = frm.doc.rate_includes_tax;
 			entry.gross_amount = 0
 			entry.tax_amount = 0;
 			entry.net_amount = 0
-			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
+			//To avoid complexity mentioned below, rate_includes_tax option do not support with line item discount
 
-			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
+			if (entry.rate_includes_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
 				// also this implementation is streight forward than the other way
 				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
@@ -369,6 +332,8 @@ frappe.ui.form.on('Sales Invoice', {
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
+
+		fill_receipt_schedule(frm);
 
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
@@ -524,6 +489,8 @@ frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 			}
 		};
 	});
+
+	fill_receipt_schedule(frm);
 
 });
 
@@ -723,7 +690,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 	rate(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},
-	rate_included_tax(frm, cdt, cdn) {
+	rate_includes_tax(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},
 	unit(frm, cdt, cdn) {
@@ -812,3 +779,72 @@ frappe.ui.form.on('Sales Invoice Item', {
 		frm.trigger("make_taxes_and_totals");
 	}
 });
+
+
+function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+	
+	if(refresh)
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+
+	console.log("fill_receipt_schedule")
+
+	if (frm.doc.credit_sale) {
+
+		
+		var postingDate = frm.doc.posting_date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.rounded_total;
+
+		if (!frm.doc.receipt_schedule) {
+			frm.doc.receipt_schedule = [];
+		}
+
+		var receiptRow = null;
+
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.receipt_schedule.forEach(function(row) {
+			if (row){
+				receiptRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
+
+				row_count++;
+			}
+		});		
+		
+		//If there is no row exits create one with the relevant values
+		if (!receiptRow) {
+			// Calculate receipt schedule and add a new row
+			receiptRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;	
+			receiptRow.payment_mode = "Cash"				
+			receiptRow.amount = roundedTotal;
+			refresh_field("receipt_schedule");
+		}
+		else if (row_count==1)
+		{			
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself				
+			receiptRow.payment_mode = "Cash"				
+			receiptRow.amount = roundedTotal;
+			refresh_field("receipt_schedule");
+		}
+
+		//Update date based on credit_days if there is a credit days change or change in the credit_sales checkbox	
+		if(refresh || refresh_credit_days)
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			refresh_field("receipt_schedule");
+	}
+	else
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+}	

@@ -31,6 +31,4 @@ def get_allocations_for_invoice(purchase_invoice_no, payment_no):
     else:
         return frappe.db.sql("""SELECT purchase_invoice,parent,invoice_amount,paying_amount FROM `tabPayment Allocation` ra  join `tabPurchase Invoice` si ON si.name= ra.purchase_invoice WHERE ra.purchase_invoice = '{0}' AND parent!='{1}' AND (ra.docstatus= 1 or ra.docstatus=0) ORDER BY ra.purchase_invoice """.format(purchase_invoice_no,payment_no),as_dict=1)
 
-@frappe.whitelist()
-def get_supplier_terms(supplier):
-    return frappe.db.sql(""" SELECT terms FROM `tabSupplier` where name={supplier}""".format(supplier = supplier), as_dict = 1)
+

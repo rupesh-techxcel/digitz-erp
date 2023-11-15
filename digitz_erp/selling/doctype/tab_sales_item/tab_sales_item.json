@@ -18,7 +18,7 @@
   "qty_in_base_unit",
   "rate_in_base_unit",
   "conversion_factor",
-  "rate_included_tax",
+  "rate_includes_tax",
   "rate_excluded_tax",
   "column_break_11",
   "gross_amount",
@@ -99,13 +99,6 @@
    "label": "Conversion Factor"
   },
   {
-   "default": "0",
-   "fieldname": "rate_included_tax",
-   "fieldtype": "Check",
-   "label": "Rate Included Tax",
-   "read_only": 1
-  },
-  {
    "fieldname": "rate_excluded_tax",
    "fieldtype": "Float",
    "label": "Rate Excluded Tax"
@@ -178,12 +171,19 @@
    "fieldname": "delivery_note_item_reference_no",
    "fieldtype": "Data",
    "label": "Delivery Note Item Reference No"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-16 21:14:53.952557",
+ "modified": "2023-11-13 11:23:11.508574",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales Item",

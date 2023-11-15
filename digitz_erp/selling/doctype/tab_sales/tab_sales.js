@@ -161,14 +161,14 @@ frappe.ui.form.on('Tab Sales', {
 			console.log(entry.item);
 			var tax_in_rate = 0;
 
-			//rate_included_tax column in items table is readonly and it depends the form's rate_includes_tax column
-			entry.rate_included_tax = frm.doc.rate_includes_tax;
+			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column
+			entry.rate_includes_tax = frm.doc.rate_includes_tax;
 			entry.gross_amount = 0
 			entry.tax_amount = 0;
 			entry.net_amount = 0
-			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
+			//To avoid complexity mentioned below, rate_includes_tax option do not support with line item discount
 
-			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
+			if (entry.rate_includes_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
 				// also this implementation is streight forward than the other way
 				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
@@ -614,7 +614,7 @@ frappe.ui.form.on('Tab Sales Item', {
 	rate(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},
-	rate_included_tax(frm, cdt, cdn) {
+	rate_includes_tax(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},
 	unit(frm, cdt, cdn) {

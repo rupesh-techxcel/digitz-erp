@@ -17,7 +17,7 @@
   "qty_in_base_unit",
   "rate_in_base_unit",
   "conversion_factor",
-  "rate_included_tax",
+  "rate_includes_tax",
   "rate_excluded_tax",
   "warehouse",
   "column_break_11",
@@ -29,8 +29,7 @@
   "discount_percentage",
   "discount_amount",
   "net_amount",
-  "unit_conversion_details",
-  "section_break_23"
+  "unit_conversion_details"
  ],
  "fields": [
   {
@@ -85,13 +84,6 @@
    "fieldname": "conversion_factor",
    "fieldtype": "Float",
    "label": "Conversion Factor"
-  },
-  {
-   "default": "0",
-   "fieldname": "rate_included_tax",
-   "fieldtype": "Check",
-   "label": "Rate Included Tax",
-   "read_only": 1
   },
   {
    "fieldname": "rate_excluded_tax",
@@ -160,14 +152,17 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_23",
-   "fieldtype": "Section Break"
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-26 10:48:23.169504",
+ "modified": "2023-11-13 11:13:17.731666",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return Item",

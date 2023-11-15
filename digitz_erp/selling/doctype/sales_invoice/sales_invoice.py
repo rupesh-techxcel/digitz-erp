@@ -388,7 +388,7 @@ class SalesInvoice(Document):
                     delivery_note_item.qty_in_base_unit = item.qty_in_base_unit
                     delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
                     delivery_note_item.conversion_factor = item.conversion_factor
-                    delivery_note_item.rate_included_tax = item.rate_included_tax
+                    delivery_note_item.rate_includes_tax = item.rate_includes_tax
                     delivery_note_item.rate_excluded_tax = item.rate_excluded_tax
                     delivery_note_item.gross_amount = item.gross_amount
                     delivery_note_item.tax_excluded = item.tax_excluded

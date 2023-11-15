@@ -292,7 +292,8 @@
   {
    "fieldname": "supplier_inv_no",
    "fieldtype": "Data",
-   "label": "Supplier Inv No"
+   "label": "Supplier Inv No",
+   "reqd": 1
   },
   {
    "description": "Note: Acounts and Stock postings based on Date and Posting Time",
@@ -458,7 +459,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-10 16:54:38.877755",
+ "modified": "2023-11-11 15:45:11.532610",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

@@ -24,6 +24,7 @@
   "contact_person_designation",
   "contact_mobile_no",
   "tax_id",
+  "tax_not_applicable",
   "column_break_04uh",
   "credit_days",
   "credit_amount",
@@ -178,11 +179,17 @@
   {
    "fieldname": "column_break_04uh",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_not_applicable",
+   "fieldtype": "Check",
+   "label": "Tax Not Applicable"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-10 10:26:43.741948",
+ "modified": "2023-11-11 09:29:09.811255",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

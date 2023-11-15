@@ -12,18 +12,35 @@
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
+  "column_break_ovhu",
+  "company",
+  "default_payable_account",
+  "column_break_3fo8",
+  "rate_includes_tax",
   "accounts_section",
   "credit_expense",
-  "credit_days",
   "payment_mode",
   "payment_account",
-  "rate_includes_tax",
+  "column_break_hugq",
+  "remarks",
+  "column_break_ntgt",
+  "section_break_xwqi",
   "expense_entry_details",
+  "section_break_shsu",
   "total_expense_amount",
   "total_tax_amount",
   "grand_total",
+  "column_break_yyur",
   "paid_amount",
-  "amended_from"
+  "column_break_8dze",
+  "postings_start_time",
+  "gl_posted_time",
+  "payment_posted_time",
+  "section_break_jtpi",
+  "amended_from",
+  "payment_schedule_tab",
+  "payment_schedule",
+  "column_break_jjnt"
  ],
  "fields": [
   {
@@ -80,12 +97,6 @@
    "label": "Accounts"
   },
   {
-   "depends_on": "eval:doc.credit_expense == 1",
-   "fieldname": "credit_days",
-   "fieldtype": "Int",
-   "label": "Credit Days"
-  },
-  {
    "depends_on": "eval:doc.credit_expense == 0",
    "fieldname": "payment_mode",
    "fieldtype": "Link",
@@ -129,12 +140,101 @@
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
    "label": "Paid Amount"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_ovhu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_3fo8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_xwqi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_hugq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ntgt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yyur",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_8dze",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_jtpi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_shsu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Expense Payment Schedule"
+  },
+  {
+   "fieldname": "column_break_jjnt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Payable Account",
+   "options": "Account"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "gl_posted_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "GL Posted Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payment_posted_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Payment Posted Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "postings_start_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Postings Start Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-17 13:24:20.786178",
+ "modified": "2023-11-15 11:43:07.097311",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

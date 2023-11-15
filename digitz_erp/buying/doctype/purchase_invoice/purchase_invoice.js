@@ -33,6 +33,23 @@ frappe.ui.form.on('Purchase Invoice', {
 				frappe.throw("Please select payment mode")
 			}
 		}
+		else if(frm.doc.credit_purchase)
+		{
+			total_scheduled_amount  = 0 
+			
+			frm.doc.payment_schedule.forEach(function(row) {
+				if (row){
+					if(row.amount)
+						total_scheduled_amount = total_scheduled_amount + row.amount;
+				}
+			});
+
+			if(frm.doc.rounded_total != total_scheduled_amount)
+			{
+				frappe.throw("Scheduled amount mismatch!!! Scheduled amount must be equal to rounded total")
+			}
+
+		}
 	},
 	supplier(frm) {
 		console.log("supplier")
@@ -54,34 +71,34 @@ frappe.ui.form.on('Purchase Invoice', {
 					frm.refresh_field("price_list");
 				}
 			});
+
+		frappe.call(
+		{
+			method: 'digitz_erp.api.accounts_api.get_supplier_balance',
+			args: {				
+				'supplier': frm.doc.supplier
+			},
+			callback: (r) => {					
+				frm.set_value('supplier_balance',r.message[0].supplier_balance)
+				frm.refresh_field("supplier_balance");
+			}
+		});
 		frappe.call(
 			{
-				method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
-				args: {
-					'party_type': 'Supplier',
-					'party': frm.doc.supplier
-				},
-				callback: (r) => {
-					frm.set_value('supplier_balance',r.message)
-					frm.refresh_field("supplier_balance");
+				method:'digitz_erp.api.settings_api.get_supplier_terms',
+				args:{
+					'supplier': frm.doc.supplier
+				},					
+				callback(r){								
+					frm.doc.terms = r.message.template_name,
+					frm.doc.terms_and_conditions = r.message.terms
+					frm.refresh_field("terms_and_conditions");
+					frm.refresh_field("terms");
 				}
-			});
-			frappe.call(
-				{
-					method:'digitz_erp.api.settings_api.get_supplier_terms',
-					args:{
-						'supplier': frm.doc.supplier
-					},					
-					callback(r){								
-						frm.doc.terms = r.message.template_name,
-						frm.doc.terms_and_conditions = r.message.terms
-						frm.refresh_field("terms_and_conditions");
-						frm.refresh_field("terms");
-					}
-				}
-			);
+			}
+		);
 
-			frm.trigger("fill_payment_schedule");
+		fill_payment_schedule(frm);
 	},
 	edit_posting_date_and_time(frm) {
 
@@ -105,52 +122,13 @@ frappe.ui.form.on('Purchase Invoice', {
 		if (frm.doc.credit_purchase) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
-		}
+		}		
 		
-		frm.trigger("fill_payment_schedule", refresh= true);		
+		fill_payment_schedule(frm,refresh=true);
 	},	
-	fill_payment_schedule(frm, refresh=false)
-	{
-		if(refresh)
-		{
-			frm.doc.payment_schedule = [];
-        	refresh_field("payment_schedule");
-		}
-
-		if (frm.doc.credit_purchase) {
-            var postingDate = frm.doc.posting_date;
-            var creditDays = frm.doc.credit_days;
-            var roundedTotal = frm.doc.rounded_total;
-
-			if (!frm.doc.payment_schedule) {
-				frm.doc.payment_schedule = [];
-			}
-
-            var paymentRow = null;
-
-            // Check if a Payment Schedule row already exists
-            frm.doc.payment_schedule.forEach(function(row) {
-                if (row.date === postingDate) {
-                    paymentRow = row;
-                }
-            });
-
-            if (!paymentRow) {
-                // Calculate payment schedule and add a new row
-                paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
-                paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
-				paymentRow.payment_mode = "Cash"				
-            }
-
-            paymentRow.amount = roundedTotal;
-            refresh_field("payment_schedule");
-        }
-		else
-		{
-			frm.doc.payment_schedule = [];
-            refresh_field("payment_schedule");
-		}
-	},
+	credit_days(frm){
+		fill_payment_schedule(frm,refresh_credit_days= true);
+	},	
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
@@ -210,14 +188,14 @@ frappe.ui.form.on('Purchase Invoice', {
 			console.log(entry.item);
 			var tax_in_rate = 0;
 
-			//rate_included_tax column in items table is readonly and it depends the form's rate_includes_tax column
-			entry.rate_included_tax = frm.doc.rate_includes_tax;
+			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column			
+			entry.rate_includes_tax = frm.doc.rate_includes_tax;
 			entry.gross_amount = 0
 			entry.tax_amount = 0;
 			entry.net_amount = 0
-			//To avoid complexity mentioned below, rate_includedd_tax option do not support with line item discount
+			//To avoid complexity mentioned below, rate_includes_tax option do not support with line item discount
 
-			if (entry.rate_included_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
+			if (entry.rate_includes_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
 				// also this implementation is streight forward than the other way
 				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
@@ -332,8 +310,8 @@ frappe.ui.form.on('Purchase Invoice', {
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
-
-		frm.trigger("fill_payment_schedule");
+		
+		fill_payment_schedule(frm);
 
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
@@ -505,9 +483,8 @@ frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 			}
 		};
 	});
-
-	frm.trigger("fill_payment_schedule");
-
+	
+	fill_payment_schedule(frm);
 });
 
 
@@ -713,7 +690,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 	rate(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},
-	rate_included_tax(frm, cdt, cdn) {
+	rate_includes_tax(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},
 	unit(frm, cdt, cdn) {
@@ -824,3 +801,74 @@ frappe.ui.form.on('Purchase Invoice Item', {
 		frm.trigger("make_taxes_and_totals");
 	}
 });
+
+function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+	console.log("from fill_payment_schedule")
+	console.log("refresh")
+	console.log(refresh)
+	if(refresh)
+	{
+		frm.doc.payment_schedule = [];
+		refresh_field("payment_schedule");
+	}
+
+	if (frm.doc.credit_purchase) {
+		var postingDate = frm.doc.posting_date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.rounded_total;
+
+		if (!frm.doc.payment_schedule) {
+			frm.doc.payment_schedule = [];
+		}
+
+		var paymentRow = null;
+
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.payment_schedule.forEach(function(row) {
+			if (row){
+				paymentRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
+
+				row_count++;
+			}
+		});
+		console.log("row_count")
+		console.log(row_count)
+		console.log("paymentRow")		
+		console.log(paymentRow)
+		console.log("refresh_credit_days")
+		console.log(refresh_credit_days)
+		
+		//If there is no row exits create one with the relevant values
+		if (!paymentRow) {
+			// Calculate payment schedule and add a new row
+			paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;	
+			paymentRow.payment_mode = "Cash"				
+			paymentRow.amount = roundedTotal;
+			refresh_field("payment_schedule");
+		}
+		else if (row_count==1)
+		{			
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself				
+			paymentRow.amount = roundedTotal;
+			refresh_field("payment_schedule");
+		}
+
+		//Update date based on credit_days if there is a credit days change or change in the credit_purchase checkbox	
+		if(refresh || refresh_credit_days)
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;			
+			refresh_field("payment_schedule");
+	}
+	else
+	{
+		frm.doc.payment_schedule = [];
+		refresh_field("payment_schedule");
+	}
+}
