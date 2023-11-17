@@ -23,7 +23,8 @@
   "tax_amount",
   "total",
   "amount_excluded_tax",
-  "supplier_inv_date"
+  "supplier_inv_date",
+  "paid_amount"
  ],
  "fields": [
   {
@@ -136,12 +137,17 @@
    "fieldtype": "Link",
    "label": "Payable Account",
    "options": "Account"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-14 15:10:33.362637",
+ "modified": "2023-11-16 09:23:04.930798",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry Details",

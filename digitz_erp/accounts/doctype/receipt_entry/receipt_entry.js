@@ -327,7 +327,7 @@ allocations: function(frm, cdt, cdn)
 		callback:(r) => {
 			console.log(r)
 			pending_invoices_data = r.message.values;	
-			console.log("pending invoices")		
+			console.log("pending invoices000")		
 			console.log(r.message.values)
 
 			child_table_control = frappe.ui.form.make_control({
@@ -415,8 +415,10 @@ allocations: function(frm, cdt, cdn)
 			//During the iteeration assign the paid amount and balance amount based on the allocation
 			//Note that the allocations fetched does not include current document allocation
 
-			for (var j= pending_invoices_data.length - 1; j>=0; j--)
+			for (var balance_amountj= pending_invoices_data.length - 1; j>=0; j--)
 			{
+				print("j")
+				print(j)
 
 				var sales_invoice_no = pending_invoices_data[j].invoice_no
 			

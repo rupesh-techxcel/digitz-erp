@@ -3,30 +3,22 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.purchase_invoice_api import get_allocations_for_invoice
+from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice
 class PaymentEntry(Document):
 
-	@frappe.whitelist()
-	def get_supplier_pending_payments(supplier):
-
-		receipt_values = frappe.get_list("Purchase Invoice", fields=['name', 'rounded_total','paid_amount'], filters =
-									{'supplier':['=',supplier],'is_credit': ['=',True], 'paid_amount':['<', 'rounded_total']}
-									)
-
-		return {'values': receipt_values}
+	
 
 	# def before_save(self):
 	# 	# By default allocations are not visisble. So make show_allocations make false
 	# 	# to allow user to click on show allocations for the visibility of allocations
 	#
 	# 	self.show_allocations = False
-	def validate(self):
-		return 0
-		self.insert_gl_records()
-		self.validate_doc_status()
-		# self.clean_deleted_allocations()
+	def validate(self):		
+		
+		self.validate_doc_status()		
 		self.check_allocations_and_totals()
-		self.check_excess_allocation()
+		self.check_excess_purchase_allocation()
+		print("validations done")
 
 	def validate_doc_status(self):
 		if self.amount == 0:
@@ -36,7 +28,7 @@ class PaymentEntry(Document):
 	def clean_deleted_allocations(self):
 
 		allocations = self.payment_allocation
-		print('allocations :', allocation)
+		print('allocations :', allocations)
 
 		if(allocations):
 			for allocation in allocations[:]:
@@ -52,25 +44,44 @@ class PaymentEntry(Document):
 
 	def check_allocations_and_totals(self):
 		payment_details = self.payment_entry_details
-		total = 0
-		total_allocated = 0
+		total_amount_in_rows = 0
+		total_allocated_in_rows = 0
 		if(payment_details):
-			for payment_entry in payment_details:
-				if(payment_entry.allocated_amount and payment_entry.allocated_amount>0):
-					if(payment_entry.amount!= payment_entry.allocated_amount):
+			for payment_detail in payment_details:
+		
+				total_amount_in_rows = total_amount_in_rows+ payment_detail.amount
+    
+				if payment_detail.payment_type != "Supplier":
+					continue
+
+				# If there is an allocation in the lineitem make sure the amount and allocated amount are same
+				if(payment_detail.allocated_amount and payment_detail.allocated_amount>0):
+					if(payment_detail.amount!= payment_detail.allocated_amount):
 						frappe.throw("Allocated amount mismatch.")
-				total = total+ payment_entry.amount
-				print('Total:', total)
-				total_allocated = total_allocated +  payment_entry.allocated_amount
-				print('Total:', total_allocated)
-		if(self.amount != total):
+
+				print('Total:', total_amount_in_rows)
+				total_allocated_in_rows = total_allocated_in_rows +  payment_detail.allocated_amount
+				print('Total:', total_allocated_in_rows)
+    
+		amount = 0
+		if self.amount is not None:			
+			amount = self.amount
+    
+		if(amount != total_amount_in_rows):
 			frappe.throw("Mismatch in total amount. Please check the document inputs")
 
-		if(self.allocated_amount != total_allocated):
-			frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
+		allocated_amount = 0		
+  
+		if self.allocated_amount is not None:
+			allocated_amount = self.allocated_amount
+   
+		# Both values are not None, perform the comparison
+		if allocated_amount != total_allocated_in_rows:
+			if(self.allocated_amount != total_allocated_in_rows):
+				frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
 
 
-	def check_excess_allocation(self):
+	def check_excess_purchase_allocation(self):
 
 		allocations = self.payment_allocation
 
@@ -86,7 +97,7 @@ class PaymentEntry(Document):
 						payment_no = ""
 
 					previous_paid_amount = 0
-					allocations_exists = get_allocations_for_invoice(allocation.reference_name, payment_no)
+					allocations_exists = get_allocations_for_purchase_invoice(allocation.reference_name, payment_no)
 					print('allocations_exists :', allocations_exists)
 
 					for existing_allocation in allocations_exists:
@@ -95,12 +106,13 @@ class PaymentEntry(Document):
 					if allocation.paying_amount > allocation.total_amount-previous_paid_amount:
 						frappe.throw("Excess allocation for the invoice number " + allocation.reference_name )
 
-	def before_submit(self):
-		self.call_before_submit()
+	def on_update(self):
+		self.clean_deleted_allocations()
+		
+	def on_submit(self):
+		self.call_on_submit()
 
-	def call_before_submit(self):
-     	# Again make sure there is no excess allocation, before during submit
-		self.check_excess_allocation()
+	def call_on_submit(self):
 		self.update_purchase_invoices()
 		self.update_expense_entry()
 		frappe.enqueue(self.insert_gl_records, queue="long")
@@ -110,16 +122,17 @@ class PaymentEntry(Document):
 		allocations = self.payment_allocation
 		if(allocations):
 			for allocation in allocations:
-				if(allocation.paying_amount>0):
-					payment_no = self.name
-					if self.is_new():
-						payment_no = ""
-					previous_paid_amount = 0
-					allocations_exists = get_allocations_for_invoice(allocation.reference_name, payment_no)
-					for existing_allocation in allocations_exists:
-						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
-					invoice_total = previous_paid_amount + allocation.paying_amount
-					frappe.db.set_value("Purchase Invoice", allocation.reference_name, {'paid_amount': invoice_total})
+				if allocation.reference_type == "Purchase Invoice":
+					if(allocation.paying_amount>0):
+						payment_no = self.name
+						if self.is_new():
+							payment_no = ""
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_purchase_invoice(allocation.reference_name, payment_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+						invoice_total = previous_paid_amount + allocation.paying_amount
+						frappe.db.set_value("Purchase Invoice", allocation.reference_name, {'paid_amount': invoice_total})
 
 
 	def update_expense_entry(self):
@@ -128,9 +141,6 @@ class PaymentEntry(Document):
 				if allocation.reference_type == "Expense Entry":
 					frappe.db.set_value("Expense Entry", allocation.reference_name, "paid_amount", allocation.paid_amount)
 					frappe.db.commit()
-
-
-
 
 	def insert_gl_records(self):
 		# default_company = frappe.db.get_single_value(

@@ -4,25 +4,23 @@ from frappe.utils import get_datetime
 @frappe.whitelist()
 def get_supplier_pending_invoices(supplier,reference_type):
     if reference_type == 'Purchase':
-        values = frappe.db.sql("""SELECT supplier,name as invoice_no,supplier_inv_no,paid_amount,rounded_total as invoice_amount,rounded_total-paid_amount as balance_amount,rounded_total-paid_amount as paying_amount FROM `tabPurchase Invoice` WHERE supplier = '{}' AND (docstatus =0 or docstatus=1) AND credit_purchase = 1 AND rounded_total != paid_amount""".format(supplier),as_dict=1)
+        values = frappe.db.sql("""SELECT supplier,name as invoice_no,supplier_inv_no,paid_amount,rounded_total as invoice_amount,rounded_total-paid_amount as balance_amount,rounded_total-paid_amount as paying_amount FROM `tabPurchase Invoice` WHERE supplier = '{supplier}' AND docstatus=1 AND credit_purchase = 1 AND rounded_total != paid_amount""".format(supplier= supplier),as_dict=1)
     elif reference_type == 'Expense':
         values = frappe.db.sql("""
         SELECT
             ed.supplier,
             ee.name as expense_no,
-            ee.grand_total as paid_amount
+            ed.total as invoice_amount
+            ed.total-paid_amount as balance_amount
         FROM
             `tabExpense Entry Details` ed
         INNER JOIN
             `tabExpense Entry` ee ON ed.parent = ee.name
         WHERE
-            ed.supplier = '{}' AND
-            (ee.docstatus = 0 or ee.docstatus = 1)
-        """.format(supplier), as_dict=True)
-    print('values :', values)
-    return {'values': values}
-
-
+            ed.supplier = '{supplier}' AND
+            ee.credit_expense = 1
+            (ee.docstatus = 1)
+        """.format(supplier=supplier), as_dict=True)
 
 @frappe.whitelist()
 def get_allocations_for_invoice(purchase_invoice_no, payment_no):

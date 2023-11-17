@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2023-05-25 07:53:34.608725",
+ "creation": "2023-11-17 04:58:19.148037",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -54,9 +54,7 @@
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": " Amount",
-   "read_only": 1,
-   "reqd": 1
+   "label": " Amount"
   },
   {
    "fieldname": "section_break_ku1xy",
@@ -110,13 +108,11 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Receipt Entry",
-   "print_hide": 1,
-   "read_only": 1
+   "description": "For payment_type with value \"Other\", Reference Type and Supplier columns are optional",
+   "fieldname": "payment_entry_details",
+   "fieldtype": "Table",
+   "label": "Payment Entry Details",
+   "options": "Payment Entry Detail"
   },
   {
    "allow_on_submit": 1,
@@ -126,6 +122,13 @@
    "label": "Show Allocations"
   },
   {
+   "depends_on": "eval:doc.show_allocations == 1;",
+   "fieldname": "payment_allocation",
+   "fieldtype": "Table",
+   "label": "Payment Allocation",
+   "options": "Payment Allocation"
+  },
+  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -135,27 +138,22 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.show_allocations == 1;",
-   "fieldname": "payment_allocation",
-   "fieldtype": "Table",
-   "label": "Payment Allocation",
-   "options": "Payment Allocation"
-  },
-  {
-   "description": "For payment_type with value \"Other\", Reference Type and Supplier columns are optional",
-   "fieldname": "payment_entry_details",
-   "fieldtype": "Table",
-   "label": "Payment Entry Details",
-   "options": "Payment Entry Detail"
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Receipt Entry",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-16 06:27:40.886104",
+ "modified": "2023-11-17 05:02:12.719631",
  "modified_by": "Administrator",
  "module": "Accounts",
- "name": "Payment Entry",
+ "name": "Payment Entry Test",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [

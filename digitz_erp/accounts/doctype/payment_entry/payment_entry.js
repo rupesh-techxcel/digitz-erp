@@ -221,11 +221,11 @@ frappe.ui.form.on("Payment Entry", "onload", function (frm) {
 
 frappe.ui.form.on("Payment Entry Detail", {
 
-  	payment_type: function(frm, cdt, cdn) {
+payment_type: function(frm, cdt, cdn) {
 
   	var row = locals[cdt][cdn];
 	if(row.payment_type == "Supplier")
-	{
+	{	
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -238,9 +238,31 @@ frappe.ui.form.on("Payment Entry Detail", {
 		 		frappe.db.get_value("Company", r.message.default_company, "default_payable_account").then((r) => {
 	 			var default_payable_account = r.message.default_payable_account;
 	 			frappe.model.set_value(cdt, cdn, 'account', default_payable_account)});
+				frm.refresh_field("payment_entry_details")
 			}
 		})
 	}
+},
+payment_entry_details_add:function(frm,cdt,cdn)
+{	
+	frappe.call({
+		method: 'frappe.client.get_value',
+		args: {
+			'doctype': 'Global Settings',
+			'fieldname': 'default_company'
+		},
+		callback: (r) => {
+
+			 frappe.db.get_value("Company", r.message.default_company, "default_payable_account").then((r) => {
+			 var default_payable_account = r.message.default_payable_account;
+			 frappe.model.set_value(cdt, cdn, 'account', default_payable_account)});
+			frm.refresh_field("payment_entry_details")
+		}
+	});
+
+	var row = locals[cdt][cdn];
+	row.payment_type = "Supplier"
+	row.reference_type = "Purchase Invoice"
 },
 payment_entry_details_remove: function(frm,cdt,cdn)
 {
@@ -252,11 +274,24 @@ amount: function(frm,cdt,cdn)
 {
 	frm.trigger("calculate_total_and_set_fields");
 },
+// payment_type: function(frm,cdt,cdn)
+// {
+// 	var row = locals[cdt][cdn];
+// 	if(row.payment_type != "Supplier")
+// 	{
+// 		row.supplier = ""
+		
+// 		frm.set_df_property('payment_entry_details', 'hidden', !frm.doc.show_allocations);
+// 		frappe.model.set_df_property('[Payment Entry Detail]', row.name, '[supplier]', 'read_only', 1);
+// 		frm.refresh_field("payment_entry_details")
+// 	}
+// },
 allocations: function(frm, cdt, cdn)
 {
+
 	var row = locals[cdt][cdn];
 	var child_table_control	;
-
+	
 	var selected_supplier = row.supplier
 	var selected_reference_type = row.reference_type
 
@@ -265,6 +300,7 @@ allocations: function(frm, cdt, cdn)
 
 	var payment_entries = cur_frm.doc.payment_entry_details;
 
+	// Checking for existing allocations in a different row
 	if(payment_entries != undefined)
 	{
 		for (var i = payment_entries.length - 1; i >= 0; i--) {
@@ -282,8 +318,10 @@ allocations: function(frm, cdt, cdn)
 
 	var allocations_exist;
 
+	// Fetch the supplier invoices at the stage on which the document was not yet saved
 	if (cur_frm.doc.__islocal)
 	{
+		console.log("islocal = true")
 
         frappe.call({
 
@@ -296,8 +334,8 @@ allocations: function(frm, cdt, cdn)
                 allocations_exist = r.message.values
             }});
 	}
-	else
-	{
+	else // Document already saved, so take all allocation other than the allocations made for the current
+	{    // document
 		frappe.call({
 
 			method: "digitz_erp.api.payment_entry_api.get_all_supplier_payment_allocations_except_selected",
@@ -313,18 +351,30 @@ allocations: function(frm, cdt, cdn)
 
 	var pending_invoices_data;
 
+	console.log("allocations_exist")
+	console.log(allocations_exist)
+
+	console.log("selected_reference_type")
+	console.log(selected_reference_type)
+
+	console.log("supplier")
+	console.log(selected_supplier)
+
+	//Fetch all supplier pending invoices
 	frappe.call({
-		method: "digitz_erp.api.purchase_invoice_api.get_supplier_pending_invoices",
+		method: "digitz_erp.api.payment_entry_api.get_supplier_pending_documents",
 		args: {
 			supplier: selected_supplier,
 			reference_type: selected_reference_type
 		},
 		callback:(r) => {
 
-			pending_invoices_data = r.message.values;
+			console.log("r.message")
+			console.log(r.message)
 
-			console.log("pending_invoices_data");
-			console.log(pending_invoices_data);
+			pending_invoices_data = r.message;
+			console.log("supplier pending invoices")
+			console.log(r)
 
 			child_table_control = frappe.ui.form.make_control({
 				df: {
@@ -380,32 +430,47 @@ allocations: function(frm, cdt, cdn)
 				render_input: true,
 			});
 
-			if(selected_reference_type == 'Expense'){
-				console.log("Expense");
+			if(selected_reference_type == 'Expense Entry'){
+		
 				for (var j= pending_invoices_data.length - 1; j>=0; j--)
 				{
 					var expense_no = pending_invoices_data[j].expense_no
 
-					pending_invoices_data[j].reference_type = 'Expense Entry';
+					pending_invoices_data[j].reference_type = selected_reference_type
 					pending_invoices_data[j].reference_name = expense_no;
 
-					pending_invoices_data[j].paid_amount = pending_invoices_data[j].paid_amount;
-					pending_invoices_data[j].balance_amount =  pending_invoices_data[j].paid_amount;
-					pending_invoices_data[j].invoice_amount =  pending_invoices_data[j].paid_amount;
-					pending_invoices_data[j].paying_amount =  pending_invoices_data[j].paid_amount;
+					pending_invoices_data[j].paid_amount = 0
+					pending_invoices_data[j].balance_amount =  pending_invoices_data[j].expense_amount;
+
+					for (var i = allocations_exist.length - 1; i>=0; i--)
+					{
+						if(purchase_invoice_no == allocations_exist[i].purchase_invoice)
+						{
+							//Update teh paid amount
+							pending_invoices_data[j].paid_amount  = pending_invoices_data[j].paid_amount  + allocations_exist[i].paying_amount;
+
+							//First set balance amount as invoice_amount - paid amount
+							pending_invoices_data[j].balance_amount = pending_invoices_data[j].balance_amount - allocations_exist[i].paying_amount;
+						}
+					}
+					
 				}
 
 				var pending_invoices_with_value = []
 				for (var j= pending_invoices_data.length - 1; j>=0; j--)
 				{
 					pending_invoices_with_value.push(pending_invoices_data[j])
+					console.log("pending_invoices_with_value")
+					console.log(pending_invoices_with_value)
 				}
-				console.log("pending_invoices_with_value");
-				console.log(pending_invoices_with_value);
-				child_table_control.df.data = pending_invoices_with_value;
+
+				if(pending_invoices_data.length> pending_invoices_with_value.length)
+				{
+					frappe.msgprint("Allocations without balance amount has been removed")
+				}
 			}
 
-			if(selected_reference_type == 'Purchase'){
+			if(selected_reference_type == 'Purchase Invoice'){
 				//Stage 1.
 				//Intiially set the paid_amount as zero and balance_amount as invoice amount
 				//Iterate through the allocations for the particular invoice
@@ -417,7 +482,10 @@ allocations: function(frm, cdt, cdn)
 
 					var purchase_invoice_no = pending_invoices_data[j].invoice_no
 
-					pending_invoices_data[j].reference_type = 'Purchase Invoice';
+					console.log("purchase_invoice_no")
+					console.log(purchase_invoice_no)
+
+					pending_invoices_data[j].reference_type = selected_reference_type;
 					pending_invoices_data[j].reference_name = purchase_invoice_no;
 
 					pending_invoices_data[j].paid_amount = 0;
@@ -433,7 +501,6 @@ allocations: function(frm, cdt, cdn)
 
 							//First set balance amount as invoice_amount - paid amount
 							pending_invoices_data[j].balance_amount = pending_invoices_data[j].balance_amount - allocations_exist[i].paying_amount;
-
 						}
 					}
 				}
@@ -451,9 +518,10 @@ allocations: function(frm, cdt, cdn)
 				if(pending_invoices_data.length> pending_invoices_with_value.length)
 				{
 					frappe.msgprint("Allocations without balance amount has been removed")
-				}
+				}				
+			}
 
-				//Stage 2.
+			//Stage 2.
 				// Get the values input from the allocations table in the current document
 				// Adjust the paid amount based on the paying amount
 				var allocations = cur_frm.doc.payment_allocation;
@@ -467,13 +535,26 @@ allocations: function(frm, cdt, cdn)
 
 						var allocation = allocations[i];
 
+						console.log("allocation.reference_type")
+						console.log(allocation.reference_type)
+						console.log("selected_reference_type")
+						console.log(selected_reference_type)
+
+						if(allocation.reference_type != selected_reference_type)
+						{
+							continue;
+						}
+
 						for (var j= pending_invoices_with_value.length - 1; j>=0; j--)
 						{
-							if(allocation.purchase_invoice == pending_invoices_with_value[j].invoice_no)
+							if( allocation.reference_name == pending_invoices_with_value[j].invoice_no)
 							{
 								if(allocation.paying_amount>0)
 								{
 									pending_invoices_with_value[j].paying_amount = allocation.paying_amount;
+
+									console.log("pending_invoices_with_value*")
+									console.log(pending_invoices_with_value)
 
 									if(pending_invoices_with_value[j].paid_amount + pending_invoices_with_value[j].paying_amount > pending_invoices_with_value[j].invoice_amount)
 									{
@@ -491,8 +572,10 @@ allocations: function(frm, cdt, cdn)
 					}
 				}
 
-				child_table_control.df.data = pending_invoices_with_value;
-			}
+			child_table_control.df.data = pending_invoices_with_value;				
+			console.log("pending_invoices_with_value");
+			console.log(pending_invoices_with_value);
+			
 			child_table_control.refresh();
 		}
 	});
@@ -570,7 +653,7 @@ allocations: function(frm, cdt, cdn)
 
 					// row.balance_amount = element.balance_amount
 					row_allocation.paying_amount = element.paying_amount
-					row_allocation.paid_amount = element.paying_amount
+					row_allocation.paid_amount = element.paid_amount
 					row_allocation.balance_amount = element.balance_amount
 					totalPay = totalPay + element.paying_amount
 					row_allocation.payment_entry_detail = frm.doc.payment_entry_details[row.idx]
@@ -591,6 +674,8 @@ allocations: function(frm, cdt, cdn)
 			frappe.model.set_value(cdt, cdn, 'allocated_amount', totalPay);
 
 			frm.trigger("calculate_total_and_set_fields");
+			
+			cur_frm.refresh_field('payment_allocation');
 
 			dialog.hide();
 		},
