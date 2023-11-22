@@ -141,13 +141,14 @@
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
-   "label": "Paid Amount"
+   "label": "Paid Amount",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-16 09:23:04.930798",
+ "modified": "2023-11-21 06:23:14.248634",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry Details",

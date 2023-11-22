@@ -1,53 +1,187 @@
 import frappe
 from frappe.utils import get_datetime
 
+# Get supplier documents pending for allocation
 @frappe.whitelist()
-def get_all_supplier_payment_allocations(supplier):
-    values = frappe.db.sql("""SELECT purchase_invoice,parent,invoice_amount,paying_amount FROM `tabPayment Allocation` ra left outer join `tabPurchase Invoice` si ON si.name= ra.purchase_invoice WHERE ra.supplier = '{}' AND (ra.docstatus= 1 or ra.docstatus=0) AND (si.paid_amount IS NULL OR si.paid_amount!=si.rounded_total) ORDER BY ra.purchase_invoice """.format(supplier),as_dict=1)
-    return {'values': values}
+def get_supplier_pending_documents(supplier,reference_type, payment_no=""):    
 
-
-@frappe.whitelist()
-def get_all_supplier_payment_allocations_except_selected(supplier, payment_no):
-    values = frappe.db.sql("""SELECT purchase_invoice,parent,invoice_amount,paying_amount FROM `tabPayment Allocation` ra left outer join `tabPurchase Invoice` si ON si.name= ra.purchase_invoice WHERE ra.supplier = '{0}' AND parent!='{1}' AND (ra.docstatus= 1 or ra.docstatus=0) AND (si.paid_amount IS NULL OR si.paid_amount!=si.rounded_total) ORDER BY ra.purchase_invoice """.format(supplier,payment_no),as_dict=1)
-    return {'values': values}
-
-@frappe.whitelist()
-def get_supplier_pending_documents(supplier,reference_type):
     if reference_type == 'Purchase Invoice':
-        values = frappe.db.sql("""SELECT supplier,name as invoice_no,supplier_inv_no,paid_amount,rounded_total as invoice_amount,rounded_total-paid_amount as balance_amount FROM `tabPurchase Invoice` WHERE supplier = '{0}' AND docstatus=1 AND credit_purchase = 1 AND rounded_total != paid_amount""".format(supplier),as_dict=1)
-        
-        return values
-        
-    elif reference_type == 'Expense Entry':
-        values = frappe.db.sql("""
-        SELECT
-            ed.supplier,
-            ee.name as expense_no,
-            ed.total as invoice_amount
-            ed.total-paid_amount as balance_amount
-        FROM
-            `tabExpense Entry Details` ed
-        INNER JOIN
-            `tabExpense Entry` ee ON ed.parent = ee.name
-        WHERE
-            ed.supplier = '{supplier}' AND
-            ee.credit_expense = 1
-            (ee.docstatus = 1)
-        """.format(supplier=supplier), as_dict=True)
-        
-        return values    
+   
+        # Purchase Invoice Query , only consider committed purchases and expenses but payment allocations with draft and committed statuses.
+        expenses_query = """
+            SELECT
+                supplier,
+                'Purchase Invoice' as reference_type,
+                name as reference_name,
+                posting_date as date,
+                supplier_inv_no,
+                paid_amount,
+                rounded_total as invoice_amount,
+                rounded_total - paid_amount as balance_amount
+            FROM
+                `tabPurchase Invoice`
+            WHERE
+                supplier = '{0}'
+                AND docstatus = 1 
+                AND credit_purchase = 1
+                AND rounded_total > paid_amount
+        """.format(supplier)
 
+        # Additional Query for Payment Allocation (if payment_no is not None)
+        payment_allocation_values = []
+        if payment_no != "":
+            payment_allocation_query = """
+                SELECT
+                    pi.supplier,
+                    pi.name as reference_name,  
+                    'Purchase Invoice' as reference_type,                  
+                    pi.posting_date as date,
+                    pi.supplier_inv_no,
+                    pi.paid_amount,
+                    pi.rounded_total as invoice_amount,
+                    pi.rounded_total - pi.paid_amount as balance_amount
+                FROM
+                    `tabPurchase Invoice` pi
+                JOIN
+                    `tabPayment Allocation` pa ON pi.name = pa.reference_name and pa.reference_type='Purchase Invoice'
+                WHERE
+                    pi.supplier = '{0}'
+                    AND pi.docstatus = 1
+                    AND pi.credit_purchase = 1                   
+                    AND pa.parent = '{1}' 
+                    AND (pa.docstatus = 0 or pa.docstatus = 1)
+            """.format(supplier, payment_no)
+
+            # Execute Additional Query
+            payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
+            print("payment_allocation_values")
+            print(payment_allocation_values)
+
+        # Execute Purchase Invoice Query
+        expense_values = frappe.db.sql(expenses_query, as_dict=1)
+        print("purchase_invoice_values")
+        print(expense_values)
+                
+        expense_values = [invoice for invoice in expense_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
+
+        # Combine Results
+        combined_values = expense_values + payment_allocation_values
+
+        return combined_values
+
+    elif reference_type == 'Expense Entry':
+        # Purchase Invoice Query
+        expenses_query = """
+            SELECT
+                supplier,
+                parent as document_no,
+                name as reference_name, 
+                'Expense Entry' as reference_type,
+                expense_date as date,
+                supplier_inv_no,
+                paid_amount,
+                total as invoice_amount,
+                total - paid_amount as balance_amount
+            FROM
+                `tabExpense Entry Details`
+            WHERE
+                supplier = '{0}'
+                AND docstatus = 1
+                AND credit_purchase = 1
+                AND total > paid_amount                
+        """.format(supplier)
+
+        # Additional Query for Payment Allocation (if payment_no is not None)
+        payment_allocation_values = []
+        if payment_no!="":
+            payment_allocation_query = """
+                supplier,
+                parent as document_no,
+                name as reference_name, 
+                'Expense Entry' as reference_type,
+                expense_date as date,
+                supplier_inv_no,
+                paid_amount,
+                total as invoice_amount,
+                total - paid_amount as balance_amount
+            FROM
+                `tabExpense Entry Details` ed
+            JOIN
+                `tabPayment Allocation` pa ON ed.name = pa.reference_name and pa.reference_type='Expense Entry'
+                WHERE
+                    pi.supplier = '{0}'
+                    AND pi.docstatus = 1
+                    AND pi.credit_purchase = 1                   
+                    AND pa.parent = '{1}'
+                    AND (pa.docstatus = 0 OR pa.docstatus =1)
+            """.format(supplier, payment_no)
+
+            # Execute Additional Query
+            payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
+            print("payment_allocation_values")
+            print(payment_allocation_values)
+
+
+        # Execute Purchase Invoice Query
+        expense_values = frappe.db.sql(expenses_query, as_dict=1)
+        print("purchase_invoice_values")
+        print(expense_values)
+                
+        expense_values = [invoice for invoice in expense_values if invoice['invoice_no'] not in [pa['invoice_no'] for pa in payment_allocation_values]]
+
+        # Combine Results
+        combined_values = expense_values + payment_allocation_values
+
+        return combined_values
+        
+
+# Get all supplier other payment allocations which is still pending, to reconcile with the payment entry allocations to refresh the balances and pending of each documents. This calls in the stage 1 (as per the comment in the payment entry) of the loading of pending payments.
+# Eg: Suppose the purchase invoice has total amount 1000 and 500 alocated in a payment entry. To create a new payment entry it requires to check the existing payment entires (other than the current payment entry) to get the actual balance of the invoice ie, 500 in the example. Here also only pending allocations are considering because if it is fully paid , in the initial call (with get_supplier_pending_documents) it only fetch pending documents and comparing only those documents
+@frappe.whitelist()
+def get_all_supplier_pending_payment_allocations_with_other_payments(supplier, reference_type, payment_no):
+    
+    
+    # if payment_no=="":
+   
+        
+    #     if reference_type == 'Purchase Invoice':
+    #         values = frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,pi.rounded_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabPurchase Invoice` pi ON pi.name= pa.reference_name and pa.reference_type='Purchase Invoice' WHERE pa.supplier = '{0}' AND  pi.docstatus=1 AND (pa.docstatus= 1 or pa.docstatus=0) AND (pi.paid_amount<pi.rounded_total) ORDER BY pa.reference_name """.format(supplier),as_dict=1)
+    #         return {'values': values}
+    #     elif reference_type == "Expense Entry":
+    #         values = frappe.db.sql("""SELECT pa.reference_name,pa.parent as  payment_no,ee.total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join  `tabExpense Entry Details` ee ON ee.name= pa.reference_name and pa.reference_type='Expense Entry' WHERE pa.supplier = '{0}' AND ee.docstatus=1 AND (pa.docstatus= 1 or pa.docstatus=0) AND (ee.paid_amount<ee.total) ORDER BY pa.reference_name """.format(supplier),as_dict=1)
+    #         return {'values': values}
+    # else:
+         #     # In case payment_no="" fetching records with paid_amount< rounded_total is fine because it is only required to fetch allocations for pending payments because it is calling against the result of get_supplier_pending_documents. Also in get_supplier_pending_documents if payment_no="" only pending documents are fetching. 
+         
+        # In case payment_no has value it is not ideal to fetch paid_amount<rounded_total because even for fully paid documents when user click on the allocation button it should show the documents which are already allocated in the payment entry. 
+        
+        # Both the above conditions are satisfied in the query
+        
+        # But note that it fetches allocations belongs to other payments only.
+        
+        if reference_type == 'Purchase Invoice':
+            values = frappe.db.sql("""SELECT distinct pa.reference_name,pa.parent as payment_no,pi.rounded_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabPurchase Invoice` pi ON pi.name= pa.reference_name and pa.reference_type='Purchase Invoice' WHERE pa.supplier = '{0}' AND pa.parent!='{1}' AND pi.docstatus=1 AND (pa.docstatus= 1 or pa.docstatus=0) AND ((pi.paid_amount<pi.rounded_total) or pi.name in (select distinct reference_name from `tabPayment Allocation` where reference_type='Purchase Invoice' and parent='{1}')) ORDER BY pa.reference_name """.format(supplier, payment_no),as_dict=1)            
+            
+            return {'values': values}
+        elif reference_type == "Expense Entry":
+            values = frappe.db.sql("""SELECT pa.reference_name,pa.parent as  payment_no,ee.total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join  `tabExpense Entry Details` ee ON ee.name= pa.reference_name and pa.reference_type='Expense Entry' WHERE pa.supplier = '{0}' AND pa.parent!='{1}' AND (pa.docstatus= 1 or pa.docstatus=0) AND ee.docstatus=1 AND ((ee.paid_amount<ee.total) or ee.name in (select distinct reference_name from `tabPayment Allocation` where reference_type='Expense Entry' and parent='{1}')) ORDER BY pa.reference_name """.format(supplier, payment_no),as_dict=1)
+            return {'values': values}        
+    
 @frappe.whitelist()
 def get_allocations_for_purchase_invoice(purchase_invoice_no, payment_no):
     if(payment_no ==""):
-        return frappe.db.sql("""SELECT reference_name,parent,total_amount,paying_amount FROM `tabPayment Allocation` ra inner join `tabPurchase Invoice` si ON si.name= ra.reference_name WHERE ra.reference_type='Purchase Invoice' and ra.reference_name = '{0}' AND ra.docstatus= 1 ORDER BY ra.reference_name """.format(purchase_invoice_no),as_dict=1)
+        return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,pi.rounded_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabPurchase Invoice` pi ON pi.name= pa.reference_name AND pa.reference_type='Purchase Invoice' WHERE pa.reference_name = '{0}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND pi.docstatus=1 ORDER BY pa.reference_name """.format(purchase_invoice_no),as_dict=1)
     else:
         # Note that the parent!{0} means it fetches the allocations for the invoice not in the current payment entry but from the other existing payment entries
-        return frappe.db.sql("""SELECT reference_name,parent,total_amount,paying_amount FROM `tabPayment Allocation` ra  join `tabPurchase Invoice` si ON si.name= ra.reference_name WHERE ra.reference_type= 'Purchase Invoice' and ra.reference_name = '{0}' AND parent!='{1}' AND ra.docstatus= 1 ORDER BY ra.purchase_invoice """.format(purchase_invoice_no,payment_no),as_dict=1)
+        
+        return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,pi.rounded_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabPurchase Invoice` pi ON pi.name= pa.reference_name AND pa.reference_type='Purchase Invoice' WHERE pa.reference_name = '{0}' AND pa.parent!='{1}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND pi.docstatus=1 ORDER BY pa.reference_name """.format(purchase_invoice_no, payment_no),as_dict=1)
 
-def get_allocations_for_expense(expense_doc_no, payment_no):
+@frappe.whitelist()
+def get_allocations_for_expense_entry(expense_detail_name, payment_no):
     if(payment_no ==""):
-        return frappe.db.sql("""SELECT purchase_invoice,parent,invoice_amount,paying_amount FROM `tabPayment Allocation` ra inner join `tabPurchase Invoice` si ON si.name= ra.purchase_invoice WHERE ra.purchase_invoice = '{0}' AND (ra.docstatus= 1 or ra.docstatus=0) ORDER BY ra.purchase_invoice """.format(expense_doc_no),as_dict=1)
+        return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,ee.total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabExpense Entry Details` ee ON ee.name= pa.reference_name AND pa.reference_type='Purchase Invoice' WHERE pa.reference_name = '{0}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND ee.docstatus=1 ORDER BY pa.reference_name """.format(expense_detail_name),as_dict=1)
     else:
-        return frappe.db.sql("""SELECT purchase_invoice,parent,invoice_amount,paying_amount FROM `tabPayment Allocation` ra  join `tabPurchase Invoice` si ON si.name= ra.purchase_invoice WHERE ra.purchase_invoice = '{0}' AND parent!='{1}' AND (ra.docstatus= 1 or ra.docstatus=0) ORDER BY ra.purchase_invoice """.format(expense_doc_no,payment_no),as_dict=1)
+        # Note that the parent!{0} means it fetches the allocations for the invoice not in the current payment entry but from the other existing payment entries
+        
+        return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,ee.total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabExpense Entry Details` ee ON ee.name= pa.reference_name AND pa.reference_type='Purchase Invoice' WHERE pa.reference_name = '{0}' AND pa.parent!='{1}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND ee.docstatus =1 ORDER BY pa.reference_name """.format(expense_detail_name, payment_no),as_dict=1)
+    
