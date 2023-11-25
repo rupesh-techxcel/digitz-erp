@@ -263,10 +263,11 @@ payment_entry_details_add:function(frm,cdt,cdn)
 	var row = locals[cdt][cdn];
 	row.payment_type = "Supplier"
 	row.reference_type = "Purchase Invoice"
+	row.reference_no = frm.doc.reference_no	
+	row.reference_date = frm.doc.reference_date	
 },
 payment_entry_details_remove: function(frm,cdt,cdn)
 {
-
 	frm.trigger("clean_allocations");
 	frm.trigger("calculate_total_and_set_fields");
 },
@@ -288,7 +289,6 @@ amount: function(frm,cdt,cdn)
 // },
 allocations: function(frm, cdt, cdn)
 {
-
 	const row = locals[cdt][cdn];
 	let child_table_control	;
 	
@@ -311,8 +311,6 @@ allocations: function(frm, cdt, cdn)
 		for (var i = payment_entries.length - 1; i >= 0; i--) {
 
 			var payment = payment_entries[i];
-
-			console.log(payment)
 
 			if(payment.supplier == selected_supplier && typeof(payment.reference_type) != undefined &&  payment.reference_type==selected_reference_type && payment.allocated_amount>0
 				 && payment.name !=cdn )
@@ -425,6 +423,7 @@ allocations: function(frm, cdt, cdn)
 			}
 			else if (selected_reference_type=="Expense Entry")
 			{
+				console.log("here")
 				child_table_control = frappe.ui.form.make_control({
 					df: {
 						fieldname: "payment_allocation",
@@ -440,15 +439,15 @@ allocations: function(frm, cdt, cdn)
 								in_list_view: true,
 								read_only:true
 							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_name",
-								label: "Reference Name",							
-								in_place_edit: false,
-								in_list_view: true,
-								// width: "40%",
-								read_only:true
-							},
+							// {
+							// 	fieldtype: "Link",
+							// 	fieldname: "reference_name",
+							// 	label: "Reference Name",							
+							// 	in_place_edit: false,
+							// 	in_list_view: true,
+							// 	// width: "40%",
+							// 	read_only:true
+							// },
 							{
 								fieldtype: "Link",
 								fieldname: "document_no",
@@ -457,16 +456,7 @@ allocations: function(frm, cdt, cdn)
 								in_list_view: true,
 								// width: "40%",
 								read_only:true
-							},
-							{
-								fieldtype: "Date",
-								fieldname: "date",
-								label: "Date",							
-								in_place_edit: false,
-								in_list_view: true,
-								// width: "40%",
-								read_only:true
-							},
+							},							
 							{
 								fieldtype: "Currency",
 								fieldname: "invoice_amount",
@@ -496,7 +486,6 @@ allocations: function(frm, cdt, cdn)
 					render_input: true,
 				});	
 			}
-
 			
 			//Stage 1.
 			//Intiially set the paid_amount as zero and balance_amount as invoice amount
@@ -504,8 +493,6 @@ allocations: function(frm, cdt, cdn)
 			//During the iteeration assign the paid amount and balance amount based on the allocation
 			//Note that the allocations fetched does not include current document allocation
 			
-			console.clear()
-
 			// console.log("pending_invoices_data")
 			// console.log(pending_invoices_data)
 
@@ -561,51 +548,56 @@ allocations: function(frm, cdt, cdn)
 				 }
 			}
 
-			if(pending_invoices_data.length> pending_invoices_with_value.length)
-			{
-				frappe.msgprint("Allocations without balance amount has been removed")
-			}				
+			// if(pending_invoices_data.length> pending_invoices_with_value.length)
+			// {
+			// 	frappe.msgprint("Allocations without balance amount has been removed")
+			// }				
 					
 			
 			//Stage 2.
-				// Get the values input from the allocations table in the current document
-				// Adjust the paid amount based on the paying amount
-				var allocations = cur_frm.doc.payment_allocation;
-			
-				if(allocations != undefined)
-				{
-					for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
+			// Get the values input from the allocations table in the current document
+			// Adjust the paid amount based on the paying amount
+			var allocations = cur_frm.doc.payment_allocation;
+			console.log(allocations)
+		
+			if(allocations)
+			{
+				for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
 
-						var allocation = allocations[idx2];
+					var allocation = allocations[idx2];
+					console.log("allocation")
+					console.log(allocation)
 
-						if(allocation.reference_type != selected_reference_type)
+					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
+					if((allocation.reference_type=="Expense Entry Details" && selected_reference_type!="Expense Entry")  || (allocation.reference_type == "Purchase Invoice" && selected_reference_type!="Purchase Invoice"))
+					{
+						console.log("hitted continue")
+						continue;	
+					}
+
+					for (var idx1= pending_invoices_with_value.length - 1; idx1>=0; idx1--)
+					{
+						if( allocation.reference_name == pending_invoices_with_value[idx1].reference_name)
 						{
-							continue;
-						}
-
-						for (var idx1= pending_invoices_with_value.length - 1; idx1>=0; idx1--)
-						{
-							if( allocation.reference_name == pending_invoices_with_value[idx1].reference_name)
+							if(allocation.paying_amount>0)
 							{
-								if(allocation.paying_amount>0)
+								pending_invoices_with_value[idx1].paying_amount = allocation.paying_amount;
+
+								if(pending_invoices_with_value[idx1].paid_amount + pending_invoices_with_value[idx1].paying_amount > pending_invoices_with_value[idx1].invoice_amount)
 								{
-									pending_invoices_with_value[idx1].paying_amount = allocation.paying_amount;
+									var difference = (pending_invoices_with_value[idx1].paid_amount + pending_invoices_with_value[idx1].paying_amount) - pending_invoices_with_value[idx1].invoice_amount
 
-									if(pending_invoices_with_value[idx1].paid_amount + pending_invoices_with_value[idx1].paying_amount > pending_invoices_with_value[idx1].invoice_amount)
-									{
-										var difference = (pending_invoices_with_value[idx1].paid_amount + pending_invoices_with_value[idx1].paying_amount) - pending_invoices_with_value[idx1].invoice_amount
+									pending_invoices_with_value[idx1].paying_amount = pending_invoices_with_value[idx1].paying_amount - difference
 
-										pending_invoices_with_value[idx1].paying_amount = pending_invoices_with_value[idx1].paying_amount - difference
-
-										frappe.msgprint("Excess allocation found. Allocation changed for " + allocation.purchase_invoice);
-									}
-
+									frappe.msgprint("Excess allocation found. Allocation changed for " + allocation.purchase_invoice);
 								}
+
 							}
 						}
-
 					}
+
 				}
+			}
 
 			child_table_control.df.data = pending_invoices_with_value;							
 			child_table_control.refresh();
@@ -637,11 +629,11 @@ allocations: function(frm, cdt, cdn)
 
 				index = index + 1;
 
-				invoice_no = element.invoice_no
+				// invoice_no = element.invoice_no
 
 				if(element.paying_amount> element.balance_amount)
 				{
-					frappe.throw("Wrong input at line number " + index + ", Invoice No -"+ invoice_no + ". Paying amount cannot be more than the balance amount")
+					frappe.throw("Wrong input at line number " + index +". Paying amount cannot be more than the balance amount")
 				}
 			});
 
@@ -675,9 +667,26 @@ allocations: function(frm, cdt, cdn)
 				{
 					var row_allocation = frappe.model.get_new_doc('Payment Allocation');
 					row_allocation.supplier = element.supplier
-					row_allocation.reference_type = element.reference_type
+					//Issue fix for the dynamic link mismatch 
+					// Change reference type to 'Expense Entry Details' for Expense Entry since the actual doctype for the dynamic link is 'Expense Entry Details' and not 'Expense Entry'. 
+					if(element.reference_type == "Expense Entry")
+					{
+						row_allocation.reference_type = "Expense Entry Details"
+					}
+					else
+					{
+						row_allocation.reference_type = element.reference_type
+					}
+					
 					row_allocation.reference_name =  element.reference_name
 					row_allocation.total_amount = element.invoice_amount
+
+					console.log("element.reference_type")
+					console.log(element.reference_type)
+
+					console.log("element.reference_name")
+					console.log(element.reference_name)
+
 					// row.paid_amount = row.invoice_amount- element.balance_amount + element.paying_amount
 
 					// Again update the balance amount to include the current paying amouunt in thet balance amount
@@ -711,7 +720,6 @@ allocations: function(frm, cdt, cdn)
 
 			dialog.hide();
 		},
-
 
 	});
 	dialog.$wrapper.find('.modal-dialog').css("max-width", "90%").css("width", "90%");

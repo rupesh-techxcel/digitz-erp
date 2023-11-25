@@ -19,9 +19,12 @@
   "column_break_k5acl",
   "posting_time",
   "edit_posting_date_and_time",
+  "reference_no",
+  "reference_date",
   "column_break_zp9js",
   "allocated_amount",
   "mode",
+  "remarks",
   "section_break_wgdje",
   "payment_entry_details",
   "show_allocations",
@@ -157,12 +160,27 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Mode"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-22 09:28:01.972063",
+ "modified": "2023-11-24 13:28:35.728354",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

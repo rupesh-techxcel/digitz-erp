@@ -14,7 +14,7 @@
   "narration",
   "rate_includes_tax",
   "credit_days",
-  "suppleir_inv_no",
+  "supplier_inv_no",
   "column_break_iva6t",
   "amount",
   "tax_excluded",
@@ -114,12 +114,6 @@
    "non_negative": 1
   },
   {
-   "fieldname": "suppleir_inv_no",
-   "fieldtype": "Data",
-   "label": "Suppleir Inv No",
-   "reqd": 1
-  },
-  {
    "fieldname": "supplier_inv_date",
    "fieldtype": "Date",
    "label": "Supplier Inv Date"
@@ -143,12 +137,17 @@
    "fieldtype": "Currency",
    "label": "Paid Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "supplier_inv_no",
+   "fieldtype": "Data",
+   "label": "Supplier Inv No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-21 06:23:14.248634",
+ "modified": "2023-11-23 16:04:02.989884",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry Details",

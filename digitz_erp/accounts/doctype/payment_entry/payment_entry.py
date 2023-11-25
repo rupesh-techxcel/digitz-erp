@@ -14,14 +14,42 @@ class PaymentEntry(Document):
 	#
 	# 	self.show_allocations = False
 	def validate(self):
+		print("validation starts..")
 		self.validate_doc_status()		
 		self.check_reference_numbers()
 		self.check_allocations_and_totals()
-		self.check_excess_allocation()		
+		self.check_excess_allocation()	
+		print("Validation done")
 
 	def validate_doc_status(self):
 		if self.amount == 0:
 			frappe.throw("Cannot save the document with out valid inputs.")
+   
+		if not self.payment_entry_details:
+			frappe.throw("No valid payment entries found to save the document")
+      
+		for payment_entry in self.payment_entry_details:
+			if payment_entry.payment_type == "Other" and (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type == "Expense Entry"):
+				messge = """Invalid reference type found at line {0} """.format(payment_entry.idx)
+				frappe.throw(messge)
+    
+			if payment_entry.payment_type == "Other" and payment_entry.supplier:
+				messge = """Supplier should not be selected with the payment type 'Other', at line {0} """.format(payment_entry.idx)
+				frappe.throw(messge)
+    
+			if payment_entry.payment_type == "Supplier" and (not payment_entry.supplier):
+				messge = """Supplier is mandatory for the payment type Supplier, at line {0} """.format(payment_entry.idx)
+				frappe.throw(messge)
+
+			if payment_entry.reference_type == "Purchase" or payment_entry.reference_type=="Expense Entry" and (not payment_entry.supplier):
+				messge = """Supplier is mandatory for the referene type Purchase Invoice/ Expense Entry, at line {0} """.format(payment_entry.idx)
+				frappe.throw(messge)
+    
+			if payment_entry.reference_type == "Purchase" or payment_entry.reference_type=="Expense Entry" and payment_entry.supplier and payment_entry.allocated_amount ==0:				
+				      
+				messge = """Allocation not found for the payment at line {0} """.format(payment_entry.idx)
+				frappe.throw(messge)
+	
 
     # Cleaning the deleted allocations is crucial, so this method should call even though it cleans with the client side javascript code
 	def clean_deleted_allocations(self):
@@ -50,7 +78,7 @@ class PaymentEntry(Document):
 		if(payment_details):
 			for payment_detail in payment_details: 
 				if not payment_detail.reference_no or not payment_detail.reference_date:
-					frappe.throw("Reference No and Date required at line number {}".format(payment_detail.idx))
+					frappe.throw("Reference No and Reference Date are mandatory for bank payment, at line number {} in Payment Entry Details".format(payment_detail.idx))
        
 	def check_allocations_and_totals(self):
 		payment_details = self.payment_entry_details
@@ -70,7 +98,8 @@ class PaymentEntry(Document):
 						frappe.throw("Allocated amount mismatch.")
 
 				print('Total:', total_amount_in_rows)
-				total_allocated_in_rows = total_allocated_in_rows +  payment_detail.allocated_amount
+				if(payment_detail.allocated_amount):
+					total_allocated_in_rows = total_allocated_in_rows +  payment_detail.allocated_amount
 				print('Total:', total_allocated_in_rows)
     
 		amount = 0
@@ -111,7 +140,7 @@ class PaymentEntry(Document):
 						allocations_exists = get_allocations_for_purchase_invoice(allocation.reference_name, payment_no)
 						print('allocations_exists :', allocations_exists)
 
-					if(allocation.reference_type == "Expense Entry"):
+					if(allocation.reference_type == "Expense Entry Details"):
 						
 						allocations_exists = get_allocations_for_expense_entry(allocation.reference_name, payment_no)
 						print('allocations_exists :', allocations_exists)
@@ -133,6 +162,8 @@ class PaymentEntry(Document):
 		
 		# Checking for, not self.payment_allocation to not to execute the code again since 
   		# the issue happens only one time and need to execute it only after self.payment_allocation made
+    
+		print("from on_update")
   
 		if self.temp_payment_allocation and not self.payment_allocation:
   
@@ -148,14 +179,14 @@ class PaymentEntry(Document):
 				row.payment_entry_detail = data.payment_entry_detail     
     
 			self.save()	# This will call the before_validate method again.
-	
-		
+			
 		self.clean_deleted_allocations()    
 		self.update_purchase_invoices()
-		self.update_expense_entry()
-		self.update_reference_in_payment_allocations()
+		self.update_expense_entry()		
 	
 	def before_validate(self):
+     
+		print("from before_validate")
      
 		# There is an error while saving the document with the payment_allocation child table.
 		# It is assumed that the error is because of the payment_allocation is being generated 
@@ -165,35 +196,40 @@ class PaymentEntry(Document):
 		
 		# The issue happens only before the first save.
   
-		# Checking self.temp_payment_allocation == None to avoid recurssion (issue fix)
-		print("from before_validate method")
-		print("self.temp_payment_allocation")
-		print(self.temp_payment_allocation)
-		print("self.payment_allocation")
-		print(self.payment_allocation)	
-  
-		if(self.temp_payment_allocation is None):
-			print("temp_payment_allocation is None")
-   
-		if(self.payment_allocation is None):
-			print("payment_allocation is None")
-
+		# Checking self.temp_payment_allocation == None to avoid recurssion (issue fix)		
+		
 		if self.is_new() and self.payment_allocation and self.temp_payment_allocation == None:
 			# Store the existing payment_allocation in a temporary variable
 			self.temp_payment_allocation = self.get("payment_allocation")
 			
 			# Clear existing payment_allocation entries
 			self.set("payment_allocation", [])
+   
+			print("self.temp_payment_allocation")
+			print(self.temp_payment_allocation)
+   
+		self.update_reference_in_payment_allocations()
 	
 	def on_submit(self):
 		self.call_on_submit()
+  
+	def on_trash(self):
+		self.revert_documents_paid_amount_for_payment()
+  
+	def on_cancel(self):
+		print("from on cancel")
+		self.revert_documents_paid_amount_for_payment()
+
+		frappe.db.delete("GL Posting",
+                         {"Voucher_type": "Payment Entry",
+                          "voucher_no": self.name
+                          })
 
 	def call_on_submit(self):
 		frappe.enqueue(self.do_postings, queue ="long")
      
 	def do_postings(self):
-		self.insert_gl_records()
-		self.insert_gl_records_for_expense()
+		self.insert_gl_records()		
 		
 	def update_purchase_invoices(self):
 		allocations = self.payment_allocation
@@ -211,10 +247,40 @@ class PaymentEntry(Document):
 						invoice_total = previous_paid_amount + allocation.paying_amount
 						frappe.db.set_value("Purchase Invoice", allocation.reference_name, {'paid_amount': invoice_total})
 
+	def revert_documents_paid_amount_for_payment(self):
+		allocations = self.payment_allocation
+		if(allocations):
+			for allocation in allocations:
+				print("allocation.reference_type")
+				print(allocation.reference_type)
+    
+				if allocation.reference_type == "Purchase Invoice":
+					if(allocation.paying_amount>0):
+						payment_no = self.name
+						if self.is_new():
+							payment_no = ""
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_purchase_invoice(allocation.reference_name, payment_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+						total_paid_Amount = previous_paid_amount 
+						frappe.db.set_value("Purchase Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
+				elif allocation.reference_type == "Expense Entry Details":
+					if(allocation.paying_amount>0):
+						payment_no = self.name
+						if self.is_new():
+							payment_no = ""
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_expense_entry(allocation.reference_name, payment_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+						total_paid_Amount = previous_paid_amount 
+						frappe.db.set_value("Expense Entry Details", allocation.reference_name, {'paid_amount': total_paid_Amount})
+
 	def update_expense_entry(self):
 		if self.payment_allocation:
 			for allocation in self.payment_allocation:
-				if allocation.reference_type == "Expense Entry":
+				if allocation.reference_type == "Expense Entry Details":
 					if(allocation.paying_amount>0):
 							payment_no = self.name
 							if self.is_new():
@@ -225,14 +291,14 @@ class PaymentEntry(Document):
 								previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
 							invoice_total = previous_paid_amount + allocation.paying_amount
 							frappe.db.set_value("Expense Entry Details", allocation.reference_name, {'paid_amount': invoice_total})
-    
+
 	def update_reference_in_payment_allocations(self):
 		if self.payment_entry_details and self.payment_allocation:
 			for payment_entry in self.payment_entry_details:
 				for allocation in self.payment_allocation:
 					if payment_entry.supplier == allocation.supplier and payment_entry.reference_type== allocation.reference_type :
 						allocation.payment_entry_detail = payment_entry.name
-        
+		
 		
 	def insert_gl_records(self):
 		# default_company = frappe.db.get_single_value(
@@ -241,6 +307,10 @@ class PaymentEntry(Document):
 		# default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
 		# 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 		idx = 1
+  
+		print("from insert_gl_postings")
+		print(self.remarks)
+		print(self.remarks)
 
 		# Trade Receivable - Debit
 		gl_doc = frappe.new_doc('GL Posting')
@@ -250,14 +320,17 @@ class PaymentEntry(Document):
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = self.account
+		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
 		gl_doc.credit_amount = self.amount
+		gl_doc.remarks = self.remarks
 		gl_doc.insert()
 
 		payment_details = self.payment_entry_details
 
 		if(payment_details):
 			for payment_entry in payment_details:
-				if(payment_entry.reference_type == "Purchase Invoice"):
+       
+				if(payment_entry.reference_type == "Purchase Invoice") or (payment_entry.reference_type == "Expense Entry") :
 					idx = idx + 1
 					gl_doc = frappe.new_doc('GL Posting')
 					gl_doc.voucher_type = "Payment Entry"
@@ -266,12 +339,18 @@ class PaymentEntry(Document):
 					gl_doc.posting_date = self.posting_date
 					gl_doc.posting_time = self.posting_time
 					gl_doc.account = payment_entry.account
+					gl_doc.against_account = self.account
 					gl_doc.debit_amount = payment_entry.amount
 					gl_doc.party_type = "Supplier"
-					gl_doc.party = payment_entry.supplier
-					gl_doc.aginst_account = self.account
+					gl_doc.party = payment_entry.supplier					
+					gl_doc.remarks = payment_entry.remarks
+					print("payment_entry.remarks")
+					print(payment_entry.remarks)
 					gl_doc.insert()
-				else:
+				else: 
+					print("Its here now")
+					# Case when there is no allocation, but supplier may or may not selected
+					# or payment_type ='Other'
 					idx = idx + 1
 					gl_doc = frappe.new_doc('GL Posting')
 					gl_doc.voucher_type = "Payment Entry"
@@ -280,52 +359,30 @@ class PaymentEntry(Document):
 					gl_doc.posting_date = self.posting_date
 					gl_doc.posting_time = self.posting_time
 					gl_doc.account = payment_entry.account
-					gl_doc.debit_amount = payment_entry.amount
-					gl_doc.aginst_account = self.account
+					gl_doc.against_account = self.account
+					gl_doc.debit_amount = payment_entry.amount					
+					gl_doc.remarks = payment_entry.remarks
+					if payment_entry.supplier:
+						gl_doc.party_type = "Supplier"
+						gl_doc.party = payment_entry.supplier	
 					gl_doc.insert()
 
 
-	def insert_gl_records_for_expense(self):
-		idx = 1
-		# Trade Receivable - Debit
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Payment Entry"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = self.account
-		gl_doc.credit_amount = self.amount
-		gl_doc.insert()
-
+	def GetAccountForTheHighestAmountInPayments(self):
+     
+		highestAmount = 0
+		account = ""
+  
 		payment_details = self.payment_entry_details
 
 		if(payment_details):
 			for payment_entry in payment_details:
-				if(payment_entry.reference_type == "Expense"):
-					idx = idx + 1
-					gl_doc = frappe.new_doc('GL Posting')
-					gl_doc.voucher_type = "Payment Entry"
-					gl_doc.voucher_no = self.name
-					gl_doc.idx = idx
-					gl_doc.posting_date = self.posting_date
-					gl_doc.posting_time = self.posting_time
-					gl_doc.account = payment_entry.account
-					gl_doc.debit_amount = payment_entry.amount
-					gl_doc.party_type = "Supplier"
-					gl_doc.party = payment_entry.supplier
-					gl_doc.aginst_account = self.account
-					gl_doc.insert()
+       
+				if payment_entry.amount > highestAmount:
+					highestAmount = payment_entry.amount
+					account = payment_entry.account
 
-				else:
-					idx = idx + 1
-					gl_doc = frappe.new_doc('GL Posting')
-					gl_doc.voucher_type = "Payment Entry"
-					gl_doc.voucher_no = self.name
-					gl_doc.idx = idx
-					gl_doc.posting_date = self.posting_date
-					gl_doc.posting_time = self.posting_time
-					gl_doc.account = payment_entry.account
-					gl_doc.debit_amount = payment_entry.amount
-					gl_doc.aginst_account = self.account
-					gl_doc.insert()
+		return account
+       
+       
+ 
