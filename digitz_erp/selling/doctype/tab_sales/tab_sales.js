@@ -522,56 +522,39 @@ frappe.ui.form.on('Tab Sales Item', {
 					console.log("Price List");
 					console.log(frm.doc.price_list);
 
-					var applyStandrPricing = false;
+					let currency = ""
+					console.log("before call digitz_erp.api.settings_api.get_default_currency")
+					frappe.call(
+						{
+							method:'digitz_erp.api.settings_api.get_default_currency',
+							async:false,
+							callback(r){								
+								console.log(r)
+								currency = r.message
+								console.log("currency")
+								console.log(currency)
+							}
+						}
+					);
 
-					if (frm.doc.price_list != "Standard Buying") {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
+					frappe.call(
+						{
+							method: 'digitz_erp.api.item_price_api.get_item_price',
+							async: false,
 
-								args: {
-									'item': row.item,
-									'price_list': frm.doc.price_list
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										console.log(r.message[0].price);
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
-					else {
-						applyStandrPricing = true;
-					}
-
-					if (applyStandrPricing) {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
-
-								args: {
-									'item': row.item,
-									'price_list': 'Standard Selling'
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										console.log(r.message[0].price);
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
+							args: {
+								'item': row.item,
+								'price_list': frm.doc.price_list,
+								'currency': currency,
+								'date': frm.doc.posting_date								
+							},
+							callback(r) {
+								console.log("digitz_erp.api.item_price_api.get_item_price")
+								console.log(r)
+								row.rate = parseFloat(r.message);
+								row.rate_in_base_unit = parseFloat(r.message);
+							}
+						});	
 
 					frm.refresh_field("items");
 				}

@@ -14,6 +14,14 @@ frappe.ui.form.on('Customer', {
 			};
 		});	
 
+		frm.set_query("default_price_list", function() {
+			return {
+				"filters": {
+					"is_selling": 1
+				}
+			};
+		});	
+
 		frm.set_df_property("default_terms","hidden", frm.doc.use_default_customer_terms)
 		frm.set_df_property("terms","hidden", frm.doc.use_default_customer_terms)
 	},	 

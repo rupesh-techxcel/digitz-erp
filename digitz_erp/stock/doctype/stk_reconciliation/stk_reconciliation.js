@@ -160,22 +160,40 @@ frappe.ui.form.on('Stk Reconciliation Item', {
 				
 									if(r.message == 0)
 									{
+										let currency = ""
+										console.log("before call digitz_erp.api.settings_api.get_default_currency")
 										frappe.call(
 											{
-												method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
+												method:'digitz_erp.api.settings_api.get_default_currency',
+												async:false,
+												callback(r){								
+													console.log(r)
+													currency = r.message
+													console.log("currency")
+													console.log(currency)
+												}
+											}
+										);
+
+										frappe.call(
+											{
+												method: 'digitz_erp.api.item_price_api.get_item_price',
 												async: false,
+
 												args: {
 													'item': row.item,
-													'price_list': "Standard Buying"
+													'price_list': frm.doc.price_list,
+													'currency': currency,
+													'date': frm.doc.posting_date								
 												},
 												callback(r) {
-													if (r.message.length == 1) {										
-														row.valuation_rate = r.message[0].price;
-														row.rate_in_base_unit = r.message[0].price;
-														frm.refresh_field("items");
-													}
+													console.log("digitz_erp.api.item_price_api.get_item_price")
+													console.log(r)
+													row.rate = parseFloat(r.message);
+													row.rate_in_base_unit = parseFloat(r.message);
 												}
-											});
+											});	
+
 									}
 									else
 									{

@@ -130,12 +130,12 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 			method: 'frappe.client.get_value',
 					args: {
 						'doctype': 'Item',
-						'filters': { 'item_name': row.item },
-						'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+						'filters': { 'item_code': row.item },
+						'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 					},
 					callback: (r) => {
 						
-						row.item_code = r.message.item_code;
+						row.item_name = r.message.item_name;
 						row.base_unit = r.message.base_unit;
 						row.unit = r.message.base_unit;
 						row.conversion_factor = 1;
@@ -143,7 +143,7 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 						frm.warehouse = row.warehouse				
 						frm.trigger("get_item_stock_balance");
 						row.warehouse = frm.doc.warehouse
-						row.display_name = row.item
+						row.display_name = row.item_name
 
 						frappe.call(
 							{
@@ -160,35 +160,54 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 				
 									if(r.message == 0)
 									{
+										let currency = ""
+										console.log("before call digitz_erp.api.settings_api.get_default_currency")
 										frappe.call(
 											{
-												method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
+												method:'digitz_erp.api.settings_api.get_default_currency',
+												async:false,
+												callback(r){								
+													console.log(r)
+													currency = r.message
+													console.log("currency")
+													console.log(currency)
+												}
+											}
+										);
+
+										frappe.call(
+											{
+												method: 'digitz_erp.api.item_price_api.get_item_price',
 												async: false,
+
 												args: {
 													'item': row.item,
-													'price_list': "Standard Buying"
+													'price_list': 'Standard Buying',
+													'currency': currency,
+													'date': frm.doc.posting_date								
 												},
 												callback(r) {
-													if (r.message.length == 1) {										
-														row.valuation_rate = r.message[0].price;
-														row.rate_in_base_unit = r.message[0].price;
-														frm.refresh_field("items");
-													}
+													console.log("digitz_erp.api.item_price_api.get_item_price")
+													console.log(r)
+													row.rate = parseFloat(r.message);
+													row.rate_in_base_unit = parseFloat(r.message);
 												}
-											});
+											});	
+
 									}
 									else
 									{
 										row.rate = r.message
 										row.rate_in_base_unit = r.message
-										frm.refresh_field("items");
+										
 									}
 								
 								}
 							});
 					}
 				});
-		
+
+		frm.refresh_field("items");
 		console.log("Before get valuation rate for the item")
 		
 

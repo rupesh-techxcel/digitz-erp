@@ -529,22 +529,18 @@ frappe.ui.form.on('Quotation Item', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Item',
-					'filters': { 'item_name': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+					'filters': { 'item_code': row.item },
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					console.log('Item Code');
-					console.log(r.message.item_code);
-					console.log(r.message.base_unit);
-					console.log(r.message.tax);
-					console.log(r.message.tax_excluded);
-					row.item_code = r.message.item_code;
+					
+					row.item_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					row.display_name = row.item
+					row.display_name = row.item_name
 
 					if (!r.message.tax_excluded) {
 						frappe.call(
@@ -571,56 +567,40 @@ frappe.ui.form.on('Quotation Item', {
 					console.log("Price List");
 					console.log(frm.doc.price_list);
 
-					var applyStandrPricing = false;
+					let currency = ""
+					console.log("before call digitz_erp.api.settings_api.get_default_currency")
+					frappe.call(
+						{
+							method:'digitz_erp.api.settings_api.get_default_currency',
+							async:false,
+							callback(r){								
+								console.log(r)
+								currency = r.message
+								console.log("currency")
+								console.log(currency)
+							}
+						}
+					);
 
-					if (frm.doc.price_list != "Standard Buying") {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
+					frappe.call(
+						{
+							method: 'digitz_erp.api.item_price_api.get_item_price',
+							async: false,
 
-								args: {
-									'item': row.item,
-									'price_list': frm.doc.price_list
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										console.log(r.message[0].price);
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
-					else {
-						applyStandrPricing = true;
-					}
+							args: {
+								'item': row.item,
+								'price_list': frm.doc.price_list,
+								'currency': currency	,
+								'date': frm.doc.posting_date							
+							},
+							callback(r) {
+								console.log("digitz_erp.api.item_price_api.get_item_price")
+								console.log(r)
+								row.rate = parseFloat(r.message);
+								row.rate_in_base_unit = parseFloat(r.message);
+							}
+						});	
 
-					if (applyStandrPricing) {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
-
-								args: {
-									'item': row.item,
-									'price_list': 'Standard Selling'
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										console.log(r.message[0].price);
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
 
 					frm.refresh_field("items");
 				}

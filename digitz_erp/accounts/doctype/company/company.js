@@ -78,8 +78,6 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 
 	frm.doc.rules_for_prices = "Default Selling Price List : Standard Selling" +
 	"\nDefault Buying Price List : Standard Buying" + 
-	"\nUse default price LIst when customer or supplier price not available: Yes" +
-	"\nPrice list price update mode: Manual"
-
+	"\nUse Default price LIst when customer or supplier price not available: Yes"
 	
 });

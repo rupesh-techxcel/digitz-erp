@@ -9,7 +9,7 @@
  "field_order": [
   "warehouse",
   "item",
-  "item_code",
+  "item_name",
   "display_name",
   "qty",
   "unit",
@@ -42,22 +42,20 @@
   {
    "fieldname": "item",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Item",
    "options": "Item"
   },
   {
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "label": "Item Code"
-  },
-  {
    "fieldname": "qty",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Qty"
   },
   {
    "fieldname": "unit",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Unit",
    "options": "Unit"
   },
@@ -100,6 +98,7 @@
    "description": "Qty * Rate Excluded Tax",
    "fieldname": "gross_amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Gross Amount"
   },
   {
@@ -139,6 +138,7 @@
   {
    "fieldname": "net_amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Net Amount"
   },
   {
@@ -150,6 +150,7 @@
   {
    "fieldname": "display_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Display Name"
   },
   {
@@ -158,12 +159,17 @@
    "fieldtype": "Check",
    "label": "Rate Includes Tax",
    "read_only": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-13 11:05:58.974891",
+ "modified": "2023-11-27 12:47:40.843027",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order Item",

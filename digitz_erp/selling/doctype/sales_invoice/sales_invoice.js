@@ -165,7 +165,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 		fill_receipt_schedule(frm,refresh= true)
 	},
-	credit_days(frn)
+	credit_days(frm)
 	{
 		fill_receipt_schedule(frm,refresh_credit_days= true);
 	},
@@ -590,7 +590,8 @@ frappe.ui.form.on('Sales Invoice Item', {
 						}
 					);
 
-
+					console.log("use customer last price")
+					console.log(use_customer_last_price)
 
 					var use_price_list_price = 1
 					if(use_customer_last_price == 1)

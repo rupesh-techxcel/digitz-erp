@@ -11,17 +11,38 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
-
-
 	},
 	refresh:function (frm) {
-		if(!frm.is_new()){
-			frm.add_custom_button('Purchase Return', () =>{
-				frappe.model.open_mapped_doc({
-	        method: 'digitz_erp.buying.doctype.purchase_invoice.purchase_invoice.create_purchase_return',
-					frm: cur_frm
-	      });
-			})
+
+		console.log("refresh")
+
+		if (frm.doc.docstatus === 1)
+		{			
+			frappe.call({
+				method: 'digitz_erp.api.purchase_invoice_api.check_balance_qty_to_return_for_purchase_invoice',
+				args: {
+					purchase_invoice: frm.doc.name
+				},
+				callback: function (r) {
+					console.log("Server response")
+					console.log(r)
+
+					if (r.message) {
+
+						console.log("check_balance")
+						console.log(r.message)
+						console.log(r)
+
+						// Records exist, show the button
+						frm.page.add_menu_item('Create Purchase Return', () =>{
+							frappe.model.open_mapped_doc({
+						method: 'digitz_erp.buying.doctype.purchase_invoice.purchase_invoice.create_purchase_return',
+								frm: cur_frm
+							  });
+						});
+					}
+				}
+			});		
 		}
 	},
 	validate:function(frm){
@@ -516,17 +537,20 @@ frappe.ui.form.on('Purchase Invoice Item', {
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					row.item_code = r.message.item_code;
+
+					console.log(r.message)
+
+					row.item_name = r.message.item_name;
+
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					row.display_name = row.item
-					frm.item = row.item
+					row.display_name = row.item_name					
 					frm.warehouse = row.warehouse
 					console.log("before trigger")
 					frm.trigger("get_item_stock_balance");

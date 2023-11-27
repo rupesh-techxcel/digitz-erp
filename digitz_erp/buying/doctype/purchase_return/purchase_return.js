@@ -2,16 +2,173 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Purchase Return', {
-  edit_posting_date_and_time(frm) {
-    if (frm.doc.edit_posting_date_and_time == 1) {
-      frm.set_df_property("posting_date", "read_only", 0);
-      frm.set_df_property("posting_time", "read_only", 0);
-    }
-    else {
-      frm.set_df_property("posting_date", "read_only", 1);
-      frm.set_df_property("posting_time", "read_only", 1);
-    }
-  },
+	
+	refresh: function (frm) {
+        if (frm.doc.docstatus < 2) {
+            frm.add_custom_button('Get Items From Purchase', function () {
+                // Call the custom method
+                frm.events.get_items_for_return(frm);
+            });
+        }
+    },
+	get_items_for_return: function (frm) {
+		if (!frm.doc.supplier) {
+			frappe.msgprint("Select supplier.");
+			return;
+		}
+	
+		let pending_invoices_data;
+	
+		// Fetch all supplier pending invoices and invoices already allocated in this payment_entry
+		frappe.call({
+			method: "digitz_erp.api.purchase_invoice_api.get_purchase_invoices_for_return",
+			args: {
+				supplier: frm.doc.supplier
+			},
+			callback: (r) => {
+				pending_invoices_data = r.message;
+				console.log("pending_invoices_data");
+				console.log(pending_invoices_data);
+	
+				var dialog = new frappe.ui.Dialog({
+					title: "Purchase Selection",
+					width: '100%',
+					fields: [
+						{
+							fieldtype: "HTML",
+							fieldname: "purchase",
+							label: "Payment Allocation",
+							options: '<div id="child-table-wrapper"></div>',
+						},
+					],
+					primary_action: function () {
+						var child_table_data_updated = child_table_control.get_value();
+											
+						// Iterate through the selected items
+						child_table_data_updated.forEach(function (item) {
+
+							if(item.__checked)
+							{
+								
+								// Access item fields using item.fieldname
+								console.log("Selected Item: ", item.name);
+								frappe.call({
+									method: "digitz_erp.api.purchase_invoice_api.get_purchase_line_items_for_return",									
+									args: {
+										purchase_invoice: item.name
+									},
+									callback: (r) => {
+
+										console.log("r.message")
+										console.log(r.message)
+
+										const returnRows = r.message;
+
+										// Iterate through each row in the items child table
+										returnRows.forEach(newRow => {
+
+											console.log("newRow")
+											console.log(newRow)
+											console.log("frm.doc.items")
+											console.log(frm.doc.items)
+											
+											// Check if the row already exists in the child table
+											const existingRow = frm.doc.items.find(row => row.pi_item_reference === newRow.pi_item_reference);
+
+											if (!existingRow) {
+												console.log("new item")
+												var return_item = frappe.model.get_new_doc('Purchase Return Item');
+												return_item.item = newRow.item
+												return_item.item_name = newRow.item_name
+												return_item.qty = newRow.qty
+												return_item.unit = newRow.unit
+												return_item.base_unit = newRow.base_unit
+												return_item.rate = newRow.rate
+												return_item.rate_in_base_unit = newRow.rate_in_base_unit
+												return_item.tax = newRow.tax
+												return_item.tax_rate = newRow.tax_rate
+												return_item.rate_includes_tax = newRow.rate_includes_tax
+
+												console.log("return_item")
+												console.log(return_item)
+
+												// If the row doesn't exist, add it to the child table
+												frm.add_child('items', return_item);
+												frm.refresh_field('items');
+											} else {
+												console.log("exists")
+												// If the row exists, you might want to update the existing row or handle it as needed
+												console.log(`Row with pi_item_reference ${newRow.pi_item_reference} already exists`);
+											}
+										});									
+										
+									}})
+							}
+
+						});
+
+						dialog.hide();
+						// Refresh the child table after adding all rows
+						
+					}
+				});
+	
+				dialog.$wrapper.find('.modal-dialog').css("max-width", "90%").css("width", "90%");
+				dialog.show();
+	
+				// Create child table control and add it to the dialog after the dialog is created
+				let child_table_control = frappe.ui.form.make_control({
+					df: {
+						fieldname: "payment_allocation",
+						fieldtype: "Table",
+						cannot_add_rows: true,
+						fields: [
+							{
+								fieldtype: 'Data',
+								fieldname: 'name',
+								label: 'Purchase Invoice',
+								in_place_edit: false,
+								in_list_view: true,
+								read_only: true
+							},
+							{
+								fieldtype: 'Data',
+								fieldname: 'supplier',
+								label: 'Supplier',
+								in_place_edit: false,
+								in_list_view: true,
+								read_only: true
+							},
+							{
+								fieldtype: 'Date',
+								fieldname: 'posting_date',
+								label: 'Date',
+								in_place_edit: false,
+								in_list_view: true,
+								read_only: true
+							}
+						],
+					},
+					parent: dialog.get_field("purchase").$wrapper.find('#child-table-wrapper'),
+					render_input: true,
+				});
+	
+				child_table_control.df.data = pending_invoices_data;
+				child_table_control.refresh();
+			}
+		});
+	},
+	
+	edit_posting_date_and_time(frm) {
+	if (frm.doc.edit_posting_date_and_time == 1) {
+		frm.set_df_property("posting_date", "read_only", 0);
+		frm.set_df_property("posting_time", "read_only", 0);
+	}
+	else {
+		frm.set_df_property("posting_date", "read_only", 1);
+		frm.set_df_property("posting_time", "read_only", 1);
+	}
+	},
   credit_purchase(frm) {
 		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
@@ -289,12 +446,12 @@ frappe.ui.form.on("Purchase Return", "onload", function (frm) {
 
 
 
-frappe.ui.form.on('Purchase Invoice Item', {
+frappe.ui.form.on('Purchase Return Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
 	item(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
-
+		console.log("here from item")
 
 		let doc = frappe.model.get_value("", row.item);
 		row.warehouse = frm.doc.warehouse;
@@ -307,11 +464,13 @@ frappe.ui.form.on('Purchase Invoice Item', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Item',
-					'filters': { 'item_name': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+					'filters': { 'item_code': row.item },
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					row.item_code = r.message.item_code;
+					console.log("r")
+					console.log(r)
+					row.item_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
@@ -348,56 +507,40 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					console.log("Price List");
 					console.log(frm.doc.price_list);
 
-					var applyStandrPricing = false;
 
-					if (frm.doc.price_list != "Standard Buying") {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
+					let currency = ""
+					console.log("before call digitz_erp.api.settings_api.get_default_currency")
+					frappe.call(
+						{
+							method:'digitz_erp.api.settings_api.get_default_currency',
+							async:false,
+							callback(r){								
+								console.log(r)
+								currency = r.message
+								console.log("currency")
+								console.log(currency)
+							}
+						}
+					);
 
-								args: {
-									'item': row.item,
-									'price_list': frm.doc.price_list
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										console.log(r.message[0].price);
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
-					else {
-						applyStandrPricing = true;
-					}
+					frappe.call(
+						{
+							method: 'digitz_erp.api.item_price_api.get_item_price',
+							async: false,
 
-					if (applyStandrPricing) {
-						frappe.call(
-							{
-								method: 'digitz_erp.api.items_api.get_item_price_for_price_list',
-								async: false,
-
-								args: {
-									'item': row.item,
-									'price_list': 'Standard Buying'
-								},
-								callback(r) {
-									if (r.message.length == 1) {
-										console.log(r.message[0].price);
-										row.rate = r.message[0].price;
-										row.rate_in_base_unit = r.message[0].price;
-									}
-									else {
-										applyStandrPricing = true;
-									}
-								}
-							});
-					}
+							args: {
+								'item': row.item,
+								'price_list': frm.doc.price_list,
+								'currency': currency	,
+								'date': frm.doc.posting_date							
+							},
+							callback(r) {
+								console.log("digitz_erp.api.item_price_api.get_item_price")
+								console.log(r)
+								row.rate = parseFloat(r.message);
+								row.rate_in_base_unit = parseFloat(r.message);
+							}
+						});	
 
 					frm.refresh_field("items");
 

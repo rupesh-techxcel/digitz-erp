@@ -9,46 +9,43 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_s
 from frappe.model.mapper import *
 
 class PurchaseReturn(Document):
+    
+	def validate(self):
+				
+		for docitem in self.items:
+			if(docitem.pi_item_reference):
+       
+				pi = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
+    
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(docitem.pi_item_reference, self.name))[0][0]
+				
+				pi_item = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
 
+				if total_returned_qty_not_in_this_pr:
+					if(pi_item.qty> total_returned_qty_not_in_this_pr + docitem.qty):
+						frappe.throw("Qty in the original purchase is less than the qty returned in the line item {}".format(docitem.idx))
+				else:
+					if(pi_item.qty > docitem.qty):
+						frappe.throw("Qty in the original purchase is less than the qty returned in the line item {}".format(docitem.idx))
+      
 	def on_submit(self):
-		frappe.enqueue(self.insert_gl_records, queue="long")
-		frappe.enqueue(self.insert_payment_postings, queue="long")
-		frappe.enqueue(self.add_stock_for_purchase_receipt, queue="long")
+		frappe.enqueue(self.do_posting, queue="long")
+  
+	def on_update(self):
+		self.update_purchase_invoice_quantities_before_save()
+  
+	def on_cancel(self):
+		self.update_purchase_invoice_quantities_before_delete_or_cancel()
+  
+	def on_trash(self):
+		self.update_purchase_invoice_quantities_before_delete_or_cancel()	
 
-	def before_save(self):
-		if self.purchase_order:
-			self.update_purchase_order_quantities_before_save()
-
-	def before_cancel(self):
-		if self.purchase_order:
-			self.update_purchase_order_quantities_before_cancel()
-
-	def update_purchase_order_quantities_before_cancel(self):
-		for item in self.items:
-			item_in_purchase_order= frappe.get_value("Purchase Order Item", {'item':item.item, 'display_name':item.display_name},['name'] )
-			purchase_order_item = frappe.get_doc("Purchase Order Item", item_in_purchase_order)
-			purchase_order_item.qty_purchased = item.qty
-			total_used_qty = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Return Item` pinvi JOIN `tabPurchase Return` pinv on pinv.name= pinvi.parent WHERE pinvi.item=%s AND pinvi.display_name=%s AND pinv.purchase_order=%s AND pinv.name !=%s""",(item.item,item.display_name, self.purchase_order,self.name))[0][0]
-			if(total_used_qty):
-				purchase_order_item.qty_purchased =  total_used_qty
-			else:
-				purchase_order_item.qty_purchased =  0
-			purchase_order_item.save()
-
-	def update_purchase_order_quantities_before_save(self):
-		# Get the purchase order and verify the qty purchased against each line items
-		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
-		for item in purchase_order.items:
-			item.qty_purchased = 0
-			for pi_item in self.items:
-				if(pi_item.item == item.item and pi_item.display_name == item.display_name):
-					item.qty_purchased = pi_item.qty
-			total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Return Item` pinvi JOIN `tabPurchase Return` pinv on pinv.name= pinvi.parent WHERE pinvi.item=%s AND pinvi.display_name=%s AND pinv.purchase_order=%s AND pinv.name !=%s""",(item.item,item.display_name, self.purchase_order,self.name))[0][0]
-			if total_used_qty_not_in_this_pi:
-				item.qty_purchased = item.qty_purchased + total_used_qty_not_in_this_pi
-		purchase_order.save()
-
-	def add_stock_for_purchase_receipt(self):
+	def do_posting(self):
+		self.insert_gl_records()
+		self.insert_payment_postings()
+		self.do_voucher_stock_posting()
+ 
+	def do_voucher_stock_posting(self):
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher.voucher = 'Purchase Return'
 		stock_recalc_voucher.voucher_no = self.name
@@ -336,3 +333,49 @@ class PurchaseReturn(Document):
 			gl_doc.credit_amount = self.rounded_total
 			gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
 			gl_doc.insert()
+   
+	def update_purchase_invoice_quantities_before_save(self):		
+
+		po_reference_any = False
+  
+		for item in self.items:
+			if not item.pi_item_reference:
+				continue
+			else:
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
+    
+				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+    
+				if total_returned_qty_not_in_this_pr:
+					pi_item.qty_returned = total_returned_qty_not_in_this_pr + item.qty
+				else:
+					pi_item.qty_returned = item.qty
+				pi_item.save()
+				po_reference_any = True
+
+		if(po_reference_any):
+			frappe.msgprint("Returned qty of items in the corresponding purchase invoice updated successfully", indicator= "green", alert= True)
+   
+	def update_purchase_invoice_quantities_before_delete_or_cancel(self):		
+
+		pi_reference_any = False
+
+		for item in self.items:
+			if not item.pi_item_reference:
+				continue
+			else:
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
+
+				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+
+				if total_returned_qty_not_in_this_pr:
+					pi_item.qty_returned = total_returned_qty_not_in_this_pr     
+				else:
+					pi_item.qty_returned = 0
+     
+				pi_item.save()
+				pi_reference_any = True
+
+		if pi_reference_any:
+			frappe.msgprint("Returned qty of items in the corresponding purchase invoice reverted successfully", indicator= "green", alert= True)
+

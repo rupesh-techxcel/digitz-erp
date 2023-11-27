@@ -8,7 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "item",
-  "item_code",
+  "item_name",
   "display_name",
   "qty",
   "unit",
@@ -29,7 +29,8 @@
   "discount_percentage",
   "discount_amount",
   "net_amount",
-  "unit_conversion_details"
+  "unit_conversion_details",
+  "pi_item_reference"
  ],
  "fields": [
   {
@@ -37,11 +38,6 @@
    "fieldtype": "Link",
    "label": "Item",
    "options": "Item"
-  },
-  {
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "label": "Item Code"
   },
   {
    "fieldname": "display_name",
@@ -157,12 +153,23 @@
    "fieldtype": "Check",
    "label": "Rate Includes Tax",
    "read_only": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "pi_item_reference",
+   "fieldtype": "Link",
+   "label": "PI Item Reference",
+   "options": "Purchase Invoice Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-13 11:13:17.731666",
+ "modified": "2023-11-26 10:15:06.622371",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return Item",

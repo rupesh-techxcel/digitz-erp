@@ -10,7 +10,9 @@ from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_st
 from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
+from digitz_erp.api.purchase_invoice_api import check_balance_qty_to_return_for_purchase_invoice
 from datetime import datetime
+from frappe.model.mapper import get_mapped_doc
 
 class PurchaseInvoice(Document):
 
@@ -518,15 +520,56 @@ class PurchaseInvoice(Document):
    
 			self.payment_posted_time = datetime.now()
 
-
 @frappe.whitelist()
-def create_purchase_return(source_name, target_doc = None):
-    doc = get_mapped_doc(
-        'Purchase Invoice',
-        source_name,
-        {
-            'Purchase Invoice': {
-                'doctype': 'Purchase Return',
-                },
-        },target_doc)
-    return doc
+def create_purchase_return(source_name):
+    
+	if(not check_balance_qty_to_return_for_purchase_invoice(source_name)):
+		frappe.throw("The chosen purchase invoice lacks the eligible quantity for return.")
+
+	# Get the source and target child table names
+	source_child_table = 'Purchase Invoice Item'
+	target_child_table = 'Purchase Return Item'
+
+	# Get the field names in the source and target child tables
+	source_fields = frappe.get_all('DocField', filters={'parent': source_child_table}, fields=['fieldname'])
+	target_fields = frappe.get_all('DocField', filters={'parent': target_child_table}, fields=['fieldname'])
+
+	# Create a field map based on matching field names, other than name field
+
+	field_map = {field['fieldname']: field['fieldname'] for field in source_fields if field['fieldname'] in target_fields and field['fieldname'] != 'name'}
+
+
+	# Add mapping for the new field (assuming the new field is named 'new_field_name')
+	pi_reference_mapping = {
+		'pi_item_reference': 'name',
+	}
+	# field_map.update(pi_reference_mapping)
+
+	for key, value in pi_reference_mapping.items():
+		if key not in field_map:
+			field_map[key] = value
+
+	
+	doc = get_mapped_doc(
+	'Purchase Invoice',
+	source_name,
+	{
+		'Purchase Invoice': {
+			'doctype': 'Purchase Return',
+		},
+		source_child_table: {
+			'doctype': target_child_table,
+			'field_map': field_map,
+		},
+	}	
+	) 
+ 
+	# Remove rows with qty_returned >= qty before returning the document
+	for item in doc.get('items', []):
+		if item.get('qty_returned', 0) is None or item.get('qty_returned', 0) >= item.get('qty', 0):
+			doc.get('items').remove(item)
+
+	# Additional logic using frm if needed
+	print("purchase_return_created from PI")
+	print(doc)
+	return doc	

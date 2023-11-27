@@ -33,7 +33,6 @@
   "warehouse",
   "print_in_progress",
   "pdf_url",
-  "section_break_11",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -48,7 +47,6 @@
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
-  "amended_from",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -239,10 +237,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -296,7 +290,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Sales Invoice Item"
+   "options": "Sales Return Item"
   },
   {
    "fieldname": "section_break_29",
@@ -489,7 +483,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Sales Return",
+   "options": "Sales Invoice",
    "print_hide": 1,
    "read_only": 1
   }
@@ -497,7 +491,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-06-28 08:32:36.831375",
+ "modified": "2023-11-27 17:30:02.792002",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",
