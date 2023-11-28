@@ -145,10 +145,6 @@ class DeliveryNote(Document):
             previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
                 , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
 
-            # Delivery Note always requires a previous record. So checking is not that relevant
-            if(previous_stock_ledger_name):
-                stock_recalc_voucher.base_stock_ledger = previous_stock_ledger_name
-
             stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
 
             # Not likely to occur

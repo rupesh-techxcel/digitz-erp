@@ -16,7 +16,7 @@ frappe.ui.form.on('Purchase Invoice', {
 
 		console.log("refresh")
 
-		if (frm.doc.docstatus === 1)
+		if (frm.doc.docstatus == 4) //Hiding for now
 		{			
 			frappe.call({
 				method: 'digitz_erp.api.purchase_invoice_api.check_balance_qty_to_return_for_purchase_invoice',

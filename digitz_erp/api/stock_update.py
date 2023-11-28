@@ -3,17 +3,22 @@ from frappe.utils import get_datetime
 from frappe.utils.data import now
 
 def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
-        
+    
+    
+    # This method is hitting from the background worker and need to ignore the negative_stock_checking, Means it will allow negative stock in any case.
+    
+    allow_negative_stock = True
+    
     posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  		
             
     default_company = frappe.db.get_single_value("Global Settings",'default_company')
             
     company_info = frappe.get_value("Company",default_company,['allow_negative_stock'], as_dict = True)
     
-    allow_negative_stock = company_info.allow_negative_stock
+    # allow_negative_stock = company_info.allow_negative_stock
     
-    if(not allow_negative_stock):
-        allow_negative_stock = False
+    # if(not allow_negative_stock):
+    #     allow_negative_stock = False
         
     for record in stock_recalc_voucher.records:
         
@@ -42,6 +47,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
             
             # Exit the loop if there is a manual stock entry, since the manual stock entry is considered as corrected stock entry
             if(sl.voucher == "Stock Reconciliation"):
+                
                 if(sl.balance_qty > new_balance_qty):
                     qty_in = sl.balance_qty - new_balance_qty
                 else:
@@ -58,12 +64,13 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 new_balance_qty = sl.balance_qty
                 new_balance_value = sl.balance_value                    
                                     
+                sl.recalculated = True
                 
                 # Once qty adjusted exit for next item, since after manual entry subsequent entries are not considered
                 sl.save()
                 break;
             
-            if(sl.voucher == "Delivery Note"):
+            if(sl.voucher == "Delivery Note" or sl.voucher== "Purchase Return"):
                 previous_balance_value = new_balance_value #Assign before change                    
                 new_balance_qty = new_balance_qty - sl.qty_out
                 new_balance_value = new_balance_qty * new_valuation_rate                    
@@ -72,7 +79,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 
                 # If there is a value change for stock, make adjustment in GL Posting
                 if(previous_stock_value != change_in_stock_value):
-                    gl_postings = frappe.get_list('GL Posting',{'voucher_type': 'Delivery Note','voucher_no': sl.voucher_no},['name'])
+                    gl_postings = frappe.get_list('GL Posting',{'voucher_type': sl.voucher,'voucher_no': sl.voucher_no},['name'])
                     for gl_posting in gl_postings:
                         gl = frappe.get_doc('GL Posting', gl_posting.name)
                         gl.change_in_stock_value = change_in_stock_value
@@ -83,7 +90,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 
                 update_purchase_usage_for_delivery_note(sl.voucher_no)
                                     
-            if (sl.voucher == "Purchase Invoice"):
+            if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
                 previous_balance_value = new_balance_value #Assign before change 
                 new_balance_qty = new_balance_qty + sl.qty_in
                 new_balance_value = new_balance_value  + (sl.qty_in * sl.incoming_rate)
@@ -91,7 +98,8 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 sl.change_in_stock_value = change_in_stock_value
     
                 if(new_balance_qty!=0): #Avoid divisible by zero
-                    new_valuation_rate = new_balance_value/ new_balance_qty
+                    if sl.voucher == "Purchases Invoice":  #Avoid sales return to assign new_valuation_rate
+                        new_valuation_rate = new_balance_value/ new_balance_qty
                     
             if(sl.voucher == "Stock Transfer"):
                 

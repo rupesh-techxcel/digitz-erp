@@ -41,7 +41,6 @@
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
-  "column_break_31",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -241,12 +240,6 @@
    "label": "Item Units"
   },
   {
-   "default": "0",
-   "fieldname": "column_break_31",
-   "fieldtype": "Check",
-   "label": "Update Rates in price list"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -361,7 +354,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-26 08:20:05.584391",
+ "modified": "2023-11-28 16:25:07.027296",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

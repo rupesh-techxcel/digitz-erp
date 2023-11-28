@@ -4,6 +4,7 @@
 frappe.ui.form.on('Purchase Return', {
 	
 	refresh: function (frm) {
+
         if (frm.doc.docstatus < 2) {
             frm.add_custom_button('Get Items From Purchase', function () {
                 // Call the custom method
@@ -42,6 +43,8 @@ frappe.ui.form.on('Purchase Return', {
 						},
 					],
 					primary_action: function () {
+
+						
 						var child_table_data_updated = child_table_control.get_value();
 											
 						// Iterate through the selected items
@@ -59,24 +62,21 @@ frappe.ui.form.on('Purchase Return', {
 									},
 									callback: (r) => {
 
-										console.log("r.message")
-										console.log(r.message)
 
 										const returnRows = r.message;
 
 										// Iterate through each row in the items child table
 										returnRows.forEach(newRow => {
 
-											console.log("newRow")
-											console.log(newRow)
-											console.log("frm.doc.items")
-											console.log(frm.doc.items)
-											
+																						
 											// Check if the row already exists in the child table
 											const existingRow = frm.doc.items.find(row => row.pi_item_reference === newRow.pi_item_reference);
+											
 
 											if (!existingRow) {
-												console.log("new item")
+												
+												console.log("adding new row")
+
 												var return_item = frappe.model.get_new_doc('Purchase Return Item');
 												return_item.item = newRow.item
 												return_item.item_name = newRow.item_name
@@ -88,17 +88,22 @@ frappe.ui.form.on('Purchase Return', {
 												return_item.tax = newRow.tax
 												return_item.tax_rate = newRow.tax_rate
 												return_item.rate_includes_tax = newRow.rate_includes_tax
-
-												console.log("return_item")
-												console.log(return_item)
+												console.log("before storing item_reference")
+												console.log(newRow.pi_item_reference)
+												return_item.pi_item_reference = newRow.pi_item_reference
+												console.log("after storing item_reference")
+												console.log(return_item.pi_item_reference)
 
 												// If the row doesn't exist, add it to the child table
 												frm.add_child('items', return_item);
+												frm.trigger("make_taxes_and_totals");
 												frm.refresh_field('items');
+												console.log("child rows added")
+												console.log(frm.doc.items)
 											} else {
-												console.log("exists")
-												// If the row exists, you might want to update the existing row or handle it as needed
-												console.log(`Row with pi_item_reference ${newRow.pi_item_reference} already exists`);
+												// console.log("exists")
+												// // If the row exists, you might want to update the existing row or handle it as needed
+												// console.log(`Row with pi_item_reference ${newRow.pi_item_reference} already exists`);
 											}
 										});									
 										
@@ -423,6 +428,12 @@ frappe.ui.form.on('Purchase Return', {
 });
 
 frappe.ui.form.on("Purchase Return", "onload", function (frm) {
+
+	// Remove the blank row shows initially
+	frm.doc.items = frm.doc.items.filter(function (item) {
+		return item.item && item.qty && item.rate;
+	});
+
 	frm.trigger("get_default_company_and_warehouse");
 
 	frm.set_query("price_list", function () {
@@ -443,8 +454,6 @@ frappe.ui.form.on("Purchase Return", "onload", function (frm) {
 
 
 });
-
-
 
 frappe.ui.form.on('Purchase Return Item', {
 	// cdt is Child DocType name i.e Quotation Item

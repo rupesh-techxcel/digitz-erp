@@ -11,6 +11,10 @@ from frappe.model.mapper import *
 class PurchaseReturn(Document):
     
 	def validate(self):
+		self.validate_purchase()
+		self.validate_stock()
+    
+	def validate_purchase(self):
 				
 		for docitem in self.items:
 			if(docitem.pi_item_reference):
@@ -21,14 +25,49 @@ class PurchaseReturn(Document):
 				
 				pi_item = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
 
+				print("total_returned_qty_not_in_this_pr")
+				print(total_returned_qty_not_in_this_pr)
+				print(docitem.qty)
+    
 				if total_returned_qty_not_in_this_pr:
-					if(pi_item.qty> total_returned_qty_not_in_this_pr + docitem.qty):
-						frappe.throw("Qty in the original purchase is less than the qty returned in the line item {}".format(docitem.idx))
+					if(pi_item.qty < (total_returned_qty_not_in_this_pr + docitem.qty)):
+						frappe.throw("The quantity available for return in the original purchase is less than the quantity specified in the line item {}".format(docitem.idx))
 				else:
-					if(pi_item.qty > docitem.qty):
-						frappe.throw("Qty in the original purchase is less than the qty returned in the line item {}".format(docitem.idx))
-      
+					if(pi_item.qty < docitem.qty):
+						frappe.throw("The quantity available for return in the original purchase is less than the quantity specified in the line item {}".format(docitem.idx))
+    
+	def validate_stock(self):
+		
+		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+
+		default_company = frappe.db.get_single_value("Global Settings", "default_company")
+
+		company_info = frappe.get_value("Company",default_company,['allow_negative_stock'], as_dict = True)
+
+		allow_negative_stock = company_info.allow_negative_stock
+
+		if not allow_negative_stock:
+			allow_negative_stock = False
+
+		if allow_negative_stock == False:
+			for docitem in self.items:
+				# previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
+
+				previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+				, 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+				order_by='posting_date desc', as_dict=True)
+
+				if(not previous_stock_balance):
+					frappe.throw("No stock exists for" + docitem.item )
+
+				if(previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
+					frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) +
+					" " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
+ 
 	def on_submit(self):
+
+		self.do_voucher_stock_posting()
+  
 		frappe.enqueue(self.do_posting, queue="long")
   
 	def on_update(self):
@@ -43,9 +82,10 @@ class PurchaseReturn(Document):
 	def do_posting(self):
 		self.insert_gl_records()
 		self.insert_payment_postings()
-		self.do_voucher_stock_posting()
+		self.do_voucher_stock_posting()		
  
 	def do_voucher_stock_posting(self):
+		# Note that negative stock checking is handled in the validate method
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher.voucher = 'Purchase Return'
 		stock_recalc_voucher.voucher_no = self.name
@@ -54,21 +94,29 @@ class PurchaseReturn(Document):
 		stock_recalc_voucher.status = 'Not Started'
 		stock_recalc_voucher.source_action = "Insert"
 		more_records = 0
+	
 		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+
 		for docitem in self.items:
 
    		# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
-		# in this flow itself. If more records, exists stock balance will be udpated lateer
+		# in this flow itself. If more records, exists stock balance will be udpated later
 			more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
 				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
 			more_records = more_records + more_records_count_for_item
-			new_balance_qty = docitem.qty_in_base_unit
+			new_balance_qty = docitem.qty_in_base_unit * -1
+
+			previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+                , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
+
 			# Default valuation rate
 			valuation_rate = docitem.rate_in_base_unit
-			# Default balance value calculating withe the current row only
+			# Default balance value calculating withe the current row only. Note that it holds negative value
 			new_balance_value = new_balance_qty * valuation_rate
+   
 			# Assigned current stock value to use if previous values not exist
 			change_in_stock_value = new_balance_value
+   
 			dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse],
                                              'posting_date': ['<', posting_date_time]})
 			if(dbCount>0):
@@ -77,12 +125,15 @@ class PurchaseReturn(Document):
 				last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item_code': ['=', docitem.item_code], 'warehouse':['=', docitem.warehouse],
                                                         'posting_date':['<', posting_date_time]},
                                             ['balance_qty', 'balance_value', 'valuation_rate'],order_by='posting_date desc', as_dict=True)
-				new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty
-				new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
-
+    
+				# Note that in the first step new_balance_qty and new_balance_value is negative
+				new_balance_qty = last_stock_ledger.balance_qty - abs(new_balance_qty)
+				new_balance_value = last_stock_ledger.balance_value - abs(new_balance_value)
 
 				if new_balance_qty!=0:
-					valuation_rate = new_balance_value/new_balance_qty
+					# Sometimes the balance_value and balance_qty can be negative, so it is ideal to take the abs value
+					valuation_rate = abs(new_balance_value)/abs(new_balance_qty)
+     
 				change_in_stock_value = new_balance_value - last_stock_ledger.balance_value
 
 			new_stock_ledger = frappe.new_doc("Stock Ledger")
@@ -98,7 +149,7 @@ class PurchaseReturn(Document):
 			new_stock_ledger.change_in_stock_value = change_in_stock_value
 			new_stock_ledger.voucher = "Purchase Return"
 			new_stock_ledger.voucher_no = self.name
-			new_stock_ledger.source = "Purchase Invoice Item"
+			new_stock_ledger.source = "Purchase Return Item"
 			new_stock_ledger.source_document_id = docitem.name
 			new_stock_ledger.insert()
 
@@ -119,19 +170,22 @@ class PurchaseReturn(Document):
 				update_item_stock_balance(item_name)
 
 			else:
-				stock_recalc_voucher.append('records',{'item': docitem.item,
-    													'warehouse': docitem.warehouse,
-                                                        'base_stock_ledger': new_stock_ledger.name
-                                                            })
+				if previous_stock_ledger_name:
+					stock_recalc_voucher.append('records',{'item': docitem.item,
+															'warehouse': docitem.warehouse,
+															'base_stock_ledger': new_stock_ledger.name
+																})
+				else:
+					stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                                'warehouse': docitem.warehouse,
+                                                                'base_stock_ledger': "No Previous Ledger"
+                                                                })
 		if(more_records>0):
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-	def on_cancel(self):
-		self.cancel_purchase()
-
-	def cancel_purchase(self):
-        # Insert record to 'Stock Recalculate Voucher' doc
+	def do_cancel_stock_posting(self):
+		 # Insert record to 'Stock Recalculate Voucher' doc
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher.voucher = 'Purchase Return'
 		stock_recalc_voucher.voucher_no = self.name
@@ -151,16 +205,7 @@ class PurchaseReturn(Document):
             		    , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
 			# If any items in the collection has more records
 			if(more_records_for_item>0):
-				stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
-				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
-				if(stock_ledger_items):
-					qty_cancelled = docitem.qty_in_base_unit
-					# Loop to verify the sufficiant quantity
-					for sl in stock_ledger_items:
-						# On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
-						if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
-							frappe.throw("Cancelling the purchase is prevented due to sufficiant quantity not available for " + docitem.item +
-						" to fulfil the voucher " + sl.voucher_no)
+				
 				if(previous_stock_ledger_name):
 					stock_recalc_voucher.append('records',{'item': docitem.item,
                                                             'warehouse': docitem.warehouse,
@@ -171,7 +216,6 @@ class PurchaseReturn(Document):
 															'warehouse': docitem.warehouse,
 															'base_stock_ledger': "No Previous Ledger"
 															})
-
 			else:
 				stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
 				balance_qty =0
@@ -201,6 +245,13 @@ class PurchaseReturn(Document):
 				{"voucher": "Purchase Return",
 					"voucher_no":self.name
 				})
+ 
+	def on_cancel(self):
+		self.cancel_purchase_return()
+
+	def cancel_purchase_return(self):
+     
+		self.do_cancel_stock_posting()
 
 		frappe.db.delete("GL Posting",
 				{"Voucher_type": "Purchase Return",
@@ -208,6 +259,7 @@ class PurchaseReturn(Document):
 				})
 
 	def insert_gl_records(self):
+     
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
 		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)

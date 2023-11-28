@@ -534,10 +534,14 @@ def create_purchase_return(source_name):
 	source_fields = frappe.get_all('DocField', filters={'parent': source_child_table}, fields=['fieldname'])
 	target_fields = frappe.get_all('DocField', filters={'parent': target_child_table}, fields=['fieldname'])
 
+	exclude_field = 'name'
+
+	# Modify the existing lists to exclude 'name' field
+	source_fields = [field for field in source_fields if field['fieldname'] != exclude_field]
+	target_fields = [field for field in target_fields if field['fieldname'] != exclude_field]
+ 
 	# Create a field map based on matching field names, other than name field
-
 	field_map = {field['fieldname']: field['fieldname'] for field in source_fields if field['fieldname'] in target_fields and field['fieldname'] != 'name'}
-
 
 	# Add mapping for the new field (assuming the new field is named 'new_field_name')
 	pi_reference_mapping = {
@@ -548,28 +552,63 @@ def create_purchase_return(source_name):
 	for key, value in pi_reference_mapping.items():
 		if key not in field_map:
 			field_map[key] = value
-
 	
 	doc = get_mapped_doc(
-	'Purchase Invoice',
-	source_name,
-	{
-		'Purchase Invoice': {
-			'doctype': 'Purchase Return',
-		},
-		source_child_table: {
-			'doctype': target_child_table,
-			'field_map': field_map,
-		},
-	}	
-	) 
+			'Purchase Invoice',
+			source_name,
+			{
+				'Purchase Invoice': {
+					'doctype': 'Purchase Return',
+				},
+				source_child_table: {
+					'doctype': target_child_table,
+					'field_map': field_map,
+				},
+			}
+	)
  
-	# Remove rows with qty_returned >= qty before returning the document
-	for item in doc.get('items', []):
-		if item.get('qty_returned', 0) is None or item.get('qty_returned', 0) >= item.get('qty', 0):
-			doc.get('items').remove(item)
+	# doc.name = frappe.get_auto_incremented_value('Purchase Return')
+ 
+	doc.name = ""
+	
+	pi_doc = frappe.get_doc("Purchase Invoice", source_name)
+		
+	selected_item_names = []
 
-	# Additional logic using frm if needed
-	print("purchase_return_created from PI")
-	print(doc)
-	return doc	
+	# Iterate through items
+	for item in pi_doc.items:
+		qty_returned = item.get('qty_returned', 0)
+		qty = item.get('qty', 0)
+
+		# Check condition: qty_returned < qty
+		if qty_returned < qty:
+			selected_item_names.append(item.get('name'))
+ 
+	filtered_items = []
+ 
+	# Create a new list to store items without removing unwanted ones
+	for item_name in selected_item_names:
+		# Check if the item with pi_item_reference already exists in filtered_items
+		item_exists = any(item.pi_item_reference == item_name for item in filtered_items)
+
+		if not item_exists:
+			# If the item doesn't exist in filtered_items, find it in doc.items and append it
+			for item in doc.items:
+				if item.pi_item_reference == item_name:
+        
+						# Again check in the orginal PI to get the qty for return
+						for pi_item in pi_doc.items:
+							if pi_item.name == item_name:
+								# Calculate the quantity difference
+								qty_difference = pi_item.qty - pi_item.qty_returned
+
+								# Modify the item's qty with the new variable value
+								item.qty = qty_difference
+								item.parent = doc.name
+								filtered_items.append(item)
+								break  # Break out of the inner loop once the item is found and appended
+
+ 	# Update the document with the filtered items
+	doc.items = filtered_items
+	return doc
+
