@@ -154,6 +154,8 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
         
 def update_item_stock_balance(item):
     
+    print("before udpate item stock balance")
+    
     item_balances_in_warehouses = frappe.get_list('Stock Balance',{'item': item},['stock_qty','stock_value'])
 
     balance_stock_qty = 0
@@ -166,7 +168,6 @@ def update_item_stock_balance(item):
 
             if item_stock.stock_value:
                 balance_stock_value = balance_stock_value + item_stock.stock_value
-
     
     item_to_update = frappe.get_doc('Item', item)	
             
@@ -178,6 +179,8 @@ def update_item_stock_balance(item):
     item_to_update.stock_balance = balance_stock_qty
     item_to_update.stock_value = balance_stock_value                
     item_to_update.save()
+    
+    print("after udpate item stock balance")
 
 def update_purchase_usage_for_delivery_note(delivery_note_no):
     

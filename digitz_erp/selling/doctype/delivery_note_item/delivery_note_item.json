@@ -30,7 +30,8 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "delivery_note_item_reference_no"
+  "delivery_note_item_reference_no",
+  "qty_returned"
  ],
  "fields": [
   {
@@ -170,12 +171,17 @@
    "fieldtype": "Check",
    "label": "Rate Includes Tax",
    "read_only": 1
+  },
+  {
+   "fieldname": "qty_returned",
+   "fieldtype": "Float",
+   "label": "Qty Returned"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-27 12:51:45.497565",
+ "modified": "2023-12-10 15:54:41.819742",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note Item",

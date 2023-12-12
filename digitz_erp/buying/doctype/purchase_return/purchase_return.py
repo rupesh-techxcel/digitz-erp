@@ -71,13 +71,16 @@ class PurchaseReturn(Document):
 		frappe.enqueue(self.do_posting, queue="long")
   
 	def on_update(self):
-		self.update_purchase_invoice_quantities_before_save()
+		self.update_purchase_invoice_quantities_on_update()
   
 	def on_cancel(self):
 		self.update_purchase_invoice_quantities_before_delete_or_cancel()
+		self.cancel_purchase_return()
   
 	def on_trash(self):
-		self.update_purchase_invoice_quantities_before_delete_or_cancel()	
+		# On cancel, the quantities are already deleted.
+		if(self.docstatus < 2):
+			self.update_purchase_invoice_quantities_before_delete_or_cancel()	
 
 	def do_posting(self):
 		self.insert_gl_records()
@@ -166,8 +169,8 @@ class PurchaseReturn(Document):
 				new_stock_balance.stock_value = new_balance_value
 				new_stock_balance.valuation_rate = valuation_rate
 				new_stock_balance.insert()
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)
+				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+				update_item_stock_balance(docitem.item)
 
 			else:
 				if previous_stock_ledger_name:
@@ -234,21 +237,21 @@ class PurchaseReturn(Document):
 				stock_balance_for_item.stock_value = balance_value
 				stock_balance_for_item.valuation_rate = valuation_rate
 				stock_balance_for_item.save()
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)
+				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+				update_item_stock_balance(docitem.item)
 
+		# Delete the stock ledger before recalculate, to avoid it to be recalculated again
+		frappe.db.delete("Stock Ledger",
+		{"voucher": "Purchase Return",
+			"voucher_no":self.name
+		})
+  
 		if(more_records>0):
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-		frappe.db.delete("Stock Ledger",
-				{"voucher": "Purchase Return",
-					"voucher_no":self.name
-				})
- 
-	def on_cancel(self):
-		self.cancel_purchase_return()
 
+ 
 	def cancel_purchase_return(self):
      
 		self.do_cancel_stock_posting()
@@ -265,7 +268,7 @@ class PurchaseReturn(Document):
 		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
 
 		idx =1
-		# Trade Payavble - Debit
+		# Debit Payable A/c
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Return"
 		gl_doc.voucher_no = self.name
@@ -273,14 +276,27 @@ class PurchaseReturn(Document):
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.default_payable_account
-		gl_doc.credit_amount = self.rounded_total
+		gl_doc.debit_amount = self.rounded_total
 		gl_doc.party_type = "Supplier"
+  
 		gl_doc.party = self.supplier
-		gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
+		gl_doc.aginst_account = default_accounts.default_inventory_account
 		gl_doc.insert()
 
+		# # Stock Received But Not Billed
+		# idx =2
+		# gl_doc = frappe.new_doc('GL Posting')
+		# gl_doc.voucher_type = "Purchase Return"
+		# gl_doc.voucher_no = self.name
+		# gl_doc.idx = idx
+		# gl_doc.posting_date = self.posting_date
+		# gl_doc.posting_time = self.posting_time
+		# gl_doc.account = default_accounts.stock_received_but_not_billed
+		# gl_doc.debit_amount =  self.net_total - self.tax_total
+		# gl_doc.aginst_account = self.supplier
+		# gl_doc.insert()
 
-		# Stock Received But Not Billed
+		# Credit Tax
 		idx =2
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Return"
@@ -288,24 +304,12 @@ class PurchaseReturn(Document):
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.stock_received_but_not_billed
-		gl_doc.debit_amount =  self.net_total - self.tax_total
-		gl_doc.aginst_account = self.supplier
-		gl_doc.insert()
-
-		# Tax
-		idx =3
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Purchase Return"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.tax_account
-		gl_doc.debit_amount = self.tax_total
-		gl_doc.aginst_account = self.supplier
+		gl_doc.credit_amount = self.tax_total
+		gl_doc.aginst_account = default_accounts.default_payable_account
 		gl_doc.insert()
 
+		# Rounded Total
 		if self.round_off!=0.00:
 			idx = idx + 1
 			gl_doc = frappe.new_doc('GL Posting')
@@ -315,14 +319,18 @@ class PurchaseReturn(Document):
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = default_accounts.round_off_account
+   
+			# If rounded_total more than net_total debit is more in the payable account
 			if self.rounded_total > self.net_total:
-				gl_doc.debit_amount = self.round_off
-			else:
 				gl_doc.credit_amount = self.round_off
-			gl_doc.aginst_account = default_accounts.default_payable_account
+				gl_doc.aginst_account = default_accounts.default_payable_account
+			else:
+				gl_doc.debit_amount = self.round_off
+				gl_doc.against_account = default_accounts.default_inventory_account
+			
 			gl_doc.insert()
 
-		# Postings for purchase receipt
+		# Credit Inventory A/c
 		idx =idx+1
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Return"
@@ -331,26 +339,24 @@ class PurchaseReturn(Document):
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.default_inventory_account
-		gl_doc.debit_amount = self.net_total - self.tax_total
-		gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
-		gl_doc.insert()
-
-		idx =idx + 1
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Purchase Return"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.stock_received_but_not_billed
 		gl_doc.credit_amount = self.net_total - self.tax_total
-		gl_doc.aginst_account = default_accounts.default_inventory_account
+		gl_doc.aginst_account = default_accounts.default_payable_account
 		gl_doc.insert()
 
-		# Round Off
-
-
+		# idx =idx + 1
+		# gl_doc = frappe.new_doc('GL Posting')
+		# gl_doc.voucher_type = "Purchase Return"
+		# gl_doc.voucher_no = self.name
+		# gl_doc.idx = idx
+		# gl_doc.posting_date = self.posting_date
+		# gl_doc.posting_time = self.posting_time
+		# gl_doc.account = default_accounts.stock_received_but_not_billed
+		# gl_doc.credit_amount = self.net_total - self.tax_total
+		# gl_doc.aginst_account = default_accounts.default_inventory_account
+		# gl_doc.insert()
+	
 	def insert_payment_postings(self):
+     
 		if self.credit_purchase==0:
 			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Purchase Return', 'voucher_no': self.name})
 			default_company = frappe.db.get_single_value("Global Settings","default_company")
@@ -367,7 +373,7 @@ class PurchaseReturn(Document):
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = default_accounts.default_payable_account
-			gl_doc.debit_amount = self.rounded_total
+			gl_doc.credit_amount = self.rounded_total
 			gl_doc.party_type = "Supplier"
 			gl_doc.party = self.supplier
 			gl_doc.aginst_account = payment_mode.account
@@ -382,13 +388,13 @@ class PurchaseReturn(Document):
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = payment_mode.account
-			gl_doc.credit_amount = self.rounded_total
-			gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
+			gl_doc.debit_amount = self.rounded_total
+			gl_doc.aginst_account = default_accounts.default_payable_account
 			gl_doc.insert()
    
-	def update_purchase_invoice_quantities_before_save(self):		
+	def update_purchase_invoice_quantities_on_update(self):		
 
-		po_reference_any = False
+		pi_reference_any = False
   
 		for item in self.items:
 			if not item.pi_item_reference:
@@ -403,9 +409,9 @@ class PurchaseReturn(Document):
 				else:
 					pi_item.qty_returned = item.qty
 				pi_item.save()
-				po_reference_any = True
+				pi_reference_any = True
 
-		if(po_reference_any):
+		if pi_reference_any:
 			frappe.msgprint("Returned qty of items in the corresponding purchase invoice updated successfully", indicator= "green", alert= True)
    
 	def update_purchase_invoice_quantities_before_delete_or_cancel(self):		

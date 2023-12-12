@@ -129,8 +129,8 @@ class StockTransfer(Document):
 
 				new_stock_balance.insert()
 
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)	
+				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+				update_item_stock_balance(docitem.item)	
 
 			more_records_count_for_item_for_target = frappe.db.count('Stock Ledger',{'item':docitem.item,
 				'warehouse':docitem.target_warehouse, 'posting_date':['>', posting_date_time]})
@@ -391,8 +391,8 @@ class StockTransfer(Document):
 					stock_balance_for_item.valuation_rate = valuation_rate
 					stock_balance_for_item.insert()                    
 
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)	
+				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+				update_item_stock_balance(docitem.item)	
 			
    			# Target w/h
 			
@@ -461,8 +461,8 @@ class StockTransfer(Document):
      
      
 
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)	
+				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+				update_item_stock_balance(docitem.item)	
 
 		
 		if(more_records_source_wh>0):

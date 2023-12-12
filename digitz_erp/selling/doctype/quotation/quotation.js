@@ -743,9 +743,14 @@ frappe.ui.form.on('Quotation Item', {
 		frm.trigger("make_taxes_and_totals");
 
 		frm.refresh_field("items");
-	},
+	},	
 	items_add(frm, cdt, cdn) {
+		
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+
 		frm.trigger("make_taxes_and_totals");
+		
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

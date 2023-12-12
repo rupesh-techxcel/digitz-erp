@@ -36,10 +36,7 @@ class PurchaseInvoice(Document):
 			frappe.throw("Select Payment Mode")
    
 	def on_submit(self):
-     
-		print("remarks")
-		print(self.remarks)
-    
+         
 		# assign posting_start_time before the background thread start to get the real time
 		# because a lagging may happen to start the thread
 		self.postings_start_time = datetime.now()		

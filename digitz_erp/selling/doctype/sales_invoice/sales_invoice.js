@@ -5,14 +5,14 @@ frappe.ui.form.on('Sales Invoice', {
 
 	 refresh: function (frm) {
 		
-		if(!frm.is_new()){
-			frm.add_custom_button('Sales Return', () =>{
-				frappe.model.open_mapped_doc({
-	        method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.create_sales_return',
-					frm: cur_frm
-	      });
-			})
-		}
+		// if(!frm.is_new()){
+		// 	frm.add_custom_button('Sales Return', () =>{
+		// 		frappe.model.open_mapped_doc({
+	    //     method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.create_sales_return',
+		// 			frm: cur_frm
+	    //   });
+		// 	})
+		// }
 	 },
 	after_save: function (frm) {
 
@@ -774,7 +774,12 @@ frappe.ui.form.on('Sales Invoice Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+
 		frm.trigger("make_taxes_and_totals");
+		
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

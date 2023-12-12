@@ -20,3 +20,20 @@ def submit_sales_invoice(docname):
     doc = frappe.get_doc('Sales Invoice',docname)    
     doc.submit()
     
+@frappe.whitelist()
+def get_sales_invoices_for_return(customer):
+    
+    result = frappe.db.sql("""
+        SELECT distinct si.name,si.customer,si.posting_date,si.rounded_total FROM `tabSales Invoice Item` sii inner join `tabSales Invoice` si on si.name=sii.parent where sii.qty_returned < sii.qty and  si.customer='{0}' and si.docstatus=1 """.format(customer), as_dict=1)
+    
+    return result
+
+@frappe.whitelist()
+def get_sales_line_items_for_return(sales_invoice):
+    
+    result = frappe.db.sql("""
+                SELECT si.name as si_item_reference, si.item, si.item_name,si.display_name, si.unit,si.base_unit, si.rate, si.qty-si.qty_returned as qty, si.rate_in_base_unit, si.tax, si.tax_rate, rate_includes_tax from `tabSales Invoice Item` si where si.parent ='{0}' and si.qty> si.qty_returned""".format(sales_invoice), as_dict =1
+                )
+    
+    return result
+    

@@ -41,19 +41,22 @@
   "payment_account",
   "column_break_25",
   "remarks",
+  "column_break_mu02",
   "section_break_19",
   "items",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
+  "column_break_ozno",
   "section_break_25",
   "gross_total",
-  "total_discount_in_line_items",
   "tax_total",
-  "additional_discount",
-  "column_break_33",
   "net_total",
+  "column_break_33",
+  "total_discount_in_line_items",
+  "additional_discount",
+  "column_break_nabb",
   "round_off",
   "rounded_total",
   "paid_amount",
@@ -61,6 +64,9 @@
   "taxes",
   "terms_and_conditions_section",
   "terms",
+  "column_break_ybsh",
+  "column_break_opxg",
+  "section_break_ucfq",
   "terms_and_conditions",
   "references_tab",
   "data_53",
@@ -486,12 +492,36 @@
    "options": "Sales Invoice",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mu02",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ozno",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nabb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ybsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ucfq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_opxg",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-27 17:30:02.792002",
+ "modified": "2023-12-10 18:18:09.611992",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

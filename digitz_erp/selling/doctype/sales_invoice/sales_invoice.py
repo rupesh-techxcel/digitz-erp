@@ -36,20 +36,24 @@ class SalesInvoice(Document):
         self.update_item_prices()
 
     def on_submit(self):        
-
+        frappe.enqueue(self.do_postings_on_submit, queue="long")
+        frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
+    
+    def do_postings_on_submit(self):
+        
         cost_of_goods_sold = 0
 
         if self.tab_sales :       
             cost_of_goods_sold = self.deduct_stock_for_tab_sales()
         
         # self.update_item_prices()
-       
-        frappe.enqueue(self.insert_gl_records, cost_of_goods_sold=cost_of_goods_sold, queue="long")
-        frappe.enqueue(self.insert_payment_postings, queue="long")
-
+        
         if(self.auto_generate_delivery_note):
             self.submit_delivery_note()
-    
+            
+        self.insert_gl_records(cost_of_goods_sold=cost_of_goods_sold)
+        self.insert_payment_postings()
+
     def update_item_prices(self):
         
         if(self.update_rates_in_price_list):        
@@ -264,14 +268,25 @@ class SalesInvoice(Document):
 
     @frappe.whitelist()
     def submit_delivery_note(self):
-         if self.docstatus == 1:
+        
+        print("from submit delivery note")
+        if self.docstatus == 1:
+            print("logic_test-102")
             if self.auto_save_delivery_note:
-                si_do = frappe.get_doc('Sales Invoice Delivery Notes',{'parent':self.name})
-                do_no = si_do.delivery_note
-                do = frappe.get_doc('Delivery Note',do_no)
-                do.submit()
-                frappe.msgprint("A Delivery Note corresponding to the sales invoice is also submitted.", indicator="green", alert=True)
+                print("logic_test-103")               
+                result = frappe.db.sql("""SELECT * FROM `tabSales Invoice Delivery Notes` WHERE `parent` = %s""", (self.name,), as_dict=True)
+                if result:
+                    si_do = frappe.get_doc('Sales Invoice Delivery Notes', result[0].name)
+
+                    print("so_do")
+                    print(si_do)
+                    do_no = si_do.delivery_note
+                    do = frappe.get_doc('Delivery Note',do_no)
+                    do.submit()
+                    frappe.msgprint("A Delivery Note corresponding to the sales invoice is also submitted.", indicator="green", alert=True)
                 return
+        else:
+            print("logic_test-101")
 
     @frappe.whitelist()
     def auto_generate_delivery_note(self):
@@ -428,7 +443,7 @@ class SalesInvoice(Document):
 
                 for item in delivery_note['items']:
                     item.doctype = "Delivery Note Item"
-                    item._meta = ""
+                    item._meta = ""         
 
                 delivery_note_doc = frappe.get_doc(delivery_note).insert()
                 frappe.db.commit()
@@ -616,8 +631,8 @@ class SalesInvoice(Document):
 
                 new_stock_balance.insert()
 
-                item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(item_name)
+                # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                update_item_stock_balance(docitem.item)
             else:
                 stock_recalc_voucher.append('records',{'item': docitem.item,
                                                             'warehouse': docitem.warehouse,

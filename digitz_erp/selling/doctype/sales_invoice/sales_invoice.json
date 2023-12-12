@@ -34,7 +34,6 @@
   "warehouse",
   "print_in_progress",
   "pdf_url",
-  "section_break_11",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -42,15 +41,15 @@
   "payment_mode",
   "payment_account",
   "column_break_zjj2",
-  "receipt_schedule",
-  "column_break_25",
   "remarks",
+  "column_break_yacz",
   "section_break_19",
   "items",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
+  "column_break_uozz",
   "amended_from",
   "section_break_25",
   "gross_total",
@@ -79,7 +78,9 @@
   "area_name",
   "country",
   "quotation",
-  "sales_order"
+  "sales_order",
+  "receipt_schedule_tab",
+  "receipt_schedule"
  ],
  "fields": [
   {
@@ -131,10 +132,6 @@
    "fieldname": "edit_posting_date_and_time",
    "fieldtype": "Check",
    "label": "Edit Posting Date And Time"
-  },
-  {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "warehouse",
@@ -313,10 +310,6 @@
    "label": "Related Documents"
   },
   {
-   "fieldname": "column_break_25",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "0",
    "fieldname": "credit_sale",
    "fieldtype": "Check",
@@ -457,7 +450,8 @@
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
-   "label": "Paid Amount"
+   "label": "Paid Amount",
+   "read_only": 1
   },
   {
    "fieldname": "tab_sales",
@@ -510,12 +504,25 @@
    "fieldtype": "Table",
    "label": "Receipt Schedule",
    "options": "Sales Receipt Schedule"
+  },
+  {
+   "fieldname": "receipt_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Receipt Schedule"
+  },
+  {
+   "fieldname": "column_break_yacz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_uozz",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-10 20:27:16.018724",
+ "modified": "2023-12-10 15:34:59.761780",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

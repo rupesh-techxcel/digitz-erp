@@ -161,8 +161,8 @@ class DeliveryNote(Document):
                     stock_balance_for_item.stock_qty = previous_stock_ledger.balance_qty
                     stock_balance_for_item.stock_value = previous_stock_ledger.balance_value
                     stock_balance_for_item.save()
-                    item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                    update_item_stock_balance(item_name)
+                    # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                    update_item_stock_balance(docitem.item)
                 else:
                     if previous_stock_ledger_name:
                     # Previous stock ledger assigned to base stock ledger

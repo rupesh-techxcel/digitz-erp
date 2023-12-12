@@ -5,7 +5,7 @@ frappe.ui.form.on('Purchase Return', {
 	
 	refresh: function (frm) {
 
-        if (frm.doc.docstatus < 2) {
+        if (frm.doc.docstatus < 1) {
             frm.add_custom_button('Get Items From Purchase', function () {
                 // Call the custom method
                 frm.events.get_items_for_return(frm);
@@ -62,6 +62,7 @@ frappe.ui.form.on('Purchase Return', {
 									},
 									callback: (r) => {
 
+										console.log(r.message)
 
 										const returnRows = r.message;
 
@@ -79,7 +80,13 @@ frappe.ui.form.on('Purchase Return', {
 
 												var return_item = frappe.model.get_new_doc('Purchase Return Item');
 												return_item.item = newRow.item
+												return_item.warehouse = frm.doc.warehouse
 												return_item.item_name = newRow.item_name
+												return_item.display_name = newRow.display_name
+												if(! newRow.display_name || newRow.display_name == "")
+												{
+													return_item.display_name = newRow.item_name
+												}
 												return_item.qty = newRow.qty
 												return_item.unit = newRow.unit
 												return_item.base_unit = newRow.base_unit
@@ -151,7 +158,15 @@ frappe.ui.form.on('Purchase Return', {
 								in_place_edit: false,
 								in_list_view: true,
 								read_only: true
-							}
+							},
+							{
+								fieldtype: 'Currency',
+								fieldname: 'rounded_total',
+								label: 'Amount',
+								in_place_edit: false,
+								in_list_view: true,
+								read_only: true
+							},
 						],
 					},
 					parent: dialog.get_field("purchase").$wrapper.find('#child-table-wrapper'),
@@ -674,7 +689,10 @@ frappe.ui.form.on('Purchase Return Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
 		frm.trigger("make_taxes_and_totals");
+		frm.refresh_field("items");
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

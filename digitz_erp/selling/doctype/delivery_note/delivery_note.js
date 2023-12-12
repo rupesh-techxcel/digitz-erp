@@ -732,7 +732,12 @@ frappe.ui.form.on('Delivery Note Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+
 		frm.trigger("make_taxes_and_totals");
+		
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

@@ -768,10 +768,17 @@ frappe.ui.form.on('Sales Order Item', {
 		frm.refresh_field("items");
 	},
 	items_add(frm, cdt, cdn) {
+
+		console.log("from item_add")
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+
 		frm.trigger("make_taxes_and_totals");
+		
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	}
+
 
 });

@@ -2,6 +2,186 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Sales Return', {
+
+  refresh: function(frm){
+
+	if (frm.doc.docstatus < 1) {
+		frm.add_custom_button('Get Items From Sales', function () {
+			// Call the custom method
+			frm.events.get_items_for_return(frm);
+		});
+	}
+  },
+  get_items_for_return: function (frm) {
+	
+	if (!frm.doc.customer) {
+		frappe.msgprint("Select Customer.");
+		return;
+	}
+
+	let pending_invoices_data;
+
+	// Fetch all supplier pending invoices and invoices already allocated in this payment_entry
+	frappe.call({
+		method: "digitz_erp.api.sales_invoice_api.get_sales_invoices_for_return",
+		args: {
+			customer: frm.doc.customer
+		},
+		callback: (r) => {
+			pending_invoices_data = r.message;
+			console.log("pending_invoices_data");
+			console.log(pending_invoices_data);
+
+			var dialog = new frappe.ui.Dialog({
+				title: "Sales Selection",
+				width: '100%',
+				fields: [
+					{
+						fieldtype: "HTML",
+						fieldname: "sales",
+						label: "Sales Selection",
+						options: '<div id="child-table-wrapper"></div>',
+					},
+				],
+				primary_action: function () {
+
+					
+					var child_table_data_updated = child_table_control.get_value();
+										
+					// Iterate through the selected items
+					child_table_data_updated.forEach(function (item) {
+
+						if(item.__checked)
+						{					
+							// Access item fields using item.fieldname
+							console.log("Selected Item: ", item.name);
+							frappe.call({
+								method: "digitz_erp.api.sales_invoice_api.get_sales_line_items_for_return",									
+								args: {
+									sales_invoice: item.name
+								},
+								callback: (r) => {
+
+									const returnRows = r.message;
+
+									console.log("r.message")
+									console.log(r.message)
+
+									// Iterate through each row in the items child table
+									returnRows.forEach(newRow => {
+
+										console.log(newRow)
+										
+										let existingRow =[]
+
+										if(frm.doc.items)
+											// Check if the row already exists in the child table
+											 existingRow =  frm.doc.items.find(row => row.si_item_reference === newRow.si_item_reference);
+
+										if (!frm.doc.items ||  !existingRow) {
+											
+											var return_item = frappe.model.get_new_doc('Sales Return Item');
+												return_item.item = newRow.item
+												return_item.warehouse = frm.doc.warehouse
+												return_item.item_name = newRow.item_name
+												return_item.display_name = newRow.display_name
+
+												if(! newRow.display_name || newRow.display_name == "")
+												{
+													return_item.display_name = newRow.item_name
+												}
+
+												return_item.qty = newRow.qty
+												return_item.unit = newRow.unit
+												return_item.base_unit = newRow.base_unit
+												return_item.rate = newRow.rate
+												return_item.rate_in_base_unit = newRow.rate_in_base_unit
+												return_item.tax = newRow.tax
+												return_item.tax_rate = newRow.tax_rate
+												return_item.rate_includes_tax = newRow.rate_includes_tax												
+												return_item.si_item_reference = newRow.si_item_reference
+											
+											console.log("return_item")
+											console.log(return_item)
+											// If the row doesn't exist, add it to the child table
+											frm.add_child('items', return_item);
+											frm.trigger("make_taxes_and_totals");
+											frm.refresh_field('items');
+
+											console.log(frm.doc.items)
+
+										} else {
+											// console.log("exists")
+											// // If the row exists, you might want to update the existing row or handle it as needed
+											// console.log(`Row with pi_item_reference ${newRow.pi_item_reference} already exists`);
+										}
+									});									
+									
+								}})
+						}
+
+					});
+
+					dialog.hide();
+					// Refresh the child table after adding all rows
+					
+				}
+			});
+
+			dialog.$wrapper.find('.modal-dialog').css("max-width", "90%").css("width", "90%");
+			dialog.show();
+
+			// Create child table control and add it to the dialog after the dialog is created
+			let child_table_control = frappe.ui.form.make_control({
+				df: {
+					fieldname: "sales_selection",
+					fieldtype: "Table",
+					cannot_add_rows: true,
+					fields: [
+						{
+							fieldtype: 'Data',
+							fieldname: 'name',
+							label: 'Sales Invoice',
+							in_place_edit: false,
+							in_list_view: true,
+							read_only: true
+						},
+						{
+							fieldtype: 'Data',
+							fieldname: 'customer',
+							label: 'Customer',
+							in_place_edit: false,
+							in_list_view: true,
+							read_only: true
+						},
+						{
+							fieldtype: 'Date',
+							fieldname: 'posting_date',
+							label: 'Date',
+							in_place_edit: false,
+							in_list_view: true,
+							read_only: true
+						},
+						{
+							fieldtype: 'Currency',
+							fieldname: 'rounded_total',
+							label: 'Amount',
+							in_place_edit: false,
+							in_list_view: true,
+							read_only: true
+						},
+
+					],
+				},
+				parent: dialog.get_field("sales").$wrapper.find('#child-table-wrapper'),
+				render_input: true,
+			});
+
+			child_table_control.df.data = pending_invoices_data;
+			child_table_control.refresh();
+		}
+	});
+  },
   edit_posting_date_and_time(frm) {
     if (frm.doc.edit_posting_date_and_time == 1) {
       frm.set_df_property("posting_date", "read_only", 0);
@@ -307,8 +487,6 @@ frappe.ui.form.on('Sales Return Item', {
 
 		let row = frappe.get_doc(cdt, cdn);
 
-		let doc = frappe.model.get_value("", row.item);
-
 		row.warehouse = frm.doc.warehouse;
 
 		frm.item = row.item;
@@ -518,7 +696,13 @@ frappe.ui.form.on('Sales Return Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+
+		console.log("from item_add")
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+
 		frm.trigger("make_taxes_and_totals");
+		
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

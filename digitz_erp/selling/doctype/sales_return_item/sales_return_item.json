@@ -30,7 +30,8 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "delivery_note_item_reference_no"
+  "delivery_note_item_reference_no",
+  "si_item_reference"
  ],
  "fields": [
   {
@@ -188,12 +189,18 @@
    "fieldname": "delivery_note_item_reference_no",
    "fieldtype": "Data",
    "label": "Delivery Note Item Reference No"
+  },
+  {
+   "fieldname": "si_item_reference",
+   "fieldtype": "Link",
+   "label": "SI Item Reference",
+   "options": "Sales Invoice Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-27 17:27:21.893617",
+ "modified": "2023-11-28 22:09:40.678750",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return Item",

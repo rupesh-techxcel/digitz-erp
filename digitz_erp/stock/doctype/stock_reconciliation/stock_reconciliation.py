@@ -136,8 +136,8 @@ class StockReconciliation(Document):
 
                 new_stock_balance.insert()
 
-                item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(item_name)
+                # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                update_item_stock_balance(docitem.item)
 
         if(more_records>0):
             stock_recalc_voucher.insert()
@@ -222,8 +222,8 @@ class StockReconciliation(Document):
                 stock_balance_for_item.valuation_rate = valuation_rate
                 stock_balance_for_item.save()
 
-                item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(item_name)
+                # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                update_item_stock_balance(docitem.item)
 
         if(more_records>0):
             stock_recalc_voucher.insert()
