@@ -5,7 +5,6 @@ import frappe
 from frappe.model.document import Document
 from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice, get_allocations_for_expense_entry
 class PaymentEntry(Document):
-
 	
 	temp_payment_allocation = None
 	# def before_save(self):
@@ -41,11 +40,11 @@ class PaymentEntry(Document):
 				messge = """Supplier is mandatory for the payment type Supplier, at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
 
-			if payment_entry.reference_type == "Purchase" or payment_entry.reference_type=="Expense Entry" and (not payment_entry.supplier):
+			if payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" and (not payment_entry.supplier):
 				messge = """Supplier is mandatory for the referene type Purchase Invoice/ Expense Entry, at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
     
-			if payment_entry.reference_type == "Purchase" or payment_entry.reference_type=="Expense Entry" and payment_entry.supplier and payment_entry.allocated_amount ==0:				
+			if payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" and payment_entry.supplier and payment_entry.allocated_amount ==0:				
 				      
 				messge = """Allocation not found for the payment at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
@@ -71,7 +70,7 @@ class PaymentEntry(Document):
 
 	def check_reference_numbers(self):
 		
-		if self.mode != "Bank":
+		if self.payment_mode != "Bank":
 			return
 
 		payment_details = self.payment_entry_details
@@ -97,10 +96,9 @@ class PaymentEntry(Document):
 					if(payment_detail.amount!= payment_detail.allocated_amount):
 						frappe.throw("Allocated amount mismatch.")
 
-				print('Total:', total_amount_in_rows)
 				if(payment_detail.allocated_amount):
 					total_allocated_in_rows = total_allocated_in_rows +  payment_detail.allocated_amount
-				print('Total:', total_allocated_in_rows)
+				
     
 		amount = 0
 		if self.amount is not None:			
@@ -116,8 +114,7 @@ class PaymentEntry(Document):
    
 		# Both values are not None, perform the comparison
 		if allocated_amount != total_allocated_in_rows:
-			if(self.allocated_amount != total_allocated_in_rows):
-				frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
+			frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
 
 
 	def check_excess_allocation(self):
@@ -180,11 +177,13 @@ class PaymentEntry(Document):
     
 			self.save()	# This will call the before_validate method again.
 			
-		self.clean_deleted_allocations()    
+		  
 		self.update_purchase_invoices()
 		self.update_expense_entry()		
 	
 	def before_validate(self):
+     
+		self.clean_deleted_allocations()
      
 		print("from before_validate")
      
@@ -308,10 +307,6 @@ class PaymentEntry(Document):
 		# 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 		idx = 1
   
-		print("from insert_gl_postings")
-		print(self.remarks)
-		print(self.remarks)
-
 		# Trade Receivable - Debit
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Payment Entry"

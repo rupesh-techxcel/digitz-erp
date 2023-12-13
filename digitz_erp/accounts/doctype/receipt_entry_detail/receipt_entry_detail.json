@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "receipt_type",
+  "reference_type",
   "customer",
   "account",
   "reference_no",
@@ -80,12 +81,18 @@
    "fieldtype": "Currency",
    "label": "Allocated Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "reference_type",
+   "fieldtype": "Select",
+   "label": "Reference Type",
+   "options": "\nSales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-04-26 03:31:06.324146",
+ "modified": "2023-12-12 09:52:35.685472",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry Detail",

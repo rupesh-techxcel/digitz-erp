@@ -3,6 +3,19 @@
 
 frappe.ui.form.on('Payment Entry', {
 
+	refresh:function(frm){
+
+		frm.fields_dict['payment_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_group: 0  // Set filters to only show accounts where is_group is false
+                }
+            };
+		}
+		// Allocations are mean for readonly purpose and not for user inputs. So make it hidden first and show it on demand
+		frm.doc.show_allocations = false;
+		frm.trigger("show_allocations");		
+	},
 	setup: function(frm){
 		frm.add_fetch('payment_mode', 'account', 'account')
 	},
@@ -23,32 +36,10 @@ frappe.ui.form.on('Payment Entry', {
 			frm.set_df_property("posting_date", "read_only", 1);
 			frm.set_df_property("posting_time", "read_only", 1);
 		}
-	},
-	get_user_warehouse(frm)
-	{
-		frappe.call({
-            method: 'frappe.client.get_value',
-            args: {
-                doctype: 'User Warehouse',
-                filters: {
-                    user: frappe.session.user
-                },
-                fieldname: 'warehouse'
-            },
-            callback: function(response) {
-				if (response && response.message && response.message.warehouse) {
-					window.warehouse = response.message.warehouse;					
-					// Do something with warehouseValue
-				}
-			}
-		});
-	},
-	get_default_company_and_warehouse(frm) {
+	},	
+	get_default_company(frm) {
 		var default_company = ""
-		console.log("From Get Default Warehouse Method in the parent form")
-		
-		frm.trigger("get_user_warehouse")
-
+				
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
@@ -60,36 +51,6 @@ frappe.ui.form.on('Payment Entry', {
 				default_company = r.message.default_company
 				frm.doc.company = r.message.default_company
 				frm.refresh_field("company");
-				frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
-						},
-						callback: (r2) => {
-
-
-							if (typeof window.warehouse !== 'undefined') {
-								// The value is assigned to window.warehouse
-								// You can use it here
-								frm.doc.warehouse = window.warehouse;
-							}
-							else
-							{
-								frm.doc.warehouse = r2.message.default_warehouse;
-							}
-							
-							console.log(frm.doc.warehouse);
-							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-								
-							frm.refresh_field("warehouse");
-							
-						}
-					}
-
-				)
 			}
 		})
 
@@ -214,7 +175,7 @@ frappe.ui.form.on('Payment Entry', {
 frappe.ui.form.on("Payment Entry", "onload", function (frm) {
 
 	if(frm.doc.__islocal)
-		frm.trigger("get_default_company_and_warehouse");
+		frm.trigger("get_default_company");
 	
 	}
 );

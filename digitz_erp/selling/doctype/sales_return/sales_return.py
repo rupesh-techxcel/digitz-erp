@@ -205,9 +205,27 @@ class SalesReturn(Document):
         
                 si_item.save()
                 si_reference_any = True
+                
+                if(si_item.delivery_note_item_reference_no):
+                    self.update_delivery_note_quantities_for_invoice(si_item.name,si_item.delivery_note_item_reference_no,si_item.qty_returned)
 
         if si_reference_any:
             frappe.msgprint("Returned qty of items in the corresponding sales invoice reverted successfully", indicator= "green", alert= True)   
+
+    def update_delivery_note_quantities_for_invoice(si_item_reference,do_item_reference,qty_returned):
+    
+        do_item = frappe.get_doc("Delivery Note Item", do_item_reference)
+        
+        # The Delivery Note serves as a preceding document to the sales invoice, allowing for the existence of multiple sales invoices corresponding to a single delivery note. Therefore, it is necessary to reevaluate the quantity returned for the item in the delivery note in comparison to the quantity returned for any other line item in a sales invoice, taking into account the reference to the identical delivery note line item.
+  
+        total_returned_qty_not_in_this_si = frappe.db.sql(""" SELECT SUM(qty_returned) as total_returned_qty from `tabSales Invoice Item` where delivery_note_item_reference_no= %s and name!=%s and docstatus<2""",(do_item_reference,si_item_reference))[0][0]
+        if(not total_returned_qty_not_in_this_si):
+            total_returned_qty_not_in_this_si = 0
+        do_item.qty_returned = qty_returned + total_returned_qty_not_in_this_si
+        
+        
+        
+        do_item.save()    
             
     def update_sales_invoice_quantities_on_update(self):		
 
@@ -219,14 +237,17 @@ class SalesReturn(Document):
             else:
                 total_returned_qty_not_in_this_sr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabSales Return Item` sreti inner join `tabSales Return` sret on sreti.parent= sret.name WHERE sreti.si_item_reference=%s AND sret.name !=%s and sret.docstatus<2""",(item.si_item_reference, self.name))[0][0]
 
-                pi_item = frappe.get_doc("Sales Invoice Item", item.si_item_reference)
+                si_item = frappe.get_doc("Sales Invoice Item", item.si_item_reference)
 
                 if total_returned_qty_not_in_this_sr:
-                    pi_item.qty_returned = total_returned_qty_not_in_this_sr + item.qty
+                    si_item.qty_returned = total_returned_qty_not_in_this_sr + item.qty
                 else:
-                    pi_item.qty_returned = item.qty
-                pi_item.save()
+                    si_item.qty_returned = item.qty
+                si_item.save()
                 si_reference_any = True
+                
+                if(si_item.delivery_note_item_reference_no):
+                    self.update_delivery_note_quantities_for_invoice(si_item.name,si_item.delivery_note_item_reference_no,si_item.qty_returned)
 
         if si_reference_any:
             frappe.msgprint("Returned qty of items in the corresponding sales invoice updated successfully", indicator= "green", alert= True)

@@ -3,35 +3,105 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.sales_invoice_api import get_allocations_for_invoice
+from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice
 
 class ReceiptEntry(Document):    
 
-	@frappe.whitelist()
-	def get_customer_pending_receipts(customer):
-		
-		receipt_values = frappe.get_list("Sales Invoice", fields=['name', 'rounded_total','paid_amount'], filters =
-									{'customer':['=',customer],'is_credit': ['=',True], 'paid_amount':['<', 'rounded_total']}
-									)
-	
-		return {'values': receipt_values}
+	# def before_save(self):
+	# 	# By default allocations are not visisble. So make show_allocations make false
+	# 	# to allow user to click on show allocations for the visibility of allocations   
+  
+	# 	self.show_allocations = False
+ 
+	def assign_missing_reference_nos(self):
+		if self.payment_mode != "Bank":
+				return
+		receipt_details = self.receipt_entry_details        
 
-	def before_save(self):
-		# By default allocations are not visisble. So make show_allocations make false
-		# to allow user to click on show allocations for the visibility of allocations   
-  
-		self.show_allocations = False
-  
-	def validate(self):
-     
-		self.validate_doc_status()
+		if receipt_details:
+			for receipt_detail in receipt_details: 
+				if not receipt_detail.reference_no:
+					if(self.reference_no):
+						receipt_detail.reference_no = self.reference_no
+
+				if not receipt_detail.reference_date:
+					if(self.reference_date):
+						receipt_detail.reference_date = self.reference_date
+		
+	def before_validate(self):
+		self.assign_missing_reference_nos()
 		self.clean_deleted_allocations()
+
+	def validate(self):
+		
+		self.validate_doc_status()
+		self.check_reference_numbers()		
 		self.check_allocations_and_totals()
 		self.check_excess_allocation()
-    
+		
+	def clean_deleted_allocations(self):
+
+		allocations = self.payment_allocation
+		print('allocations :', allocations)
+
+		if(allocations):
+			for allocation in allocations[:]:
+
+				receipt_details = self.receipt_entry_details
+				allocation_exist = False
+				if receipt_details:
+					for receipt_entry in receipt_details:
+						if receipt_entry.customer == allocation.customer and receipt_entry.allocated_amount and receipt_entry.allocated_amount>0:
+							allocation_exist= True
+					if allocation_exist==False:
+						self.receipt_allocation.remove(allocation)
+  
+	def check_reference_numbers(self):
+		
+		if self.payment_mode != "Bank":
+			return
+
+		receipt_details = self.receipt_entry_details        
+
+		if receipt_details:
+			for receipt_detail in receipt_details: 
+				if not receipt_detail.reference_no:
+					if(not self.reference_no):
+						frappe.throw("Reference No is mandatory for Bank receipts")
+				if not receipt_detail.reference_date:
+					if(not self.reference_date):
+						frappe.throw("Reference Date is mandatory for Bank receipts")
+	
 	def validate_doc_status(self):
+     
 		if self.amount == 0:
 			frappe.throw("Cannot save the document with out valid inputs.")
+
+		if not self.receipt_entry_details:
+			frappe.throw("No valid receipt entries found to save the document")
+		
+		for receipt_entry in self.receipt_entry_details:
+			if receipt_entry.receipt_type == "Other" and (receipt_entry.reference_type == "Sales Invoice"):
+				messge = """Invalid reference type found at line {0} """.format(receipt_entry.idx)
+				frappe.throw(messge)
+
+			if receipt_entry.receipt_type == "Other" and receipt_entry.customer:
+				messge = """Customer should not be selected with the payment type 'Other', at line {0} """.format(receipt_entry.idx)
+				frappe.throw(messge)
+
+			if receipt_entry.receipt_type == "Customer" and (not receipt_entry.customer):
+				messge = """Customer is mandatory for the payment type Customer, at line {0} """.format(receipt_entry.idx)
+				frappe.throw(messge)
+
+			if receipt_entry.reference_type == "Sales Invoice"  and (not receipt_entry.customer):
+				messge = """Customer is mandatory for the referene type Sales Invoice, at line {0} """.format(receipt_entry.idx)
+				frappe.throw(messge)
+
+			if receipt_entry.reference_type == "Sales Invoice" and receipt_entry.customer and receipt_entry.allocated_amount ==0:				
+						
+				messge = """Allocation not found for the payment at line {0} """.format(receipt_entry.idx)
+				frappe.throw(messge)
+
             
     # Cleaning the deleted allocations is crucial, so this method should call even though it cleans with the client side javascript code
 	def clean_deleted_allocations(self):
@@ -55,28 +125,42 @@ class ReceiptEntry(Document):
         
 	def check_allocations_and_totals(self):
 		receipt_details = self.receipt_entry_details
-		total =0
-		total_allocated = 0
+		total_amount_in_rows =0
+		total_allocated_in_rows = 0
+  
 		if(receipt_details):
-			for receipt_entry in receipt_details:
-				if(receipt_entry.allocated_amount and receipt_entry.allocated_amount>0):
-					if(receipt_entry.amount!= receipt_entry.allocated_amount):
+			for receipt_detail in receipt_details:
+       
+				total_amount_in_rows = total_amount_in_rows+ receipt_detail.amount
+       
+				if receipt_detail.receipt_type != "Customer":
+					continue
+  
+				# If there is an allocation in the lineitem make sure the amount and allocated amount are same
+				if(receipt_detail.allocated_amount and receipt_detail.allocated_amount>0):
+					if(receipt_detail.amount!= receipt_detail.allocated_amount):
 						frappe.throw("Allocated amount mismatch.")
-				total = total+ receipt_entry.amount
-    
-				print("total_allocated")
-				print(total_allocated)
-				print("receipt_entry.allocated_amount")
-				print(receipt_entry.allocated_amount)    
+ 
+				if(receipt_detail.allocated_amount):
+					total_allocated_in_rows = total_allocated_in_rows +  receipt_detail.allocated_amount
 				
-				total_allocated = total_allocated + (receipt_entry.allocated_amount if receipt_entry.allocated_amount is not None else 0)
     
-		if(self.amount != total):
+		amount = 0
+		if self.amount is not None:			
+			amount = self.amount
+    
+		if(amount != total_amount_in_rows):
 			frappe.throw("Mismatch in total amount. Please check the document inputs")
+
+		allocated_amount = 0		
+  
+		if self.allocated_amount is not None:
+			allocated_amount = self.allocated_amount
    
-		if(self.allocated_amount != total_allocated):
+		# Both values are not None, perform the comparison
+		if allocated_amount != total_allocated_in_rows:			
 			frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
-    
+
       
 	def check_excess_allocation(self):
 		print("from check excces allocation")
@@ -94,32 +178,26 @@ class ReceiptEntry(Document):
 						receipt_no = ""      
 					print("receipt_no")
 					print(receipt_no)
-
-					print("allocation.sales_invoice")
-					print(allocation.sales_invoice)
 		
-					previous_paid_amount = 0
-					allocations_exists = get_allocations_for_invoice(allocation.sales_invoice, receipt_no)
-		
-					for existing_allocation in allocations_exists:
-						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
-		
-					if allocation.paying_amount > allocation.invoice_amount-previous_paid_amount:         
-						print("throws error")      
-						frappe.throw("Excess allocation for the invoice numer " + allocation.sales_invoice )
-      
-		print("checking control")
+					if(allocation.reference_type == "Sales Invoice"):
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_sales_invoice(allocation.reference_name, receipt_no)
+			
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+			
+						if allocation.paying_amount > allocation.total_amount-previous_paid_amount:         
+							print("throws error")      
+							frappe.throw("Excess allocation for the invoice numer " + allocation.reference_name )
       
 	def on_submit(self):   
 		# self.do_posting()
 		frappe.enqueue(self.do_posting,queue="long")
 
 	def do_posting(self):
-		self.check_excess_allocation()
-		print("before calliong update_sales_invoices")
+		
 		self.update_sales_invoices()
 		self.insert_gl_records()
-
 
 	def update_sales_invoices(self):
 		print("from update_sales_invoices")
@@ -134,14 +212,14 @@ class ReceiptEntry(Document):
 						receipt_no = ""      
 		
 					previous_paid_amount = 0
-					allocations_exists = get_allocations_for_invoice(allocation.sales_invoice, receipt_no)
+					allocations_exists = get_allocations_for_sales_invoice(allocation.reference_name, receipt_no)
 		
 					for existing_allocation in allocations_exists:
 						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
       
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
-					frappe.db.set_value("Sales Invoice", allocation.sales_invoice, {'paid_amount': invoice_total})
+					frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': invoice_total})
     
 	def insert_gl_records(self):
 
@@ -163,6 +241,8 @@ class ReceiptEntry(Document):
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = self.account
 		gl_doc.debit_amount = self.amount
+		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+		gl_doc.remarks = self.remarks  
 		# gl_doc.party_type = "Customer"
 		# gl_doc.party = self.customer
 		# gl_doc.aginst_account = default_accounts.default_income_account
@@ -185,6 +265,7 @@ class ReceiptEntry(Document):
 					gl_doc.party_type = "Customer"
 					gl_doc.party = receipt_entry.customer
 					gl_doc.aginst_account = self.account
+					gl_doc.remarks = self.remarks
 					gl_doc.insert()
         
 				else:
@@ -198,31 +279,57 @@ class ReceiptEntry(Document):
 					gl_doc.account = receipt_entry.account
 					gl_doc.credit_amount = receipt_entry.amount					
 					gl_doc.aginst_account = self.account
+					gl_doc.remarks = self.remarks
 					gl_doc.insert()
      
-	def on_cancel(self):
-     
-		print("from on_cancel")
+	def on_trash(self):
+		self.revert_documents_paid_amount_for_receipt()
   
-		allocations = self.receipt_allocation
+	def on_cancel(self):
+		print("from on cancel")
+		self.revert_documents_paid_amount_for_receipt()
+     
+		frappe.db.delete("GL Posting",
+				{"Voucher_type": "Receipt Entry",
+				"voucher_no": self.name
+				})
+     
+	def GetAccountForTheHighestAmountInPayments(self):
+	
+		highestAmount = 0
+		account = ""
 
+		receipt_details = self.receipt_entry_details
+
+		if receipt_details:
+      
+			for receipt_entry in receipt_details:
+		
+				if receipt_entry.amount > highestAmount:
+					highestAmount = receipt_entry.amount
+					account = receipt_entry.account
+
+		return account
+
+	def revert_documents_paid_amount_for_receipt(self):
+		allocations = self.payment_allocation
 		if(allocations):
 			for allocation in allocations:
-				if(allocation.paying_amount>0):
-        
-					allocation.paying_amount =0					
-      
-					sales_invoice = frappe.get_doc("Sales Invoice", allocation.sales_invoice,{'paid_amount' }, as_dict=1)
-					print("sales invoice")
-					print(sales_invoice)
-     
-					new_paid_amount = sales_invoice.paid_amount - allocation.paying_amount
-
-					frappe.db.set_value("Sales Invoice", allocation.sales_invoice, {'paid_amount': new_paid_amount})
-					frappe.db.commit()
-		
-					frappe.db.delete("GL Posting",
-							{"Voucher_type": "Receipt Entry",
-							"voucher_no": self.name
-							})
+				print("allocation.reference_type")
+				print(allocation.reference_type)
+    
+				if allocation.reference_type == "Sales Invoice":
+					if(allocation.paying_amount>0):
+						receipt_no = self.name
+						if self.is_new():
+							receipt_no = ""
+       
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_sales_invoice(allocation.reference_name, receipt_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+       
+						total_paid_Amount = previous_paid_amount 
+						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
+				
      

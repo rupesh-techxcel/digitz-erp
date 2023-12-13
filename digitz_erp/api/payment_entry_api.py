@@ -8,6 +8,8 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
     if reference_type == 'Purchase Invoice':
    
         # Purchase Invoice Query , only consider committed purchases and expenses but payment allocations with draft and committed statuses.
+        
+        # Get all pending payments for the supplier.
         documents_query = """
             SELECT
                 supplier,
@@ -30,6 +32,7 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
         # Additional Query for Payment Allocation (if payment_no is not None)
         payment_allocation_values = []
         if payment_no != "":
+            # payment_allocation_query to include the existing allocations for this payment, irrespective of qty is pending
             payment_allocation_query = """
                 SELECT
                     pi.supplier,
@@ -52,16 +55,16 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
                     AND (pa.docstatus = 0 or pa.docstatus = 1)
             """.format(supplier, payment_no)
 
-            # Execute Additional Query
             payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
             print("payment_allocation_values")
             print(payment_allocation_values)
-
+         
         # Execute Purchase Invoice Query
         documents_values = frappe.db.sql(documents_query, as_dict=1)
         print("expense values")
         print(documents_values)
-        if payment_allocation_values !=[]:        
+        if payment_allocation_values !=[]:   
+            #  Avoid duplicates before combine
             documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
 
             # Combine Results

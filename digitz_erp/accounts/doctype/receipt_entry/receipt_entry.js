@@ -2,17 +2,31 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Receipt Entry', {
-	
+
+	refresh:function(frm){
+
+		    frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_group: 0  // Set filters to only show accounts where is_group is false
+                }
+            };
+        };
+
+		// Allocations are mean for readonly purpose and not for user inputs. So make it hidden first and show it on demand
+		frm.doc.show_allocations = false;
+		frm.trigger("show_allocations");
+	},	
 	setup: function(frm){
 		frm.add_fetch('payment_mode', 'account', 'account')
 	},
 	show_allocations:function(frm)
 	{
 		console.log("show allocations")
-		frm.set_df_property('receipt_allocation', 'hidden', !frm.doc.show_allocations);
-		cur_frm.refresh_field('receipt_allocation');
+		console.log(frm.doc.show_allocations)
+		frm.set_df_property("receipt_allocation", 'hidden', !frm.doc.show_allocations);
+		frm.refresh_field("receipt_allocation");
 	},
-
 	edit_posting_date_and_time(frm) {
 
 		if (frm.doc.edit_posting_date_and_time == 1) {
@@ -23,32 +37,10 @@ frappe.ui.form.on('Receipt Entry', {
 			frm.set_df_property("posting_date", "read_only", 1);
 			frm.set_df_property("posting_time", "read_only", 1);
 		}
-	},
-	get_user_warehouse(frm)
-	{
-		frappe.call({
-            method: 'frappe.client.get_value',
-            args: {
-                doctype: 'User Warehouse',
-                filters: {
-                    user: frappe.session.user
-                },
-                fieldname: 'warehouse'
-            },
-            callback: function(response) {
-				if (response && response.message && response.message.warehouse) {
-					window.warehouse = response.message.warehouse;					
-					// Do something with warehouseValue
-				}
-			}
-		});
-	},
-	get_default_company_and_warehouse(frm) {
+	},	
+	get_default_company(frm) {
 		var default_company = ""
-		console.log("From Get Default Warehouse Method in the parent form")
 		
-		frm.trigger("get_user_warehouse")
-
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
@@ -60,39 +52,8 @@ frappe.ui.form.on('Receipt Entry', {
 				default_company = r.message.default_company
 				frm.doc.company = r.message.default_company
 				frm.refresh_field("company");
-				frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
-						},
-						callback: (r2) => {
-
-
-							if (typeof window.warehouse !== 'undefined') {
-								// The value is assigned to window.warehouse
-								// You can use it here
-								frm.doc.warehouse = window.warehouse;
-							}
-							else
-							{
-								frm.doc.warehouse = r2.message.default_warehouse;
-							}
-							
-							console.log(frm.doc.warehouse);
-							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-								
-							frm.refresh_field("warehouse");
-							
-						}
-					}
-
-				)
 			}
-		})
-
+		});
 	},
 	refresh_allocations_may_be_removed(frm)
 	{
@@ -213,7 +174,7 @@ frappe.ui.form.on('Receipt Entry', {
 frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 
 	if(frm.doc.__islocal)
-		frm.trigger("get_default_company_and_warehouse");
+		frm.trigger("get_default_company");
 	
 	}
 );
@@ -241,9 +202,32 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 		})		
 	}
 },
+receipt_entry_details_add:function(frm,cdt,cdn)
+{	
+	frappe.call({
+		method: 'frappe.client.get_value',
+		args: {
+			'doctype': 'Global Settings',
+			'fieldname': 'default_company'
+		},
+		callback: (r) => {
+
+			 frappe.db.get_value("Company", r.message.default_company, "default_receivable_account").then((r) => {
+			 var default_receivable_account = r.message.default_receivable_account;
+			 frappe.model.set_value(cdt, cdn, 'account', default_receivable_account)});
+			frm.refresh_field("receipt_entry_details")
+		}
+	});
+
+	var row = locals[cdt][cdn];
+	row.receipt_type = "Customer"
+	row.reference_type = "Sales Invoice"
+	row.reference_no = frm.doc.reference_no	
+	row.reference_date = frm.doc.reference_date	
+	frm.refresh_field("receipt_entry_details")
+},
 receipt_entry_details_remove: function(frm,cdt,cdn) 
 {
-	
 	frm.trigger("clean_allocations");
 	frm.trigger("calculate_total_and_set_fields");
 },
@@ -257,230 +241,251 @@ amount: function(frm,cdt,cdn)
 {
 	frm.trigger("calculate_total_and_set_fields");
 },
+
 allocations: function(frm, cdt, cdn)
 {
-	var row = locals[cdt][cdn];	
-	var child_table_control	;
+	const row = locals[cdt][cdn];
+	let child_table_control	;
+	
+	if(row.receipt_type != "Customer" || (!row.reference_type) ||  row.reference_type == "" ||  (!row.customer))
+	{
+		frappe.throw("Invalid criteria for allocations.")
+	}
 
-	var selected_customer = row.customer	
+	const selected_customer = row.customer
+	const selected_reference_type = row.reference_type
 
-	//Allocations are restricted with only one per customer. So verify that there is no other
-	//row exists with allocation for the selected_customer
+	//Allocations are restricted with only one per supplier. So verify that there is no other
+	//row exists with allocation for the selected_supplier
 
-	var receipt_entries = cur_frm.doc.receipt_entry_details;
+	const receipt_entries = cur_frm.doc.receipt_entry_details;
 
+	// Checking for allocations exists for the supplier in a different row
 	if(receipt_entries != undefined)
 	{
 		for (var i = receipt_entries.length - 1; i >= 0; i--) {
 
 			var receipt = receipt_entries[i];
 
-			if(receipt.customer == selected_customer && receipt.allocated_amount>0
+			if(receipt.supplier == selected_customer && typeof(receipt.reference_type) != undefined &&  receipt.reference_type==selected_reference_type && receipt.allocated_amount>0
 				 && receipt.name !=cdn )
 			{
-				frappe.msgprint("Allocation already exists for the customer.");
-				return; 
+				// Create the message string
+				var message = "Allocation exists for the {0} and {1} at line no {2}".format(selected_customer, selected_reference_type, i);
+
+				// Display the message using frappe.msgprint
+				frappe.msgprint(message);
+				return;
 			}
 		}
 	}
 
-	var allocations_exist;	
-	
-	if (cur_frm.doc.__islocal)
-	{
-		console.log("is_local")
+	let allocations_exists_in_other_receipts;
 
-			frappe.call({
-				// method: "digitz_erp.accounts.doctype.receipt_entry.receipt_entry.get_customer_pending_receipts",
-				method: "digitz_erp.api.receipt_entry_api.get_all_customer_receipt_allocations",
-				async:false,
-				args: {
-					customer: selected_customer
-				},
-				callback:(r) => {	
-					allocations_exist = r.message.values					
-				}});
-	}
-	else
-	{
-		frappe.call({
-			// method: "digitz_erp.accounts.doctype.receipt_entry.receipt_entry.get_customer_pending_receipts",
-			method: "digitz_erp.api.receipt_entry_api.get_all_customer_receipt_allocations_except_selected",
-			async:false,
-			args: {
-				customer: selected_customer,
-				receipt_no: frm.doc.name
-			},
-			callback:(r) => {
-				allocations_exist = r.message.values
-			}});
-	}
-	
-	var pending_invoices_data;
+	// Fetch the customer invoices at the stage on which the document was not yet saved
 
 	frappe.call({
-		// method: "digitz_erp.accounts.doctype.receipt_entry.receipt_entry.get_customer_pending_receipts",
-		method: "digitz_erp.api.sales_invoice_api.get_customer_pending_invoices",		
+
+		method: "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts",
+		async:false,
 		args: {
-			customer: selected_customer
+			customer: selected_customer,
+			reference_type: selected_reference_type,
+			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name
 		},
 		callback:(r) => {
-			console.log(r)
-			pending_invoices_data = r.message.values;	
-			console.log("pending invoices000")		
-			console.log(r.message.values)
+			allocations_exists_in_other_receipts = r.message.values	
+			console.log("allocations_exists_in_other_receipts")	
+			console.log(allocations_exists_in_other_receipts)
+		}});	
 
-			child_table_control = frappe.ui.form.make_control({
-				df: {
-					fieldname: "receipt_allocation",					
-					fieldtype: "Table",
-					cannot_add_rows:true,
-					fields: [
-						// {
-						// 	fieldtype: "Link",
-						// 	fieldname: "customer",
-						// 	label: "Customer",
-						// 	options:"Customer",
-						// 	in_place_edit: false,
-						// 	in_list_view: false							
-						// }
-						// ,
-						{
-							fieldtype: "Link",
-							fieldname: "invoice_no",
-							label: "Sales Invoice",
-							options:"Sales Invoice",
-							in_place_edit: false,
-							in_list_view: true,
-							// width: "40%",
-							read_only:true							
-						},
-						{
-							fieldtype: "Data",
-							fieldname: "reference_no",
-							label: "Reference No",							
-							in_place_edit: false,
-							in_list_view: true,
-							// width: "40%",
-							read_only:true							
-						},
-						// {
-						// 	fieldtype: "Date",
-						// 	fieldname: "posting_date",
-						// 	label: "Date",							
-						// 	in_place_edit: false,
-						// 	in_list_view: false,							
-						// 	read_only:true,							
-						// },
-						// {
-						// 	fieldtype: "Currency",
-						// 	fieldname: "paid_amount",
-						// 	label: "Paid Amount",
-						// 	in_place_edit: false,
-						// 	in_list_view: false,
-						// 	read_only:true,							
-						// },
-						{
-							fieldtype: "Currency",
-							fieldname: "invoice_amount",
-							label: "Invoice Amount",
-							in_place_edit: false,
-							in_list_view: true,							
-							read_only:true							
-						},						
-						{
-							fieldtype: "Currency",
-							fieldname: "balance_amount",
-							label: "Balance Amount",
-							in_place_edit: false,
-							in_list_view: true,							
-							read_only:true
-						},	
-						{
-							fieldtype: "Currency",
-							fieldname: "paying_amount",
-							label: "Paying Amount",
-							in_place_edit: true,
-							in_list_view: true							
-						}
-					],
-				},				
-				parent: dialog.get_field("sales").$wrapper,
-				render_input: true,
-			});
 
+	console.log("Here")
+	
+	let pending_invoices_data	
+	//Fetch all supplier pending invoices and invoices already allocated in this payment_entry
+	frappe.call({
+		method: "digitz_erp.api.receipt_entry_api.get_customer_pending_documents",
+		args: {
+			customer: selected_customer,
+			reference_type: selected_reference_type,
+			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name
+		},
+		callback:(r) => {
+
+			console.log("r.message")
+			console.log(r.message)
+
+			pending_invoices_data = r.message;
+
+			if(selected_reference_type == "Sales Invoice")
+			{
+				child_table_control = frappe.ui.form.make_control({
+					df: {
+						fieldname: "receipt_allocation",
+						fieldtype: "Table",
+						cannot_add_rows:true,
+						fields: [
+							{
+								fieldtype: 'Data',
+								fieldname: 'reference_type',
+								label: 'Reference Type',								
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_name",
+								label: "Reference Name",							
+								in_place_edit: false,
+								in_list_view: true,
+								// width: "40%",
+								read_only:true
+							},					
+							// {
+							// 	fieldtype: "Date",
+							// 	fieldname: "date",
+							// 	label: "Date",							
+							// 	in_place_edit: false,
+							// 	in_list_view: true,
+							// 	// width: "40%",
+							// 	read_only:true
+							// },
+							{
+								fieldtype: "Currency",
+								fieldname: "invoice_amount",
+								label: "Invoice Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "balance_amount",
+								label: "Balance Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "paying_amount",
+								label: "Paying Amount",
+								in_place_edit: true,
+								in_list_view: true
+							}
+						],
+					},
+					parent: dialog.get_field("sales").$wrapper,
+					render_input: true,
+				});
+			}
+			
+			
 			//Stage 1.
 			//Intiially set the paid_amount as zero and balance_amount as invoice amount
 			//Iterate through the allocations for the particular invoice
 			//During the iteeration assign the paid amount and balance amount based on the allocation
 			//Note that the allocations fetched does not include current document allocation
-
-			for (var balance_amountj= pending_invoices_data.length - 1; j>=0; j--)
-			{
-				print("j")
-				print(j)
-
-				var sales_invoice_no = pending_invoices_data[j].invoice_no
 			
-				pending_invoices_data[j].paid_amount = 0;
-				pending_invoices_data[j].balance_amount =  pending_invoices_data[j].invoice_amount;
+			console.log("pending_invoices_data")
+			console.log(pending_invoices_data)
+
+			console.log("allocations_exists_in_other_payments")
+			console.log(allocations_exists_in_other_receipts)
+
+			for (var idx1= pending_invoices_data.length - 1; idx1>=0; idx1--)
+			{	
+				// console.log("value of j")
+				// console.log(j)
+
+				pending_invoices_data[idx1].paid_amount = 0;
+				pending_invoices_data[idx1].balance_amount =  pending_invoices_data[idx1].invoice_amount;
 				// pending_invoices_data[j].posting_date = frappe.format(pending_invoices_data[j].posting_date, { fieldtype: 'Date' })
-				
-				for (var i = allocations_exist.length - 1; i>=0; i--)
+
+				for (var idx2 = allocations_exists_in_other_receipts.length - 1; idx2>=0; idx2--)
 				{
-					if(sales_invoice_no == allocations_exist[i].sales_invoice)
+					// console.log("pending_invoices_data[j].reference_name")
+					// console.log(pending_invoices_data[j].reference_name)
+
+					// console.log("allocations_exists_in_other_payments[i].reference_name")
+					// console.log(allocations_exists_in_other_payments[i].reference_name)
+
+					if(pending_invoices_data[idx1].reference_name == allocations_exists_in_other_receipts[idx2].reference_name)
 					{
 						//Update teh paid amount
-						pending_invoices_data[j].paid_amount  = pending_invoices_data[j].paid_amount  + allocations_exist[i].paying_amount;
-
+						pending_invoices_data[idx1].paid_amount  = pending_invoices_data[idx1].paid_amount  + allocations_exists_in_other_receipts[idx2].paying_amount;
+						// console.log("allocations_exists_in_other_payments[i].paying_amount");
+						// console.log(allocations_exists_in_other_payments[i].paying_amount);
+						// console.log("new paid_amount")
+						// console.log(pending_invoices_data[j].paid_amount)
 						//First set balance amount as invoice_amount - paid amount
-						pending_invoices_data[j].balance_amount = pending_invoices_data[j].balance_amount - allocations_exist[i].paying_amount;
-
+						pending_invoices_data[idx1].balance_amount = pending_invoices_data[idx1].balance_amount - allocations_exists_in_other_receipts[idx2].paying_amount;
+						// console.log("pending_invoices_data[j].balance_amount")							
+						// console.log(pending_invoices_data[j].balance_amount)
+						
+						// console.log("inner loop i")
+						// console.log(i)				
 					}
 				}
-			}	
-			
+			}			
+
+			console.log("pending_invoices_data after the loop")
+			console.log(pending_invoices_data)
+
 			var pending_invoices_with_value = []
 
-			for (var j= pending_invoices_data.length - 1; j>=0; j--)
+			for (var idx1= pending_invoices_data.length - 1; idx1>=0; idx1--)
 			{
-				if(pending_invoices_data[j].balance_amount >0)
-				{
-					pending_invoices_with_value.push(pending_invoices_data[j]);
-				}
-			}	
-
-			if(pending_invoices_data.length> pending_invoices_with_value.length)
-			{
-				frappe.msgprint("Allocations without balance amount has been removed")
+				 if(pending_invoices_data[idx1].balance_amount >0)
+				 {
+					pending_invoices_with_value.push(pending_invoices_data[idx1]);
+				 }
 			}
 
+			// if(pending_invoices_data.length> pending_invoices_with_value.length)
+			// {
+			// 	frappe.msgprint("Allocations without balance amount has been removed")
+			// }				
+					
+			
 			//Stage 2.
 			// Get the values input from the allocations table in the current document
-			// Adjust the paid amount based on the paying amount			
+			// Adjust the paid amount based on the paying amount
 			var allocations = cur_frm.doc.receipt_allocation;
-
-			if(allocations != undefined)
+			console.log(allocations)
+		
+			if(allocations)
 			{
-				for (var i = allocations.length - 1; i >= 0; i--) {
+				for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
 
-					var allocation = allocations[i];
+					var allocation = allocations[idx2];
+					console.log("allocation")
+					console.log(allocation)
 
-					for (var j= pending_invoices_with_value.length - 1; j>=0; j--)
+					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
+					if(allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice")
 					{
-						if(allocation.sales_invoice == pending_invoices_with_value[j].invoice_no)
+						console.log("hitted continue")
+						continue;	
+					}
+
+					for (var idx1= pending_invoices_with_value.length - 1; idx1>=0; idx1--)
+					{
+						if( allocation.reference_name == pending_invoices_with_value[idx1].reference_name)
 						{
 							if(allocation.paying_amount>0)
 							{
-								pending_invoices_with_value[j].paying_amount = allocation.paying_amount;								
+								pending_invoices_with_value[idx1].paying_amount = allocation.paying_amount;
 
-								if(pending_invoices_with_value[j].paid_amount + pending_invoices_with_value[j].paying_amount > pending_invoices_with_value[j].invoice_amount)
+								if(pending_invoices_with_value[idx1].paid_amount + pending_invoices_with_value[idx1].paying_amount > pending_invoices_with_value[idx1].invoice_amount)
 								{
-									var difference = (pending_invoices_with_value[j].paid_amount + pending_invoices_with_value[j].paying_amount) - pending_invoices_with_value[j].invoice_amount									
-									
-									pending_invoices_with_value[j].paying_amount = pending_invoices_with_value[j].paying_amount - difference
+									var difference = (pending_invoices_with_value[idx1].paid_amount + pending_invoices_with_value[idx1].paying_amount) - pending_invoices_with_value[idx1].invoice_amount
 
-									frappe.msgprint("Excess allocation found. Allocation changed for " + allocation.sales_invoice);
+									pending_invoices_with_value[idx1].paying_amount = pending_invoices_with_value[idx1].paying_amount - difference
+
+									frappe.msgprint("Excess allocation found. Allocation changed for " + allocation.purchase_invoice);
 								}
 
 							}
@@ -488,15 +493,15 @@ allocations: function(frm, cdt, cdn)
 					}
 
 				}
-			}			
+			}
 
-			child_table_control.df.data = pending_invoices_with_value;			
-			child_table_control.refresh();						
+			child_table_control.df.data = pending_invoices_with_value;							
+			child_table_control.refresh();
 		}
 	});
 
 	var dialog = new frappe.ui.Dialog({
-		title: "Invoice Allocation",
+		title: "Receipt Allocation",
 		width: '100%',
 		fields: [
 			{
@@ -508,7 +513,7 @@ allocations: function(frm, cdt, cdn)
 		],
 		primary_action: function() {
 
-			var child_table_data_updated = child_table_control.get_value();			
+			var child_table_data_updated = child_table_control.get_value();
 			var index = 0 ;
 			var invoice_no;
 
@@ -517,21 +522,24 @@ allocations: function(frm, cdt, cdn)
 
 			//Check for excess allocation
 			child_table_data_updated.forEach(element => {
-				
-			index = index + 1;
 
-			invoice_no = element.invoice_no
+				index = index + 1;
 
-			if(element.paying_amount> element.balance_amount)
-			{
-				frappe.throw("Wrong input at line number " + index + ", Invoice No -"+ invoice_no + ". Paying amount cannot be more than the balance amount")
-			}
+				// invoice_no = element.invoice_no
+
+				if(element.paying_amount> element.balance_amount)
+				{
+					frappe.throw("Wrong input at line number " + index +". Paying amount cannot be more than the balance amount")
+				}
 			});
-		
-		//Existing allocation
+
+			//Existing allocation
 			var child_table_data = cur_frm.doc.receipt_allocation;
 
-			// Remove all existging allocation for the customer
+			console.log("child_table_data")
+			console.log(child_table_data)
+
+			//Clean allocations
 			if(child_table_data != undefined)
 			{
 				cur_frm.doc.receipt_allocation = cur_frm.doc.receipt_allocation.filter(
@@ -540,27 +548,32 @@ allocations: function(frm, cdt, cdn)
 					}
 				)
 
-				cur_frm.refresh_field("receipt_allocation");
-			}			
-
-			console.log("receipt allocation after deleting rows for the customer")
-			console.log(cur_frm.doc.receipt_allocation)
+				cur_frm.refresh_field("payment_allocation");
+			}
 
 			var totalPay = 0;
 
 			child_table_data_updated.forEach(element => {
 
-				console.log("element")	
-				console.log(element)	
-				console.log("element.paying_amount")
-				console.log(element.paying_amount)
-				
+				console.log("element")
+
+				console.log(element)
+
 				if(element.paying_amount>0)
 				{
-					var row_allocation = frappe.model.get_new_doc('Receipt Allocation');
+					var row_allocation = frappe.model.get_new_doc('Payment Allocation');
 					row_allocation.customer = element.customer
-					row_allocation.sales_invoice =  element.invoice_no
-					row_allocation.invoice_amount = element.invoice_amount
+					
+					row_allocation.reference_type = element.reference_type
+					row_allocation.reference_name =  element.reference_name
+					row_allocation.total_amount = element.invoice_amount
+
+					console.log("element.reference_type")
+					console.log(element.reference_type)
+
+					console.log("element.reference_name")
+					console.log(element.reference_name)
+
 					// row.paid_amount = row.invoice_amount- element.balance_amount + element.paying_amount
 
 					// Again update the balance amount to include the current paying amouunt in thet balance amount
@@ -574,28 +587,30 @@ allocations: function(frm, cdt, cdn)
 					row_allocation.receipt_entry_detail = frm.doc.receipt_entry_details[row.idx]
 
 					cur_frm.add_child('receipt_allocation', row_allocation);
+
 					cur_frm.refresh_field('receipt_allocation');
 
 					console.log("row_allocation")
 					console.log(row_allocation)
 
-				}				
+				}
 			}
 
 			);
 
-			frappe.model.set_value(cdt, cdn, 'amount', totalPay);	
+			frappe.model.set_value(cdt, cdn, 'amount', totalPay);
 			frappe.model.set_value(cdt, cdn, 'allocated_amount', totalPay);
 
 			frm.trigger("calculate_total_and_set_fields");
 
-			dialog.hide();
-			},
+			cur_frm.refresh_field('receipt_allocation');
 
+			dialog.hide();
+		},
 
 	});
 	dialog.$wrapper.find('.modal-dialog').css("max-width", "90%").css("width", "90%");
-	  
+
 	dialog.show();
 },
 }

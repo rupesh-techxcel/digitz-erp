@@ -28,6 +28,12 @@ class SalesInvoice(Document):
             self.payment_account = ""
             self.meta.get_field("payment_mode").hidden = 1
             self.meta.get_field("payment_account").hidden = 1
+            # For submitted invoice only paid_amount is filling up with allocation. 
+            # So its safe to make paid_amount 0 to avoid the issue below
+            # Issue - First save the invoie not as credit sale, it will fill up the paid_amount
+            # equal to rounded_total. Make it as credit sale in the draft mode and then save.
+            # In this case its required to make the paid_amount zero
+            self.paid_amount = 0
     
     def validate(self): 
         self.validate_item()

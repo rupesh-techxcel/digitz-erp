@@ -9,19 +9,18 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
-  "column_break_zjjtr",
-  "posting_date",
-  "column_break_dxaps",
-  "warehouse",
-  "amount",
-  "section_break_ku1xy",
   "payment_mode",
   "account",
-  "column_break_k5acl",
+  "reference_no",
+  "column_break_zjjtr",
+  "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "column_break_zp9js",
+  "reference_date",
+  "column_break_dxaps",
+  "amount",
   "allocated_amount",
+  "remarks",
   "section_break_wgdje",
   "amended_from",
   "section_break_yppjt",
@@ -66,6 +65,7 @@
    "read_only": 1
   },
   {
+   "description": "For Receipt Type with value \"Other\", Reference Type and Customer columns are optional",
    "fieldname": "receipt_entry_details",
    "fieldtype": "Table",
    "label": "Receipt Entry Details",
@@ -89,14 +89,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "section_break_ku1xy",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_k5acl",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
@@ -109,10 +101,8 @@
    "allow_on_submit": 1,
    "fieldname": "receipt_allocation",
    "fieldtype": "Table",
-   "hidden": 1,
    "label": "Receipt Allocation",
-   "options": "Receipt Allocation",
-   "read_only": 1
+   "options": "Receipt Allocation"
   },
   {
    "allow_on_submit": 1,
@@ -124,11 +114,8 @@
   {
    "fieldname": "allocated_amount",
    "fieldtype": "Currency",
-   "label": "Allocated Amount"
-  },
-  {
-   "fieldname": "column_break_zp9js",
-   "fieldtype": "Column Break"
+   "label": "Allocated Amount",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_yppjt",
@@ -147,16 +134,25 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse"
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-30 10:21:16.587665",
+ "modified": "2023-12-12 21:22:16.925538",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

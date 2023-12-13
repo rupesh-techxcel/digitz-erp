@@ -6,28 +6,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "reference_type",
+  "reference_name",
   "customer",
-  "sales_invoice",
-  "invoice_amount",
+  "total_amount",
   "paid_amount",
   "balance_amount",
   "paying_amount",
   "receipt_entry_detail"
  ],
  "fields": [
-  {
-   "fieldname": "sales_invoice",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Sales Invoice",
-   "options": "Sales Invoice"
-  },
-  {
-   "fieldname": "invoice_amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Invoice Amount"
-  },
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
@@ -58,12 +46,31 @@
    "in_list_view": 1,
    "label": "Customer",
    "options": "Customer"
+  },
+  {
+   "fieldname": "reference_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reference Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_type"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "total Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-04-21 06:56:04.024241",
+ "modified": "2023-12-12 18:51:23.350155",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Allocation",
