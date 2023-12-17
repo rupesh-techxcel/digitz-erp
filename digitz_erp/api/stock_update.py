@@ -149,7 +149,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
     
 
 def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
-    frappe.enqueue(do_recalculate_stock_ledgers, stock_recalc_voucher= stock_recalc_voucher, posting_date=posting_date, posting_time=posting_time, queue="long")
+    do_recalculate_stock_ledgers(stock_recalc_voucher= stock_recalc_voucher, posting_date=posting_date, posting_time=posting_time)
 
         
 def update_item_stock_balance(item):

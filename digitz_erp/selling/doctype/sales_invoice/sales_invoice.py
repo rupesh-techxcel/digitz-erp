@@ -11,7 +11,8 @@ from digitz_erp.utils import *
 from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
-
+from datetime import datetime
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class SalesInvoice(Document):    
     
@@ -40,9 +41,24 @@ class SalesInvoice(Document):
     
     def on_update(self):
         self.update_item_prices()
+        
+    def after_submit(self):
+        
+        # Moved DO submision from background worker to here , to avoid the issue of not submitting the DO from the background worker.
+        
+        
+        
+        frappe.msgprint("Submitting delivery note...")
 
-    def on_submit(self):        
+    def on_submit(self):       
+        
+        init_document_posting_status(self.doctype, self.name)
+        
+        if(self.auto_generate_delivery_note):
+            self.submit_delivery_note() 
+       
         frappe.enqueue(self.do_postings_on_submit, queue="long")
+        
         frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
     
     def do_postings_on_submit(self):
@@ -51,14 +67,11 @@ class SalesInvoice(Document):
 
         if self.tab_sales :       
             cost_of_goods_sold = self.deduct_stock_for_tab_sales()
-        
-        # self.update_item_prices()
-        
-        if(self.auto_generate_delivery_note):
-            self.submit_delivery_note()
-            
+                   
         self.insert_gl_records(cost_of_goods_sold=cost_of_goods_sold)
         self.insert_payment_postings()
+        
+        update_posting_status(self.doctype, self.name, 'posting_status','Completed')
 
     def update_item_prices(self):
         
@@ -148,7 +161,7 @@ class SalesInvoice(Document):
         gl_doc.aginst_account = default_accounts.default_income_account
         gl_doc.insert()
 
-        # Income account - Credot
+        # Income account - Credit
         idx = 2
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Invoice"
@@ -192,6 +205,7 @@ class SalesInvoice(Document):
                 gl_doc.debit_amount = self.round_off
 
             gl_doc.insert()
+            
         if self.tab_sales:
 
             default_company = frappe.db.get_single_value("Global Settings", "default_company")
@@ -199,21 +213,7 @@ class SalesInvoice(Document):
             default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
                                                                          'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 
-            idx = idx + 1
 
-            # Inventory account Eg: Stock In Hand
-            gl_doc = frappe.new_doc('GL Posting')
-            gl_doc.voucher_type = "Sales Invoice"
-            gl_doc.voucher_no = self.name
-            gl_doc.idx = idx
-            gl_doc.posting_date = self.posting_date
-            gl_doc.posting_time = self.posting_time
-            gl_doc.account = default_accounts.default_inventory_account
-            gl_doc.debit_amount = cost_of_goods_sold
-            gl_doc.party_type = "Customer"
-            gl_doc.party = self.customer
-            gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
-            gl_doc.insert()
 
             # Cost Of Goods Sold
             idx = idx + 1
@@ -224,9 +224,31 @@ class SalesInvoice(Document):
             gl_doc.posting_date = self.posting_date
             gl_doc.posting_time = self.posting_time
             gl_doc.account = default_accounts.cost_of_goods_sold_account
-            gl_doc.credit_amount = cost_of_goods_sold
+            gl_doc.debit_amount = cost_of_goods_sold
             gl_doc.aginst_account = default_accounts.default_inventory_account
             gl_doc.insert()
+            
+            
+            idx = idx + 1
+
+            # Inventory account Eg: Stock In Hand
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.default_inventory_account
+            gl_doc.credit_amount = cost_of_goods_sold
+            gl_doc.party_type = "Customer"
+            gl_doc.party = self.customer
+            gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
+            gl_doc.insert()
+
+            
+            
+        
+        update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
 
     def insert_payment_postings(self):
 
@@ -272,6 +294,8 @@ class SalesInvoice(Document):
             gl_doc.aginst_account = default_accounts.default_receivable_account
             gl_doc.insert()
 
+            update_posting_status(self.doctype,self.name, 'payment_posted_time',None)
+
     @frappe.whitelist()
     def submit_delivery_note(self):
         
@@ -281,6 +305,7 @@ class SalesInvoice(Document):
             if self.auto_save_delivery_note:
                 print("logic_test-103")               
                 result = frappe.db.sql("""SELECT * FROM `tabSales Invoice Delivery Notes` WHERE `parent` = %s""", (self.name,), as_dict=True)
+                
                 if result:
                     si_do = frappe.get_doc('Sales Invoice Delivery Notes', result[0].name)
 
@@ -460,7 +485,7 @@ class SalesInvoice(Document):
                 
                 print("delivery note name")
                 print(delivery_note_name)
-                frappe.msgprint("A Delivery Note corresponding to the  Sales invoice createdsuccessfully", alert = True)
+                frappe.msgprint("A Delivery Note corresponding to the  Sales invoice created successfully", alert = True)
                 
 
         # Rename the delivery note to the original dnoNo which is deleted
@@ -649,4 +674,5 @@ class SalesInvoice(Document):
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
         return cost_of_goods_sold
+    
 

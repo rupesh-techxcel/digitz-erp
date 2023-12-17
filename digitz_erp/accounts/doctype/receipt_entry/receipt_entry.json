@@ -26,7 +26,9 @@
   "section_break_yppjt",
   "receipt_entry_details",
   "show_allocations",
-  "receipt_allocation"
+  "receipt_allocation",
+  "postings_start_time",
+  "gl_posted_time"
  ],
  "fields": [
   {
@@ -147,12 +149,22 @@
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date"
+  },
+  {
+   "fieldname": "postings_start_time",
+   "fieldtype": "Datetime",
+   "label": "Postings Start Time"
+  },
+  {
+   "fieldname": "gl_posted_time",
+   "fieldtype": "Datetime",
+   "label": "GL Posted Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-12 21:22:16.925538",
+ "modified": "2023-12-14 21:29:44.319868",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

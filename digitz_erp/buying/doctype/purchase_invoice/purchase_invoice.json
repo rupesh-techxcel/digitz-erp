@@ -64,15 +64,7 @@
   "section_break_e8ur",
   "terms_and_conditions",
   "section_break_27",
-  "postings_start_time",
-  "stock_posted",
-  "stock_posted_time",
-  "stock_recalc_required",
-  "stock_recalc_voucher",
-  "stock_recalc_done_time",
-  "stock_recalc_done",
-  "gl_posted_time",
-  "payment_posted_time"
+  "stock_recalc_voucher"
  ],
  "fields": [
   {
@@ -290,6 +282,7 @@
    "label": "Rate includes tax"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "supplier_inv_no",
    "fieldtype": "Data",
    "label": "Supplier Inv No",
@@ -371,65 +364,6 @@
    "label": "Stock Recalc Voucher"
   },
   {
-   "allow_on_submit": 1,
-   "fieldname": "stock_posted_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Stock Posted Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "payment_posted_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Payment Posted Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "gl_posted_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "GL Posted Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "postings_start_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Postings Start Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "default": "0",
-   "fieldname": "stock_posted",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Stock Posted"
-  },
-  {
-   "allow_on_submit": 1,
-   "default": "0",
-   "fieldname": "stock_recalc_required",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Stock Recalc Required"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "stock_recalc_done_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Stock Recalc Done Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "default": "0",
-   "fieldname": "stock_recalc_done",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Stock Recalc Done"
-  },
-  {
    "fieldname": "column_break_yo6a",
    "fieldtype": "Column Break"
   },
@@ -459,7 +393,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-11 15:45:11.532610",
+ "modified": "2023-12-15 15:12:26.521653",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

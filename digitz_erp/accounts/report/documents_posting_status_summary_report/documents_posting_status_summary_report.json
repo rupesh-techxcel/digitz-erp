@@ -1,0 +1,30 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2023-12-14 19:45:07.160500",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "sales invoice footer",
+ "letterhead": null,
+ "modified": "2023-12-14 19:45:07.160500",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Documents Posting Status Summary Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Purchase Invoice",
+ "report_name": "Documents Posting Status Summary Report",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Tab User"
+  }
+ ]
+}

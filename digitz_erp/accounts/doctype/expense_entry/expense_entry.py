@@ -4,21 +4,42 @@
 import frappe
 from frappe.model.document import Document
 from datetime import datetime
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class ExpenseEntry(Document):
 
 	def on_submit(self):  
-		print("from on submit")		
+     
+		init_document_posting_status(self.doctype,self.name)	
+  
 		self.postings_start_time = datetime.now()		
 		frappe.enqueue(self.do_postings_on_submit, queue="long")
+  
+	def on_cancel(self):
+     
+		update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
+  
+		self.cancel_expense()
+  
+	def cancel_expense(self):
+     
+		frappe.db.delete("GL Posting",
+				{"Voucher_type": "Expense Entry",
+				 "voucher_no":self.name
+				})
+     
+		update_posting_status(self.doctype,self.name, "posting_status", "Completed")
+  
 
 	def do_postings_on_submit(self):
-		print("from do_postings_on_submit")
+		
 		self.insert_gl_records()
-		self.gl_posted_time = datetime.now()		
+		update_posting_status(self.doctype,self.name,'gl_posted_time')
+				
 		self.insert_payment_postings()
-		self.payment_posted_time = datetime.now()
-		self.save()
+		update_posting_status(self.doctype,self.name,'payment_posted_time')
+  
+		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 
 	def insert_gl_records(self):
      
@@ -85,6 +106,8 @@ class ExpenseEntry(Document):
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
 			gl_doc.insert()
+   
+		self.gl_posted_time = datetime.now()
 	
 	def get_payable_totals(self):
      
@@ -192,6 +215,8 @@ class ExpenseEntry(Document):
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
 			gl_doc.insert()
+
+		self.gl_payment_posted_time = datetime.now()
        
 	def on_update(self):
 		self.update_payment_schedules()

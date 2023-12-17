@@ -6,16 +6,24 @@ from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class StockReconciliation(Document):
-    def before_submit(self):
+    
+    def on_submit(self):
+        
+        init_document_posting_status(self.doctype, self.name)
 
+        frappe.enqueue(self.do_postings_on_submit, queue="long")        
+        
+    def do_postings_on_submit(self):
+        
         stock_adjustment_value =  self.add_stock_reconciliation()
-        print("new stock change value")
-        print(stock_adjustment_value)
+       
         if(stock_adjustment_value !=0):
-            frappe.enqueue(self.insert_gl_records, self=self, stock_adjustment_value = stock_adjustment_value, queue="long")
-
+            self.insert_gl_records(self=self, stock_adjustment_value = stock_adjustment_value)
+            
+        update_posting_status(self.doctype,self.name, 'posting_status','Completed')
 
     def add_stock_reconciliation(self):
 
@@ -139,17 +147,24 @@ class StockReconciliation(Document):
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
                 update_item_stock_balance(docitem.item)
 
+        update_posting_status(self.doctype,self.name,'stock_posted_time')
+        
         if(more_records>0):
+            
+            update_posting_status(self.doctype,self.name,'stock_recalc_required', True)
+            
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+            
+            update_posting_status(self.doctype,self.name,'stock_recalc_time')
 
-        print("from method")
         print(stock_adjustment_value)
         return stock_adjustment_value
 
     def on_cancel(self):
-        self.cancel_stock_reconciliation()
-
+        
+        frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
+        
     def cancel_stock_reconciliation(self):
 
         # Insert record to 'Stock Recalculate Voucher' doc
@@ -225,9 +240,15 @@ class StockReconciliation(Document):
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
                 update_item_stock_balance(docitem.item)
 
+        update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')
+        
         if(more_records>0):
+            update_posting_status(self.doctype, self.name, 'stock_recalc_required_on_cancel', True)
+            
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+            
+            update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time')
 
         frappe.db.delete("Stock Ledger",
                 {"voucher": "Stock Reconciliation",
@@ -238,134 +259,7 @@ class StockReconciliation(Document):
                 {"Voucher_type": "Stock Reconciliation",
                     "voucher_no":self.name
                 })
-
-    # def recalculate_stock_ledgers(self,stock_recalc_voucher):
-
-    #     posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
-
-    #     for record in stock_recalc_voucher.records:
-
-    #         new_balance_qty = 0
-    #         new_balance_value = 0
-    #         new_valuation_rate = 0
-
-    #         if record.base_stock_ledger != "No Previous Ledger":
-
-    #             base_stock_ledger = frappe.get_doc('Stock Ledger', record.base_stock_ledger)
-    #             new_balance_qty = base_stock_ledger.balance_qty
-    #             new_balance_value = base_stock_ledger.balance_value
-    #             new_valuation_rate = base_stock_ledger.valuation_rate
-
-    #         next_stock_ledgers = frappe.get_list('Stock Ledger',{'item':record.item,
-    #         'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]}, 'name',order_by='posting_date')
-
-    #         # Scenario 1- PUrchase Invoice - current row cancelled. For this assigned previous stock ledger balance to 'Stock Recalculate Voucher'
-
-    #         for sl_name in next_stock_ledgers:
-
-    #             sl = frappe.get_doc('Stock Ledger', sl_name)
-
-    #             qty_in = 0
-    #             qty_out = 0
-
-    #             # if the control meets a stock reconciliation record, its mandatory that to keep the stock balance in the record
-    #             # as it is. So it requires to adjust the qty_in or qty_out to preserve the stock balance. Also the valuation_rate should be
-    #             # preserved
-    #             if(sl.voucher == "Stock Reconciliation"):
-    #                 if(sl.balance_qty > new_balance_qty):
-    #                     qty_in = sl.balance_qty - new_balance_qty
-    #                 else:
-    #                     qty_out = new_balance_qty -sl.balance_qty
-
-    #                 sl.qty_in = qty_in
-    #                 sl.qty_out = qty_out
-
-    #                 # Previous stock value difference
-    #                 previous_balance_value = new_balance_value #Assign before change
-    #                 sl.change_in_stock_value =   (sl.balance_value - previous_balance_value)
-
-    #                 new_valuation_rate = sl.valuation_rate
-    #                 new_balance_qty = sl.balance_qty
-    #                 new_balance_value = sl.balance_value
-
-
-    #                 # Once qty adjusted exit for next item, since after manual entry subsequent entries are not considered
-    #                 sl.save()
-    #                 break;
-
-    #             if(sl.voucher == "Delivery Note"):
-    #                 previous_balance_value = new_balance_value #Assign before change
-    #                 new_balance_qty = new_balance_qty - sl.qty_out
-    #                 new_balance_value = new_balance_qty * new_valuation_rate
-    #                 change_in_stock_value = new_balance_value - previous_balance_value
-    #                 sl.change_in_stock_value = change_in_stock_value
-
-    #             if(new_balance_qty<0):
-    #                 frappe.throw("Stock availability is not sufficiant to make thistransaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
-
-    #             if (sl.voucher == "Purchase Invoice"):
-    #                 previous_balance_value = new_balance_value #Assign before change
-    #                 new_balance_qty = new_balance_qty + sl.qty_in
-    #                 new_balance_value = new_balance_value  + (sl.qty_in * sl.incoming_rate)
-    #                 change_in_stock_value = new_balance_value - previous_balance_value
-    #                 sl.change_in_stock_value = change_in_stock_value
-
-    #                 if(new_balance_qty!=0): #Avoid divisible by zero
-    #                     new_valuation_rate = new_balance_value/ new_balance_qty
-
-    #             sl.balance_qty = new_balance_qty
-    #             sl.balance_value = new_balance_value
-    #             sl.valuation_rate = new_valuation_rate
-
-    #             sl.save()
-
-    #         if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):
-    #             frappe.db.delete('Stock Balance',{'item': record.item, 'warehouse': record.warehouse} )
-
-    #         item_name,unit = frappe.get_value("Item", record.item,['item_name','base_unit'])
-    #         new_stock_balance = frappe.new_doc('Stock Balance')
-    #         new_stock_balance.item = record.item
-    #         new_stock_balance.unit = unit
-    #         new_stock_balance.warehouse = record.warehouse
-    #         new_stock_balance.stock_qty = new_balance_qty
-    #         new_stock_balance.stock_value = new_balance_value
-    #         new_stock_balance.valuation_rate = new_valuation_rate
-
-    #         new_stock_balance.insert()
-
-    #         item_name = frappe.get_value("Item", record.item,['item_name'])
-    #         self.update_item_stock_balance(item_name)
-
-    #         stock_recalc_voucher.status = 'Completed'
-    #         stock_recalc_voucher.end_time = now()
-    #         stock_recalc_voucher.save()
-
-    # def update_item_stock_balance(self, item):
-
-    #     item_balances_in_warehouses = frappe.get_list('Stock Balance',{'item': item},['stock_qty','stock_value'])
-
-    #     balance_stock_qty = 0
-    #     balance_stock_value = 0
-
-    #     if(item_balances_in_warehouses):
-
-    #         for item_stock in item_balances_in_warehouses:
-    #             if item_stock.stock_qty:
-    #                 balance_stock_qty = balance_stock_qty + item_stock.stock_qty
-
-    #             if item_stock.stock_value:
-    #                 balance_stock_value = balance_stock_value + item_stock.stock_value
-
-    #     item_to_update = frappe.get_doc('Item', item)
-
-    #     if(not item_to_update.stock_balance):
-
-    #         item_to_update.stock_balance = 0
-    #         item_to_update.stock_value = 0
-
-    #     item_to_update.stock_balance = balance_stock_qty
-    #     item_to_update.stock_value = balance_stock_value
-    #     item_to_update.save()
+        update_posting_status(self.doctype,self.name, 'posting_status','Completed')
 
     def insert_gl_records(self, stock_adjustment_value):
 
@@ -374,8 +268,7 @@ class StockReconciliation(Document):
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")
 
-        default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
-                                                                            'default_income_account', 'stock_adjustment_account', 'round_off_account', 'tax_account'], as_dict=1)
+        default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account','default_income_account', 'stock_adjustment_account', 'round_off_account', 'tax_account'], as_dict=1)
 
         idx = 1
 
@@ -412,3 +305,5 @@ class StockReconciliation(Document):
 
         gl_doc.aginst_account = default_accounts.default_inventory_account
         gl_doc.insert()
+        
+        update_posting_status(self.doctype,self.name,'gl_posted')

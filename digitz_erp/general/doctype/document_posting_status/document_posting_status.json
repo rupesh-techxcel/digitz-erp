@@ -1,0 +1,114 @@
+{
+ "actions": [],
+ "creation": "2023-12-15 15:02:59.323977",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_type",
+  "document_name",
+  "posting_status",
+  "postings_start_time",
+  "stock_posted_time",
+  "stock_recalc_required",
+  "stock_recalc_time",
+  "gl_posted_time",
+  "payment_posted_time",
+  "stock_posted_on_cancel_time",
+  "stock_recalc_required_on_cancel",
+  "stock_recalc_on_cancel_time"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "label": "Document Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "postings_start_time",
+   "fieldtype": "Datetime",
+   "label": "Postings Start Time"
+  },
+  {
+   "fieldname": "stock_posted_time",
+   "fieldtype": "Datetime",
+   "label": "Stock Posted Time"
+  },
+  {
+   "fieldname": "gl_posted_time",
+   "fieldtype": "Datetime",
+   "label": "GL Posted Time"
+  },
+  {
+   "fieldname": "payment_posted_time",
+   "fieldtype": "Datetime",
+   "label": "Payment Posted Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "stock_recalc_required",
+   "fieldtype": "Check",
+   "label": "Stock Recalc Required"
+  },
+  {
+   "fieldname": "stock_recalc_time",
+   "fieldtype": "Datetime",
+   "label": "Stock Recalc Time"
+  },
+  {
+   "fieldname": "posting_status",
+   "fieldtype": "Select",
+   "label": "Posting Status",
+   "options": "Pending\nCompleted\nCancel Pending"
+  },
+  {
+   "fieldname": "stock_posted_on_cancel_time",
+   "fieldtype": "Datetime",
+   "label": "Stock Posted On Cancel Time"
+  },
+  {
+   "fieldname": "stock_recalc_on_cancel_time",
+   "fieldtype": "Datetime",
+   "label": "Stock Recalc On Cancel Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "stock_recalc_required_on_cancel",
+   "fieldtype": "Check",
+   "label": "Stock Recalc Required On Cancel"
+  },
+  {
+   "fieldname": "document_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Document Name",
+   "options": "document_type"
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-12-15 15:58:58.765913",
+ "modified_by": "Administrator",
+ "module": "General",
+ "name": "Document Posting Status",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

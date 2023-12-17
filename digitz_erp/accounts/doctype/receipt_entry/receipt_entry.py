@@ -4,6 +4,8 @@
 import frappe
 from frappe.model.document import Document
 from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice
+from datetime import datetime
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class ReceiptEntry(Document):    
 
@@ -31,6 +33,7 @@ class ReceiptEntry(Document):
 	def before_validate(self):
 		self.assign_missing_reference_nos()
 		self.clean_deleted_allocations()
+		self.postings_start_time = datetime.now()
 
 	def validate(self):
 		
@@ -192,12 +195,15 @@ class ReceiptEntry(Document):
       
 	def on_submit(self):   
 		# self.do_posting()
-		frappe.enqueue(self.do_posting,queue="long")
+		init_document_posting_status(self.doctype,self.name)
+		frappe.enqueue(self.do_postings_on_submit,queue="long")
 
-	def do_posting(self):
+	def do_postings_on_submit(self):
 		
 		self.update_sales_invoices()
 		self.insert_gl_records()
+		update_posting_status(self.doctype,self.name, 'gl_posted_time')
+		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 
 	def update_sales_invoices(self):
 		print("from update_sales_invoices")
@@ -281,6 +287,8 @@ class ReceiptEntry(Document):
 					gl_doc.aginst_account = self.account
 					gl_doc.remarks = self.remarks
 					gl_doc.insert()
+     
+		self.gl_posted_time = datetime.now()
      
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_receipt()

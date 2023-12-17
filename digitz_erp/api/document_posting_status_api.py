@@ -1,0 +1,28 @@
+import frappe
+from datetime import datetime
+
+def init_document_posting_status(document_type, document_name):
+    
+    posting_status_doc = frappe.new_doc('Document Posting Status')
+    posting_status_doc.document_type = document_type
+    posting_status_doc.document_name = document_name
+    posting_status_doc.postings_start_time = datetime.now()
+    posting_status_doc.posting_status = "Pending"
+    posting_status_doc.insert()
+
+def update_posting_status(document_type,document_name, status, status_value=None):
+    print("from API")
+    
+    doc_name = frappe.get_value("Document Posting Status",{'document_type':document_type,'document_name': document_name},['name'])
+    # To update current time status_value passing as None
+    if not status_value:
+        frappe.set_value('Document Posting Status', doc_name, status,datetime.now())
+        print("from API Done no status value")
+    else:
+        frappe.set_value('Document Posting Status', doc_name, status,status_value)
+        print("from API Done with status value")
+    
+    
+   
+
+

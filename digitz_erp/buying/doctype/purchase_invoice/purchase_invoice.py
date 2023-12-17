@@ -11,6 +11,7 @@ from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
 from digitz_erp.api.purchase_invoice_api import check_balance_qty_to_return_for_purchase_invoice
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from datetime import datetime
 from frappe.model.mapper import get_mapped_doc
 
@@ -24,31 +25,44 @@ class PurchaseInvoice(Document):
 		# to get balance qty and balance value.
 		# if(possible_invalid >0):
 		# 	frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
-  
+	     
 	def before_validate(self):
+     		
+		print("before_validate")
 		if not self.credit_purchase or self.credit_purchase  == False:
+
 			self.paid_amount = self.rounded_total
 		else:			
 			self.paid_amount = 0	
     
 	def validate(self):
+				
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
    
 	def on_submit(self):
-         
-		# assign posting_start_time before the background thread start to get the real time
-		# because a lagging may happen to start the thread
-		self.postings_start_time = datetime.now()		
+     
+		print("on_submit")
+  
+		init_document_posting_status(self.doctype, self.name)	
+					
 		frappe.enqueue(self.do_postings_on_submit, queue="long")
-
+  
+		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
+  
 	def do_postings_on_submit(self):		
 
 		self.insert_gl_records(self.remarks)
 		self.insert_payment_postings()  
 		self.add_stock_for_purchase_receipt()  
-		self.save()
-  
+		print("after stock posting")
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+		# print(posting_status_doc)
+		# posting_status_doc.posting_status = "Completed"
+		# posting_status_doc.save()
+		update_posting_status(self.doctype, self.name, 'posting_status','Completed')
+		print("after status update")
+		
 	def on_update(self):
 		print("on_update")
 		if self.purchase_order:
@@ -87,7 +101,6 @@ class PurchaseInvoice(Document):
     
 		print("po_reference_any")
 		print(po_reference_any)
-
     
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
@@ -214,28 +227,34 @@ class PurchaseInvoice(Document):
     													'warehouse': docitem.warehouse,
                                                         'base_stock_ledger': new_stock_ledger.name
                                                             })
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+		# posting_status_doc.stock_posted_time = datetime.now()		
+		# posting_status_doc.save()
+		update_posting_status(self.doctype, self.name, 'stock_posted_time', None)
+  
 		if(more_records>0):
-			self.stock_posted = True
-			self.stock_posted_time = datetime.now()
-			self.stock_recalc_required = True
-			
 			stock_recalc_voucher.insert()			
-			self.stock_recalc_voucher = stock_recalc_voucher.name   
-			
+			# self.stock_recalc_voucher = stock_recalc_voucher.name  
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+			# posting_status_doc.stock_recalc_required = True
+			# posting_status_doc.save()
+	
+			update_posting_status(self.doctype, self.name, 'stock_recalc_required', True)
+   
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)	
-						
-			self.stock_recalc_done = True
-			self.stock_recalc_done_time = datetime.now()   
-			
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})			
+			# posting_status_doc.stock_recalc_time =datetime.now()
+			# posting_status_doc.save()
    
-		else:
-			self.stock_posted = True
-			self.stock_posted_time = datetime.now()
-			self.stock_recalc_required = False			
-   
-
+			update_posting_status(self.doctype, self.name, 'stock_recalc_time', None)
+   	
 	def on_cancel(self):
-		self.cancel_purchase()
+     
+		update_posting_status(self.doctype, self.name, 'posting_status', 'Cancel Pending')
+    
+		frappe.enqueue(self.cancel_purchase, queue="long")
+  
+		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
   
 	def update_item_prices(self):
      
@@ -282,7 +301,6 @@ class PurchaseInvoice(Document):
 			self.update_purchase_order_quantities_before_cancel_or_delete()
 			check_and_update_purchase_order_status(self.purchase_order)
      
-
 	def cancel_purchase(self):
 
         # Insert record to 'Stock Recalculate Voucher' doc
@@ -357,10 +375,27 @@ class PurchaseInvoice(Document):
 				
 				update_item_stock_balance(docitem.item)
 
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+		# posting_status_doc.stock_posted_on_cancel_time = datetime.now()		
+		# posting_status_doc.save()
+  
+		update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time', None)
+
 		if(more_records>0):
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+			# posting_status_doc.stock_recalc_required_on_cancel = True
+			# posting_status_doc.save()
+   
+			update_posting_status(self.doctype, self.name, 'stock_recalc_required_on_cancel', True)
+   
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+			# posting_status_doc.stock_recalc_on_cancel_time = datetime.now()
+			# posting_status_doc.save()
+			update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time', None)
+	
 		frappe.db.delete("Stock Ledger",
 				{"voucher": "Purchase Invoice",
 					"voucher_no":self.name
@@ -370,8 +405,12 @@ class PurchaseInvoice(Document):
 				{"Voucher_type": "Purchase Invoice",
 					"voucher_no":self.name
 				})
+  
+		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')		
 
 	def insert_gl_records(self, remarks):
+     
+		print("from insert_gl_records")
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
@@ -379,7 +418,7 @@ class PurchaseInvoice(Document):
 		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
 
 		idx =1
-		# Trade Payavble - Debit
+		# Trade Payable - Credit - Against Inventory A/c
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Invoice"
 		gl_doc.voucher_no = self.name
@@ -390,12 +429,11 @@ class PurchaseInvoice(Document):
 		gl_doc.credit_amount = self.rounded_total
 		gl_doc.party_type = "Supplier"
 		gl_doc.party = self.supplier
-		gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
+		gl_doc.aginst_account = default_accounts.default_inventory_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 
-
-		# Stock Received But Not Billed
+		# Stock Received But Not Billed - Debit - Against Trade Payable A/c
 		idx =2
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Invoice"
@@ -403,14 +441,13 @@ class PurchaseInvoice(Document):
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.stock_received_but_not_billed
+		gl_doc.account = default_accounts.default_inventory_account
 		gl_doc.debit_amount =  self.net_total - self.tax_total
-		gl_doc.aginst_account = self.supplier
+		gl_doc.aginst_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 
-
-		# Tax
+		# Tax - Debit - Against Trade Payable A/c
 		idx =3
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Invoice"
@@ -420,10 +457,11 @@ class PurchaseInvoice(Document):
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.tax_account
 		gl_doc.debit_amount = self.tax_total
-		gl_doc.aginst_account = self.supplier
+		gl_doc.aginst_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 
+		# Round Off
 		if self.round_off!=0.00:
 			idx = idx + 1
 			gl_doc = frappe.new_doc('GL Posting')
@@ -436,43 +474,43 @@ class PurchaseInvoice(Document):
 
 			if self.rounded_total > self.net_total:
 				gl_doc.debit_amount = self.round_off
+				gl_doc.aginst_account = default_accounts.default_inventory_account
 			else:
 				gl_doc.credit_amount = self.round_off
-
-			gl_doc.aginst_account = default_accounts.default_payable_account
+				gl_doc.aginst_account = default_accounts.default_payable_account
+			
 			gl_doc.remarks = remarks
 
 			gl_doc.insert()
+   
+		# 	# Use Frappe SQL to fetch the document name
+		# document_name = frappe.db.sql("""
+		# 	SELECT name FROM `tabYourTableName`
+		# 	WHERE document_type = 'Purchase Invoice' AND document_name = %s
+		# """, (self.name))
 
-		# Postings for purchase receipt
-		idx =idx+1
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Purchase Invoice"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.default_inventory_account
-		gl_doc.debit_amount = self.net_total - self.tax_total
-		gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
-		gl_doc.remarks = remarks
-		gl_doc.insert()
+		# if document_name:
+		# 	# Assuming only one document will be returned
+		# 	document_name = document_name[0][0]
 
-		idx =idx + 1
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Purchase Invoice"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.stock_received_but_not_billed
-		gl_doc.credit_amount = self.net_total - self.tax_total
-		gl_doc.aginst_account = default_accounts.default_inventory_account
-		gl_doc.remarks = remarks
-		gl_doc.insert()
+			# Use frappe.get_doc to access the document
+		# posting_status_doc = frappe.get_doc("Document Posting Status", document_name)
+		# document_name = frappe.get_value("Document Posting Status",{'document_type':'Purchase Invoice', 'document_name':self.name},['name'])
+		# print("from insert_gl_records before posting_status doc")
+		# posting_status_doc = frappe.get_doc("Document Posting Status",document_name)
+		# print("posting_status_doc")
+		# print(posting_status_doc)	
   
-		self.gl_posted_time = datetime.now()		
-
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+  
+		# print("posting_status_doc")
+		# print(posting_status_doc)
+  
+		# posting_status_doc.gl_posted_time = datetime.now()
+		# posting_status_doc.save()
+  
+		update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
+   
 	def insert_payment_postings(self):
 
 		if self.credit_purchase==0:
@@ -485,7 +523,7 @@ class PurchaseInvoice(Document):
 			default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
 			'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
 
-			payment_mode = frappe.get_value("Payment Mode", self.payment_mode, ['account'],as_dict=1)
+			# payment_mode = frappe.get_value("Payment Mode", self.payment_mode, ['account'],as_dict=1)
 
 			idx = gl_count + 1
 
@@ -499,7 +537,7 @@ class PurchaseInvoice(Document):
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.party_type = "Supplier"
 			gl_doc.party = self.supplier
-			gl_doc.aginst_account = payment_mode.account
+			gl_doc.aginst_account = self.payment_account
 			gl_doc.insert()
 
 			idx= idx + 1
@@ -510,13 +548,16 @@ class PurchaseInvoice(Document):
 			gl_doc.idx = idx
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
-			gl_doc.account = payment_mode.account
+			gl_doc.account = self.payment_account
 			gl_doc.credit_amount = self.rounded_total
-			gl_doc.aginst_account = default_accounts.stock_received_but_not_billed
+			gl_doc.aginst_account = default_accounts.default_payable_account
 			gl_doc.insert()
-   
-			self.payment_posted_time = datetime.now()
 
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+			# posting_status_doc.payment_posted_time = datetime.now()
+			# posting_status_doc.save()
+			update_posting_status(self.doctype, self.name, 'payment_posted_time', None)
+			
 @frappe.whitelist()
 def create_purchase_return(source_name):
     

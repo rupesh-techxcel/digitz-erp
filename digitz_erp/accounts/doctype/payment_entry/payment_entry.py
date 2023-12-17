@@ -4,6 +4,9 @@
 import frappe
 from frappe.model.document import Document
 from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice, get_allocations_for_expense_entry
+from datetime import datetime
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+
 class PaymentEntry(Document):
 	
 	temp_payment_allocation = None
@@ -208,9 +211,13 @@ class PaymentEntry(Document):
 			print(self.temp_payment_allocation)
    
 		self.update_reference_in_payment_allocations()
+  
+		self.postings_start_time = datetime.now()
 	
 	def on_submit(self):
-		self.call_on_submit()
+     
+		init_document_posting_status(self.doctype.self.name)		
+		frappe.enqueue(self.do_postings_on_submit, queue ="long")
   
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_payment()
@@ -223,12 +230,11 @@ class PaymentEntry(Document):
                          {"Voucher_type": "Payment Entry",
                           "voucher_no": self.name
                           })
-
-	def call_on_submit(self):
-		frappe.enqueue(self.do_postings, queue ="long")
-     
-	def do_postings(self):
-		self.insert_gl_records()		
+ 
+	def do_postings_on_submit(self):
+		self.insert_gl_records()
+		update_posting_status(self.doctype,self.name, 'gl_posted_time')
+		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 		
 	def update_purchase_invoices(self):
 		allocations = self.payment_allocation
@@ -361,6 +367,8 @@ class PaymentEntry(Document):
 						gl_doc.party_type = "Supplier"
 						gl_doc.party = payment_entry.supplier	
 					gl_doc.insert()
+
+		self.gl_posted_time = datetime.now()
 
 
 	def GetAccountForTheHighestAmountInPayments(self):

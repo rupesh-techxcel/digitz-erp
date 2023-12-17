@@ -31,8 +31,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "section_break_11",
-  "accounts_section",
   "section_break_19",
   "items",
   "section_break_29",
@@ -53,7 +51,10 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
+  "postings_start_time",
+  "stock_recalc_required",
+  "recalc_done_time",
+  "gl_posted_time",
   "tab_break_50",
   "auto_generated_from_sales_invoice",
   "address_line_1",
@@ -178,15 +179,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "accounts_section",
-   "fieldtype": "Section Break",
-   "label": "Accounts"
-  },
-  {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
   },
@@ -287,10 +279,6 @@
    "label": "Terms and Conditions"
   },
   {
-   "fieldname": "section_break_27",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
    "label": "References"
@@ -385,12 +373,33 @@
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
+  },
+  {
+   "fieldname": "postings_start_time",
+   "fieldtype": "Datetime",
+   "label": "Postings Start Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "stock_recalc_required",
+   "fieldtype": "Check",
+   "label": "Stock Recalc Required"
+  },
+  {
+   "fieldname": "recalc_done_time",
+   "fieldtype": "Datetime",
+   "label": "Recalc Done Time"
+  },
+  {
+   "fieldname": "gl_posted_time",
+   "fieldtype": "Datetime",
+   "label": "GL Posted Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-06 16:20:21.772867",
+ "modified": "2023-12-14 21:17:47.056760",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",
