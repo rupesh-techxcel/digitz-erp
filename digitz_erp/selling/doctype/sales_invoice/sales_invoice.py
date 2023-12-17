@@ -53,9 +53,6 @@ class SalesInvoice(Document):
     def on_submit(self):       
         
         init_document_posting_status(self.doctype, self.name)
-        
-        if(self.auto_generate_delivery_note):
-            self.submit_delivery_note() 
        
         frappe.enqueue(self.do_postings_on_submit, queue="long")
         
@@ -72,6 +69,9 @@ class SalesInvoice(Document):
         self.insert_payment_postings()
         
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
+        
+        if(self.auto_generate_delivery_note):
+            self.submit_delivery_note() 
 
     def update_item_prices(self):
         
@@ -305,7 +305,8 @@ class SalesInvoice(Document):
             if self.auto_save_delivery_note:
                 print("logic_test-103")               
                 result = frappe.db.sql("""SELECT * FROM `tabSales Invoice Delivery Notes` WHERE `parent` = %s""", (self.name,), as_dict=True)
-                
+                print("result")
+                print(result)
                 if result:
                     si_do = frappe.get_doc('Sales Invoice Delivery Notes', result[0].name)
 
