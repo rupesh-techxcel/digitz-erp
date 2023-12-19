@@ -29,8 +29,6 @@
   "payment_entry_details",
   "show_allocations",
   "payment_allocation",
-  "postings_start_time",
-  "gl_posted_time",
   "amended_from"
  ],
  "fields": [
@@ -178,22 +176,12 @@
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date"
-  },
-  {
-   "fieldname": "postings_start_time",
-   "fieldtype": "Datetime",
-   "label": "Postings Start Time"
-  },
-  {
-   "fieldname": "gl_posted_time",
-   "fieldtype": "Datetime",
-   "label": "GL Posted Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-14 21:28:46.506768",
+ "modified": "2023-12-17 16:35:22.554488",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

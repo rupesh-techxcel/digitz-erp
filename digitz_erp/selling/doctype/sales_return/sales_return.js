@@ -450,7 +450,23 @@ frappe.ui.form.on('Sales Return', {
         frm.refresh_field("item_units");
       }
     })
-  }
+  },
+  customer(frm){
+
+	frappe.call(
+		{
+			method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+			args: {
+				'party_type': 'Customer',
+				'party': frm.doc.customer
+			},
+			callback: (r) => {
+				frm.set_value('customer_balance',r.message)
+				frm.refresh_field("customer_balance");
+			}
+		});
+	
+  },
 });
 
 frappe.ui.form.on("Sales Return", "onload", function (frm) {

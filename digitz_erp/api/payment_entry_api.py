@@ -70,6 +70,8 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
             # Combine Results
             combined_values = documents_values + payment_allocation_values
             return combined_values
+        else:             
+            return documents_values
 
     elif reference_type == 'Expense Entry':
         print("Get documents for expense entry")

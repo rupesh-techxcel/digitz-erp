@@ -3,10 +3,38 @@
 
 import frappe
 from frappe.model.document import Document
-from datetime import datetime
+from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class ExpenseEntry(Document):
+    
+	def Voucher_In_The_Same_Time(self):
+		possible_invalid= frappe.db.count('Expense Entry', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+		return possible_invalid
+
+	def Set_Posting_Time_To_Next_Second(self):
+		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+
+		# Add one second to the datetime object
+		new_datetime = datetime_object + timedelta(seconds=1)
+
+		# Extract the new time as a string
+		self.posting_time = new_datetime.strftime('%H:%M:%S')
+
+	def before_validate(self):
+		
+		if(self.Voucher_In_The_Same_Time()):
+								
+				self.Set_Posting_Time_To_Next_Second()
+
+				if(self.Voucher_In_The_Same_Time()):
+					self.Set_Posting_Time_To_Next_Second()				
+					
+					if(self.Voucher_In_The_Same_Time()):
+						self.Set_Posting_Time_To_Next_Second()
+						
+						if(self.Voucher_In_The_Same_Time()):
+							frappe.throw("Voucher with same time already exists.")
 
 	def on_submit(self):  
      
@@ -106,9 +134,7 @@ class ExpenseEntry(Document):
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
 			gl_doc.insert()
-   
-		self.gl_posted_time = datetime.now()
-	
+   	
 	def get_payable_totals(self):
      
 		payable_account_dictionary = {}
@@ -215,8 +241,6 @@ class ExpenseEntry(Document):
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
 			gl_doc.insert()
-
-		self.gl_payment_posted_time = datetime.now()
        
 	def on_update(self):
 		self.update_payment_schedules()

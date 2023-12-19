@@ -12,7 +12,7 @@ from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
 from digitz_erp.api.purchase_invoice_api import check_balance_qty_to_return_for_purchase_invoice
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
-from datetime import datetime
+from datetime import datetime,timedelta
 from frappe.model.mapper import get_mapped_doc
 
 class PurchaseInvoice(Document):
@@ -25,7 +25,21 @@ class PurchaseInvoice(Document):
 		# to get balance qty and balance value.
 		# if(possible_invalid >0):
 		# 	frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
-	     
+	
+	def Voucher_In_The_Same_Time(self):
+		possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+		return possible_invalid
+
+	def Set_Posting_Time_To_Next_Second(self):
+		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+
+		# Add one second to the datetime object
+		new_datetime = datetime_object + timedelta(seconds=1)
+
+		# Extract the new time as a string
+		self.posting_time = new_datetime.strftime('%H:%M:%S')
+
+           
 	def before_validate(self):
      		
 		print("before_validate")
@@ -34,7 +48,23 @@ class PurchaseInvoice(Document):
 			self.paid_amount = self.rounded_total
 		else:			
 			self.paid_amount = 0	
-    
+   
+		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be 
+		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
+            
+		if(self.Voucher_In_The_Same_Time()):
+						
+			self.Set_Posting_Time_To_Next_Second()
+
+			if(self.Voucher_In_The_Same_Time()):
+				self.Set_Posting_Time_To_Next_Second()				
+				
+				if(self.Voucher_In_The_Same_Time()):
+					self.Set_Posting_Time_To_Next_Second()
+					
+					if(self.Voucher_In_The_Same_Time()):
+						frappe.throw("Voucher with same time already exists.")  
+
 	def validate(self):
 				
 		if not self.credit_purchase and self.payment_mode == None:
@@ -55,7 +85,7 @@ class PurchaseInvoice(Document):
 		self.insert_gl_records(self.remarks)
 		self.insert_payment_postings()  
 		self.add_stock_for_purchase_receipt()  
-		print("after stock posting")
+		
 		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
 		# print(posting_status_doc)
 		# posting_status_doc.posting_status = "Completed"
@@ -332,15 +362,15 @@ class PurchaseInvoice(Document):
 				stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
 				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
 
-				if(stock_ledger_items):
+				# if(stock_ledger_items):
 
-					qty_cancelled = docitem.qty_in_base_unit
-					# Loop to verify the sufficiant quantity
-					for sl in stock_ledger_items:
+				# 	qty_cancelled = docitem.qty_in_base_unit
+				# 	# Loop to verify the sufficiant quantity
+				# 	for sl in stock_ledger_items:
 						# On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
-						if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
-							frappe.throw("Cancelling the purchase is prevented due to sufficiant quantity not available for " + docitem.item +
-						" to fulfil the voucher " + sl.voucher_no)
+						# if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
+						# 	frappe.throw("Cancelling the purchase is prevented due to sufficiant quantity not available for " + docitem.item +
+						# " to fulfil the voucher " + sl.voucher_no)
 
 				if(previous_stock_ledger_name):
 					stock_recalc_voucher.append('records',{'item': docitem.item,
@@ -429,7 +459,7 @@ class PurchaseInvoice(Document):
 		gl_doc.credit_amount = self.rounded_total
 		gl_doc.party_type = "Supplier"
 		gl_doc.party = self.supplier
-		gl_doc.aginst_account = default_accounts.default_inventory_account
+		gl_doc.against_account = default_accounts.default_inventory_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 
@@ -443,7 +473,7 @@ class PurchaseInvoice(Document):
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.default_inventory_account
 		gl_doc.debit_amount =  self.net_total - self.tax_total
-		gl_doc.aginst_account = default_accounts.default_payable_account
+		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 
@@ -457,7 +487,7 @@ class PurchaseInvoice(Document):
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.tax_account
 		gl_doc.debit_amount = self.tax_total
-		gl_doc.aginst_account = default_accounts.default_payable_account
+		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 
@@ -473,11 +503,11 @@ class PurchaseInvoice(Document):
 			gl_doc.account = default_accounts.round_off_account
 
 			if self.rounded_total > self.net_total:
-				gl_doc.debit_amount = self.round_off
-				gl_doc.aginst_account = default_accounts.default_inventory_account
+				gl_doc.debit_amount = abs(self.round_off)
+				gl_doc.against_account = default_accounts.default_inventory_account
 			else:
-				gl_doc.credit_amount = self.round_off
-				gl_doc.aginst_account = default_accounts.default_payable_account
+				gl_doc.credit_amount = abs(self.round_off)
+				gl_doc.against_account = default_accounts.default_payable_account
 			
 			gl_doc.remarks = remarks
 
@@ -537,7 +567,7 @@ class PurchaseInvoice(Document):
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.party_type = "Supplier"
 			gl_doc.party = self.supplier
-			gl_doc.aginst_account = self.payment_account
+			gl_doc.against_account = self.payment_account
 			gl_doc.insert()
 
 			idx= idx + 1
@@ -550,7 +580,7 @@ class PurchaseInvoice(Document):
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = self.payment_account
 			gl_doc.credit_amount = self.rounded_total
-			gl_doc.aginst_account = default_accounts.default_payable_account
+			gl_doc.against_account = default_accounts.default_payable_account
 			gl_doc.insert()
 
 			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})

@@ -33,9 +33,6 @@
   "column_break_yyur",
   "paid_amount",
   "column_break_8dze",
-  "postings_start_time",
-  "gl_posted_time",
-  "payment_posted_time",
   "section_break_jtpi",
   "amended_from",
   "payment_schedule_tab",
@@ -208,33 +205,12 @@
    "fieldtype": "Link",
    "label": "Default Payable Account",
    "options": "Account"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "gl_posted_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "GL Posted Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "payment_posted_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Payment Posted Time"
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "postings_start_time",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Postings Start Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-14 21:24:33.437505",
+ "modified": "2023-12-17 16:35:54.384921",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

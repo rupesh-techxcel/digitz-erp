@@ -14,6 +14,13 @@ def update_posting_status(document_type,document_name, status, status_value=None
     print("from API")
     
     doc_name = frappe.get_value("Document Posting Status",{'document_type':document_type,'document_name': document_name},['name'])
+    
+    if(not doc_name):
+        # In case if a record not find, insert one, this is not likely to occur
+        init_document_posting_status(document_type, document_name)
+        
+        doc_name = frappe.get_value("Document Posting Status",{'document_type':document_type,'document_name': document_name},['name'])
+    
     # To update current time status_value passing as None
     if not status_value:
         frappe.set_value('Document Posting Status', doc_name, status,datetime.now())

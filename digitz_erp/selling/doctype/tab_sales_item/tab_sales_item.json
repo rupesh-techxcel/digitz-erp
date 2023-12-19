@@ -9,7 +9,7 @@
  "field_order": [
   "warehouse",
   "item",
-  "item_code",
+  "item_name",
   "display_name",
   "qty",
   "unit",
@@ -45,11 +45,6 @@
    "in_list_view": 1,
    "label": "Item",
    "options": "Item"
-  },
-  {
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "label": "Item Code"
   },
   {
    "fieldname": "display_name",
@@ -178,12 +173,17 @@
    "fieldtype": "Check",
    "label": "Rate Includes Tax",
    "read_only": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-13 11:23:11.508574",
+ "modified": "2023-12-18 07:04:57.458286",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales Item",

@@ -3,13 +3,42 @@
 
 import frappe
 from frappe.utils import get_datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 from frappe.model.document import Document
 from frappe.utils.data import now
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class DeliveryNote(Document):
+    
+    def Voucher_In_The_Same_Time(self):
+        possible_invalid= frappe.db.count('Delivery Note', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
+        return possible_invalid
+
+    def Set_Posting_Time_To_Next_Second(self):
+        datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+
+        # Add one second to the datetime object
+        new_datetime = datetime_object + timedelta(seconds=1)
+
+        # Extract the new time as a string
+        self.posting_time = new_datetime.strftime('%H:%M:%S')
+
+    def before_validate(self):
+        
+        if(self.Voucher_In_The_Same_Time()):
+                        
+            self.Set_Posting_Time_To_Next_Second()
+
+            if(self.Voucher_In_The_Same_Time()):
+                self.Set_Posting_Time_To_Next_Second()				
+                
+                if(self.Voucher_In_The_Same_Time()):
+                    self.Set_Posting_Time_To_Next_Second()
+                    
+                    if(self.Voucher_In_The_Same_Time()):
+                        frappe.throw("Voucher with same time already exists.")  
+        
 
     def validate(self):
         self.validate_item()
@@ -336,10 +365,8 @@ class DeliveryNote(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_inventory_account
-        gl_doc.credit_amount = cost_of_goods_sold
-        gl_doc.party_type = "Customer"
-        gl_doc.party = self.customer
-        gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
+        gl_doc.credit_amount = cost_of_goods_sold       
+        gl_doc.against_account = default_accounts.cost_of_goods_sold_account
         gl_doc.insert()
 
         # Cost Of Goods Sold - Debit - Against Inventory
@@ -352,7 +379,7 @@ class DeliveryNote(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.cost_of_goods_sold_account
         gl_doc.debit_amount = cost_of_goods_sold
-        gl_doc.aginst_account = default_accounts.default_inventory_account
+        gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
         
         update_posting_status(self.doctype,self.name, 'gl_posted_time')

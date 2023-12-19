@@ -4,10 +4,11 @@
 import frappe
 from frappe.model.document import Document
 from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice, get_allocations_for_expense_entry
-from datetime import datetime
+from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
-class PaymentEntry(Document):
+class PaymentEntry(Document):   
+    
 	
 	temp_payment_allocation = None
 	# def before_save(self):
@@ -15,6 +16,62 @@ class PaymentEntry(Document):
 	# 	# to allow user to click on show allocations for the visibility of allocations
 	#
 	# 	self.show_allocations = False
+ 
+	def Voucher_In_The_Same_Time(self):
+		possible_invalid= frappe.db.count('Payment Entry', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+		return possible_invalid
+
+	def Set_Posting_Time_To_Next_Second(self):
+		datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+
+		# Add one second to the datetime object
+		new_datetime = datetime_object + timedelta(seconds=1)
+
+		# Extract the new time as a string
+		self.posting_time = new_datetime.strftime('%H:%M:%S')
+ 
+	def before_validate(self):
+     
+		if(self.Voucher_In_The_Same_Time()):
+								
+				self.Set_Posting_Time_To_Next_Second()
+
+				if(self.Voucher_In_The_Same_Time()):
+					self.Set_Posting_Time_To_Next_Second()				
+					
+					if(self.Voucher_In_The_Same_Time()):
+						self.Set_Posting_Time_To_Next_Second()
+						
+						if(self.Voucher_In_The_Same_Time()):
+							frappe.throw("Voucher with same time already exists.")
+     
+		self.assign_missing_reference_nos()
+		self.clean_deleted_allocations()
+     
+		# There is an error while saving the document with the payment_allocation child table.
+		# It is assumed that the error is because of the payment_allocation is being generated 
+		# using javascript method. Somehow it throws the error that 'Payment Allocation 9049423 (name of the document)
+		# already exists. To resolve it saving the child table to the temporary variable and restore it
+		# in the on_update method. And its working fine.
+		
+		# The issue happens only before the first save.
+  
+		# Checking self.temp_payment_allocation == None to avoid recurssion (issue fix)		
+		
+		if self.is_new() and self.payment_allocation and self.temp_payment_allocation == None:
+			# Store the existing payment_allocation in a temporary variable
+			self.temp_payment_allocation = self.get("payment_allocation")
+			
+			# Clear existing payment_allocation entries
+			self.set("payment_allocation", [])
+   
+			print("self.temp_payment_allocation")
+			print(self.temp_payment_allocation)
+   
+		self.update_reference_in_payment_allocations()
+  
+		self.postings_start_time = datetime.now()
+	
 	def validate(self):
 		print("validation starts..")
 		self.validate_doc_status()		
@@ -39,15 +96,18 @@ class PaymentEntry(Document):
 				messge = """Supplier should not be selected with the payment type 'Other', at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
     
+			print("supplier")
+			print(payment_entry.supplier)
+	
 			if payment_entry.payment_type == "Supplier" and (not payment_entry.supplier):
 				messge = """Supplier is mandatory for the payment type Supplier, at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
 
-			if payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" and (not payment_entry.supplier):
+			if (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry") and (not payment_entry.supplier):
 				messge = """Supplier is mandatory for the referene type Purchase Invoice/ Expense Entry, at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
     
-			if payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" and payment_entry.supplier and payment_entry.allocated_amount ==0:				
+			if (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry") and payment_entry.supplier and payment_entry.allocated_amount ==0:				
 				      
 				messge = """Allocation not found for the payment at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
@@ -71,6 +131,21 @@ class PaymentEntry(Document):
 					if allocation_exist==False:
 						self.payment_allocation.remove(allocation)
 
+	def assign_missing_reference_nos(self):
+		if self.payment_mode != "Bank":
+				return
+		payment_details = self.payment_entry_details        
+
+		if payment_details:
+			for payment_detail in payment_details: 
+				if not payment_detail.reference_no:
+					if(self.reference_no):
+						payment_detail.reference_no = self.reference_no
+
+				if not payment_detail.reference_date:
+					if(self.reference_date):
+						payment_detail.reference_date = self.reference_date
+      
 	def check_reference_numbers(self):
 		
 		if self.payment_mode != "Bank":
@@ -184,39 +259,9 @@ class PaymentEntry(Document):
 		self.update_purchase_invoices()
 		self.update_expense_entry()		
 	
-	def before_validate(self):
-     
-		self.clean_deleted_allocations()
-     
-		print("from before_validate")
-     
-		# There is an error while saving the document with the payment_allocation child table.
-		# It is assumed that the error is because of the payment_allocation is being generated 
-		# using javascript method. Somehow it throws the error that 'Payment Allocation 9049423 (name of the document)
-		# already exists. To resolve it saving the child table to the temporary variable and restore it
-		# in the on_update method. And its working fine.
-		
-		# The issue happens only before the first save.
-  
-		# Checking self.temp_payment_allocation == None to avoid recurssion (issue fix)		
-		
-		if self.is_new() and self.payment_allocation and self.temp_payment_allocation == None:
-			# Store the existing payment_allocation in a temporary variable
-			self.temp_payment_allocation = self.get("payment_allocation")
-			
-			# Clear existing payment_allocation entries
-			self.set("payment_allocation", [])
-   
-			print("self.temp_payment_allocation")
-			print(self.temp_payment_allocation)
-   
-		self.update_reference_in_payment_allocations()
-  
-		self.postings_start_time = datetime.now()
-	
 	def on_submit(self):
      
-		init_document_posting_status(self.doctype.self.name)		
+		init_document_posting_status(self.doctype,self.name)		
 		frappe.enqueue(self.do_postings_on_submit, queue ="long")
   
 	def on_trash(self):
@@ -348,8 +393,7 @@ class PaymentEntry(Document):
 					print("payment_entry.remarks")
 					print(payment_entry.remarks)
 					gl_doc.insert()
-				else: 
-					print("Its here now")
+				else: 			
 					# Case when there is no allocation, but supplier may or may not selected
 					# or payment_type ='Other'
 					idx = idx + 1
@@ -367,9 +411,6 @@ class PaymentEntry(Document):
 						gl_doc.party_type = "Supplier"
 						gl_doc.party = payment_entry.supplier	
 					gl_doc.insert()
-
-		self.gl_posted_time = datetime.now()
-
 
 	def GetAccountForTheHighestAmountInPayments(self):
      

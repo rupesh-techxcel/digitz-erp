@@ -280,7 +280,7 @@ class PurchaseReturn(Document):
 		gl_doc.party_type = "Supplier"
   
 		gl_doc.party = self.supplier
-		gl_doc.aginst_account = default_accounts.default_inventory_account
+		gl_doc.against_account = default_accounts.default_inventory_account
 		gl_doc.insert()
 
 		# # Stock Received But Not Billed
@@ -293,7 +293,7 @@ class PurchaseReturn(Document):
 		# gl_doc.posting_time = self.posting_time
 		# gl_doc.account = default_accounts.stock_received_but_not_billed
 		# gl_doc.debit_amount =  self.net_total - self.tax_total
-		# gl_doc.aginst_account = self.supplier
+		# gl_doc.against_account = self.supplier
 		# gl_doc.insert()
 
 		# Credit Tax
@@ -306,7 +306,7 @@ class PurchaseReturn(Document):
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.tax_account
 		gl_doc.credit_amount = self.tax_total
-		gl_doc.aginst_account = default_accounts.default_payable_account
+		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.insert()
 
 		# Rounded Total
@@ -323,7 +323,7 @@ class PurchaseReturn(Document):
 			# If rounded_total more than net_total debit is more in the payable account
 			if self.rounded_total > self.net_total:
 				gl_doc.credit_amount = self.round_off
-				gl_doc.aginst_account = default_accounts.default_payable_account
+				gl_doc.against_account = default_accounts.default_payable_account
 			else:
 				gl_doc.debit_amount = self.round_off
 				gl_doc.against_account = default_accounts.default_inventory_account
@@ -340,7 +340,7 @@ class PurchaseReturn(Document):
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.default_inventory_account
 		gl_doc.credit_amount = self.net_total - self.tax_total
-		gl_doc.aginst_account = default_accounts.default_payable_account
+		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.insert()
 
 		# idx =idx + 1
@@ -352,7 +352,7 @@ class PurchaseReturn(Document):
 		# gl_doc.posting_time = self.posting_time
 		# gl_doc.account = default_accounts.stock_received_but_not_billed
 		# gl_doc.credit_amount = self.net_total - self.tax_total
-		# gl_doc.aginst_account = default_accounts.default_inventory_account
+		# gl_doc.against_account = default_accounts.default_inventory_account
 		# gl_doc.insert()
 	
 	def insert_payment_postings(self):
@@ -376,7 +376,7 @@ class PurchaseReturn(Document):
 			gl_doc.credit_amount = self.rounded_total
 			gl_doc.party_type = "Supplier"
 			gl_doc.party = self.supplier
-			gl_doc.aginst_account = payment_mode.account
+			gl_doc.against_account = payment_mode.account
 			gl_doc.insert()
 
 			idx= idx + 1
@@ -389,7 +389,7 @@ class PurchaseReturn(Document):
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = payment_mode.account
 			gl_doc.debit_amount = self.rounded_total
-			gl_doc.aginst_account = default_accounts.default_payable_account
+			gl_doc.against_account = default_accounts.default_payable_account
 			gl_doc.insert()
    
 	def update_purchase_invoice_quantities_on_update(self):		

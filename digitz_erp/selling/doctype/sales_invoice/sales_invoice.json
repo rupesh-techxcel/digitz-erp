@@ -67,9 +67,6 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "postings_start_time",
-  "gl_posted_time",
-  "payment_posted_time",
   "references_tab",
   "data_53",
   "auto_save_delivery_note",
@@ -520,27 +517,12 @@
   {
    "fieldname": "column_break_uozz",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "postings_start_time",
-   "fieldtype": "Datetime",
-   "label": "Postings Start Time"
-  },
-  {
-   "fieldname": "gl_posted_time",
-   "fieldtype": "Datetime",
-   "label": "GL Posted Time"
-  },
-  {
-   "fieldname": "payment_posted_time",
-   "fieldtype": "Datetime",
-   "label": "Payment Posted Time"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-14 21:00:33.430769",
+ "modified": "2023-12-17 16:26:06.055763",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

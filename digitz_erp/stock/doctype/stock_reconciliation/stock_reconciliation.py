@@ -5,11 +5,41 @@ import frappe
 from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
+from datetime import datetime,timedelta
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class StockReconciliation(Document):
     
+    def Voucher_In_The_Same_Time(self):
+        possible_invalid= frappe.db.count('Stock Reconciliation', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+        return possible_invalid
+
+    def Set_Posting_Time_To_Next_Second(self):
+        datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+
+        # Add one second to the datetime object
+        new_datetime = datetime_object + timedelta(seconds=1)
+
+        # Extract the new time as a string
+        self.posting_time = new_datetime.strftime('%H:%M:%S')
+    
+    def before_validate(self):
+        
+        if(self.Voucher_In_The_Same_Time()):
+                        
+            self.Set_Posting_Time_To_Next_Second()
+
+            if(self.Voucher_In_The_Same_Time()):
+                self.Set_Posting_Time_To_Next_Second()				
+                
+                if(self.Voucher_In_The_Same_Time()):
+                    self.Set_Posting_Time_To_Next_Second()
+                    
+                    if(self.Voucher_In_The_Same_Time()):
+                        frappe.throw("Voucher with same time already exists.")  
+
+
     def on_submit(self):
         
         init_document_posting_status(self.doctype, self.name)
@@ -285,7 +315,7 @@ class StockReconciliation(Document):
         else:
             gl_doc.credit_amount = stock_adjustment_value
 
-        gl_doc.aginst_account = default_accounts.stock_adjustment_account
+        gl_doc.against_account = default_accounts.stock_adjustment_account
         gl_doc.insert()
 
         # Cost Of Goods Sold
@@ -303,7 +333,7 @@ class StockReconciliation(Document):
         else:
             gl_doc.debit_amount = stock_adjustment_value
 
-        gl_doc.aginst_account = default_accounts.default_inventory_account
+        gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
         
         update_posting_status(self.doctype,self.name,'gl_posted')

@@ -70,7 +70,8 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 sl.save()
                 break;
             
-            if(sl.voucher == "Delivery Note" or sl.voucher== "Purchase Return"):
+            # Sales invoice included to favor Tab Sales
+            if(sl.voucher == "Delivery Note" or sl.voucher== "Purchase Return" or sl.voucher== "Sales Invoice"):
                 previous_balance_value = new_balance_value #Assign before change                    
                 new_balance_qty = new_balance_qty - sl.qty_out
                 new_balance_value = new_balance_qty * new_valuation_rate                    
@@ -85,10 +86,10 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                         gl.change_in_stock_value = change_in_stock_value
                         gl.save()                            
                         
-                if(new_balance_qty<0 and allow_negative_stock== False):
-                    frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
+                # if(new_balance_qty<0 and allow_negative_stock== False):
+                #     frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
                 
-                update_purchase_usage_for_delivery_note(sl.voucher_no)
+                # update_purchase_usage_for_delivery_note(sl.voucher_no)
                                     
             if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
                 previous_balance_value = new_balance_value #Assign before change 
@@ -114,8 +115,8 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                     new_balance_value = new_balance_qty * new_valuation_rate                    
                     change_in_stock_value = new_balance_value - previous_balance_value
                     sl.change_in_stock_value = change_in_stock_value
-                    if(new_balance_qty<0 and  allow_negative_stock== False):
-                        frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
+                    # if(new_balance_qty<0 and  allow_negative_stock== False):
+                    #     frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")
             
             sl.balance_qty = new_balance_qty
             sl.balance_value = new_balance_value

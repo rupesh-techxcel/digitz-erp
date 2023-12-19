@@ -106,18 +106,18 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			});
 
-		frappe.call(
-				{
-					method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
-					args: {
-						'party_type': 'Customer',
-						'party': frm.doc.customer
-					},
-					callback: (r) => {
-						frm.set_value('customer_balance',r.message)
-						frm.refresh_field("customer_balance");
-					}
-				});
+			frappe.call(
+			{
+				method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+				args: {
+					'party_type': 'Customer',
+					'party': frm.doc.customer
+				},
+				callback: (r) => {
+					frm.set_value('customer_balance',r.message)
+					frm.refresh_field("customer_balance");
+				}
+			});
 
 			frm.doc.customer_display_name = frm.doc.customer_name
 			frm.refresh_field("customer_display_name");

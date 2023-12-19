@@ -11,12 +11,38 @@ from digitz_erp.utils import *
 from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
-from datetime import datetime
+from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class SalesInvoice(Document):    
     
+    def Voucher_In_The_Same_Time(self):
+        possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+        return possible_invalid
+
+    def Set_Posting_Time_To_Next_Second(self):
+        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+
+        # Add one second to the datetime object
+        new_datetime = datetime_object + timedelta(seconds=1)
+
+        # Extract the new time as a string
+        self.posting_time = new_datetime.strftime('%H:%M:%S')
+    
     def before_validate(self):
+        
+        if(self.Voucher_In_The_Same_Time()):
+                            
+                self.Set_Posting_Time_To_Next_Second()
+
+                if(self.Voucher_In_The_Same_Time()):
+                    self.Set_Posting_Time_To_Next_Second()				
+                    
+                    if(self.Voucher_In_The_Same_Time()):
+                        self.Set_Posting_Time_To_Next_Second()
+                        
+                        if(self.Voucher_In_The_Same_Time()):
+                            frappe.throw("Voucher with same time already exists.") 
         
         # Fix for paid_amount copies while duplicating the document
         if self.is_new():            
@@ -41,15 +67,7 @@ class SalesInvoice(Document):
     
     def on_update(self):
         self.update_item_prices()
-        
-    def after_submit(self):
-        
-        # Moved DO submision from background worker to here , to avoid the issue of not submitting the DO from the background worker.
-        
-        
-        
-        frappe.msgprint("Submitting delivery note...")
-
+    
     def on_submit(self):       
         
         init_document_posting_status(self.doctype, self.name)
@@ -58,6 +76,10 @@ class SalesInvoice(Document):
         
         frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
     
+        if(self.auto_generate_delivery_note):
+            print("submitting DO from sales_invoice")
+            self.submit_delivery_note() 
+            
     def do_postings_on_submit(self):
         
         cost_of_goods_sold = 0
@@ -67,11 +89,10 @@ class SalesInvoice(Document):
                    
         self.insert_gl_records(cost_of_goods_sold=cost_of_goods_sold)
         self.insert_payment_postings()
-        
+                
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
         
-        if(self.auto_generate_delivery_note):
-            self.submit_delivery_note() 
+        
 
     def update_item_prices(self):
         
@@ -123,17 +144,125 @@ class SalesInvoice(Document):
                 " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
 
     def on_cancel(self):
+        
+        frappe.enqueue(self.cancel_sales_invoice, queue="long")
+        
+    def cancel_sales_invoice(self):
 
-        if self.auto_save_delivery_note:
-            # delivery_note_name = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
-            # delivery_note = frappe.get_doc('Delivery Note', delivery_note_name)
+        if self.auto_save_delivery_note:           
 
             self.cancel_delivery_note_for_sales_invoice()
+            
+        # When correspdonding tab_sales cancelled, it hits here.  
+        if self.tab_sales:
+            self.cancel_stock_postings_for_tab_sales()            
 
         frappe.db.delete("GL Posting",
                          {"Voucher_type": "Sales Invoice",
                           "voucher_no": self.name
                           })
+    
+    def cancel_stock_postings_for_tab_sales(self):
+        
+         # Insert record to 'Stock Recalculate Voucher' doc
+        stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
+        stock_recalc_voucher.voucher = 'Sales Invoice'
+        stock_recalc_voucher.voucher_no = self.name
+        stock_recalc_voucher.voucher_date = self.posting_date
+        stock_recalc_voucher.voucher_time = self.posting_time
+        stock_recalc_voucher.status = 'Not Started'
+        stock_recalc_voucher.source_action = "Cancel"
+
+        posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+
+        more_records = 0
+
+        # Iterate on each item from the cancelling sales invoice
+        for docitem in self.items:
+            more_records_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
+                'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
+
+            more_records = more_records + more_records_for_item
+
+            previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+                        , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
+
+            # If any items in the collection has more records
+            if(more_records_for_item>0):
+
+                # stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
+                # 'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
+
+                # if(stock_ledger_items):
+
+                #     qty_cancelled = docitem.qty_in_base_unit
+                    # Loop to verify the sufficiant quantity
+                    # for sl in stock_ledger_items:
+                    #     # On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
+                    #     if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
+                    #         frappe.throw("Cancelling the purchase is prevented due to sufficiant quantity not available for " + docitem.item +
+                    #     " to fulfil the voucher " + sl.voucher_no)
+
+                if(previous_stock_ledger_name):
+                    stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                            'warehouse': docitem.warehouse,
+                                                            'base_stock_ledger': previous_stock_ledger_name
+                                                            })
+                else:
+                    stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                            'warehouse': docitem.warehouse,
+                                                            'base_stock_ledger': "No Previous Ledger"
+                                                            })
+
+            else:
+
+                stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
+                balance_qty =0
+                balance_value =0
+                valuation_rate  = 0
+
+                if(previous_stock_ledger_name):
+                    previous_stock_ledger = frappe.get_doc('Stock Ledger',previous_stock_ledger_name)
+                    balance_qty = previous_stock_ledger.balance_qty
+                    balance_value = previous_stock_ledger.balance_value
+                    valuation_rate = previous_stock_ledger.valuation_rate
+
+                stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
+                # Add qty because of balance increasing due to cancellation of delivery note
+                stock_balance_for_item.stock_qty = balance_qty
+                stock_balance_for_item.stock_value = balance_value
+                stock_balance_for_item.valuation_rate = valuation_rate
+                stock_balance_for_item.save()
+                
+                update_item_stock_balance(docitem.item)
+
+        # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+        # posting_status_doc.stock_posted_on_cancel_time = datetime.now()		
+        # posting_status_doc.save()
+
+        update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time', None)
+
+        if(more_records>0):
+            # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+            # posting_status_doc.stock_recalc_required_on_cancel = True
+            # posting_status_doc.save()
+
+            update_posting_status(self.doctype, self.name, 'stock_recalc_required_on_cancel', True)
+
+            stock_recalc_voucher.insert()
+            recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+
+            # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+            # posting_status_doc.stock_recalc_on_cancel_time = datetime.now()
+            # posting_status_doc.save()
+            update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time', None)
+
+        frappe.db.delete("Stock Ledger",
+                {"voucher": "Sales Invoice",
+                    "voucher_no":self.name
+                })
+
+        update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')	
 
     def insert_gl_records(self, cost_of_goods_sold):
 
@@ -158,7 +287,7 @@ class SalesInvoice(Document):
         gl_doc.debit_amount = self.rounded_total
         gl_doc.party_type = "Customer"
         gl_doc.party = self.customer
-        gl_doc.aginst_account = default_accounts.default_income_account
+        gl_doc.against_account = default_accounts.default_income_account
         gl_doc.insert()
 
         # Income account - Credit
@@ -171,7 +300,7 @@ class SalesInvoice(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_income_account
         gl_doc.credit_amount = self.net_total - self.tax_total
-        gl_doc.aginst_account = default_accounts.default_receivable_account
+        gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
 
         # Tax - Credit
@@ -184,7 +313,7 @@ class SalesInvoice(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.tax_account
         gl_doc.credit_amount = self.tax_total
-        gl_doc.aginst_account = default_accounts.default_receivable_account
+        gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
 
         # Round Off
@@ -200,9 +329,9 @@ class SalesInvoice(Document):
             gl_doc.account = default_accounts.round_off_account
 
             if self.rounded_total > self.net_total:
-                gl_doc.credit_amount = self.round_off
+                gl_doc.credit_amount = abs(self.round_off)
             else:
-                gl_doc.debit_amount = self.round_off
+                gl_doc.debit_amount = abs(self.round_off)
 
             gl_doc.insert()
             
@@ -225,7 +354,7 @@ class SalesInvoice(Document):
             gl_doc.posting_time = self.posting_time
             gl_doc.account = default_accounts.cost_of_goods_sold_account
             gl_doc.debit_amount = cost_of_goods_sold
-            gl_doc.aginst_account = default_accounts.default_inventory_account
+            gl_doc.against_account = default_accounts.default_inventory_account
             gl_doc.insert()
             
             
@@ -239,15 +368,10 @@ class SalesInvoice(Document):
             gl_doc.posting_date = self.posting_date
             gl_doc.posting_time = self.posting_time
             gl_doc.account = default_accounts.default_inventory_account
-            gl_doc.credit_amount = cost_of_goods_sold
-            gl_doc.party_type = "Customer"
-            gl_doc.party = self.customer
-            gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
+            gl_doc.credit_amount = cost_of_goods_sold                        
+            gl_doc.against_account = default_accounts.cost_of_goods_sold_account
             gl_doc.insert()
 
-            
-            
-        
         update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
 
     def insert_payment_postings(self):
@@ -278,7 +402,7 @@ class SalesInvoice(Document):
             gl_doc.credit_amount = self.rounded_total
             gl_doc.party_type = "Customer"
             gl_doc.party = self.customer
-            gl_doc.aginst_account = payment_mode.account
+            gl_doc.against_account = payment_mode.account
             gl_doc.insert()
 
             idx = idx + 1
@@ -291,7 +415,7 @@ class SalesInvoice(Document):
             gl_doc.posting_time = self.posting_time
             gl_doc.account = payment_mode.account
             gl_doc.debit_amount = self.rounded_total
-            gl_doc.aginst_account = default_accounts.default_receivable_account
+            gl_doc.against_account = default_accounts.default_receivable_account
             gl_doc.insert()
 
             update_posting_status(self.doctype,self.name, 'payment_posted_time',None)
@@ -670,9 +794,12 @@ class SalesInvoice(Document):
                                                             'warehouse': docitem.warehouse,
                                                             'base_stock_ledger': new_stock_ledger.name
                                                             })
+        update_posting_status(self.doctype,self.name,'stock_posted')
         if(more_records>0):
+            update_posting_status(self.doctype,self.name,'stock_recalc_required', True)
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+            update_posting_status(self.doctype,self.name,'stock_recalc_time')
 
         return cost_of_goods_sold
     

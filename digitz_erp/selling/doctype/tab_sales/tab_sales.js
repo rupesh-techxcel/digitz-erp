@@ -94,8 +94,21 @@ frappe.ui.form.on('Tab Sales', {
 				}
 			});
 
-			frm.doc.customer_display_name = frm.doc.customer_name
-			frm.refresh_field("customer_display_name");
+		frappe.call(
+			{
+				method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+				args: {
+					'party_type': 'Customer',
+					'party': frm.doc.customer
+				},
+				callback: (r) => {
+					frm.set_value('customer_balance',r.message)
+					frm.refresh_field("customer_balance");
+				}
+			});
+
+		frm.doc.customer_display_name = frm.doc.customer_name
+		frm.refresh_field("customer_display_name");
 
 	},
 	edit_posting_date_and_time(frm) {
@@ -474,23 +487,19 @@ frappe.ui.form.on('Tab Sales Item', {
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Item',
-					'filters': { 'item_name': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
+					'filters': { 'item_code': row.item },
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					console.log('Item Code');
-					console.log(r.message.item_code);
-					console.log(r.message.base_unit);
-					console.log(r.message.tax);
-					console.log(r.message.tax_excluded);
-					row.item_code = r.message.item_code;
+					
+					row.item_name = r.message.item_name;
+					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					row.display_name = row.item
-
+					
 					frm.item = row.item
 					frm.warehouse = row.warehouse
 					console.log("before trigger")

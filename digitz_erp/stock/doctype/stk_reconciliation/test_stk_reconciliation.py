@@ -392,7 +392,7 @@ class StkReconciliation(Document):
         else:
             gl_doc.credit_amount = stock_adjustment_value            
         
-        gl_doc.aginst_account = default_accounts.stock_adjustment_account
+        gl_doc.against_account = default_accounts.stock_adjustment_account
         gl_doc.insert()
 
         # Cost Of Goods Sold
@@ -410,5 +410,5 @@ class StkReconciliation(Document):
         else:
             gl_doc.debit_amount = stock_adjustment_value
             
-        gl_doc.aginst_account = default_accounts.default_inventory_account
+        gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()

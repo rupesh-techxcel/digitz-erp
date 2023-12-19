@@ -344,25 +344,11 @@ frappe.ui.form.on('Delivery Note', {
 		})
 	},
 	validate: function (frm) {
-		var valid = false;
-
-		frm.doc.items.forEach(function (entry) {
-
-			if (typeof (entry) == 'undefined') {
-
-			}
-			else {
-				valid = true;
-			}
-		});
-
-		if (!valid) {
-			frappe.msgprint("No valid item found in the document");
-			return;
-		}
-		
-		if (frm.doc.auto_generated_from_sales_invoice)
-			frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
+						
+		// if (frm.doc.auto_generated_from_sales_invoice)
+		// {			
+		// 	frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")			
+		// }
 	},
 	before_delete: function(frm)
 	{

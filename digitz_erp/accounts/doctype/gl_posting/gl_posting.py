@@ -48,14 +48,20 @@ class GLPosting(Document):
 
 @frappe.whitelist()
 def get_party_balance(party_type, party):
-	if frappe.db.exists(party_type, party):
-		if party_type == 'Customer':
-			balance = get_voucher_balance('Sales Invoice', party)
-		if party_type == 'Supplier':
-			balance = get_voucher_balance('Purchase Invoice', party)
-		return balance
-	else:
-		frappe.throw("{0} : {1} does not exist".format(party_type, party))
+    
+	party_balance = frappe.db.sql("""
+	SELECT SUM(debit_amount) - SUM(credit_amount) 
+	FROM `tabGL Posting` 
+	WHERE party_type=%s AND party=%s
+	""", (party_type, party))[0][0]
+
+	# For customer it automatically shows negative 
+	# For supplier, value must be negative, if it is positve that means
+	# its negative balance
+	if(party_type == "Supplier" and party_balance>0):
+		party_balance = party_balance * -1
+  
+	return party_balance	
 
 @frappe.whitelist()
 def get_voucher_balance(voucher_type, party):

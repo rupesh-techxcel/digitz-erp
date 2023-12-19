@@ -5,29 +5,47 @@ import frappe
 from frappe.utils import get_datetime
 from frappe.utils import now
 from frappe.model.document import Document
+from datetime import datetime,timedelta
+
 
 class TabSales (Document):
 
-    def before_submit(self):
+    def Voucher_In_The_Same_Time(self):
+        possible_invalid= frappe.db.count('Tab Sales', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+        return possible_invalid
+    
+    def Set_Posting_Time_To_Next_Second(self):
+        
+        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
 
+        # Add one second to the datetime object
+        new_datetime = datetime_object + timedelta(seconds=1)
+
+        # Extract the new time as a string
+        self.posting_time = new_datetime.strftime('%H:%M:%S')
+
+    def before_validate(self):
+        
+        # Remove existing ref for duplicate vouchers
+        if self.is_new():
+            self.sales_invoice_no_ref = None
+        
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be 
-		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
-		
-        # Store the current document name to the variable to use it after delete the variable
+        # posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
         
-        possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
         
-        if(possible_invalid >0):
-            frappe.throw("There is another sales invoice exist with the same date and time. Please correct the date and time.")
+        if(self.Voucher_In_The_Same_Time()):
+            self.Set_Posting_Time_To_Next_Second()
 
-        # Checking needed whether Delivery Note is creating automatically, if yes, then only stock availability need to check
-        # otherwise it could be done with in the delivery note itself.
+            if(self.Voucher_In_The_Same_Time()):
+                self.Set_Posting_Time_To_Next_Second()
+                
+                if(self.Voucher_In_The_Same_Time()):
+                    self.Set_Posting_Time_To_Next_Second()
+                    
+                    if(self.Voucher_In_The_Same_Time()):
+                        frappe.throw("Voucher with same time already exists.")                   
         
-        self.validate_item()           
-        # Since sales invoice postings has 
-        self.submit_sales_invoice()   
-        # self.insert_gl_records()
-        # self.insert_payment_postings()
         
     def validate_item(self):
          
@@ -58,22 +76,21 @@ class TabSales (Document):
             if(allow_negative_stock== False and previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
                 frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) + 
                 " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
+    
+    def validate(self):
+        self.validate_item()
         
-    def on_cancel(self):
-               
-        if self.auto_save_delivery_note:
-            # delivery_note_name = frappe.get_value("Sales Invoice Delivery Notes",{'parent': self.name}, ['delivery_note'])
-            # delivery_note = frappe.get_doc('Delivery Note', delivery_note_name)
-            
-            self.cancel_sales_invoice()
+    # def on_cancel(self):        
+        # self.cancel_sales_invoice()
+    
+    def on_submit(self):
+        self.submit_sales_invoice()   
                 
-    def submit_sales_invoice(self):
-         if self.docstatus == 1:
-             
-            si_do = frappe.get_doc('Sales Invoice',self.sales_invoice_no_ref)            
-            si_do.submit()            
-            # frappe.msgprint("A Delivery Note corresponding to the sales invoice is also submitted.", indicator="green")
-            return
+    def submit_sales_invoice(self):        
+        #  if self.docstatus == 1:  
+        sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})           
+        # si_do = frappe.get_doc('Sales Invoice',self.sales_invoice_no_ref)            
+        sales_invoice.submit()            
 
     @frappe.whitelist()
     def generate_sales_invoice(self):
@@ -91,9 +108,22 @@ class TabSales (Document):
         #     sales_invoice_doc.delete()
         #     do_exists = 1
         
-        if frappe.db.exists('Sales Invoice', {'name': self.sales_invoice_no_ref}):
-            sales_invoice = frappe.get_doc('Sales Invoice', self.sales_invoice_no_ref)
-
+        print("self.name")
+        print(self.name)
+        
+        sales_invoice = frappe.db.get_value('Sales Invoice',{'tab_sales': self.name}, ['name'])
+        
+        print("sales_invoice")
+        print(sales_invoice)
+        
+        if(sales_invoice):
+        
+        # if frappe.db.exists('Sales Invoice', {'tab_sales': self.name}):
+            sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})
+            
+            print("sales invoice found")
+            print(sales_invoice)
+            # sales_invoice = frappe.get_doc
             # delivery_note_doc.delete()
             # print("delivery note deleted")
             
@@ -151,7 +181,7 @@ class TabSales (Document):
                 
             sales_invoice.save()
             # Remove existing child table values
-            frappe.db.sql("DELETE FROM `tabSales Invoice Item` where parent=%s", self.sales_invoice_no_ref)
+            frappe.db.sql("DELETE FROM `tabSales Invoice Item` where parent=%s", sales_invoice.name)
             
             # target_items = []
             
@@ -161,8 +191,8 @@ class TabSales (Document):
                 idx = idx + 1
                 sales_invoice_item = frappe.new_doc("Sales Invoice Item")
                 sales_invoice_item.warehouse = item.warehouse
-                sales_invoice_item.item = item.item
-                sales_invoice_item.item_code = item.item_code
+                sales_invoice_item.item = item.item                
+                sales_invoice_item.item_name = item.item_name
                 sales_invoice_item.display_name = item.display_name
                 sales_invoice_item.qty =item.qty
                 sales_invoice_item.unit = item.unit
@@ -189,7 +219,7 @@ class TabSales (Document):
             
                 sales_invoice.save()
             
-                frappe.msgprint("Delivery Note for the Sales Invoice updated successfully.")
+            frappe.msgprint("Sales Invoice for the Tab Sales updated successfully.", alert=True)
             
         else:    
             tabSalesDocName =  self.name
@@ -212,18 +242,20 @@ class TabSales (Document):
             
             frappe.db.commit()        
 
-            si =  frappe.get_doc('Tab Sales',tabSalesDocName)
+            # si =  frappe.get_doc('Tab Sales',tabSalesDocName)
             
-            si.sales_invoice_no_ref = sales_invoice_doc.name
+            # si.sales_invoice_no_ref = sales_invoice_doc.name
             
-            si.save()
+            # si.save()
         
         frappe.msgprint("Sales Invoice created successfully, in draft mode.", alert =1)
     
-    def cancel_sales_invoice(self):
+    # def cancel_sales_invoice(self):
         
-        sales_invoice = frappe.get_doc("Sales Invoice", self.sales_invoice_no_ref)        
-        sales_invoice.cancel()
-        frappe.msgprint("Sales invoice cancelled successfully")
+    #     sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})        
+    #     print("tab_sales=>sales_invoice")
+    #     print(sales_invoice)
+    #     sales_invoice.cancel()
+        
 
 

@@ -6,15 +6,44 @@ from frappe.utils import get_datetime
 from datetime import datetime
 from frappe.model.document import Document
 from frappe.utils.data import now
+from datetime import datetime,timedelta
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class StockTransfer(Document):
-	
+    
+	def Voucher_In_The_Same_Time(self):
+		possible_invalid= frappe.db.count('Stock Transfer', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+		return possible_invalid
+
+	def Set_Posting_Time_To_Next_Second(self):
+		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+
+		# Add one second to the datetime object
+		new_datetime = datetime_object + timedelta(seconds=1)
+
+		# Extract the new time as a string
+		self.posting_time = new_datetime.strftime('%H:%M:%S')
+  
+	def before_validate(self):
+			
+			if(self.Voucher_In_The_Same_Time()):
+							
+				self.Set_Posting_Time_To_Next_Second()
+
+				if(self.Voucher_In_The_Same_Time()):
+					self.Set_Posting_Time_To_Next_Second()				
+					
+					if(self.Voucher_In_The_Same_Time()):
+						self.Set_Posting_Time_To_Next_Second()
+						
+						if(self.Voucher_In_The_Same_Time()):
+							frappe.throw("Voucher with same time already exists.") 
+        
 	def on_submit(self):    
 		init_document_posting_status(self.doctype, self.name)
 		frappe.enqueue(self.do_postings_on_submit, queue="long")
-  
+
 	def do_postings_on_submit(self):
 		self.add_stock_transfer()
 		update_posting_status(self.doctype, self.name, 'posting_status','Completed')

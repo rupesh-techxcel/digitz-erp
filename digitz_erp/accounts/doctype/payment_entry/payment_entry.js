@@ -317,6 +317,7 @@ allocations: function(frm, cdt, cdn)
 		callback:(r) => {
 
 			pending_invoices_data = r.message;
+			console.log("pending invoices data")
 
 			if(selected_reference_type == "Purchase Invoice")
 			{

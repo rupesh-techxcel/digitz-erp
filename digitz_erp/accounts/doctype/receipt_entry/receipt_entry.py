@@ -4,16 +4,23 @@
 import frappe
 from frappe.model.document import Document
 from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice
-from datetime import datetime
+from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class ReceiptEntry(Document):    
 
-	# def before_save(self):
-	# 	# By default allocations are not visisble. So make show_allocations make false
-	# 	# to allow user to click on show allocations for the visibility of allocations   
-  
-	# 	self.show_allocations = False
+	def Voucher_In_The_Same_Time(self):
+		possible_invalid= frappe.db.count('Receipt Entry', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+		return possible_invalid
+
+	def Set_Posting_Time_To_Next_Second(self):
+		datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+
+		# Add one second to the datetime object
+		new_datetime = datetime_object + timedelta(seconds=1)
+
+		# Extract the new time as a string
+		self.posting_time = new_datetime.strftime('%H:%M:%S')
  
 	def assign_missing_reference_nos(self):
 		if self.payment_mode != "Bank":
@@ -31,6 +38,20 @@ class ReceiptEntry(Document):
 						receipt_detail.reference_date = self.reference_date
 		
 	def before_validate(self):
+     
+		if(self.Voucher_In_The_Same_Time()):
+      							
+				self.Set_Posting_Time_To_Next_Second()
+
+				if(self.Voucher_In_The_Same_Time()):
+					self.Set_Posting_Time_To_Next_Second()				
+					
+					if(self.Voucher_In_The_Same_Time()):
+						self.Set_Posting_Time_To_Next_Second()
+						
+						if(self.Voucher_In_The_Same_Time()):
+							frappe.throw("Voucher with same time already exists.")
+        
 		self.assign_missing_reference_nos()
 		self.clean_deleted_allocations()
 		self.postings_start_time = datetime.now()
@@ -44,7 +65,7 @@ class ReceiptEntry(Document):
 		
 	def clean_deleted_allocations(self):
 
-		allocations = self.payment_allocation
+		allocations = self.receipt_allocation
 		print('allocations :', allocations)
 
 		if(allocations):
@@ -251,7 +272,7 @@ class ReceiptEntry(Document):
 		gl_doc.remarks = self.remarks  
 		# gl_doc.party_type = "Customer"
 		# gl_doc.party = self.customer
-		# gl_doc.aginst_account = default_accounts.default_income_account
+		# gl_doc.against_account = default_accounts.default_income_account
 		gl_doc.insert()
   
 		receipt_details = self.receipt_entry_details
@@ -270,7 +291,7 @@ class ReceiptEntry(Document):
 					gl_doc.credit_amount = receipt_entry.amount
 					gl_doc.party_type = "Customer"
 					gl_doc.party = receipt_entry.customer
-					gl_doc.aginst_account = self.account
+					gl_doc.against_account = self.account
 					gl_doc.remarks = self.remarks
 					gl_doc.insert()
         
@@ -284,12 +305,10 @@ class ReceiptEntry(Document):
 					gl_doc.posting_time = self.posting_time
 					gl_doc.account = receipt_entry.account
 					gl_doc.credit_amount = receipt_entry.amount					
-					gl_doc.aginst_account = self.account
+					gl_doc.against_account = self.account
 					gl_doc.remarks = self.remarks
 					gl_doc.insert()
-     
-		self.gl_posted_time = datetime.now()
-     
+          
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_receipt()
   
@@ -320,7 +339,7 @@ class ReceiptEntry(Document):
 		return account
 
 	def revert_documents_paid_amount_for_receipt(self):
-		allocations = self.payment_allocation
+		allocations = self.receipt_allocation
 		if(allocations):
 			for allocation in allocations:
 				print("allocation.reference_type")

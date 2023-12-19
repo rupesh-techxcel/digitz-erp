@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2022-12-31 06:34:52.694011",
  "default_view": "List",
@@ -67,6 +66,7 @@
   {
    "fieldname": "against_account",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Against Account"
   },
   {
@@ -103,9 +103,10 @@
    "label": "Remarks"
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-07 18:31:33.789507",
+ "modified": "2023-12-17 17:46:57.363151",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "GL Posting",

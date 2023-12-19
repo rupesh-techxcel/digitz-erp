@@ -62,7 +62,7 @@ class SalesReturn(Document):
         gl_doc.credit_amount = self.rounded_total
         gl_doc.party_type = "Customer"
         gl_doc.party = self.customer
-        gl_doc.aginst_account = default_accounts.default_income_account
+        gl_doc.against_account = default_accounts.default_income_account
         gl_doc.insert()
 
         # Income account - Credot
@@ -75,7 +75,7 @@ class SalesReturn(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_income_account
         gl_doc.debit_amount = self.net_total - self.tax_total
-        gl_doc.aginst_account = default_accounts.default_receivable_account
+        gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
 
         # Tax - Credit
@@ -88,7 +88,7 @@ class SalesReturn(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.tax_account
         gl_doc.debit_amount = self.tax_total
-        gl_doc.aginst_account = default_accounts.default_receivable_account
+        gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
         
         # Inventory Account
@@ -101,7 +101,7 @@ class SalesReturn(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_inventory_account
         gl_doc.debit_amount = self.net_total - self.tax_total
-        gl_doc.aginst_account = default_accounts.cost_of_goods_sold_account
+        gl_doc.against_account = default_accounts.cost_of_goods_sold_account
         gl_doc.insert()
         
         # COGS
@@ -114,7 +114,7 @@ class SalesReturn(Document):
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.cost_of_goods_sold_account
         gl_doc.credit_amount = self.net_total - self.tax_total
-        gl_doc.aginst_account = default_accounts.default_inventory_account
+        gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
         
 
@@ -158,7 +158,7 @@ class SalesReturn(Document):
             gl_doc.debit_amount = self.rounded_total
             gl_doc.party_type = "Customer"
             gl_doc.party = self.customer
-            gl_doc.aginst_account = payment_mode.account
+            gl_doc.against_account = payment_mode.account
             gl_doc.insert()
 
             idx = idx + 1
@@ -171,7 +171,7 @@ class SalesReturn(Document):
             gl_doc.posting_time = self.posting_time
             gl_doc.account = payment_mode.account
             gl_doc.credit_amount = self.rounded_total
-            gl_doc.aginst_account = default_accounts.default_receivable_account
+            gl_doc.against_account = default_accounts.default_receivable_account
             gl_doc.insert()
 
     def on_update(self):

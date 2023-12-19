@@ -12,6 +12,22 @@ frappe.ui.form.on('Purchase Return', {
             });
         }
     },
+	supplier(frm){
+
+		frappe.call(
+			{
+				method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+				args: {
+					'party_type': 'Supplier',
+					'party': frm.doc.supplier
+				},
+				callback: (r) => {
+					frm.set_value('supplier_balance',r.message)
+					frm.refresh_field("supplier_balance");
+				}
+			});
+		
+	 },
 	get_items_for_return: function (frm) {
 		if (!frm.doc.supplier) {
 			frappe.msgprint("Select supplier.");

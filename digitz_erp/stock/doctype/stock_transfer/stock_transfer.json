@@ -30,7 +30,6 @@
   "net_total",
   "round_off",
   "rounded_total",
-  "section_break_33",
   "section_break_27",
   "amended_from"
  ],
@@ -144,10 +143,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "section_break_27",
    "fieldtype": "Section Break"
   },
@@ -187,7 +182,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-06-04 16:17:34.103799",
+ "modified": "2023-12-17 16:31:04.321469",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Transfer",
