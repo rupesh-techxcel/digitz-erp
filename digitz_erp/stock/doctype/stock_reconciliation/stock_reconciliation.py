@@ -16,7 +16,7 @@ class StockReconciliation(Document):
         return possible_invalid
 
     def Set_Posting_Time_To_Next_Second(self):
-        datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
 
         # Add one second to the datetime object
         new_datetime = datetime_object + timedelta(seconds=1)
@@ -43,15 +43,20 @@ class StockReconciliation(Document):
     def on_submit(self):
         
         init_document_posting_status(self.doctype, self.name)
+        
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-        frappe.enqueue(self.do_postings_on_submit, queue="long")        
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
+            self.do_postings_on_submit()
+        else:
+            frappe.enqueue(self.do_postings_on_submit, queue="long")        
         
     def do_postings_on_submit(self):
         
         stock_adjustment_value =  self.add_stock_reconciliation()
        
         if(stock_adjustment_value !=0):
-            self.insert_gl_records(self=self, stock_adjustment_value = stock_adjustment_value)
+            self.insert_gl_records(stock_adjustment_value = stock_adjustment_value)
             
         update_posting_status(self.doctype,self.name, 'posting_status','Completed')
 
@@ -85,7 +90,7 @@ class StockReconciliation(Document):
 
             # posting_date<= consider because to take the dates with in the same minute
             # dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]})
-            dbCount = frappe.db.count('Stock Ledger', {'item_code': ['=', docitem.item_code], 'warehouse': [
+            dbCount = frappe.db.count('Stock Ledger', {'item': ['=', docitem.item], 'warehouse': [
                                       '=', docitem.warehouse], 'posting_date': ['<', posting_date_time]})
 
             # In case opening stock entry, assign the qty as qty_in
@@ -97,15 +102,17 @@ class StockReconciliation(Document):
                 # Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
                 # from the balance qty in the existing rows x actual incoming rate
 
-                last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item_code': ['=', docitem.item_code], 'warehouse': ['=', docitem.warehouse], 'posting_date': [
+                last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse': ['=', docitem.warehouse], 'posting_date': [
                                                         '<', posting_date_time]}, ['balance_qty', 'balance_value', 'valuation_rate'], order_by='posting_date desc', as_dict=True)
 
                 previous_stock_balance_qty = last_stock_ledger.balance_qty
 
                 if(previous_stock_balance_qty> new_balance_qty):
                     qty_out = previous_stock_balance_qty - new_balance_qty
+                    qty_in = 0
                 else:
                     qty_in = new_balance_qty - previous_stock_balance_qty
+                    qty_out = 0
 
                 previous_stock_value = last_stock_ledger.balance_value
 
@@ -121,6 +128,7 @@ class StockReconciliation(Document):
 
             new_stock_ledger = frappe.new_doc("Stock Ledger")
             new_stock_ledger.item = docitem.item
+            new_stock_ledger.item_name = docitem.item_name
             new_stock_ledger.warehouse = docitem.warehouse
             new_stock_ledger.posting_date = posting_date_time
             new_stock_ledger.change_in_stock_value = change_in_stock_value_for_item
@@ -193,7 +201,12 @@ class StockReconciliation(Document):
 
     def on_cancel(self):
         
-        frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+        if(frappe.session.user == "Administrator" and turn_off_background_job): 
+            self.cancel_stock_reconciliation()
+        else:
+            frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
         
     def cancel_stock_reconciliation(self):
 

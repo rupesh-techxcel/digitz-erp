@@ -22,7 +22,7 @@ class PaymentEntry(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
 
 		# Add one second to the datetime object
 		new_datetime = datetime_object + timedelta(seconds=1)
@@ -259,10 +259,16 @@ class PaymentEntry(Document):
 		self.update_purchase_invoices()
 		self.update_expense_entry()		
 	
-	def on_submit(self):
+	def on_submit(self):    
      
-		init_document_posting_status(self.doctype,self.name)		
-		frappe.enqueue(self.do_postings_on_submit, queue ="long")
+		init_document_posting_status(self.doctype,self.name)	
+
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+		if(frappe.session.user == "Administrator" and turn_off_background_job): 
+			self.do_postings_on_submit()
+		else:
+			frappe.enqueue(self.do_postings_on_submit, queue ="long")
   
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_payment()

@@ -67,12 +67,19 @@ class SalesInvoice(Document):
     
     def on_update(self):
         self.update_item_prices()
+        
+    
     
     def on_submit(self):       
         
         init_document_posting_status(self.doctype, self.name)
-       
-        frappe.enqueue(self.do_postings_on_submit, queue="long")
+        
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+        
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
+            self.do_postings_on_submit()
+        else:
+            frappe.enqueue(self.do_postings_on_submit, queue="long")
         
         frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
     
@@ -86,14 +93,15 @@ class SalesInvoice(Document):
 
         if self.tab_sales :       
             cost_of_goods_sold = self.deduct_stock_for_tab_sales()
+        
+        print("cost_of_goods_sold")
+        print(cost_of_goods_sold)
                    
         self.insert_gl_records(cost_of_goods_sold=cost_of_goods_sold)
         self.insert_payment_postings()
                 
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
-        
-        
-
+    
     def update_item_prices(self):
         
         if(self.update_rates_in_price_list):        
@@ -145,7 +153,12 @@ class SalesInvoice(Document):
 
     def on_cancel(self):
         
-        frappe.enqueue(self.cancel_sales_invoice, queue="long")
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+        
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
+            self.cancel_sales_invoice()            
+        else:
+            frappe.enqueue(self.cancel_sales_invoice, queue="long")
         
     def cancel_sales_invoice(self):
 
@@ -714,7 +727,7 @@ class SalesInvoice(Document):
 
             more_records = more_records + more_records_count_for_item
 
-            required_qty = docitem.qty_in_base_unit
+            # required_qty = docitem.qty_in_base_unit
 
             # Check available qty
             previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
@@ -724,24 +737,34 @@ class SalesInvoice(Document):
             print("previous stock balance")
             print(previous_stock_balance)
 
-            if(allow_negative_stock == False and not previous_stock_balance):
-                frappe.throw("No stock exists for" + docitem.item )
-                return
+            # if(allow_negative_stock == False and not previous_stock_balance):
+            #     frappe.throw("No stock exists for" + docitem.item )
+            #     return
 
-            if(allow_negative_stock == False and previous_stock_balance and previous_stock_balance.balance_qty < required_qty ):
-                frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
-                    docitem.base_unit + "and available Qty= " + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit)
-                return
+            # if(allow_negative_stock == False and previous_stock_balance and previous_stock_balance.balance_qty < required_qty ):
+            #     frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " Required Qty= " + str(required_qty) + " " +
+            #         docitem.base_unit + "and available Qty= " + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit)
+            #     return
 
             previous_stock_balance_value = 0
 
             if previous_stock_balance:
+                
+                print("previous_stock_balance.valuation_rate")
+                print(previous_stock_balance.valuation_rate)
+                
                 new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
                 valuation_rate = previous_stock_balance.valuation_rate
                 previous_stock_balance_value = previous_stock_balance.balance_value
             else:
+                print("no previous stock balance")
                 new_balance_qty = 0 - docitem.qty_in_base_unit
                 valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
+                
+            print("docitem.qty_in_base_unit")
+            print(docitem.qty_in_base_unit)
+            print("valuation_rate")
+            print(valuation_rate)
 
             new_balance_value = previous_stock_balance_value - (docitem.qty_in_base_unit * valuation_rate)
             cost_of_goods_sold = cost_of_goods_sold + (docitem.qty_in_base_unit * valuation_rate)
@@ -750,6 +773,14 @@ class SalesInvoice(Document):
                 frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
 
             change_in_stock_value = new_balance_value - previous_stock_balance_value
+            print("change in stock value")
+            print(change_in_stock_value)
+            
+            print("new_balanmce_value")
+            print(new_balance_value)
+            
+            print("previous_stock_balance_value")
+            print(previous_stock_balance_value)
             new_stock_ledger = frappe.new_doc("Stock Ledger")
             new_stock_ledger.item = docitem.item
             new_stock_ledger.item_name = docitem.item_name

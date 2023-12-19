@@ -41,19 +41,6 @@ frappe.ui.form.on('Tab Sales', {
 			valid = false;
 			frappe.msgprint("Select payment mode")
 		}
-
-		if (!valid) {
-			frappe.message("No valid item found in the document");
-			return;
-		}
-
-		if(frm.doc.__islocal) //When the invoice is created by duplicating from an existing invoice, there may be delivery notes allocated
-		{					// and it needs to be removed
-			if(frm.doc.delivery_notes)
-			{
-					frm.doc.delivery_notes = undefined;
-			}
-		}
 	},
 	setup: function (frm) {
 
@@ -693,6 +680,8 @@ frappe.ui.form.on('Tab Sales Item', {
 		frm.trigger("get_item_units");
 	},
 	items_add(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
 		frm.trigger("make_taxes_and_totals");
 	},
 	items_remove(frm, cdt, cdn) {

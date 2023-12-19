@@ -40,8 +40,13 @@ class ExpenseEntry(Document):
      
 		init_document_posting_status(self.doctype,self.name)	
   
-		self.postings_start_time = datetime.now()		
-		frappe.enqueue(self.do_postings_on_submit, queue="long")
+		self.postings_start_time = datetime.now()	
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+		if(frappe.session.user == "Administrator" and turn_off_background_job): 
+			self.do_postings_on_submit()
+		else:
+			frappe.enqueue(self.do_postings_on_submit, queue="long")
   
 	def on_cancel(self):
      

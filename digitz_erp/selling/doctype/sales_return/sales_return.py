@@ -36,8 +36,13 @@ class SalesReturn(Document):
                         frappe.throw("The quantity available for return in the original sales is less than the quantity specified in the line item {}".format(docitem.idx))
 
     def on_submit(self):   
-        # self.do_posting()     
-        frappe.enqueue(self.do_posting, queue="long")
+        
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
+            self.do_posting()    
+        else: 
+            frappe.enqueue(self.do_posting, queue="long")
 
     def do_posting(self):
         # Cost of goods sold need not include for Sales Return because it is not an expense but its only a reduction of sales revenue.
@@ -179,7 +184,12 @@ class SalesReturn(Document):
         
     def on_cancel(self):
         
-        self.cancel_sales_return()
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+        if(frappe.session.user == "Administrator" and turn_off_background_job):        
+            self.cancel_sales_return()
+        else:
+            frappe.enqueue(self.cancel_sales_return, queue="long")
 
     def on_trash(self):
         # On cancel the quantities are already deleted.
@@ -261,9 +271,7 @@ class SalesReturn(Document):
         print("before do_cancel_stock_posting")
         
         self.do_cancel_stock_posting()
-        
-        # frappe.enqueue(self.do_cancel_stock_posting, queue="long")
-        
+                
         frappe.db.delete("GL Posting",
                 {"Voucher_type": "Sales Return",
                     "voucher_no":self.name

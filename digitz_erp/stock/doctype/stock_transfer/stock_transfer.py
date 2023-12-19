@@ -27,22 +27,34 @@ class StockTransfer(Document):
   
 	def before_validate(self):
 			
-			if(self.Voucher_In_The_Same_Time()):
-							
-				self.Set_Posting_Time_To_Next_Second()
+		if(self.Voucher_In_The_Same_Time()):
+						
+			self.Set_Posting_Time_To_Next_Second()
 
+			if(self.Voucher_In_The_Same_Time()):
+				self.Set_Posting_Time_To_Next_Second()				
+				
 				if(self.Voucher_In_The_Same_Time()):
-					self.Set_Posting_Time_To_Next_Second()				
+					self.Set_Posting_Time_To_Next_Second()
 					
 					if(self.Voucher_In_The_Same_Time()):
-						self.Set_Posting_Time_To_Next_Second()
-						
-						if(self.Voucher_In_The_Same_Time()):
-							frappe.throw("Voucher with same time already exists.") 
+						frappe.throw("Voucher with same time already exists.") 
+	
+		for docitem in self.items:	
+			if(not docitem.source_warehouse):
+				docitem.source_warehouse = self.source_warehouse
+			if(not docitem.target_warehouse):
+				docitem.target_warehouse = self.target_warehouse
         
 	def on_submit(self):    
 		init_document_posting_status(self.doctype, self.name)
-		frappe.enqueue(self.do_postings_on_submit, queue="long")
+  
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+		if(frappe.session.user == "Administrator" and turn_off_background_job):
+			self.do_postings_on_submit()		
+		else:
+			frappe.enqueue(self.do_postings_on_submit, queue="long")
 
 	def do_postings_on_submit(self):
 		self.add_stock_transfer()
@@ -224,8 +236,7 @@ class StockTransfer(Document):
 
 				new_stock_balance.insert()
 
-				item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(item_name)	
+				update_item_stock_balance(docitem.item)	
     
 		update_posting_status(self.doctype,self.name, 'stock_posted_time')
   
@@ -242,10 +253,15 @@ class StockTransfer(Document):
 	def on_cancel(self):   
      
 		update_posting_status(self.doctype,self.name, "posting_status", "Cancel Pending")
-		frappe.enqueue(self.cancel_stock_transfer, queue="long" )
+  
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+
+		if(frappe.session.user == "Administrator" and turn_off_background_job): 
+			self.cancel_stock_transfer()		
+		else:
+			frappe.enqueue(self.cancel_stock_transfer, queue="long" )
 		     
 	def cancel_stock_transfer(self):
-		self.do_cancel_stock_transfer()
 		update_posting_status(self.doctype,self.name, "posting_status", "Completed")	
   
 	def do_cancel_stock_transfer(self):
@@ -373,7 +389,7 @@ class StockTransfer(Document):
 															})
 				else:
 					stock_recalc_voucher_target_wh.append('records',{'item': docitem.item, 
-															'warehouse': docitem.warehouse,
+															'warehouse': docitem.target_warehouse,
 															'base_stock_ledger': "No Previous Ledger"
 															})
 			else:

@@ -134,16 +134,27 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 						'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 					},
 					callback: (r) => {
+
+						console.log(r.message)
 						
 						row.item_name = r.message.item_name;
 						row.base_unit = r.message.base_unit;
 						row.unit = r.message.base_unit;
-						row.conversion_factor = 1;
-						frm.item = row.item
-						frm.warehouse = row.warehouse				
-						frm.trigger("get_item_stock_balance");
+						
+						console.log("unit, baseunit, r.message.base_unit")
+						console.log(row.unit)
+						console.log(row.base_unit)
+						console.log(r.message.base_unit)
+
+						row.conversion_factor = 1;						
+						frm.warehouse = row.warehouse			
+						
 						row.warehouse = frm.doc.warehouse
 						row.display_name = row.item_name
+						frm.trigger("get_item_stock_balance");
+
+						console.log("row")
+						console.log(row)
 
 						frappe.call(
 							{
@@ -210,30 +221,6 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 		frm.refresh_field("items");
 		console.log("Before get valuation rate for the item")
 		
-
-		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Item',
-					'filters': { 'item_name': row.item },
-					'fieldname': ['item_code', 'base_unit', 'tax', 'tax_excluded']
-				},
-				callback: (r) => {
-					
-					row.item_code = r.message.item_code;
-					//row.uom = r.message.base_unit;	
-					row.tax_excluded = r.message.tax_excluded;
-					row.base_unit = r.message.base_unit;
-					row.unit = r.message.base_unit;
-					row.conversion_factor = 1;
-					frm.item = row.item
-					frm.warehouse = row.warehouse				
-					frm.trigger("get_item_stock_balance");	
-
-					frm.refresh_field("items");
-				}
-			});
 	},
 	warehouse(frm, cdt, cdn) {
 

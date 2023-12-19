@@ -68,14 +68,27 @@ class PurchaseReturn(Document):
 
 		self.do_voucher_stock_posting()
   
-		frappe.enqueue(self.do_posting, queue="long")
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+		
+		if(frappe.session.user == "Administrator" and turn_off_background_job):
+			self.do_posting()
+		else:
+			frappe.enqueue(self.do_posting, queue="long")
   
 	def on_update(self):
 		self.update_purchase_invoice_quantities_on_update()
   
 	def on_cancel(self):
+     
 		self.update_purchase_invoice_quantities_before_delete_or_cancel()
-		self.cancel_purchase_return()
+	
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+		
+		if(frappe.session.user == "Administrator" and turn_off_background_job):
+			self.cancel_purchase_return()
+		else:
+			frappe.enqueue(self.cancel_purchase_return, queue ="long")
+		
   
 	def on_trash(self):
 		# On cancel, the quantities are already deleted.

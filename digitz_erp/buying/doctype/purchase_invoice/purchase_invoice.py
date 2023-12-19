@@ -74,9 +74,14 @@ class PurchaseInvoice(Document):
      
 		print("on_submit")
   
-		init_document_posting_status(self.doctype, self.name)	
-					
-		frappe.enqueue(self.do_postings_on_submit, queue="long")
+		init_document_posting_status(self.doctype, self.name)
+  
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+		
+		if(frappe.session.user == "Administrator" and turn_off_background_job):
+			self.do_postings_on_submit()
+		else:					
+			frappe.enqueue(self.do_postings_on_submit, queue="long")
   
 		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
   
@@ -177,9 +182,16 @@ class PurchaseInvoice(Document):
 			more_records = more_records + more_records_count_for_item
 
 			new_balance_qty = docitem.qty_in_base_unit
+   
+			print("default balance qty")
+			print(new_balance_qty)
+
 			# Default valuation rate
 			valuation_rate = docitem.rate_in_base_unit
 
+			print("default valuation rate")
+			print(valuation_rate)
+   
 			# Default balance value calculating withe the current row only
 			new_balance_value = new_balance_qty * valuation_rate
 
@@ -203,7 +215,12 @@ class PurchaseInvoice(Document):
 				new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty
 
 				new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
-
+	
+				print("new_balance_qty")    
+				print(new_balance_qty)
+    
+				print("new_balance_value")    
+				print(new_balance_value)
 
 				if new_balance_qty!=0:
 					valuation_rate = new_balance_value/new_balance_qty
@@ -281,8 +298,12 @@ class PurchaseInvoice(Document):
 	def on_cancel(self):
      
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Cancel Pending')
-    
-		frappe.enqueue(self.cancel_purchase, queue="long")
+		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+		
+		if(frappe.session.user == "Administrator" and turn_off_background_job):
+			self.cancel_purchase()
+		else:
+			frappe.enqueue(self.cancel_purchase, queue="long")
   
 		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
   

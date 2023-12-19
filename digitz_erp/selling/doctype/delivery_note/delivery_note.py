@@ -16,7 +16,7 @@ class DeliveryNote(Document):
         return possible_invalid
 
     def Set_Posting_Time_To_Next_Second(self):
-        datetime_object = datetime.strptime(self.posting_time, '%H:%M:%S')
+        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
 
         # Add one second to the datetime object
         new_datetime = datetime_object + timedelta(seconds=1)
@@ -46,16 +46,25 @@ class DeliveryNote(Document):
     def on_cancel(self):
         
         update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
-        # self.cancel_delivery_note()
-        frappe.enqueue(self.cancel_delivery_note, queue="long")
+        
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+        
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
+            self.cancel_delivery_note()
+        else:
+            frappe.enqueue(self.cancel_delivery_note, queue="long")
+    
         frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
 
     def on_submit(self):
         
         init_document_posting_status(self.doctype,self.name)
-       
-        # frappe.enqueue(self.do_postings_on_submit, queue="long")
-        self.do_postings_on_submit()
+        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
+        
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
+            self.do_postings_on_submit()
+        else:        
+            frappe.enqueue(self.do_postings_on_submit, queue="long")
         
         frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
         
