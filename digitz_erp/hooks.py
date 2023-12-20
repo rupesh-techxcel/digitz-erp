@@ -112,10 +112,10 @@ fixtures = ["Custom Field", "Custom DocPerm"]
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-	"all": [
-		"digitz_erp.api.scheduler_api.do_dolphin_postings_job"
-	],
+# scheduler_events = {
+# 	"all": [
+# 		"digitz_erp.api.scheduler_api.do_dolphin_postings_job"
+# 	],
 	# "daily": [
 	# 	"digitz_erp.tasks.daily"
 	# ],
@@ -128,7 +128,7 @@ scheduler_events = {
 	# "monthly": [
 	# 	"digitz_erp.tasks.monthly"
 	# ],
-}
+# }
 
 # Testing
 # -------
