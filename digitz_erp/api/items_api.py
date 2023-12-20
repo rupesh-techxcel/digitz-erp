@@ -2,6 +2,11 @@ import frappe
 from frappe.utils import get_datetime
 
 @frappe.whitelist()
+def test_job():
+    print("hello from test job")
+
+
+@frappe.whitelist()
 def get_item_uom(item,unit):
 
  return frappe.get_all(

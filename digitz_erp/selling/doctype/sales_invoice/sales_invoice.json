@@ -43,6 +43,7 @@
   "column_break_zjj2",
   "remarks",
   "column_break_yacz",
+  "ignore_posting",
   "section_break_19",
   "items",
   "section_break_29",
@@ -517,12 +518,18 @@
   {
    "fieldname": "column_break_uozz",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "ignore_posting",
+   "fieldtype": "Check",
+   "label": "Ignore Posting"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-17 16:26:06.055763",
+ "modified": "2023-12-20 08:19:31.765441",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
