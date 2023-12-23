@@ -30,4 +30,11 @@ def get_sales_line_items_for_return(sales_invoice):
                 )
     
     return result
+
+@frappe.whitelist()
+def get_pending_invoices_for_customer(customer):
+    result = frappe.db.sql("""SELECT si.name as 'sales_invoice', si.posting_date as date, si.rounded_total as amount,si.paid_amount, si.rounded_total-si.paid_amount as balance_amount where si.customer='%s' and si.docstatus=1 and si.paid_amount< si.rounded_total""" .format(customer))
+    return result
+
+
     

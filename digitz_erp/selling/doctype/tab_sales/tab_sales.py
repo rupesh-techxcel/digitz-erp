@@ -234,7 +234,7 @@ class TabSales (Document):
             sales_invoice['docstatus'] = 0
             for item in sales_invoice['items']:            
                 item.doctype = "Sales Invoice Item"
-                item.delivery_note_item_reference_no = item.name
+                # item.delivery_note_item_reference_no = item.name
                 item._meta = ""       
             
             sales_invoice_doc = frappe.get_doc(
@@ -242,11 +242,11 @@ class TabSales (Document):
             
             frappe.db.commit()        
 
-            # si =  frappe.get_doc('Tab Sales',tabSalesDocName)
+            si =  frappe.get_doc('Tab Sales',tabSalesDocName)
             
-            # si.sales_invoice_no_ref = sales_invoice_doc.name
+            si.sales_invoice_no_ref = sales_invoice_doc.name
             
-            # si.save()
+            si.save()
         
         frappe.msgprint("Sales Invoice created successfully, in draft mode.", alert =1)
     

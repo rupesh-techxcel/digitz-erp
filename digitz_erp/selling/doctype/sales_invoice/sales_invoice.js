@@ -128,11 +128,19 @@ frappe.ui.form.on('Sales Invoice', {
 				args:{
 					'customer': frm.doc.customer
 				},					
-				callback(r){								
-					frm.doc.terms = r.message.template_name,
-					frm.doc.terms_and_conditions = r.message.terms
-					frm.refresh_field("terms_and_conditions");
-					frm.refresh_field("terms");
+				callback(r){	
+					if(r.message.template_name)							
+					{
+						frm.doc.terms = r.message.template_name;
+						frm.refresh_field("terms");
+					}
+					if(r.message.terms)
+					{					
+						frm.doc.terms_and_conditions = r.message.terms
+						frm.refresh_field("terms_and_conditions");
+					}
+					
+					
 				}
 			}
 		);
@@ -522,7 +530,8 @@ frappe.ui.form.on('Sales Invoice Item', {
 					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					
+					console.log("item")
+					console.log(r)
 					row.item_name = r.message.item_name;
 					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;

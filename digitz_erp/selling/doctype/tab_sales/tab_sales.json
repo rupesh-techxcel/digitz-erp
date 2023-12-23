@@ -14,22 +14,19 @@
   "customer_name",
   "customer_display_name",
   "customer_balance",
-  "column_break_dplkz",
-  "reference_no",
-  "ship_to_location",
-  "salesman",
-  "salesman_code",
-  "print_date",
-  "price_list",
-  "customer_address",
+  "credit_sale",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "warehouse",
   "rate_includes_tax",
+  "print_date",
   "company",
   "tax_id",
+  "column_break_dplkz",
+  "reference_no",
+  "salesman",
+  "salesman_code",
   "section_break_11",
   "company_address",
   "column_break_4",
@@ -37,12 +34,8 @@
   "lpo_no",
   "lpo_date",
   "accounts_section",
-  "credit_sale",
   "credit_days",
-  "payment_terms",
   "column_break_z0zxb",
-  "payment_mode",
-  "payment_account",
   "section_break_yqhn",
   "remarks",
   "section_break_19",
@@ -70,6 +63,7 @@
   "terms_and_conditions",
   "references_tab",
   "data_53",
+  "pending_invoices",
   "auto_save_delivery_note",
   "delivery_notes",
   "delivery_notes_to_print",
@@ -80,7 +74,17 @@
   "country",
   "quotation",
   "sales_order",
-  "amended_from"
+  "amended_from",
+  "sales_invoice",
+  "other_tab",
+  "customer_address",
+  "ship_to_location",
+  "price_list",
+  "warehouse",
+  "column_break_r0rd",
+  "payment_terms",
+  "payment_mode",
+  "payment_account"
  ],
  "fields": [
   {
@@ -398,7 +402,6 @@
   {
    "fieldname": "references_tab",
    "fieldtype": "Tab Break",
-   "hidden": 1,
    "label": "References"
   },
   {
@@ -416,6 +419,7 @@
   {
    "fieldname": "delivery_notes",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Delivery Notes",
    "options": "Sales Invoice Delivery Notes",
    "read_only": 1
@@ -423,11 +427,13 @@
   {
    "fieldname": "delivery_notes_to_print",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Delivery Notes To Print"
   },
   {
    "fieldname": "tab_sales",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Tab Sales",
    "options": "Tab Sales",
    "read_only": 1
@@ -463,6 +469,7 @@
   {
    "fieldname": "quotation",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Quotation",
    "options": "Quotation",
    "read_only": 1
@@ -470,6 +477,7 @@
   {
    "fieldname": "sales_order",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Sales Order",
    "options": "Sales Order"
   },
@@ -530,12 +538,35 @@
    "fieldname": "customer_balance",
    "fieldtype": "Currency",
    "label": "Customer Balance"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "is_virtual": 1,
+   "label": "Sales Invoice"
+  },
+  {
+   "fieldname": "other_tab",
+   "fieldtype": "Tab Break",
+   "label": "Other"
+  },
+  {
+   "fieldname": "column_break_r0rd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "This list is not dynamic and it is not refreshed after the document saved",
+   "fieldname": "pending_invoices",
+   "fieldtype": "Table",
+   "label": "Pending Invoices",
+   "options": "Customer Pending Balance"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-17 20:34:36.224916",
+ "modified": "2023-12-23 13:57:36.932720",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales",

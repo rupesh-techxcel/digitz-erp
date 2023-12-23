@@ -50,7 +50,6 @@ frappe.ui.form.on('Tab Sales', {
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
 
-
 		frm.set_query("ship_to_location", function () {
 			return {
 				"filters": {
@@ -118,11 +117,22 @@ frappe.ui.form.on('Tab Sales', {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
+		frm.set_df_property("payment_account", "mandatory", !frm.doc.credit_sale);
 		frm.set_df_property("payment_terms", "hidden", !frm.doc.credit_sale);
 
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
+		}
+		else
+		{
+			console.log("frm.doc.payment_mode")
+			console.log(frm.doc.payment_mode)
+			if(!frm.doc.payment_mode || frm.doc.payment_mode == "")
+			{
+				frm.doc.payment_mode = "Cash"
+				frm.refresh_field("payment_mode");
+			}
 		}
 	},
 	warehouse(frm) {
