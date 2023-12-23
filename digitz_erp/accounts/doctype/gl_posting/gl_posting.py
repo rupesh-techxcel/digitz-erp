@@ -53,20 +53,15 @@ def get_party_balance(party_type, party):
 	print(party_type)
 	print("party")
 	print(party)
+ 
+	party_balance = 0
 
 	if(party_type == "Customer"):
-		# party_outstanding_to_test = party_balance = frappe.db.sql("""
-		# SELECT name,customer,rounded_total, paid_amount,rounded_total) - SUM(paid_amount) as balance
-		# FROM `tabSales Invoice` 
-		# WHERE customer=%s and docstatus<2
-		# """, ( party))
-	
-		# print(party_outstanding_to_test)
-  
+		
 		party_balance = frappe.db.sql("""
 		SELECT SUM(rounded_total) - SUM(paid_amount) 
 		FROM `tabSales Invoice` 
-		WHERE customer=%s and docstatus<2 and rounded_total> paid_amount
+		WHERE customer=%s and credit_sale =1 and docstatus<2 and rounded_total> paid_amount
 		""", ( party))[0][0]
 	else:
 
