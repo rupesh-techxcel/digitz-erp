@@ -49,18 +49,27 @@ class GLPosting(Document):
 @frappe.whitelist()
 def get_party_balance(party_type, party):
     
-	party_balance = frappe.db.sql("""
-	SELECT SUM(debit_amount) - SUM(credit_amount) 
-	FROM `tabGL Posting` 
-	WHERE party_type=%s AND party=%s
-	""", (party_type, party))[0][0]
+	if(party_type == "Customer"):
+		party_balance = frappe.db.sql("""
+		SELECT SUM(rounded_total) - SUM(paid_amount) 
+		FROM `tabSales Invoice` 
+		WHERE customer=%s and docstatus<2
+		""", ( party))[0][0]
+	else:
 
-	# For customer it automatically shows negative 
-	# For supplier, value must be negative, if it is positve that means
-	# its negative balance
-	if(party_type == "Supplier" and party_balance>0):
-		party_balance = party_balance * -1
-  
+		party_balance = frappe.db.sql("""
+		SELECT SUM(debit_amount) - SUM(credit_amount) 
+		FROM `tabGL Posting` 
+		WHERE party_type=%s AND party=%s
+		""", (party_type, party))[0][0]
+
+		# For customer it automatically shows negative 
+		# For supplier, value must be negative, if it is positve that means
+		# its negative balance
+		if(party_type == "Supplier" and party_balance>0):
+			party_balance = party_balance * -1
+
+
 	return party_balance	
 
 @frappe.whitelist()

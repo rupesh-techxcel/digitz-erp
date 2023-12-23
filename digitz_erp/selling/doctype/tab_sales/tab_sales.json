@@ -12,8 +12,9 @@
   "customer",
   "sales_invoice_no_ref",
   "customer_name",
-  "customer_display_name",
+  "reference_no",
   "customer_balance",
+  "customer_display_name",
   "credit_sale",
   "column_break_6",
   "posting_date",
@@ -24,7 +25,6 @@
   "company",
   "tax_id",
   "column_break_dplkz",
-  "reference_no",
   "salesman",
   "salesman_code",
   "section_break_11",
@@ -120,7 +120,6 @@
   {
    "fieldname": "reference_no",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "Reference No"
   },
   {
@@ -566,7 +565,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-23 13:57:36.932720",
+ "modified": "2023-12-23 15:51:16.630724",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales",
