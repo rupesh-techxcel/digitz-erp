@@ -63,6 +63,10 @@ def get_party_balance(party_type, party):
 		FROM `tabSales Invoice` 
 		WHERE customer=%s and credit_sale =1 and docstatus<2 and rounded_total> paid_amount
 		""", ( party))[0][0]
+  
+		if not party_balance:
+			party_balance = 0.00
+	
 	else:
 
 		party_balance = frappe.db.sql("""
