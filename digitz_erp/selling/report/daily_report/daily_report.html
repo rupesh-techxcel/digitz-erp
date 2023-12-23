@@ -13,10 +13,10 @@
 		}
 	}
 	@media print {
-		body { font-size: 10pt }
+		body { font-size: 20pt }
 	}
 	@media screen {
-		body { font-size: 13px }
+		body { font-size: 20px }
 	}
 	@media screen, print {
 		body { line-height: 1.2 }
@@ -26,7 +26,7 @@
 		margin: 3cm;
 	}
 </style>
-<button onclick="window.print();" style="right: 15px; position: absolute;" class="hidden-pdf btn btn-primary btn-sm primary-action hidden-print">Print</button>
+<button onclick="window.print();" style="right: 22px; position: absolute;" class="hidden-pdf btn btn-primary btn-sm primary-action hidden-print">Print</button>
 <h2 class="text-center">{%= __("Daily Report") %}</h2>
 <h4 class="text-center">
     From {%= frappe.datetime.str_to_user(filters.from_date) %} To {%= frappe.datetime.str_to_user(filters.to_date) %} 
@@ -85,7 +85,7 @@
             <tr>
                 <td>
                     Credit Purchase:
-                </Td>
+                </td>
                 <td>
                     {%= data[i].total_credit_purchase %}
                 </td>
