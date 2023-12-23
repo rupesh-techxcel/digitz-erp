@@ -27,8 +27,9 @@
 	}
 </style>
 <button onclick="window.print();" style="right: 22px; position: absolute;" class="hidden-pdf btn btn-primary btn-sm primary-action hidden-print">Print</button>
-<h2 class="text-center">{%= __("Daily Report") %}</h2>
-<h4 class="text-center">
+<p style="text-align: center;font-size: 30px;">DOLPHIN CHEMICALS LLC</p>
+<h2 class="text-center" style="font-size: 25px;">{%= __("Daily Report") %}</h2>
+<h4 class="text-center"  style="font-size: 20px;">
     From {%= frappe.datetime.str_to_user(filters.from_date) %} To {%= frappe.datetime.str_to_user(filters.to_date) %} 
 
 	{% if (filters.warehouse) { %}
@@ -42,26 +43,26 @@
     {% for(var i=0, l=data.length; i<l; i++) { %}
         <thead>
             <tr>
-                <th style="width: 12%">{%= data[i].warehouse %}</th>
+                <th style="width: 12%;font-size:20px;">{%= data[i].warehouse %}</th>
 
             </tr>
         </thead>
 	<tbody>
 
 			<tr>
-				<td style="width:50%;">
+				<td style="width:50%;font-size:20px;">
                     Credit sales:                   
                    
 				</td>
-                <td style="width:50%;">
+                <td style="width:50%;font-size:20px;">
                     {%= data[i].total_credit_sales %}	    
                 </td>
 			</tr>
             <tr>
-                <td>
+                <td style="width:50%;font-size:20px;">
                 Cash sales:
                 </td>
-                <td>
+                <td style="width:50%;font-size:20px;">
                     {%= data[i].total_cash_sales %}
                 </td>
             </tr>
@@ -70,29 +71,29 @@
                 <td></td>
             </tr>
             <tr>
-                <td>Cash Purchase: </td>
-                <td>{%= data[i].total_cash_purchase %}</td>
+                <td style="width:50%;font-size:20px;">Cash Purchase: </td>
+                <td style="width:50%;font-size:20px;">{%= data[i].total_cash_purchase %}</td>
             </tr>
             <tr>
-                <td>
+                <td style="width:50%;font-size:20px;">
                     Receipt: 
                 </td>
-                <td>
+                <td style="width:50%;font-size:20px;">
                     {%= data[i].total_receipt %}	    
                 </td>
 
             </tr>
             <tr>
-                <td>
+                <td style="width:50%;font-size:20px;">
                     Credit Purchase:
                 </td>
-                <td>
+                <td style="width:50%;font-size:20px;">
                     {%= data[i].total_credit_purchase %}
                 </td>
             </tr>            
             <tr>
-                <td> Balance Cash: </td>
-                <td>
+                <td style="width:50%;font-size:20px;"> Balance Cash: </td>
+                <td style="width:50%;font-size:20px;">
                     {%= data[i].total_balance_cash %}
                 </td>
             </tr>
