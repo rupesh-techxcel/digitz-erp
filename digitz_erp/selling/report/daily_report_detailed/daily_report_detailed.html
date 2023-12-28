@@ -1,0 +1,369 @@
+<style>
+	.print-format table, .print-format tr, 
+	.print-format td, .print-format div, .print-format p {
+		font-family: Monospace;
+		line-height: 200%;
+		vertical-align: middle;
+	}
+	@media screen {
+		.print-format {
+			width: 4in;
+			padding: 0.25in;
+			min-height: 8in;
+		}
+	}
+	@media print {
+		body { font-size: 20pt }
+	}
+	@media screen {
+		body { font-size: 20px }
+	}
+	@media screen, print {
+		body { line-height: 1.2 }
+	}
+		@page {
+		size: auto;
+		margin: 3cm;
+	}
+</style>
+<button onclick="window.print();" style="right: 22px; position: absolute;" class="hidden-pdf btn btn-primary btn-sm primary-action hidden-print">Print</button>
+<p style="text-align: center;font-size: 30px;">DOLPHIN CHEMICALS LLC</p>
+<h2 class="text-center" style="font-size: 25px;">{%= __("Daily Report") %}</h2>
+<h4 class="text-center"  style="font-size: 20px;">
+    From {%= frappe.datetime.str_to_user(filters.from_date) %} To {%= frappe.datetime.str_to_user(filters.to_date) %} 
+</h4>
+<hr>
+<table class="table table-bordered" style="border:0px solid white">
+    {% for(var i=0, l=data.length; i<l; i++) { %}
+        <thead>
+            <tr>
+                <th style="width: 12%;font-size:23px;" colspan="2">{%= data[i].warehouse %}</th>
+            </tr>
+        </thead>
+    <tbody>
+
+        <!-- Sales -->
+        <tr>
+            <td style="width:100%;font-size:20px;text-align: left;" colspan="2">
+                <b>Total sales: {%= data[i].total_sales %}</b>
+            </td>
+            
+        </tr>
+			<tr>
+                
+				<td style="width:60%;font-size:20px;margin-left:10px;">
+                   Credit sales:
+				</td>
+                <td style="width:40%;font-size:20px;text-align: right;">
+                    {%= data[i].total_credit_sales %}	    
+                </td>
+			</tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].credit_sales_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].credit_sales_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].credit_sales_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].credit_sales_data[j].customer_name %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].credit_sales_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td style="width:60%;font-size:20px;margin-left:10px;">
+                    Cash sales:
+                </td>
+                <td style="width:40%;font-size:20px;text-align: right;">
+                    {%= data[i].total_cash_sales %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].cash_sales_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].cash_sales_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].cash_sales_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].cash_sales_data[j].customer_name %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].cash_sales_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+
+            <!-- Sales Return -->
+            <!-- Sales -->
+        <tr>
+            <td style="width:100%;font-size:20px;text-align: left;" colspan="2">
+                <b>Total sales Return:  {%= data[i].total_sales_return %}</b>
+            </td>
+            
+        </tr>
+			<tr>                
+				<td style="width:60%;font-size:20px;margin-left:10px;">
+                   Credit sales Return: 
+				</td>
+                <td style="width:40%;font-size:20px;text-align: right;">
+                    {%= data[i].total_credit_sales_return %}	    
+                </td>
+			</tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].credit_sales_return_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].credit_sales_return_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].credit_sales_return_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].credit_sales_return_data[j].customer_name %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].credit_sales_return_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>                
+                <td style="width:60%;font-size:20px;margin-left:10px;">
+                    Cash sales Return:
+                </td>
+                <td style="width:40%;font-size:20px;text-align: right;">
+                    {%= data[i].total_cash_sales_return %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].cash_sales_return_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].cash_sales_return_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].cash_sales_return_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].cash_sales_return_data[j].customer_name %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].cash_sales_return_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+
+            <!-- Purchase -->
+            <tr>                
+                <td style="width:50%;font-size:20px;" colspan="2"><b>Total Purchase: {%= data[i].total_purchase %}</b></td>                
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Credit Purchase: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_credit_purchase %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].credit_purchase_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].credit_purchase_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].credit_purchase_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].credit_purchase_data[j].supplier %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].credit_purchase_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>                
+                <td style="width:50%;font-size:20px;">Cash Purchase: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">
+                    {%= data[i].total_cash_purchase %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].cash_purchase_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].cash_purchase_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].cash_purchase_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].cash_purchase_data[j].supplier %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].cash_purchase_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+
+            <!-- Purchase Return -->
+            <tr>                
+                <td style="width:50%;font-size:20px;" colspan="2"><b>Total Purchase Return: {%= data[i].total_purchase_return %}</b></td>                
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Credit Purchase Return: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_credit_purchase_return %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].credit_purchase_return_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].credit_purchase_return_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].credit_purchase_return_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].credit_purchase_return_data[j].supplier %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].credit_purchase_return_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Cash Purchase Return: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">
+                    {%= data[i].total_cash_purchase_return %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].cash_purchase_return_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].cash_purchase_return_data.length; j<m; j++) { %}
+                            <tr>
+                                <td style="width:40%;">  {%= data[i].cash_purchase_return_data[j].name %}</td>
+                                <td style="width:45%;"> {%= data[i].cash_purchase_return_data[j].supplier %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].cash_purchase_return_data[j].rounded_total %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+            
+            <!-- Receipts -->
+            <tr>                
+                <td style="width:50%;font-size:20px;" colspan="2"><b>Total Receipts: {%= data[i].total_receipts %}</b></td>                
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Cash Receipts: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_cash_receipts %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].cash_receipt_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].cash_receipt_data.length; j<m; j++) { %}
+                            <tr>                                
+                                <td style="width:40%;">  {%= data[i].cash_receipt_data[j].rcpt_no %}<br>{%= data[i].cash_receipt_data[j].ref %}</td>
+                                <td style="width:45%;"> {%= data[i].cash_receipt_data[j].account %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].cash_receipt_data[j].amount %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Bank Receipts: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">
+                    {%= data[i].total_bank_receipts %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].bank_receipt_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].bank_receipt_data.length; j<m; j++) { %}
+                            <tr>                                
+                                <td style="width:40%;">  {%= data[i].bank_receipt_data[j].rcpt_no %}<br>{%= data[i].bank_receipt_data[j].ref %}</td>
+                                <td style="width:45%;"> {%= data[i].bank_receipt_data[j].account %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].bank_receipt_data[j].amount %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+                     
+            <!-- Payments -->
+            <tr>                
+                <td style="width:50%;font-size:20px;" colspan="2"><b>Total Payments: {%= data[i].total_payments %}</b></td>                
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Cash Payments: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_cash_payments %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].cash_payment_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].cash_payment_data.length; j<m; j++) { %}
+                            <tr>                                
+                                <td style="width:40%;">  {%= data[i].cash_payment_data[j].rcpt_no %}<br>{%= data[i].cash_payment_data[j].ref %}</td>
+                                <td style="width:45%;"> {%= data[i].cash_payment_data[j].account %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].cash_payment_data[j].amount %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td style="width:50%;font-size:20px;">Bank Payments: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">
+                    {%= data[i].total_bank_payments %}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% if data[i].bank_payment_data %}
+                    <table style="font-size:20px;border:0px solid white;width:100%">
+                        {% for(var j=0, m=data[i].bank_payment_data.length; j<m; j++) { %}
+                            <tr>                                
+                                <td style="width:40%;">  {%= data[i].bank_payment_data[j].rcpt_no %}<br>{%= data[i].bank_payment_data[j].ref %}</td>
+                                <td style="width:45%;"> {%= data[i].bank_payment_data[j].account %}</td>
+                                <td style="width: 15%;text-align: right;"> {%= data[i].bank_payment_data[j].amount %}</td>                                
+                            </tr>
+                        {% } %}
+                    </table>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>                
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td style="width:50%;font-size:20px;"> Balance Cash: </td>
+                <td style="width:50%;font-size:20px;text-align: right;">
+                        {%= data[i].total_balance_cash %}</td>                
+            </tr>
+	</tbody>
+    {% } %}
+</table>
+<p class="text-right text-muted">Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>

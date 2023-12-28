@@ -38,9 +38,11 @@ frappe.ui.form.on('Receipt Entry', {
 			frm.set_df_property("posting_time", "read_only", 1);
 		}
 	},	
-	get_default_company(frm) {
+	get_default_company_and_warehouse(frm) {
 		var default_company = ""
 		
+		frm.trigger("get_user_warehouse")
+
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
@@ -52,6 +54,52 @@ frappe.ui.form.on('Receipt Entry', {
 				default_company = r.message.default_company
 				frm.doc.company = r.message.default_company
 				frm.refresh_field("company");
+				frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args: {
+							'doctype': 'Company',
+							'filters': { 'company_name': default_company },
+							'fieldname': ['default_warehouse']
+						},
+						callback: (r2) => {
+
+							if (typeof window.warehouse !== 'undefined') {
+								// The value is assigned to window.warehouse
+								// You can use it here
+								frm.doc.warehouse = window.warehouse;
+							}
+							else
+							{
+								frm.doc.warehouse = r2.message.default_warehouse;
+							}
+							
+							console.log(frm.doc.warehouse);
+							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+							frm.refresh_field("warehouse");							
+						}
+					}
+
+				)
+			}
+		});
+	},
+	get_user_warehouse(frm)
+	{
+		frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'User Warehouse',
+                filters: {
+                    user: frappe.session.user
+                },
+                fieldname: 'warehouse'
+            },
+            callback: function(response) {
+				if (response && response.message && response.message.warehouse) {
+					window.warehouse = response.message.warehouse;					
+					// Do something with warehouseValue
+				}
 			}
 		});
 	},
@@ -174,7 +222,7 @@ frappe.ui.form.on('Receipt Entry', {
 frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 
 	if(frm.doc.__islocal)
-		frm.trigger("get_default_company");
+		frm.trigger("get_default_company_and_warehouse");
 	
 	}
 );

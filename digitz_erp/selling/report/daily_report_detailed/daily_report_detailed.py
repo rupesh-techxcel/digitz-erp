@@ -113,7 +113,7 @@ def get_columns():
             "fieldtype": "Currency",
             "width": 120            
         },
-        {
+         {
             "fieldname": "total_cash_payments",
             "label": "Cash Payment",
             "fieldtype": "Currency",
@@ -353,8 +353,6 @@ def get_total_cash_receipts(filters):
     frappe.db.sql(sql, as_dict=True)
     
     total_receipts = frappe.db.sql(sql, as_dict=True)
-
-    print(total_receipts)
     
     return total_receipts[0].total_receipts if total_receipts and total_receipts[0].total_receipts else 0
 
@@ -431,7 +429,7 @@ def get_total_payments(filters):
     return total_receipts[0].total_receipts if  total_receipts[0].total_receipts else 0   
 
 
-def calculate_total_balance(cash_sales, cash_purchase,cash_sales_return, cash_purchase_return,cash_receipt, cash_payment):
+def calculate_total_balance(cash_sales, cash_purchase,		cash_sales_return, cash_purchase_return,cash_receipt, cash_payment):
     return cash_sales-cash_purchase -cash_sales_return + cash_purchase_return +cash_receipt - cash_payment
 
 def get_data(filters):
@@ -509,19 +507,28 @@ def get_data(filters):
         total_cash_receipts = get_total_cash_receipts(warehouse_filters)
         total_bank_receipts = get_total_bank_receipts(warehouse_filters)
         total_receipts = get_total_receipts(warehouse_filters)
-        print("total receipts")
-        print(total_receipts)
         
         # Payments
         total_cash_payments = get_total_cash_payments(warehouse_filters)
         total_bank_payments = get_total_bank_payments(warehouse_filters)
         total_payments = get_total_payments(warehouse_filters)
         
-        print("total payments")
-        print(total_payments)
-                
+        
         total_balance_cash = calculate_total_balance(total_cash_sales, total_cash_purchase, total_cash_sales_return, total_cash_purchase_return, total_cash_receipts, total_cash_payments)
         
+        cash_sales_data = get_cash_sales_data(warehouse_filters)
+        credit_sales_data = get_credit_sales_data(warehouse_filters)
+        cash_sales_return_data = get_cash_sales_return_data(warehouse_filters)
+        credit_sales_return_data = get_credit_sales_return_data(warehouse_filters)
+        
+        cash_purchase_data = get_cash_purchase_data(warehouse_filters)
+        credit_purchase_data = get_credit_purchase_data(warehouse_filters)
+        cash_purchase_return_data = get_cash_purchase_return_data(warehouse_filters)
+        credit_purchase_return_data = get_credit_purchase_return_data(warehouse_filters)
+        
+        cash_receipt_data = get_cash_receipt_data(warehouse_filters)        
+        bank_receipt_data = get_bank_receipt_data(warehouse_filters)
+               
         warehouse_data = {
             "warehouse": warehouse_name,
             "total_sales": total_sales,
@@ -542,9 +549,23 @@ def get_data(filters):
             "total_payments": total_payments,
             "total_cash_payments": total_cash_payments,
             "total_bank_payments": total_bank_payments,                        
-            "total_balance_cash": total_balance_cash
+            "total_balance_cash": total_balance_cash,
+            "cash_sales_data":cash_sales_data,
+            "credit_sales_data": credit_sales_data,
+            "cash_saes_return_data":cash_sales_return_data,
+            "credit_sales_return_data": credit_sales_return_data,
+            "cash_purchase_data": cash_purchase_data,
+            "credit_purchase_data": credit_purchase_data,
+            "cash_purchase_return_data": cash_purchase_return_data,
+            "credit_purchase_return_data": credit_purchase_return_data, 
+            "cash_receipt_data": cash_receipt_data,
+            "bank_receipt_data": bank_receipt_data
         }
         data.append(warehouse_data)
+        
+        print("total cash receipts")
+        print(total_cash_receipts)
+        
     
         if not filters.get("warehouse"):           
             grand_total_cash_sales += total_cash_sales
@@ -574,33 +595,214 @@ def get_data(filters):
             grand_total_balance_cash += total_balance_cash
       
     warehouse_data = {
-        "warehouse": "Totals",
-        "total_sales": grand_total_sales,
-        "total_cash_sales": grand_total_cash_sales,
-        "total_credit_sales": grand_total_credit_sales,
-        
-        "total_sales_return": grand_total_sales_return,
-        "total_cash_sales_return": grand_total_cash_sales_return,
-        "total_credit_sales_return": grand_total_credit_sales_return,
-        
-        "total_purchases": grand_total_purchase,
-        "total_cash_purchase": grand_total_cash_purchase,
-        "total_credit_purchase": grand_total_credit_purchase,
-        
-        "total_purchase_return": grand_total_purchase_return,
-        "total_cash_purchase_return": grand_total_cash_purchase_return,
-        "total_credit_purchase_return": grand_total_credit_purchase_return,
-        
-        "total_receipts" : grand_total_receipts,
-        "total_cash_receipts": grand_total_cash_receipts,
-        "total_bank_receipts" : grand_total_bank_receipts,
-        
-        "total_payments" : grand_total_payments,
-        "total_cash_payments": grand_total_cash_payments,
-        "total_bank_payments" : grand_total_bank_payments,
-        
-        "total_balance_cash": grand_total_balance_cash
-    }    
+            "warehouse": "Totals",
+            "total_sales": grand_total_sales,
+            "total_cash_sales": grand_total_cash_sales,
+            "total_credit_sales": grand_total_credit_sales,
+            
+            "total_sales_return": grand_total_sales_return,
+            "total_cash_sales_return": grand_total_cash_sales_return,
+            "total_credit_sales_return": grand_total_credit_sales_return,
+            
+            "total_purchases": grand_total_purchase,
+            "total_cash_purchase": grand_total_cash_purchase,
+            "total_credit_purchase": grand_total_credit_purchase,
+            
+            "total_purchase_return": grand_total_purchase_return,
+            "total_cash_purchase_return": grand_total_cash_purchase_return,
+            "total_credit_purchase_return": grand_total_credit_purchase_return,
+            
+            "total_receipts" : grand_total_receipts,
+            "total_cash_receipts": grand_total_cash_receipts,
+            "total_bank_receipts" : grand_total_bank_receipts,
+            
+            "total_receipts" : grand_total_receipts,
+            "total_cash_receipts": grand_total_cash_receipts,
+            "total_bank_receipts" : grand_total_bank_receipts,
+            
+            "total_balance_cash": grand_total_balance_cash
+        }    
     data.append(warehouse_data)   
-    
+    print("data")
+    print(data)
+       
     return data
+
+def get_cash_sales_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,customer_name,rounded_total FROM `tabSales Invoice` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_Sale=0
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_credit_sales_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,customer_name,rounded_total FROM `tabSales Invoice` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_Sale=1
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_cash_sales_return_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,customer_name,rounded_total FROM `tabSales Return` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_Sale=0
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_credit_sales_return_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,customer_name,rounded_total FROM `tabSales Return` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_Sale=1
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_cash_purchase_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,supplier,rounded_total FROM `tabPurchase Invoice` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_purchase=0
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_credit_purchase_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,supplier,rounded_total FROM `tabPurchase Invoice` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_purchase=1
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_cash_purchase_return_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,supplier,rounded_total FROM `tabPurchase Return` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_purchase=0
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  	
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_credit_purchase_return_data(filters):
+    
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")
+	warehouse = filters.get("warehouse")
+	sql = """
+		SELECT name,supplier,rounded_total FROM `tabPurchase Return` ts WHERE posting_date BETWEEN '{from_date}' AND '{to_date}' and docstatus<2 AND credit_purchase=1
+		AND warehouse= '{warehouse}'""".format(from_date= from_date, to_date=to_date, warehouse=warehouse)
+  
+	detail_data =frappe.db.sql(sql, as_dict = True)
+ 
+	return detail_data
+
+def get_cash_receipt_data(filters):
+
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")   
+	warehouse = filters.get("warehouse")
+
+    # With Allocation Union Without Allocation
+	sql="""SELECT re.name as 'rcpt_no', c.customer_name AS 'account',
+		CASE WHEN ra.reference_type='Sales Invoice' THEN 'SI' ELSE ra.reference_type END AS 'ref_type',
+		ra.reference_name AS 'ref',
+		ROUND(ra.paying_amount, 2) AS 'amount'
+		FROM `tabReceipt Allocation` ra
+		INNER JOIN `tabReceipt Entry` re on re.name= ra.parent
+		INNER JOIN `tabCustomer` c ON c.name = ra.customer
+		INNER JOIN `tabPayment Mode` AS pm ON pm.name = re.payment_mode
+		WHERE re.posting_date BETWEEN '{from_date}' AND '{to_date}' AND re.docstatus < 2 AND re.warehouse = '{warehouse}'  AND pm.mode in ('Cash')
+
+		UNION  
+
+		SELECT re.name as 'rcpt_no',case when c.customer_name is null then rd.account else c.customer_name end  AS 'account',
+		'' AS 'ref_type',
+		'' AS 'ref',
+		re.amount AS 'amount'
+		FROM `tabReceipt Entry Detail` rd
+		INNER JOIN `tabReceipt Entry` AS re ON re.name = rd.parent
+		INNER JOIN `tabPayment Mode` AS pm ON pm.name = re.payment_mode	
+		LEFT OUTER JOIN `tabCustomer` c on c.name = rd.customer
+		WHERE re.posting_date BETWEEN '{from_date}' AND '{to_date}' AND re.docstatus < 2 AND re.warehouse = '{warehouse}' AND (rd.reference_type IS NULL OR rd.reference_type='') AND pm.mode in ('Cash')
+		""".format(from_date=from_date, to_date=to_date, warehouse=warehouse)
+  
+	receipt_detail_data = frappe.db.sql(sql, as_dict=True)
+	print("receipt_detail_data")
+	print(receipt_detail_data)
+	return receipt_detail_data
+
+def get_bank_receipt_data(filters):
+
+	from_date = filters.get("from_date")
+	to_date = filters.get("to_date")   
+	warehouse = filters.get("warehouse")
+
+    # With Allocation Union Without Allocation
+	sql="""SELECT re.name as 'rcpt_no', c.customer_name AS 'account',
+		CASE WHEN ra.reference_type='Sales Invoice' THEN 'SI' ELSE ra.reference_type END AS 'ref_type',
+		ra.reference_name AS 'ref',
+		ROUND(ra.paying_amount, 2) AS 'amount'
+		FROM `tabReceipt Allocation` ra
+		INNER JOIN `tabReceipt Entry` re on re.name= ra.parent
+		INNER JOIN `tabCustomer` c ON c.name = ra.customer
+		INNER JOIN `tabPayment Mode` AS pm ON pm.name = re.payment_mode
+		WHERE re.posting_date BETWEEN '{from_date}' AND '{to_date}' AND re.docstatus < 2 AND re.warehouse = '{warehouse}'  AND pm.mode not in ('Cash')
+
+		UNION  
+
+		SELECT re.name as 'rcpt_no',case when c.customer_name is null then rd.account else c.customer_name end  AS 'account',
+		'' AS 'ref_type',
+		'' AS 'ref',
+		re.amount AS 'amount'
+		FROM `tabReceipt Entry Detail` rd
+		INNER JOIN `tabReceipt Entry` AS re ON re.name = rd.parent
+		INNER JOIN `tabPayment Mode` AS pm ON pm.name = re.payment_mode	
+		LEFT OUTER JOIN `tabCustomer` c on c.name = rd.customer
+		WHERE re.posting_date BETWEEN '{from_date}' AND '{to_date}' AND re.docstatus < 2 AND re.warehouse = '{warehouse}' AND (rd.reference_type IS NULL OR rd.reference_type='') AND pm.mode not in ('Cash')
+		""".format(from_date=from_date, to_date=to_date, warehouse=warehouse)
+  
+	receipt_detail_data = frappe.db.sql(sql, as_dict=True)
+	print("receipt_detail_data")
+	print(receipt_detail_data)
+	return receipt_detail_data
+
+
+
+
+	

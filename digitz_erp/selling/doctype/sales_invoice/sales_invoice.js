@@ -114,7 +114,7 @@ frappe.ui.form.on('Sales Invoice', {
 					'party': frm.doc.customer
 				},
 				callback: (r) => {
-					frm.set_value('customer_balance',r.message)
+					frm.set_value('customer_balance',r.message)					
 					frm.refresh_field("customer_balance");
 				}
 			});
@@ -129,12 +129,13 @@ frappe.ui.form.on('Sales Invoice', {
 					'customer': frm.doc.customer
 				},					
 				callback(r){	
-					if(r.message.template_name)							
+					console.log(r.message)
+					if(r.message && typeof(r.message.template_name)!= undefined && r.message.template_name)							
 					{
 						frm.doc.terms = r.message.template_name;
 						frm.refresh_field("terms");
 					}
-					if(r.message.terms)
+					if( r.message && typeof(r.message.terms != undefined) && r.message.terms )
 					{					
 						frm.doc.terms_and_conditions = r.message.terms
 						frm.refresh_field("terms_and_conditions");
