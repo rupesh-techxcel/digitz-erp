@@ -1,0 +1,236 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "DEBN-.###",
+ "creation": "2023-12-26 15:09:04.785311",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_urni",
+  "supplier",
+  "supplier_balance",
+  "supplier_address",
+  "tax_id",
+  "column_break_lwvy",
+  "company",
+  "date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "rate_includes_tax",
+  "column_break_jcri",
+  "warehouse",
+  "supplier_inv_no",
+  "supplier_inv_date",
+  "default_payable_account",
+  "accounts_section",
+  "credit_expense",
+  "credit_days",
+  "payment_mode",
+  "payment_account",
+  "column_break_nnfu",
+  "remarks",
+  "debit_note_item_section",
+  "debit_note_items",
+  "total_amount",
+  "tax_total",
+  "grand_total",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_urni",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier_balance",
+   "fieldtype": "Currency",
+   "label": "Supplier Balance"
+  },
+  {
+   "fieldname": "supplier_address",
+   "fieldtype": "Small Text",
+   "label": "Supplier Address"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax Id"
+  },
+  {
+   "fieldname": "column_break_lwvy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Posting Time",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date and Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax"
+  },
+  {
+   "fieldname": "column_break_jcri",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fieldname": "column_break_nnfu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "supplier_inv_no",
+   "fieldtype": "Data",
+   "label": "Supplier Inv No"
+  },
+  {
+   "description": "Note: Accounts and Stock postings based on Date and Posting Time",
+   "fieldname": "supplier_inv_date",
+   "fieldtype": "Date",
+   "label": "Supplier Inv Date"
+  },
+  {
+   "fieldname": "debit_note_item_section",
+   "fieldtype": "Section Break",
+   "label": "Debit Note Item"
+  },
+  {
+   "fieldname": "debit_note_items",
+   "fieldtype": "Table",
+   "label": "Debit Note Items",
+   "options": "Debit Note Item"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Debit Note",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_expense",
+   "fieldtype": "Check",
+   "label": "Credit Expense"
+  },
+  {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "default_payable_account",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Default Payable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Float",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Currency",
+   "label": "Tax Total"
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-12-28 16:43:46.184128",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Debit Note",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
