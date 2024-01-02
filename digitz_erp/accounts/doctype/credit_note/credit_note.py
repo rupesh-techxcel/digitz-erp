@@ -7,7 +7,7 @@ from frappe.model.document import Document
 
 class CreditNote(Document):
 	def on_submit(self):
-		self.insert_gl_records()
+		frappe.enqueue(self.insert_gl_records, queue="long")
 
 	def insert_gl_records(self):
 		idx = 1
