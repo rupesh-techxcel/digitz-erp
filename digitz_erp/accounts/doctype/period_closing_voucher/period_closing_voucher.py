@@ -42,7 +42,7 @@ def get_account_balance(account):
     today = datetime.today().date()
     query = """
         SELECT
-            SUM(debit_amount) + SUM(credit_amount) AS account_balance
+            SUM(debit_amount) - SUM(credit_amount) AS account_balance
         FROM
             `tabGL Posting`
         WHERE
