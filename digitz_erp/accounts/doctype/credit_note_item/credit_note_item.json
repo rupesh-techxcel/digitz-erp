@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-28 13:32:23.885849",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "narration",
+  "credit_account",
+  "payable_account",
+  "rate_include_tax",
+  "amount",
+  "tax_excluded",
+  "tax",
+  "column_break_skvr",
+  "tax_rate",
+  "tax_amount",
+  "total",
+  "amount_excluded_tax"
+ ],
+ "fields": [
+  {
+   "fieldname": "narration",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Narration"
+  },
+  {
+   "fieldname": "credit_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Credit Account",
+   "options": "Account"
+  },
+  {
+   "default": "Trade Payable",
+   "fieldname": "payable_account",
+   "fieldtype": "Link",
+   "label": "Payable Account",
+   "options": "Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_include_tax",
+   "fieldtype": "Check",
+   "label": "Rate Include Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "column_break_skvr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "tax.tax_rate",
+   "fieldname": "tax_rate",
+   "fieldtype": "Int",
+   "label": "Tax Rate"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Float",
+   "label": "Tax Amount"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "label": "Total"
+  },
+  {
+   "fieldname": "amount_excluded_tax",
+   "fieldtype": "Currency",
+   "label": "Amount Excluded Tax"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-12-28 14:48:02.687345",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Credit Note Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

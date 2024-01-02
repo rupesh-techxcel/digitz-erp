@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-26 15:45:33.635852",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "narration",
+  "debit_account",
+  "rate_include_tax",
+  "payable_account",
+  "column_break_ldel",
+  "amount",
+  "tax_excluded",
+  "tax",
+  "tax_rate",
+  "tax_amount",
+  "total",
+  "amount_excluded_tax"
+ ],
+ "fields": [
+  {
+   "fieldname": "debit_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Debit Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "narration",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Narration"
+  },
+  {
+   "fieldname": "column_break_ldel",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "default": "5",
+   "fetch_from": "tax.tax_rate",
+   "fieldname": "tax_rate",
+   "fieldtype": "Int",
+   "label": "Tax Rate"
+  },
+  {
+   "default": "UAE VAT - 5%",
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_include_tax",
+   "fieldtype": "Check",
+   "label": "Rate Include Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payable_account",
+   "fieldtype": "Link",
+   "label": "Payable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "amount_excluded_tax",
+   "fieldtype": "Float",
+   "label": "Amount Excluded Tax"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Float",
+   "label": "Tax Amount"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Float",
+   "label": "Total"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-12-28 15:57:43.688537",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Debit Note Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
