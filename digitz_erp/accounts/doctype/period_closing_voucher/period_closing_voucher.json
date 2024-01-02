@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "ACC-PCV-.YYYY.-.#####",
+ "creation": "2023-12-29 10:16:52.887238",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_d56v",
+  "transaction_date",
+  "posting_date",
+  "closing_fiscal_year",
+  "column_break_qnbz",
+  "company",
+  "closing_account_head",
+  "section_break_kjnj",
+  "period_closing_voucher_account",
+  "section_break_kdau",
+  "remarks",
+  "column_break_uwjz",
+  "total_debit",
+  "total_credit",
+  "amount",
+  "amount_dr_cr",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_d56v",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_kjnj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "period_closing_voucher_account",
+   "fieldtype": "Table",
+   "label": "Period Closing Voucher Account",
+   "options": "Period Closing Voucher Account"
+  },
+  {
+   "fieldname": "section_break_kdau",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_uwjz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_debit",
+   "fieldtype": "Currency",
+   "label": "Total Debit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_credit",
+   "fieldtype": "Currency",
+   "label": "Total Credit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Period Closing Voucher",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "label": "Transaction Date"
+  },
+  {
+   "fieldname": "closing_fiscal_year",
+   "fieldtype": "Select",
+   "label": "Closing Fiscal Year",
+   "options": "\n2022-2023\n2023-2024"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "closing_account_head",
+   "fieldtype": "Link",
+   "label": "Closing Account Head",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_dr_cr",
+   "fieldtype": "Data",
+   "label": "Amount Dr Cr",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_qnbz",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-01-01 11:11:18.346193",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Period Closing Voucher",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
