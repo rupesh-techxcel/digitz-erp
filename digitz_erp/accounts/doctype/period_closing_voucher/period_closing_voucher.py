@@ -11,7 +11,7 @@ class PeriodClosingVoucher(Document):
 	pass
 
 	def on_submit(self):
-		self.insert_gl_records()
+		frappe.enqueue(self.insert_gl_records, queue="long")
 
 	def insert_gl_records(self):
 		idx = 1
