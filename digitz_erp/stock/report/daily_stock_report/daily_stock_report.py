@@ -42,7 +42,6 @@ def get_data(filters):
         GROUP BY item
         ORDER BY posting_date DESC
     """
-
     opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
     
     stock_recon_qty_query = f"""
@@ -61,8 +60,7 @@ def get_data(filters):
     purchase_qty_query = f"""
         SELECT item as item_code, SUM(qty_in) as purchase_qty
         FROM `tabStock Ledger`
-        WHERE voucher = 'Purchase Invoice'
-            AND qty_in IS NOT NULL
+        WHERE voucher = 'Purchase Invoice'            
             AND posting_date >= '{from_date} 00:00:00' 
             AND posting_date < '{to_date} 23:59:59'        
             {item_condition}
@@ -76,8 +74,7 @@ def get_data(filters):
     purchase_return_qty_query = f"""
         SELECT item as item_code, SUM(qty_out) as purchase_return_qty
         FROM `tabStock Ledger`
-        WHERE voucher = 'Purchase Return'
-            AND qty_out IS NOT NULL
+        WHERE voucher = 'Purchase Return'            
             AND posting_date >= '{from_date} 00:00:00' 
             AND posting_date < '{to_date} 23:59:59'            
             {item_condition}
@@ -91,28 +88,21 @@ def get_data(filters):
     sales_qty_query = f"""
         SELECT item as item_code, SUM(qty_out) as sales_qty
         FROM `tabStock Ledger`
-        WHERE voucher = 'Sales Invoice'
-            AND qty_out IS NOT NULL
+        WHERE voucher = 'Sales Invoice'            
             AND posting_date >= '{from_date} 00:00:00' 
             AND posting_date < '{to_date} 23:59:59'
             {item_condition}
             {warehouse_condition}
         GROUP BY item
     """.format(from_date=from_date,to_date=to_date, item_condition=item_condition,warehouse_condition=warehouse_condition)
-    
-    print("sales_qty_query")
-    print(sales_qty_query)
 
     sales_qty_data = frappe.db.sql(sales_qty_query, as_dict=True)
-    print("sales_qty_data")
-    print(sales_qty_data)
     
     # Fetch the sales return quantity for all items within the specified date range
     sales_return_qty_query = f"""
         SELECT item as item_code, SUM(qty_in) as sales_return_qty
         FROM `tabStock Ledger`
         WHERE voucher = 'Sales Return'
-            AND qty_in IS NOT NULL
             AND posting_date >= '{from_date} 00:00:00' 
             AND posting_date < '{to_date} 23:59:59'
 
@@ -126,8 +116,8 @@ def get_data(filters):
     transfer_in_qty_query = f"""
     SELECT item as item_code, SUM(qty_in) as transfer_in_qty
     FROM `tabStock Ledger`
-    WHERE voucher = 'Transfer In'
-        AND qty_in IS NOT NULL
+    WHERE voucher = 'Stock Transfer'
+        AND (qty_in > 0)
         AND posting_date >= '{from_date} 00:00:00' 
         AND posting_date < '{to_date} 23:59:59'    
         {item_condition}
@@ -142,8 +132,8 @@ def get_data(filters):
     transfer_out_qty_query = f"""
         SELECT item as item_code, SUM(qty_out) as transfer_out_qty
         FROM `tabStock Ledger`
-        WHERE voucher = 'Transfer Out'
-            AND qty_out IS NOT NULL
+        WHERE voucher = 'Stock Transfer'
+            AND qty_out > 0
             AND posting_date >= '{from_date} 00:00:00' 
             AND posting_date < '{to_date} 23:59:59'
 
