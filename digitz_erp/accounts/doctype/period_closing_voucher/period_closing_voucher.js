@@ -4,6 +4,7 @@
 frappe.ui.form.on("Period Closing Voucher", {
   onload: function(frm)
   {
+    console.log("onload");
     assign_defaults(frm);
   },
 	refresh(frm) {
@@ -36,6 +37,9 @@ function assign_defaults(frm)
       callback: (r) => {
         default_company = r.message.default_company
         frm.set_value('company',default_company);
+        frm.refresh_field("company")
+        console.log("default company")
+        console.log(default_company)
       }
     });
   }

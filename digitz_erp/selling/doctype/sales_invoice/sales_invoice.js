@@ -618,11 +618,12 @@ frappe.ui.form.on('Sales Invoice Item', {
 								callback(r){
 
 									console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
-									console.log(r)
-									if(r.message != undefined)
-									{
-										row.rate = r.message;
-										row.rate_in_base_unit = r.message;		
+									console.log(r)									
+
+									if (r.message !== undefined && r.message.length > 0) {
+										// Assuming r.message is an array, you might want to handle this differently based on your actual response
+										row.rate = r.message[0];
+										row.rate_in_base_unit = r.message[0];
 									}
 
 									console.log("customer last price")
@@ -654,8 +655,14 @@ frappe.ui.form.on('Sales Invoice Item', {
 								callback(r) {
 									console.log("digitz_erp.api.item_price_api.get_item_price")
 									console.log(r)
-									row.rate = r.message;
-									row.rate_in_base_unit = r.message;
+									// row.rate = r.message;
+									// row.rate_in_base_unit = r.message;
+
+									if (r.message !== undefined && r.message.length > 0) {
+										// Assuming r.message is an array, you might want to handle this differently based on your actual response
+										row.rate = r.message[0];
+										row.rate_in_base_unit = r.message[0];
+									}
 								}
 							});			
 					}	
