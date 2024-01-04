@@ -1,53 +1,214 @@
+# stock_ledger_report.py
 import frappe
+from frappe import _
 
 def execute(filters=None):
-    columns = [
-        {"label": "Item", "fieldname": "item", "fieldtype": "Link", "options": "Item", "width": 120},
-        {"label": "Item Name", "fieldname": "item_name", "fieldtype": "Data", "width": 150},
-        {"label": "Posting Date", "fieldname": "posting_date", "fieldtype": "Date", "width": 150},
-        {"label": "Opening Qty", "fieldname": "opening_qty", "fieldtype": "Float", "width": 120},
-        {"label": "Purchase Qty", "fieldname": "purchase_qty", "fieldtype": "Float", "width": 120},
-        {"label": "Sales Qty", "fieldname": "sales_qty", "fieldtype": "Float", "width": 120},
-        {"label": "Purchase Return Qty", "fieldname": "purchase_return_qty", "fieldtype": "Float", "width": 150},
-        {"label": "Sales Return Qty", "fieldname": "sales_return_qty", "fieldtype": "Float", "width": 150},
-        {"label": "Balance Qty", "fieldname": "balance_qty", "fieldtype": "Float", "width": 120},
+    columns = get_columns()
+    data = get_data(filters)
+    return columns, data
+
+def get_columns():
+    return [
+        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 150},
+        {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 120},
+        {"label": _("Purchase Qty"), "fieldname": "purchase_qty", "fieldtype": "Float", "width": 120},
+        {"label": _("Purchase Return Qty"), "fieldname": "purchase_return_qty", "fieldtype": "Float", "width": 150},
+        {"label": _("Sales Qty"), "fieldname": "sales_qty", "fieldtype": "Float", "width": 120},
+        {"label": _("Sales Return Qty"), "fieldname": "sales_return_qty", "fieldtype": "Float", "width": 150},
+        {"label": _("Transfer In Qty"), "fieldname": "transfer_in_qty", "fieldtype": "Float", "width": 150},
+        {"label": _("Transfer Out Qty"), "fieldname": "transfer_out_qty", "fieldtype": "Float", "width": 150},
+        {"label": _("Balance Qty"), "fieldname": "balance_qty", "fieldtype": "Float", "width": 150},
+        # Add other columns as needed
     ]
 
-    data = frappe.db.sql("""
-        SELECT
-            sle.item,
-            item.item_name,
-            sle.balance_qty as opening_qty,
-            sle.posting_date,
-            COALESCE(pur.qty, 0) as purchase_qty,
-            COALESCE(sal.qty, 0) as sales_qty,
-            COALESCE(pur_return.qty, 0) as purchase_return_qty,
-            COALESCE(sal_return.qty, 0) as sales_return_qty,
-            sle.balance_qty + COALESCE(pur.qty, 0) - COALESCE(sal.qty, 0) - COALESCE(pur_return.qty, 0) + COALESCE(sal_return.qty, 0) as balance_qty
-        FROM
-            `tabStock Ledger` sle
-        INNER JOIN
-            tabItem item ON sle.item = item.item_code
-        LEFT JOIN
-            `tabPurchase Invoice` pur_inv ON pur_inv.posting_date = %(posting_date)s
-        LEFT JOIN
-            `tabPurchase Invoice Item` pur ON pur.parent = pur_inv.name AND pur.item = sle.item
-        LEFT JOIN
-            `tabSales Invoice` sal_inv ON sal_inv.posting_date = %(posting_date)s
-        LEFT JOIN
-            `tabSales Invoice Item` sal ON sal.parent = sal_inv.name AND sal.item = sle.item
-        LEFT JOIN
-            `tabPurchase Return` pur_return_inv ON pur_return_inv.posting_date = %(posting_date)s
-        LEFT JOIN
-            `tabPurchase Return Item` pur_return ON pur_return.parent = pur_return_inv.name AND pur_return.item_code = sle.item
-        LEFT JOIN
-            `tabSales Return` sal_return_inv ON sal_return_inv.posting_date = %(posting_date)s
-        LEFT JOIN
-            `tabSales Return Item` sal_return ON sal_return.parent = sal_return_inv.name AND sal_return.item = sle.item
-        # WHERE
-        #     sle.posting_date < %(posting_date)s
-        ORDER BY
-            sle.item, sle.posting_date DESC
-    """, {"posting_date": filters.get("posting_date")}, as_dict=1)
+def get_data(filters):
+    from_date = filters.get("from_date")
+    to_date = filters.get("to_date")
+    item = filters.get("item")
+    warehouse = filters.get("warehouse")
+    show_all_balances = filters.get("show_all_balances")
 
-    return columns, data
+    # Filter conditions
+    item_condition = f" AND item = '{item}'" if item else ""
+    warehouse_condition = f" AND warehouse = '{warehouse}'" if warehouse else ""
+
+    # Fetch the opening quantity for all items based on the last record's balance quantity
+    opening_balance_query = f"""
+        SELECT item as item_code, balance_qty as opening_qty
+        FROM `tabStock Ledger`
+        WHERE posting_date < '{from_date}'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+        ORDER BY posting_date DESC
+    """
+
+    opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
+    
+    purchase_qty_query = f"""
+        SELECT item as item_code, SUM(qty_in) as purchase_qty
+        FROM `tabStock Ledger`
+        WHERE voucher_type = 'Purchase Invoice'
+            AND qty_in IS NOT NULL
+            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """
+
+    purchase_qty_data = frappe.db.sql(purchase_qty_query, as_dict=True)
+    
+     # Fetch the purchase return quantity for all items within the specified date range
+    purchase_return_qty_query = f"""
+        SELECT item as item_code, SUM(qty_out) as purchase_return_qty
+        FROM `tabStock Ledger`
+        WHERE voucher_type = 'Purchase Return'
+            AND qty_out IS NOT NULL
+            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """
+    
+    purchase_return_qty_data = frappe.db.sql(purchase_return_qty_query, as_dict=True)
+
+    
+    sales_qty_query = f"""
+        SELECT item as item_code, SUM(qty_out) as sales_qty
+        FROM `tabStock Ledger`
+        WHERE voucher_type = 'Sales Invoice'
+            AND qty_out IS NOT NULL
+            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """
+
+    sales_qty_data = frappe.db.sql(sales_qty_query, as_dict=True)
+    
+       # Fetch the sales return quantity for all items within the specified date range
+    sales_return_qty_query = f"""
+        SELECT item as item_code, SUM(qty_in) as sales_return_qty
+        FROM `tabStock Ledger`
+        WHERE voucher_type = 'Sales Return'
+            AND qty_in IS NOT NULL
+            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """
+
+    sales_return_qty_data = frappe.db.sql(sales_return_qty_query, as_dict=True)
+    
+    transfer_in_qty_query = f"""
+    SELECT item as item_code, SUM(qty_in) as transfer_in_qty
+    FROM `tabStock Ledger`
+    WHERE voucher_type = 'Transfer In'
+        AND qty_in IS NOT NULL
+        AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+        {item_condition}
+        {warehouse_condition}
+    GROUP BY item
+    """
+
+    transfer_in_qty_data = frappe.db.sql(transfer_in_qty_query, as_dict=True)
+   
+   
+    # Fetch the transfer out quantity for all items within the specified date range
+    transfer_out_qty_query = f"""
+        SELECT item as item_code, SUM(qty_out) as transfer_out_qty
+        FROM `tabStock Ledger`
+        WHERE voucher_type = 'Transfer Out'
+            AND qty_out IS NOT NULL
+            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """
+
+    transfer_out_qty_data = frappe.db.sql(transfer_out_qty_query, as_dict=True)
+    
+    # Calculate the balance quantity for all items based on the provided formula
+    data = []
+    for opening_balance_row in opening_balance_data:
+        item_code = opening_balance_row.item_code
+        opening_qty = opening_balance_row.opening_qty
+
+        # Find the matching purchase_qty_row for the item
+        purchase_qty = next((row.purchase_qty for row in purchase_qty_data if row.item_code == item_code), 0)
+
+        # Find the matching purchase_return_qty_row for the item
+        purchase_return_qty = next((row.purchase_return_qty for row in purchase_return_qty_data if row.item_code == item_code), 0)
+
+        # Find the matching sales_qty_row for the item
+        sales_qty = next((row.sales_qty for row in sales_qty_data if row.item_code == item_code), 0)
+
+        # Find the matching sales_return_qty_row for the item
+        sales_return_qty = next((row.sales_return_qty for row in sales_return_qty_data if row.item_code == item_code), 0)
+
+        # Find the matching transfer_in_qty_row for the item
+        transfer_in_qty = next((row.transfer_in_qty for row in transfer_in_qty_data if row.item_code == item_code), 0)
+
+        # Find the matching transfer_out_qty_row for the item
+        transfer_out_qty = next((row.transfer_out_qty for row in transfer_out_qty_data if row.item_code == item_code), 0)
+
+        # Calculate the balance quantity based on the provided formula
+        balance_qty = opening_qty + purchase_qty - purchase_return_qty - sales_qty + sales_return_qty + transfer_in_qty - transfer_out_qty
+
+        # Append the data to the result list
+        data.append({
+            "item_code": item_code,
+            "opening_qty": opening_qty,
+            "purchase_qty": purchase_qty,
+            "purchase_return_qty": purchase_return_qty,
+            "sales_qty": sales_qty,
+            "sales_return_qty": sales_return_qty,
+            "transfer_in_qty": transfer_in_qty,
+            "transfer_out_qty": transfer_out_qty,
+            "balance_qty": balance_qty,
+        })
+
+    return data
+    
+    # data = []
+    # for opening_balance_row in opening_balance_data:
+    #     item_row = {"item_code": opening_balance_row.item_code, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0}      
+
+    #     # Find the matching purchase_qty_row for the item
+    #     for purchase_qty_row in purchase_qty_data:
+    #         if purchase_qty_row.item_code == opening_balance_row.item_code:
+    #             item_row["purchase_qty"] = purchase_qty_row.purchase_qty
+    #             break
+            
+    #     # Find the matching purchase_return_qty_row for the item
+    #     for purchase_return_qty_row in purchase_return_qty_data:
+    #         if purchase_return_qty_row.item_code == opening_balance_row.item_code:
+    #             item_row["purchase_return_qty"] = purchase_return_qty_row.purchase_return_qty
+    #             break
+            
+    #     # Find the matching sales_qty_row for the item
+    #     for sales_qty_row in sales_qty_data:
+    #         if sales_qty_row.item_code == opening_balance_row.item_code:
+    #             item_row["sales_qty"] = sales_qty_row.sales_qty
+    #             break
+            
+    #     # Find the matching sales_return_qty_row for the item
+    #     for sales_return_qty_row in sales_return_qty_data:
+    #         if sales_return_qty_row.item_code == opening_balance_row.item_code:
+    #             item_row["sales_return_qty"] = sales_return_qty_row.sales_return_qty
+    #             break
+        
+    #     for transfer_in_qty_row in transfer_in_qty_data:
+    #         if transfer_in_qty_row.item_code == opening_balance_row.item_code:
+    #             item_row["transfer_in_qty"] = transfer_in_qty_row.transfer_in_qty
+    #             break
+            
+    #     # Find the matching transfer_out_qty_row for the item
+    #     for transfer_out_qty_row in transfer_out_qty_data:
+    #         if transfer_out_qty_row.item_code == opening_balance_row.item_code:
+    #             item_row["transfer_out_qty"] = transfer_out_qty_row.transfer_out_qty
+    #             break
+
+    #     data.append(item_row)
+
+    # return data
