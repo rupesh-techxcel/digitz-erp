@@ -11,6 +11,7 @@ def get_columns():
     return [
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 150},
         {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 120},
+        {"label": _("Stock Recon Qty"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 120},
         {"label": _("Purchase Qty"), "fieldname": "purchase_qty", "fieldtype": "Float", "width": 120},
         {"label": _("Purchase Return Qty"), "fieldname": "purchase_return_qty", "fieldtype": "Float", "width": 150},
         {"label": _("Sales Qty"), "fieldname": "sales_qty", "fieldtype": "Float", "width": 120},
@@ -25,8 +26,7 @@ def get_data(filters):
     from_date = filters.get("from_date")
     to_date = filters.get("to_date")
     item = filters.get("item")
-    warehouse = filters.get("warehouse")
-    show_all_balances = filters.get("show_all_balances")
+    warehouse = filters.get("warehouse")    
 
     # Filter conditions
     item_condition = f" AND item = '{item}'" if item else ""
@@ -45,12 +45,26 @@ def get_data(filters):
 
     opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
     
+    stock_recon_qty_query = f"""
+        SELECT item as item_code, SUM(balance_qty) as balance_qty
+        FROM `tabStock Ledger`
+        WHERE voucher = 'Stock Reconciliation'            
+            AND posting_date >= '{from_date} 00:00:00' 
+            AND posting_date < '{to_date} 23:59:59'        
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """
+
+    stock_recon_qty_data = frappe.db.sql(stock_recon_qty_query, as_dict=True)
+    
     purchase_qty_query = f"""
         SELECT item as item_code, SUM(qty_in) as purchase_qty
         FROM `tabStock Ledger`
         WHERE voucher = 'Purchase Invoice'
             AND qty_in IS NOT NULL
-            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            AND posting_date >= '{from_date} 00:00:00' 
+            AND posting_date < '{to_date} 23:59:59'        
             {item_condition}
             {warehouse_condition}
         GROUP BY item
@@ -64,7 +78,8 @@ def get_data(filters):
         FROM `tabStock Ledger`
         WHERE voucher = 'Purchase Return'
             AND qty_out IS NOT NULL
-            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            AND posting_date >= '{from_date} 00:00:00' 
+            AND posting_date < '{to_date} 23:59:59'            
             {item_condition}
             {warehouse_condition}
         GROUP BY item
@@ -92,13 +107,15 @@ def get_data(filters):
     print("sales_qty_data")
     print(sales_qty_data)
     
-       # Fetch the sales return quantity for all items within the specified date range
+    # Fetch the sales return quantity for all items within the specified date range
     sales_return_qty_query = f"""
         SELECT item as item_code, SUM(qty_in) as sales_return_qty
         FROM `tabStock Ledger`
         WHERE voucher = 'Sales Return'
             AND qty_in IS NOT NULL
-            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            AND posting_date >= '{from_date} 00:00:00' 
+            AND posting_date < '{to_date} 23:59:59'
+
             {item_condition}
             {warehouse_condition}
         GROUP BY item
@@ -111,7 +128,8 @@ def get_data(filters):
     FROM `tabStock Ledger`
     WHERE voucher = 'Transfer In'
         AND qty_in IS NOT NULL
-        AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+        AND posting_date >= '{from_date} 00:00:00' 
+        AND posting_date < '{to_date} 23:59:59'    
         {item_condition}
         {warehouse_condition}
     GROUP BY item
@@ -126,7 +144,9 @@ def get_data(filters):
         FROM `tabStock Ledger`
         WHERE voucher = 'Transfer Out'
             AND qty_out IS NOT NULL
-            AND posting_date BETWEEN '{from_date}' AND '{to_date}'
+            AND posting_date >= '{from_date} 00:00:00' 
+            AND posting_date < '{to_date} 23:59:59'
+
             {item_condition}
             {warehouse_condition}
         GROUP BY item
@@ -142,6 +162,14 @@ def get_data(filters):
         balance = opening_balance_row.opening_qty
         
         value_exists = balance != 0
+        
+        for stock_recon_qty_row in stock_recon_qty_data:
+            if stock_recon_qty_row.item_code == opening_balance_row.item_code:
+                item_row["stock_recon_qty"] = stock_recon_qty_row.balance_qty
+                balance = stock_recon_qty_row.balance_qty                
+                
+                value_exists = True                                        
+                break
 
         # Find the matching purchase_qty_row for the item
         for purchase_qty_row in purchase_qty_data:
@@ -151,7 +179,7 @@ def get_data(filters):
                 
                 if not value_exists:
                     value_exists = purchase_qty_row.purchase_qty !=0
-                    
+                                        
                 break
             
         # Find the matching purchase_return_qty_row for the item
