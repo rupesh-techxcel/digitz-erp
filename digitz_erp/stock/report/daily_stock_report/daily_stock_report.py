@@ -140,12 +140,18 @@ def get_data(filters):
         item_row = {"item_code": opening_balance_row.item_code, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}      
         
         balance = opening_balance_row.opening_qty
+        
+        value_exists = balance != 0
 
         # Find the matching purchase_qty_row for the item
         for purchase_qty_row in purchase_qty_data:
             if purchase_qty_row.item_code == opening_balance_row.item_code:
                 item_row["purchase_qty"] = purchase_qty_row.purchase_qty
                 balance += purchase_qty_row.purchase_qty
+                
+                if not value_exists:
+                    value_exists = purchase_qty_row.purchase_qty !=0
+                    
                 break
             
         # Find the matching purchase_return_qty_row for the item
@@ -153,6 +159,10 @@ def get_data(filters):
             if purchase_return_qty_row.item_code == opening_balance_row.item_code:
                 item_row["purchase_return_qty"] = purchase_return_qty_row.purchase_return_qty
                 balance += (purchase_return_qty_row.purchase_return_qty * -1)
+               
+                if not value_exists:
+                    value_exists = purchase_return_qty_row.purchase_return_qty !=0
+
                 break
             
         # Find the matching sales_qty_row for the item
@@ -160,6 +170,10 @@ def get_data(filters):
             if sales_qty_row.item_code == opening_balance_row.item_code:
                 item_row["sales_qty"] = sales_qty_row.sales_qty
                 balance += (sales_qty_row.sales_qty * -1)
+                
+                if not value_exists:
+                    value_exists = sales_qty_row.sales_qty !=0
+                
                 break
             
         # Find the matching sales_return_qty_row for the item
@@ -167,23 +181,36 @@ def get_data(filters):
             if sales_return_qty_row.item_code == opening_balance_row.item_code:
                 item_row["sales_return_qty"] = sales_return_qty_row.sales_return_qty
                 balance += sales_return_qty_row.sales_return_qty
+                
+                if not value_exists:
+                    value_exists = sales_return_qty_row.sales_return_qty !=0
+
                 break
         
         for transfer_in_qty_row in transfer_in_qty_data:
             if transfer_in_qty_row.item_code == opening_balance_row.item_code:
                 item_row["transfer_in_qty"] = transfer_in_qty_row.transfer_in_qty
                 balance += transfer_in_qty_row.transfer_in_qty
+                
+                if not value_exists:
+                    value_exists = transfer_in_qty_row.transfer_in_qty !=0
+                
                 break
             
         # Find the matching transfer_out_qty_row for the item
         for transfer_out_qty_row in transfer_out_qty_data:
             if transfer_out_qty_row.item_code == opening_balance_row.item_code:
                 item_row["transfer_out_qty"] = transfer_out_qty_row.transfer_out_qty
-                balance += transfer_out_qty_row.transfer_out_qty
+                balance += (transfer_out_qty_row.transfer_out_qty * -1)
+                
+                if not value_exists:
+                    value_exists = transfer_out_qty_row.transfer_out_qty !=0
+
                 break
 
         item_row["balance_qty"] = balance
         
-        data.append(item_row)
+        if(value_exists):
+            data.append(item_row)
 
     return data
