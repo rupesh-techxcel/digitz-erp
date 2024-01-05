@@ -1,0 +1,66 @@
+<style>
+  .print-format table, .print-format tr,
+	.print-format td, .print-format div, .print-format p {
+		line-height: 150%;
+		vertical-align: middle;
+	}
+	@media screen {
+		.print-format {
+			width: 80mm;
+			padding: 0.1in;
+			min-height: 8in;
+		}
+	}
+	@media print {
+		body { font-size: 20pt }
+	}
+	@media screen {
+		body { font-size: 20px }
+	}
+	@media screen, print {
+		body { line-height: 1.2 }
+	}
+		@page {
+		size: auto;
+		margin: 3cm;
+	}
+</style>
+<button onclick="window.print();" style="right: 22px; position: absolute;" class="hidden-pdf btn btn-primary btn-sm primary-action hidden-print">Print</button>
+<body style="font-family: Bodoni MT condensed !important;font-size: 9px!important;">
+<p style="text-align: center;">DOLPHIN CHEMICALS LLC</p>
+<h2 class="text-center" >{%= __("Daily Stock Summary Report") %}</h2>
+<h4 class="text-center"">
+    From {%= frappe.datetime.str_to_user(filters.from_date) %} To {%= frappe.datetime.str_to_user(filters.to_date) %}
+</h4>
+
+<hr>
+<table class="table table-condensed">
+    <thead>
+      <tr>
+        <th colspan="5" width="50%">Item Name</th>
+      </tr>
+      <tr>
+        <th width="15%" class="text-right">Opening Qty</th>
+        <th width="15%" class="text-right">Stock Recon</th>
+        <th width="15%" class="text-right">Qty In</th>
+        <th width="15%" class="text-right">Qty Out</th>
+        <th width="15%" class="text-right">Balance Qty</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for(var i=0, l=data.length; i<l; i++) { %}
+    <tr>
+      <td colspan="5" width="50%"> {%= data[i].item_code %}</td>
+    </tr>
+    <tr>
+      <td width="15%" class="text-right">{%= data[i].opening_qty %}</td>
+      <td width="15%" class="text-right">{%= data[i].stock_recon_qty %}</td>
+      <td width="15%" class="text-right">{%= data[i].qty_in %}</td>
+      <td width="15%" class="text-right">{%= data[i].qty_out %}</td>
+      <td width="15%" class="text-right">{%= data[i].balance_qty %}</td>
+    </tr>
+  </tbody>
+    {% } %}
+</table>
+<p class="text-right text-muted">Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
+</body>
