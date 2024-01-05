@@ -10,7 +10,7 @@
  "is_standard": "Yes",
  "letter_head": "sales invoice footer",
  "letterhead": null,
- "modified": "2023-12-27 10:58:23.920762",
+ "modified": "2024-01-05 15:55:59.697353",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Daily Report Detailed",
@@ -19,5 +19,12 @@
  "ref_doctype": "Sales Invoice",
  "report_name": "Daily Report Detailed",
  "report_type": "Script Report",
- "roles": []
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Tab User"
+  }
+ ]
 }
