@@ -74,7 +74,6 @@
   "country",
   "quotation",
   "sales_order",
-  "amended_from",
   "sales_invoice",
   "other_tab",
   "customer_address",
@@ -84,7 +83,8 @@
   "column_break_r0rd",
   "payment_terms",
   "payment_mode",
-  "payment_account"
+  "payment_account",
+  "amended_from"
  ],
  "fields": [
   {
@@ -346,6 +346,7 @@
   {
    "fieldname": "net_total",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Net Total",
    "read_only": 1
   },
@@ -565,7 +566,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-03 09:43:03.625643",
+ "modified": "2024-01-06 06:31:47.168839",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Sales",

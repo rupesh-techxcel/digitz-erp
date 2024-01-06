@@ -15,14 +15,16 @@ frappe.query_reports["Daily Stock Report Summary"] = {
 			"fieldtype": "Date",
 			"label": "From Date",
 			"width": 150,
-			"default":frappe.datetime.month_start()
+			"default":frappe.datetime.get_today(),
+			"reqd":1
 		},
 		{
 			"fieldname": "to_date",
 			"fieldtype": "Date",
 			"label": "To Date",
 			"width": 150,
-			"default":frappe.datetime.month_start()
+			"default":frappe.datetime.get_today(),
+			"reqd":1
 		},
 		{
 			"fieldname": "warehouse",
@@ -47,6 +49,14 @@ frappe.query_reports["Daily Stock Report Summary"] = {
 
                 return defaultWarehouse;
             },
+			"reqd":1
+		},
+		{		
+			"fieldname": "show_all",
+			"fieldtype": "Check",
+			"label": "Show All",
+			"width": 150,
+			"default":0			
 		}
 	]
 };

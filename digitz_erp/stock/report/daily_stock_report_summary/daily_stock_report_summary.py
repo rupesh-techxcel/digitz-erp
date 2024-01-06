@@ -12,11 +12,11 @@ def execute(filters=None):
 def get_columns():
     return [
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 330},
-        {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 155},
-        {"label": _("Stock Recon"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 155},
-        {"label": _("Qty In"), "fieldname": "qty_in", "fieldtype": "Float", "width": 155},
-        {"label": _("Qty Out"), "fieldname": "qty_out", "fieldtype": "Float", "width": 155},
-        {"label": _("Balance Qty"), "fieldname": "balance_qty", "fieldtype": "Float", "width": 250},
+        {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 140},
+        {"label": _("Stock Recon"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 140},
+        {"label": _("Qty In"), "fieldname": "qty_in", "fieldtype": "Float", "width": 140},
+        {"label": _("Qty Out"), "fieldname": "qty_out", "fieldtype": "Float", "width": 140},
+        {"label": _("Balance Qty"), "fieldname": "balance_qty", "fieldtype": "Float", "width": 140},
         # Add other columns as needed
     ]
 
@@ -25,6 +25,7 @@ def get_data(filters):
 	to_date = filters.get("to_date")
 	item = filters.get("item")
 	warehouse = filters.get("warehouse")
+	show_all = filters.get("show_all")
 
 	# Filter conditions
 	item_condition = f" AND item = '{item}'" if item else ""
@@ -47,9 +48,6 @@ def get_data(filters):
 		GROUP BY item
 	)
 	"""
-
-	print("opening_balance_query")
-	print(opening_balance_query)
 
 	opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
 
@@ -93,7 +91,6 @@ def get_data(filters):
 
 	purchase_return_qty_data = frappe.db.sql(purchase_return_qty_query, as_dict=True)
 
-
 	sales_qty_query = f"""
 		SELECT item as item_code, SUM(qty_out) as sales_qty
 		FROM `tabStock Ledger`
@@ -135,6 +132,9 @@ def get_data(filters):
 	""".format(from_date=from_date,to_date=to_date, item_condition=item_condition,warehouse_condition=warehouse_condition)
 
 	transfer_in_qty_data = frappe.db.sql(transfer_in_qty_query, as_dict=True)
+ 
+	print("transfer_in_qty_data")
+	print(transfer_in_qty_data)
 
 	# Fetch the transfer out quantity for all items within the specified date range
 	transfer_out_qty_query = f"""
@@ -158,6 +158,9 @@ def get_data(filters):
 	for opening_balance_row in opening_balance_data:
 
 		item_row = {"item_code": opening_balance_row.item_code, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
+  
+		print("item_row")
+		print(item_row)
 
 		opening_qty =  opening_balance_row.opening_qty
 		balance_qty = opening_balance_row.opening_qty
@@ -165,8 +168,8 @@ def get_data(filters):
 		qty_in  = 0
 		qty_out = 0
 
-
 		opening_value_exists = balance_qty != 0
+		transaction_value_exists = False
 
 		for stock_recon_qty_row in stock_recon_qty_data:
 			if stock_recon_qty_row.item_code == opening_balance_row.item_code:
@@ -224,10 +227,22 @@ def get_data(filters):
 				break
 
 		for transfer_in_qty_row in transfer_in_qty_data:
+      
+			print("here")
+      
 			if transfer_in_qty_row.item_code == opening_balance_row.item_code:
+				
+				print("item code matching")
+				print("transfer_in_qty_row.transfer_in_qty")
+				print(transfer_in_qty_row.transfer_in_qty)
 
 				balance_qty += transfer_in_qty_row.transfer_in_qty
-				qty_in +=transfer_in_qty_row.transfer_in_qty
+				print("balance_qty")
+				print(balance_qty)
+				qty_in += transfer_in_qty_row.transfer_in_qty
+				print("qty_in")
+				print(qty_in)
+
 
 				if not transaction_value_exists:
 					transaction_value_exists = transfer_in_qty_row.transfer_in_qty !=0
@@ -246,13 +261,18 @@ def get_data(filters):
 
 				break
 
+		print("qty_in")
+		print(qty_in)
+  
 		item_row["opening_qty"] = opening_qty
 		item_row["stock_recon_qty"] = stock_recon_qty
 		item_row["qty_in"] = qty_in
-		item_row["qty_in"] = qty_out
+		item_row["qty_out"] = qty_out
 		item_row["balance_qty"] = balance_qty
 
-		if opening_value_exists or transaction_value_exists:
+		if not show_all and transaction_value_exists:
+			data.append(item_row)
+		elif show_all and (transaction_value_exists or opening_value_exists):
 			data.append(item_row)
 
 	return data

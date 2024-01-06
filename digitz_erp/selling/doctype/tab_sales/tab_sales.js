@@ -287,13 +287,13 @@ frappe.ui.form.on('Tab Sales', {
 		console.log("Net Total Before Round Off")
 		console.log(frm.doc.net_total)
 
-		if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
-			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-			frm.doc.rounded_total = Math.round(frm.doc.net_total);
-		}
-		else {
+		// if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
+		// 	frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
+		// 	frm.doc.rounded_total = Math.round(frm.doc.net_total);
+		// }
+		// else {
 			frm.doc.rounded_total = frm.doc.net_total;
-		}
+		// }
 
 		console.log("Totals");
 

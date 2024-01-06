@@ -53,7 +53,8 @@
   "customer_terms",
   "system_tab",
   "material_receipt_integrated_with_purchase",
-  "delivery_note_integrated_with_sales_invoice"
+  "delivery_note_integrated_with_sales_invoice",
+  "do_not_apply_round_off_in_si"
  ],
  "fields": [
   {
@@ -323,11 +324,17 @@
    "fieldname": "tax_excluded",
    "fieldtype": "Check",
    "label": "Tax Excluded"
+  },
+  {
+   "default": "0",
+   "fieldname": "do_not_apply_round_off_in_si",
+   "fieldtype": "Check",
+   "label": "Do not apply round off in Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-13 09:41:08.334092",
+ "modified": "2024-01-06 06:39:57.993326",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

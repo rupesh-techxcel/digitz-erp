@@ -31,6 +31,7 @@ frappe.query_reports["Stock Ledger Summary Report"] = {
 			"label": "W/H",
 			"options": "Warehouse",
 			"width": 150,
+			"reqd":1
 		}
 	]
 };

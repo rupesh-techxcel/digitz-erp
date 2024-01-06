@@ -9,16 +9,16 @@ def execute(filters=None):
 
 def get_columns():
     return [
-        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 150},
-        {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 120},
-        {"label": _("Stock Recon Qty"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 120},
+        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 100},
+        {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 100},
+        {"label": _("Stock Recon Qty"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 100},
         {"label": _("Purchase Qty"), "fieldname": "purchase_qty", "fieldtype": "Float", "width": 120},
-        {"label": _("Purchase Return Qty"), "fieldname": "purchase_return_qty", "fieldtype": "Float", "width": 150},
+        {"label": _("Purchase Return Qty"), "fieldname": "purchase_return_qty", "fieldtype": "Float", "width": 100},
         {"label": _("Sales Qty"), "fieldname": "sales_qty", "fieldtype": "Float", "width": 120},
-        {"label": _("Sales Return Qty"), "fieldname": "sales_return_qty", "fieldtype": "Float", "width": 150},
-        {"label": _("Transfer In Qty"), "fieldname": "transfer_in_qty", "fieldtype": "Float", "width": 150},
-        {"label": _("Transfer Out Qty"), "fieldname": "transfer_out_qty", "fieldtype": "Float", "width": 150},
-        {"label": _("Balance Qty"), "fieldname": "balance_qty", "fieldtype": "Float", "width": 150},
+        {"label": _("Sales Return Qty"), "fieldname": "sales_return_qty", "fieldtype": "Float", "width": 100},
+        {"label": _("Transfer In Qty"), "fieldname": "transfer_in_qty", "fieldtype": "Float", "width": 100},
+        {"label": _("Transfer Out Qty"), "fieldname": "transfer_out_qty", "fieldtype": "Float", "width": 100},
+        {"label": _("Balance Qty"), "fieldname": "balance_qty", "fieldtype": "Float", "width": 120},
         # Add other columns as needed
     ]
 
@@ -27,7 +27,8 @@ def get_data(filters):
     to_date = filters.get("to_date")
     item = filters.get("item")
     warehouse = filters.get("warehouse")
-
+    show_all = filters.get("show_all")
+    
     # Filter conditions
     item_condition = f" AND item = '{item}'" if item else ""
     warehouse_condition = f" AND warehouse = '{warehouse}'" if warehouse else ""
@@ -154,32 +155,36 @@ def get_data(filters):
     """
 
     transfer_out_qty_data = frappe.db.sql(transfer_out_qty_query, as_dict=True)
+    
+    opening_value_exists = False
+    transaction_value_exists = False
 
     data = []
     for opening_balance_row in opening_balance_data:
 
         item_row = {"item_code": opening_balance_row.item_code, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
 
-        balance = opening_balance_row.opening_qty
-
-        value_exists = balance != 0
+        balance_qty = opening_balance_row.opening_qty
+        
+        opening_value_exists = balance_qty != 0
+        transaction_value_exists = False
 
         for stock_recon_qty_row in stock_recon_qty_data:
             if stock_recon_qty_row.item_code == opening_balance_row.item_code:
                 item_row["stock_recon_qty"] = stock_recon_qty_row.balance_qty
-                balance = stock_recon_qty_row.balance_qty
+                balance_qty = stock_recon_qty_row.balance_qty
 
-                value_exists = True
+                (transaction_value_exists) = True
                 break
 
         # Find the matching purchase_qty_row for the item
         for purchase_qty_row in purchase_qty_data:
             if purchase_qty_row.item_code == opening_balance_row.item_code:
                 item_row["purchase_qty"] = purchase_qty_row.purchase_qty
-                balance += purchase_qty_row.purchase_qty
+                balance_qty += purchase_qty_row.purchase_qty
 
-                if not value_exists:
-                    value_exists = purchase_qty_row.purchase_qty !=0
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = purchase_qty_row.purchase_qty !=0
 
                 break
 
@@ -187,10 +192,10 @@ def get_data(filters):
         for purchase_return_qty_row in purchase_return_qty_data:
             if purchase_return_qty_row.item_code == opening_balance_row.item_code:
                 item_row["purchase_return_qty"] = purchase_return_qty_row.purchase_return_qty
-                balance += (purchase_return_qty_row.purchase_return_qty * -1)
+                balance_qty += (purchase_return_qty_row.purchase_return_qty * -1)
 
-                if not value_exists:
-                    value_exists = purchase_return_qty_row.purchase_return_qty !=0
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = purchase_return_qty_row.purchase_return_qty !=0
 
                 break
 
@@ -198,10 +203,10 @@ def get_data(filters):
         for sales_qty_row in sales_qty_data:
             if sales_qty_row.item_code == opening_balance_row.item_code:
                 item_row["sales_qty"] = sales_qty_row.sales_qty
-                balance += (sales_qty_row.sales_qty * -1)
+                balance_qty += (sales_qty_row.sales_qty * -1)
 
-                if not value_exists:
-                    value_exists = sales_qty_row.sales_qty !=0
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = sales_qty_row.sales_qty !=0
 
                 break
 
@@ -209,20 +214,20 @@ def get_data(filters):
         for sales_return_qty_row in sales_return_qty_data:
             if sales_return_qty_row.item_code == opening_balance_row.item_code:
                 item_row["sales_return_qty"] = sales_return_qty_row.sales_return_qty
-                balance += sales_return_qty_row.sales_return_qty
+                balance_qty += sales_return_qty_row.sales_return_qty
 
-                if not value_exists:
-                    value_exists = sales_return_qty_row.sales_return_qty !=0
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = sales_return_qty_row.sales_return_qty !=0
 
                 break
 
         for transfer_in_qty_row in transfer_in_qty_data:
             if transfer_in_qty_row.item_code == opening_balance_row.item_code:
                 item_row["transfer_in_qty"] = transfer_in_qty_row.transfer_in_qty
-                balance += transfer_in_qty_row.transfer_in_qty
+                balance_qty += transfer_in_qty_row.transfer_in_qty
 
-                if not value_exists:
-                    value_exists = transfer_in_qty_row.transfer_in_qty !=0
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = transfer_in_qty_row.transfer_in_qty !=0
 
                 break
 
@@ -230,16 +235,18 @@ def get_data(filters):
         for transfer_out_qty_row in transfer_out_qty_data:
             if transfer_out_qty_row.item_code == opening_balance_row.item_code:
                 item_row["transfer_out_qty"] = transfer_out_qty_row.transfer_out_qty
-                balance += (transfer_out_qty_row.transfer_out_qty * -1)
+                balance_qty += (transfer_out_qty_row.transfer_out_qty * -1)
 
-                if not value_exists:
-                    value_exists = transfer_out_qty_row.transfer_out_qty !=0
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = transfer_out_qty_row.transfer_out_qty !=0
 
                 break
 
-        item_row["balance_qty"] = balance
+        item_row["balance_qty"] = balance_qty
 
-        if(value_exists):
+        if not show_all and transaction_value_exists:
+            data.append(item_row)
+        elif show_all and (transaction_value_exists or opening_value_exists):
             data.append(item_row)
 
     return data
