@@ -6,7 +6,7 @@
 	}
 	@media screen {
 		.print-format {
-			width: 80mm;
+			width: 5in;
 			padding: 0.1in;
 			min-height: 8in;
 		}
@@ -27,9 +27,9 @@
 </style>
 <button onclick="window.print();" style="right: 22px; position: absolute;" class="hidden-pdf btn btn-primary btn-sm primary-action hidden-print">Print</button>
 <body style="font-family: Bodoni MT condensed !important;font-size: 9px!important;">
-<p style="text-align: center;">DOLPHIN CHEMICALS LLC</p>
-<h2 class="text-center" >{%= __("Daily Stock Summary Report") %}</h2>
-<h4 class="text-center"">
+  <p style="text-align: center;font-size: 30px;">DOLPHIN CHEMICALS LLC</p>
+  <h2 class="text-center" style="font-size: 25px;">{%= __("Daily Stock Summary Report") %}</h2>
+  <h4 class="text-center"  style="font-size: 20px;">
     From {%= frappe.datetime.str_to_user(filters.from_date) %} To {%= frappe.datetime.str_to_user(filters.to_date) %}
 </h4>
 
@@ -37,9 +37,9 @@
 <table class="table table-condensed">
     <thead>
       <tr>
-        <th colspan="5" width="50%">Item Name</th>
+        <th colspan="5" width="50%" style="font-size:23px;">Item Name</th>
       </tr>
-      <tr>
+      <tr style="font-size:23px;">
         <th width="15%" class="text-right">Opening Qty</th>
         <th width="15%" class="text-right">Stock Recon</th>
         <th width="15%" class="text-right">Qty In</th>
@@ -49,10 +49,10 @@
     </thead>
     <tbody>
       {% for(var i=0, l=data.length; i<l; i++) { %}
-    <tr>
+    <tr style="font-size:23px;">
       <td colspan="5" width="50%"> {%= data[i].item_name %}</td>
     </tr>
-    <tr>
+    <tr style="font-size:23px;">
       <td width="15%" class="text-right">{%= data[i].opening_qty %}</td>
       <td width="15%" class="text-right">{%= data[i].stock_recon_qty %}</td>
       <td width="15%" class="text-right">{%= data[i].qty_in %}</td>

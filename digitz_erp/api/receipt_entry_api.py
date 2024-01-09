@@ -23,7 +23,7 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             SELECT
                 customer,
                 'Sales Invoice' as reference_type,
-                (CASE WHEN reference_no IS NOT NULL THEN CONCAT(name, ',:', reference_no) ELSE name END) as reference_name, 
+                (CASE WHEN reference_no IS NOT NULL THEN CONCAT(name, ': ', reference_no) ELSE name END) as reference_name, 
                 posting_date as date,               
                 paid_amount,
                 rounded_total as invoice_amount,
