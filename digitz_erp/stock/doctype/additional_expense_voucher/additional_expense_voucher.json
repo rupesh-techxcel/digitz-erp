@@ -1,0 +1,174 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "MAT-AEV-.YYYY.-.#####",
+ "creation": "2024-01-08 08:03:09.477415",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_g3n3",
+  "company",
+  "amended_from",
+  "column_break_draa",
+  "posting_date",
+  "is_sales",
+  "additional_cost_purchase_section",
+  "additional_cost_purchase",
+  "additional_cost_sales_section",
+  "additional_cost_sales",
+  "purchase_or_sales_item_section",
+  "get_items",
+  "purchase_or_sales_item",
+  "applicable_charges_section",
+  "credit_expense",
+  "payment_mode",
+  "payment_account",
+  "taxes_and_charges",
+  "total_taxes_and_charges"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_g3n3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Additional Expense Voucher",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_draa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "additional_cost_purchase_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Cost Purchase"
+  },
+  {
+   "fieldname": "additional_cost_purchase",
+   "fieldtype": "Table",
+   "label": "Additional Cost Purchase",
+   "options": "Additional Cost Purchase"
+  },
+  {
+   "fieldname": "additional_cost_sales_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Cost Sales"
+  },
+  {
+   "depends_on": "eval:doc.is_sales==1",
+   "fieldname": "additional_cost_sales",
+   "fieldtype": "Table",
+   "label": "Additional Cost Sales",
+   "options": "Additional Cost Sales"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_sales",
+   "fieldtype": "Check",
+   "label": "Is Sales"
+  },
+  {
+   "fieldname": "purchase_or_sales_item_section",
+   "fieldtype": "Section Break",
+   "label": "Purchase or Sales Item"
+  },
+  {
+   "fieldname": "purchase_or_sales_item",
+   "fieldtype": "Table",
+   "label": "Purchase or Sales Item",
+   "options": "Purchase or Sales Item"
+  },
+  {
+   "fieldname": "get_items",
+   "fieldtype": "Button",
+   "label": "Get Items"
+  },
+  {
+   "fieldname": "applicable_charges_section",
+   "fieldtype": "Section Break",
+   "label": "Applicable Charges"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_expense",
+   "fieldtype": "Check",
+   "label": "Credit Expense"
+  },
+  {
+   "depends_on": "eval:doc.credit_expense == 0",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "depends_on": "eval:doc.credit_expense == 0",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "taxes_and_charges",
+   "fieldtype": "Table",
+   "label": "Taxes and Charges",
+   "options": "Taxes and Charges"
+  },
+  {
+   "fieldname": "total_taxes_and_charges",
+   "fieldtype": "Currency",
+   "label": "Total Taxes and Charges"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-01-09 07:54:28.781055",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Additional Expense Voucher",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
