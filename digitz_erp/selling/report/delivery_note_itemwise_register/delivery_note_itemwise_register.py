@@ -15,13 +15,14 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
-            qty
+            i.item_group,
+            sum(qty) as qty
         FROM
             `tabDelivery Note Item` dni
         INNER JOIN
             `tabDelivery Note` dn ON dn.name = dni.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = dni.item
+        WHERE dn.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -37,7 +38,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND dni.warehouse = %(warehouse)s"
 
-    query += " ORDER BY posting_date, item"
+    query += " GROUP BY i.item_group ORDER BY sum(qty) desc LIMIT 25"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -73,9 +74,11 @@ def get_chart_data(filters=None):
 def get_data(filters):
     query = """
         SELECT
+            dni.item_name as item,            
             dn.customer,
+            dn.name as do_no,
             dn.posting_date,
-            dni.item,
+            
             i.item_group,
             dni.warehouse,
             qty,
@@ -89,7 +92,7 @@ def get_data(filters):
             `tabDelivery Note` dn ON dn.name = dni.parent
         INNER JOIN
             `tabItem` i ON i.name = dni.item
-        WHERE 1
+        WHERE dn.docstatus = 1
     """
     if filters:
         if filters.get('customer'):
@@ -110,9 +113,15 @@ def get_data(filters):
 
     return data
 
-
 def get_columns():
     return [
+        {
+            "label": _("Item"),
+            "fieldname": "item",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 200
+        },
         {
             "label": _("Customer"),
             "fieldname": "customer",
@@ -121,18 +130,19 @@ def get_columns():
             "width": 200
         },
         {
+            "label": _("DO No"),
+            "fieldname": "do_no",
+            "fieldtype": "Link",
+            "options": "Delivery Note",
+            "width": 150
+        },
+        {
             "label": _("Posting Date"),
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "width": 100
         },
-        {
-            "label": _("Item"),
-            "fieldname": "item",
-            "fieldtype": "Link",
-            "options": "Item",
-            "width": 200
-        },
+        
         {
             "label": _("Item Group"),
             "fieldname": "item_group",

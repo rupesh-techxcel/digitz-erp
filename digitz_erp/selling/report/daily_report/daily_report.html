@@ -44,21 +44,27 @@
 	<tbody>
 
         <!-- Sales -->
+
+        {% if data[i].total_sales>0 %}
         <tr>
             <td style="width:100%;font-size:20px;text-align: left;" colspan="2">
                 <b>Total sales: {%= data[i].total_sales %}</b>
-            </td>
-            
+            </td>            
         </tr>
-			<tr>
-                
-				<td style="width:60%;font-size:20px;margin-left:10px;">
-                   Credit sales:
-				</td>
-                <td style="width:40%;font-size:20px;text-align: right;">
-                    {%= data[i].total_credit_sales %}	    
-                </td>
-			</tr>
+        {% endif %}
+
+        {% if data[i].total_credit_sales>0 %}
+        <tr>
+            
+            <td style="width:60%;font-size:20px;margin-left:10px;">
+                Credit sales:
+            </td>
+            <td style="width:40%;font-size:20px;text-align: right;">
+                {%= data[i].total_credit_sales %}	    
+            </td>
+        </tr>
+        {% endif %}
+        {% if data[i].total_cash_sales >0 %}
             <tr>                
                 <td style="width:60%;font-size:20px;margin-left:10px;">
                     Cash sales:
@@ -67,19 +73,24 @@
                     {%= data[i].total_cash_sales %}
                 </td>
             </tr>
+        
             <tr>                
                 <td></td>
                 <td></td>
             </tr>
+        {% endif %}
 
             <!-- Sales Return -->
             <!-- Sales -->
+        {% if data[i].total_sales_return >0 %}
         <tr>
             <td style="width:100%;font-size:20px;text-align: left;" colspan="2">
                 <b>Total sales Return:  {%= data[i].total_sales_return %}</b>
             </td>
             
         </tr>
+        {% endif %}
+        {% if data[i].total_credit_sales_return >0 %}
 			<tr>                
 				<td style="width:60%;font-size:20px;margin-left:10px;">
                    Credit sales Return: 
@@ -88,6 +99,8 @@
                     {%= data[i].total_credit_sales_return %}	    
                 </td>
 			</tr>
+        {% endif %}
+        {% if data[i].total_cash_sales_return >0 %}
             <tr>                
                 <td style="width:60%;font-size:20px;margin-left:10px;">
                     Cash sales Return:
@@ -96,19 +109,26 @@
                     {%= data[i].total_cash_sales_return %}
                 </td>
             </tr>
+        
             <tr>                
                 <td></td>
                 <td></td>
             </tr>
+        {% endif %}
 
+        {% if data[i].total_purchase >0 %}
             <!-- Purchase -->
             <tr>                
                 <td style="width:50%;font-size:20px;" colspan="2"><b>Total Purchase: {%= data[i].total_purchase %}</b></td>                
             </tr>
+        {% endif %}
+        {% if data[i].total_credit_purchase >0 %}
             <tr>                
                 <td style="width:50%;font-size:20px;">Credit Purchase: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_credit_purchase %}</td>
             </tr>
+        {% endif %}
+        {% if data[i].total_cash_purchase >0 %}
             <tr>                
                 <td style="width:50%;font-size:20px;">Cash Purchase: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">
@@ -118,17 +138,23 @@
                 <td></td>
                 <td></td>
             </tr>
+        {% endif %}    
 
+        {% if data[i].total_purchase_return >0 %}
             <!-- Purchase Return -->
             <tr>                
                 <td style="width:50%;font-size:20px;" colspan="2"><b>Total Purchase Return: {%= data[i].total_purchase_return %}</b></td>                
             </tr>
+        {% endif %}
+        {% if data[i].total_credit_purchase_return >0 %}
             <tr>                
                 <td style="width:50%;font-size:20px;">Credit Purchase Return: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_credit_purchase_return %}</td>
             </tr>
+        {% endif %}
+        {% if data[i].total_cash_purchase_return >0 %}
             <tr>                
-                <td style="width:50%;font-size:20px;">Cash Purchase: </td>
+                <td style="width:50%;font-size:20px;">Cash Purchase Return: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">
                     {%= data[i].total_cash_purchase_return %}</td>
             </tr>
@@ -136,49 +162,72 @@
                 <td></td>
                 <td></td>
             </tr>
-            
+       {% endif %}
+        
+       {% if data[i].total_receipts >0 %}
             <!-- Receipts -->
             <tr>                
                 <td style="width:50%;font-size:20px;" colspan="2"><b>Total Receipts: {%= data[i].total_receipts %}</b></td>                
             </tr>
+        {% endif %}
+        {% if data[i].total_cash_receipts >0 %}
             <tr>                
                 <td style="width:50%;font-size:20px;">Cash Receipts: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_cash_receipts %}</td>
             </tr>
+            
+        {% endif %}
+
+        {% if data[i].total_bank_receipts >0 %}
             <tr>                
                 <td style="width:50%;font-size:20px;">Bank Receipts: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">
                     {%= data[i].total_bank_receipts %}</td>
             </tr>
+        
             <tr>                
                 <td></td>
                 <td></td>
             </tr>
+        {% endif %}
+
+        {% if data[i].total_payments >0 %}
                      
             <!-- Payments -->
             <tr>                
                 <td style="width:50%;font-size:20px;" colspan="2"><b>Total Payments: {%= data[i].total_payments %}</b></td>                
             </tr>
+        {% endif %}
+
+        {% if data[i].total_cash_payments >0 %}
+
             <tr>                
                 <td style="width:50%;font-size:20px;">Cash Payments: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">{%= data[i].total_cash_payments %}</td>
             </tr>
+        {% endif %}
+
+        {% if data[i].total_bank_payments >0 %}
             <tr>                
                 <td style="width:50%;font-size:20px;">Bank Payments: </td>
                 <td style="width:50%;font-size:20px;text-align: right;">
                     {%= data[i].total_bank_payments %}</td>
-            </tr>
+            </tr>        
+
             <tr>                
                 <td></td>
                 <td></td>
             </tr>
+        {% endif %}
 
+        {% if data[i].total_balance_cash >0 %}
             <tr>
                 <td style="width:50%;font-size:20px;"> Balance Cash: </td>
                 <td style="width:50%;font-size:20px; text-align: right;">
                     {%= data[i].total_balance_cash %}
                 </td>
             </tr>
+        {% endif %}
 
 	</tbody>
     {% } %}

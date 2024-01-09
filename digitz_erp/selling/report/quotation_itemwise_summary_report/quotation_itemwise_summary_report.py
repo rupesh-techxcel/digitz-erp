@@ -18,13 +18,14 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
-            sum(qty)
+            i.item_group,
+            sum(qi.net_amount)
         FROM
             `tabQuotation Item` qi
         INNER JOIN
             `tabQuotation` q ON q.name = qi.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = qi.item
+        WHERE q.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -40,7 +41,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND qi.warehouse = %(warehouse)s"
 
-    query += " GROUP BY item ORDER BY item"
+    query += " GROUP BY item_group ORDER BY item"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -77,40 +78,40 @@ def get_data(filters):
         query = """
             SELECT
                 q.customer,
-                qi.item,
+                qi.item_name as item,
                 i.item_group,
                 qi.warehouse,
                 sum(qty),
-                rate,
-                gross_amount AS 'Amount',
-                tax_amount AS 'Tax Amount',
-                net_amount AS 'Net Amount'
+                sum(qty*rate/qty) as rate,
+                sum(gross_amount) AS 'Amount',
+                sum(tax_amount) AS 'Tax Amount',
+                sum(net_amount) AS 'Net Amount'
             FROM
                 `tabQuotation Item` qi
             INNER JOIN
                 `tabQuotation` q ON q.name = qi.parent
             INNER JOIN
                 `tabItem` i ON i.name = qi.item
-            WHERE 1
+            WHERE q.docstatus = 1
         """
     else:
         query = """
             SELECT
-                qi.item,
+                qi.item_name as item,
                 i.item_group,
                 qi.warehouse,
                 sum(qty),
-                rate,
-                gross_amount AS 'Amount',
-                tax_amount AS 'Tax Amount',
-                net_amount AS 'Net Amount'
+                sum(qty*rate/rate) as rate,
+                sum(gross_amount) AS 'Amount',
+                sum(tax_amount) AS 'Tax Amount',
+                sum(net_amount) AS 'Net Amount'
             FROM
                 `tabQuotation Item` qi
             INNER JOIN
                 `tabQuotation` q ON q.name = qi.parent
             INNER JOIN
                 `tabItem` i ON i.name = qi.item
-            WHERE 1
+            WHERE q.docstatus =1
         """
     if filters:
         if filters.get('customer'):

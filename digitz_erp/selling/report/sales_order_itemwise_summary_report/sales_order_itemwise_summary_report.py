@@ -24,7 +24,7 @@ def get_chart_data(filters=None):
             `tabSales Order Item` soi
         INNER JOIN
             `tabSales Order` so ON so.name = soi.parent
-        WHERE 1
+        WHERE so.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -77,7 +77,7 @@ def get_data(filters):
         query = """
             SELECT
                 so.customer,
-                soi.item,
+                soi.item_name as item,
                 i.item_group,
                 soi.warehouse,
                 sum(qty),
@@ -91,7 +91,7 @@ def get_data(filters):
                 `tabSales Order`  so ON so.name = soi.parent
             INNER JOIN
                 `tabItem` i ON i.name = soi.item
-            WHERE 1
+            WHERE docstatus =1
         """
     else:
         query = """

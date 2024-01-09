@@ -16,13 +16,14 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-			item,
-			qty
+			i.item_group,
+			sum(net_amount) as qty
         FROM
 			`tabSales Order Item` soi
         INNER JOIN
 			`tabSales Order` so ON so.name = soi.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = soi.item
+        WHERE so.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -38,7 +39,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND soi.warehouse = %(warehouse)s"
 
-    query += " ORDER BY posting_date, item"
+    query += " GROUP BY i.item_group ORDER BY sum(soi.qty) desc LIMIT 25"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -76,7 +77,7 @@ def get_data(filters):
         SELECT
             so.customer,
             so.posting_date,
-            soi.item,
+            soi.item_name as item,
             i.item_group,
             soi.warehouse,
             qty,

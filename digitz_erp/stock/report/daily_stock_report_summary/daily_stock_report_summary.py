@@ -11,7 +11,7 @@ def execute(filters=None):
 
 def get_columns():
     return [
-        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 330},
+        {"label": _("Item"), "fieldname": "item_name", "fieldtype": "Link", "options": "Item", "width": 330},
         {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 140},
         {"label": _("Stock Recon"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 140},
         {"label": _("Qty In"), "fieldname": "qty_in", "fieldtype": "Float", "width": 140},
@@ -34,9 +34,11 @@ def get_data(filters):
 	# Fetch the opening quantity for all items based on the last record's balance quantity
 	opening_balance_query = f"""
 	SELECT
-		item as item_code,
+		sl.item as item_code,
+		i.item_name,
 		balance_qty as opening_qty
 	FROM `tabStock Ledger` sl
+	INNER JOIN 	`tabItem` i on i.name = sl.item
 	WHERE (item, posting_date) IN (
 		SELECT
 			item,
@@ -157,7 +159,7 @@ def get_data(filters):
 	data = []
 	for opening_balance_row in opening_balance_data:
 
-		item_row = {"item_code": opening_balance_row.item_code, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
+		item_row = {"item_name": opening_balance_row.item_name, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
   
 		print("item_row")
 		print(item_row)

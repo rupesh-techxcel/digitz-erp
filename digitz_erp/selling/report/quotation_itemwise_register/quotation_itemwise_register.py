@@ -10,18 +10,21 @@ def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     chart = get_chart_data(filters)
+    print("chart")
+    print(chart)
     return columns, data, None, chart
 
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
-            qty
+            item_group,
+            sum(qi.net_amount) as net_amount
         FROM
             `tabQuotation Item` qi
         INNER JOIN
             `tabQuotation` q ON q.name = qi.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = qi.item
+        WHERE q.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -37,7 +40,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND qi.warehouse = %(warehouse)s"
 
-    query += " ORDER BY posting_date, item"
+    query += " GROUP BY i.item_group ORDER BY sum(qi.net_amount) desc LIMIT 25"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -73,9 +76,10 @@ def get_chart_data(filters=None):
 def get_data(filters):
     query = """
         SELECT
+            qi.item_name as item,
             q.customer,
-            q.posting_date,
-            qi.item,
+            q.name as 'Qtn No',            
+            q.posting_date,            
             i.item_group,
             qi.warehouse,
             qty,
@@ -89,7 +93,7 @@ def get_data(filters):
             `tabQuotation` q ON q.name = qi.parent
         INNER JOIN
             `tabItem` i ON i.name = qi.item
-        WHERE 1
+        WHERE q.docstatus  = 1
     """
     if filters:
         if filters.get('customer'):
@@ -105,7 +109,7 @@ def get_data(filters):
         if filters.get('warehouse'):
             query += " AND qi.warehouse = %(warehouse)s"
 
-    query += " ORDER BY posting_date, qi.item"
+    query += " ORDER BY q.modified desc"
     data = frappe.db.sql(query, filters, as_list=True)
 
     return data
@@ -114,6 +118,13 @@ def get_data(filters):
 def get_columns():
     return [
         {
+            "label": _("Item"),
+            "fieldname": "item",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 200
+        },
+        {
             "label": _("Customer"),
             "fieldname": "customer",
             "fieldtype": "Link",
@@ -121,18 +132,18 @@ def get_columns():
             "width": 200
         },
         {
+            "label": _("Qtn No"),
+            "fieldname": "qtn_no",
+            "fieldtype": "Link",
+            "options": "Quotation",
+            "width": 200
+        },
+        {
             "label": _("Posting Date"),
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "width": 100
-        },
-        {
-            "label": _("Item"),
-            "fieldname": "item",
-            "fieldtype": "Link",
-            "options": "Item",
-            "width": 200
-        },
+        },        
         {
             "label": _("Item Group"),
             "fieldname": "item_group",

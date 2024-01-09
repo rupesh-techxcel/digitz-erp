@@ -18,7 +18,7 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
+            item_name as item,
             sum(qty)
         FROM
             `tabPurchase Invoice Item` pii
@@ -77,11 +77,11 @@ def get_data(filters):
         query = """
             SELECT
                 pi.supplier,
-                pii.item,
+                pii.item_name as item,
                 i.item_group,
                 pii.warehouse,
                 sum(qty),
-                rate,
+                round(sum(qty*rate)/sum(qty),2) as rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
@@ -96,11 +96,11 @@ def get_data(filters):
     else:
         query = """
             SELECT
-                pii.item,
+                pii.item_name as item,
                 i.item_group,
                 pii.warehouse,
                 sum(qty),
-                rate,
+                round(sum(qty*rate)/sum(qty),2) as rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
@@ -162,7 +162,7 @@ def get_columns():
             "width": 100
         },
         {
-            "label": _("Rate"),
+            "label": _("Avg Rate"),
             "fieldname": "rate",
             "fieldtype": "Currency",
             "width": 110

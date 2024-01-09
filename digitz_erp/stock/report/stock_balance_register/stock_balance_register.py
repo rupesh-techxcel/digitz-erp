@@ -15,13 +15,14 @@ def execute(filters=None):
 def get_data(filters=None):
     query = """
         SELECT
-            item,
-            warehouse,
-            stock_qty,
-            unit,
-            stock_value
+            i.item_name as item,
+            sb.warehouse,
+            sb.stock_qty,
+            sb.unit,
+            sb.stock_value
         FROM
-            `tabStock Balance`
+            `tabStock Balance` sb
+        INNER JOIN `tabItem` i on i.name = sb.item
         WHERE 1
     """
     if filters:
@@ -31,6 +32,8 @@ def get_data(filters=None):
             query += " AND stock_qty = %(stock_qty)s"
         if filters.get('warehouse'):
             query += " AND warehouse = %(warehouse)s"
+    
+    query += " ORDER BY i.item_name"
 
     data = frappe.db.sql(query, filters, as_dict=True)
     return data
@@ -38,10 +41,11 @@ def get_data(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
-            stock_qty
+            i.item_group,
+            sum(stock_qty)
         FROM
-            `tabStock Balance`
+            `tabStock Balance` sb
+        INNER JOIN `tabItem` i on i.name = sb.item
         WHERE 1
     """
     if filters:
@@ -51,6 +55,8 @@ def get_chart_data(filters=None):
             query += " AND stock_qty = %(stock_qty)s"
         if filters.get('warehouse'):
             query += " AND warehouse = %(warehouse)s"
+    
+    query += " GROUP BY i.item_group"
 
     data = frappe.db.sql(query, filters, as_list=True)
 

@@ -18,13 +18,14 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
-            sum(qty)
+            item_group,
+            sum(net_amount) 
         FROM
             `tabSales Invoice Item` sii
         INNER JOIN
             `tabSales Invoice` si ON si.name = sii.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = sii.item
+        WHERE si.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -40,7 +41,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND sii.warehouse = %(warehouse)s"
 
-    query += " GROUP BY item ORDER BY item"
+    query += " GROUP BY item_group ORDER BY sum(sii.qty) desc LIMIT 25"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -77,40 +78,42 @@ def get_data(filters):
         query = """
             SELECT
                 si.customer,
-                sii.item,
+                sii.item_name as item,
                 i.item_group,
                 sii.warehouse,
                 sum(qty),
-                rate,
-                gross_amount AS 'Amount',
-                tax_amount AS 'Tax Amount',
-                net_amount AS 'Net Amount'
+                sum(qty * rate/qty) as rate,
+                sum(gross_amount) AS 'Amount',
+                sum(tax_amount) AS 'Tax Amount',
+                sum(net_amount) AS 'Net Amount'
             FROM
                 `tabSales Invoice Item` sii
             INNER JOIN
                 `tabSales Invoice` si ON si.name = sii.parent
             INNER JOIN
-                `tabItem` i ON i.name = sii.item
-            WHERE 1
+                `tabItem` i ON i.name = sii.item                        
+            WHERE si.docstatus =1
+            
         """
     else:
         query = """
             SELECT
-                sii.item,
+                sii.item_name as item,
                 i.item_group,
                 sii.warehouse,
                 sum(qty),
-                rate,
-                gross_amount AS 'Amount',
-                tax_amount AS 'Tax Amount',
-                net_amount AS 'Net Amount'
+                sum(qty * rate/qty) as rate,
+                sum(gross_amount) AS 'Amount',
+                sum(tax_amount) AS 'Tax Amount',
+                sum(net_amount) AS 'Net Amount'
             FROM
                 `tabSales Invoice Item` sii
             INNER JOIN
                 `tabSales Invoice` si ON si.name = sii.parent
             INNER JOIN
-                `tabItem` i ON i.name = sii.item
-            WHERE 1
+                `tabItem` i ON i.name = sii.item            
+            WHERE si.docstatus =1
+            
         """
     if filters:
         if filters.get('customer'):
@@ -162,7 +165,7 @@ def get_columns():
             "width": 100
         },
         {
-            "label": _("Rate"),
+            "label": _("Avg Rate"),
             "fieldname": "rate",
             "fieldtype": "Currency",
             "width": 110

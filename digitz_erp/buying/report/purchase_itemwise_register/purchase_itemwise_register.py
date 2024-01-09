@@ -15,13 +15,13 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
+            item_name as item,
             qty
         FROM
             `tabPurchase Invoice Item` pii
         INNER JOIN
             `tabPurchase Invoice` pi ON pi.name = pii.parent
-        WHERE 1
+        WHERE pi.docstatus = 1
     """
     if filters:
         if filters.get('supplier'):
@@ -73,9 +73,10 @@ def get_chart_data(filters=None):
 def get_data(filters):
     query = """
         SELECT
+            pii.item_name as item,
             pi.supplier,
-            pi.posting_date,
-            pii.item,
+            pi.name as inv_no,
+            pi.posting_date,            
             i.item_group,
             pii.warehouse,
             qty,
@@ -89,7 +90,7 @@ def get_data(filters):
             `tabPurchase Invoice` pi ON pi.name = pii.parent
         INNER JOIN
             `tabItem` i ON i.name = pii.item
-        WHERE 1
+        WHERE pi.docstatus = 1
     """
     if filters:
         if filters.get('supplier'):
@@ -108,11 +109,20 @@ def get_data(filters):
     query += " ORDER BY posting_date, pii.item"
     data = frappe.db.sql(query, filters, as_list=True)
 
+    print("data")
+    print(data)
     return data
 
 
 def get_columns():
     return [
+         {
+            "label": _("Item"),
+            "fieldname": "item",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 200
+        },
         {
             "label": _("Supplier"),
             "fieldname": "supplier",
@@ -121,18 +131,18 @@ def get_columns():
             "width": 200
         },
         {
+            "label": _("Inv No"),
+            "fieldname": "inv_no",
+            "fieldtype": "Link",
+            "options": "Purchase Invoice",
+            "width": 155
+        },
+        {
             "label": _("Posting Date"),
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "width": 100
-        },
-        {
-            "label": _("Item"),
-            "fieldname": "item",
-            "fieldtype": "Link",
-            "options": "Item",
-            "width": 200
-        },
+        },       
         {
             "label": _("Item Group"),
             "fieldname": "item_group",

@@ -16,7 +16,7 @@ def get_chart_data(filters=None):
             SUM(dn.rounded_total) AS amount
         FROM
             `tabDelivery Note` dn
-        WHERE 1
+        WHERE docstatus =1
     """
     if filters:
         if filters.get('customer'):

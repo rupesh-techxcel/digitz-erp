@@ -15,13 +15,14 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
-            qty
+            item_group,
+            sum(net_amount)
         FROM
             `tabSales Invoice Item` sii
         INNER JOIN
             `tabSales Invoice` si ON si.name = sii.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = sii.item
+        WHERE si.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -37,7 +38,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND sii.warehouse = %(warehouse)s"
 
-    query += " ORDER BY posting_date, item"
+    query += " GROUP BY item_group ORDER BY sum(sii.qty) desc LIMIT 25"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -69,13 +70,13 @@ def get_chart_data(filters=None):
         }
     return chart
 
-
 def get_data(filters):
     query = """
         SELECT
-            si.customer,
-            si.posting_date,
-            sii.item,
+            sii.item_name as item,
+            c.customer_name,
+            si.name as inv_no,
+            si.posting_date,            
             i.item_group,
             sii.warehouse,
             qty,
@@ -89,7 +90,8 @@ def get_data(filters):
             `tabSales Invoice` si ON si.name = sii.parent
         INNER JOIN
             `tabItem` i ON i.name = sii.item
-        WHERE 1
+        INNER JOIN `tabCustomer` c on si.customer= c.name
+        WHERE si.docstatus = 1
     """
     if filters:
         if filters.get('customer'):
@@ -114,25 +116,33 @@ def get_data(filters):
 def get_columns():
     return [
         {
+            "label": _("Item"),
+            "fieldname": "item",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 200
+        },        
+        {
             "label": _("customer"),
             "fieldname": "customer",
             "fieldtype": "Link",
             "options": "customer",
             "width": 200
         },
+                {
+            "label": _("Inv No"),
+            "fieldname": "inv_no",
+            "fieldtype": "Link",
+            "options": "Sales Invoice",
+            "width": 200
+        },        
         {
             "label": _("Posting Date"),
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "width": 100
         },
-        {
-            "label": _("Item"),
-            "fieldname": "item",
-            "fieldtype": "Link",
-            "options": "Item",
-            "width": 200
-        },
+        
         {
             "label": _("Item Group"),
             "fieldname": "item_group",

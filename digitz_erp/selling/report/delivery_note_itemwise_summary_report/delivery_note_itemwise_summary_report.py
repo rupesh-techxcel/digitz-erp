@@ -18,13 +18,14 @@ def execute(filters=None):
 def get_chart_data(filters=None):
     query = """
         SELECT
-            item,
+            item_group,
             sum(qty)
         FROM
             `tabDelivery Note Item` dni
         INNER JOIN
             `tabDelivery Note` dn ON dn.name = dni.parent
-        WHERE 1
+        INNER JOIN `tabItem` i on i.name = dni.item
+        WHERE dn.docstatus =1
     """
     if filters:
         if filters.get('customer'):
@@ -40,7 +41,7 @@ def get_chart_data(filters=None):
         if filters.get('warehouse'):
             query += " AND dni.warehouse = %(warehouse)s"
 
-    query += " GROUP BY item ORDER BY item"
+    query += " GROUP BY item_group ORDER BY sum(qty) desc LIMIT 25"
     data = frappe.db.sql(query, filters, as_list=True)
 
     items = []
@@ -77,11 +78,11 @@ def get_data(filters):
         query = """
             SELECT
                 dn.customer,
-                dni.item,
+                dni.item_name as item,
                 i.item_group,
                 dni.warehouse,
                 sum(qty),
-                rate,
+                sum(qty*rate)/sum(qty) as rate,
                 gross_amount AS 'Amount',
                 tax_amount AS 'Tax Amount',
                 net_amount AS 'Net Amount'
@@ -91,12 +92,12 @@ def get_data(filters):
                 `tabDelivery Note` dn ON dn.name = dni.parent
             INNER JOIN
                 `tabItem` i ON i.name = dni.item
-            WHERE 1
+            WHERE dn.docstatus = 1
         """
     else:
         query = """
             SELECT
-                dni.item,
+                dni.item_name as item,
                 i.item_group,
                 dni.warehouse,
                 sum(qty),
@@ -110,7 +111,7 @@ def get_data(filters):
                 `tabDelivery Note` dn ON dn.name = dni.parent
             INNER JOIN
                 `tabItem` i ON i.name = dni.item
-            WHERE 1
+            WHERE dn.docstatus =1
         """
     if filters:
         if filters.get('customer'):
@@ -126,7 +127,7 @@ def get_data(filters):
         if filters.get('warehouse'):
             query += " AND dni.warehouse = %(warehouse)s"
 
-    query += " GROUP BY item ORDER BY item"
+    query += " GROUP BY dni.item ORDER BY item"
     data = frappe.db.sql(query, filters, as_list=True)
 
     return data
@@ -162,7 +163,7 @@ def get_columns():
             "width": 100
         },
         {
-            "label": _("Rate"),
+            "label": _("Avg Rate"),
             "fieldname": "rate",
             "fieldtype": "Currency",
             "width": 110

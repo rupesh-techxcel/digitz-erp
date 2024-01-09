@@ -14,9 +14,9 @@ def get_data(filters):
     # Item, from_date, to_date, warehouse
     if filters.get('item') and filters.get('from_date') and filters.get('to_date') and filters.get('warehouse'):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.item = '{0}'
               AND sl.warehouse = '{1}'
               AND sl.posting_date BETWEEN '{2}' AND '{3}'
@@ -25,9 +25,9 @@ def get_data(filters):
     # Item, from_date, to_date
     elif filters.get('item') and filters.get('from_date') and filters.get('to_date') and not filters.get('warehouse'):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.item = '{0}'
               AND sl.posting_date BETWEEN '{1}' AND '{2}'
             ORDER BY sl.item, sl.posting_date
@@ -35,9 +35,9 @@ def get_data(filters):
     # Item, warehouse
     elif filters.get('item') and filters.get('warehouse') and not (filters.get('from_date') and filters.get('to_date')):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.item = '{0}'
               AND sl.warehouse = '{1}'
             ORDER BY sl.item, sl.posting_date
@@ -45,44 +45,44 @@ def get_data(filters):
     # from_date, to_date
     elif filters.get('from_date') and filters.get('to_date') and not (filters.get('item') and filters.get('warehouse')):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.posting_date BETWEEN '{0}' AND '{1}'
             ORDER BY sl.item, sl.posting_date
         """.format(filters.get('from_date'), filters.get('to_date')), as_dict=True)
     # from_date
     elif filters.get('from_date') and not (filters.get('item') and not (filters.get('warehouse') and not filters('to_date'))):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.posting_date >= '{0}'
             ORDER BY sl.item, sl.posting_date
         """.format(filters.get('from_date')), as_dict=True)
     # Item
     elif filters.get('item') and not (filters.get('warehouse') or filters.get('from_date') or filters.get('to_date')):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.item = '{0}'
             ORDER BY sl.item, sl.posting_date
         """.format(filters.get('item')), as_dict=True)
     # Warehouse
     elif filters.get('warehouse') and not (filters.get('item') or filters.get('from_date') or filters.get('to_date')):
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl INNER JOIN `tabItem` i on i.name = sl.item 
             WHERE sl.warehouse = '{0}'
             ORDER BY sl.item, sl.posting_date
         """.format(filters.get('warehouse')), as_dict=True)
     else:
         data = frappe.db.sql("""
-            SELECT sl.item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
+            SELECT i.item_name as item, sl.voucher, sl.voucher_no, sl.posting_date, sl.warehouse,
                    sl.qty_in, sl.unit, sl.qty_out, sl.valuation_rate, sl.balance_qty
-            FROM `tabStock Ledger` sl
+            FROM `tabStock Ledger` sl  INNER JOIN `tabItem` i on i.name = sl.item 
             ORDER BY sl.item, sl.posting_date
         """, as_dict=True)
 
