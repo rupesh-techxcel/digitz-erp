@@ -52,6 +52,7 @@ class ReceiptEntry(Document):
 						if(self.Voucher_In_The_Same_Time()):
 							frappe.throw("Voucher with same time already exists.")
         
+		self.show_allocations = False
 		self.assign_missing_reference_nos()
 		self.clean_deleted_allocations()
 		self.postings_start_time = datetime.now()

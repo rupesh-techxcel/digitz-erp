@@ -23,7 +23,8 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             SELECT
                 customer,
                 'Sales Invoice' as reference_type,
-                (CASE WHEN reference_no IS NOT NULL THEN CONCAT(name, ': ', reference_no) ELSE name END) as reference_name, 
+                name as reference_name,                 
+                reference_no,
                 posting_date as date,               
                 paid_amount,
                 rounded_total as invoice_amount,
@@ -44,8 +45,9 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             receipt_allocation_query = """
                 SELECT
                     si.customer,
-                    (case when reference_no is not null then si.name + ' , ' + reference_no else si.name  end) as reference_name,  
+                     si.name as reference_name,  
                     'Sales Invoice' as reference_type,                  
+                    si.reference_no,
                     si.posting_date as date,                    
                     si.paid_amount,
                     si.rounded_total as invoice_amount,

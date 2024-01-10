@@ -223,7 +223,8 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 
 	if(frm.doc.__islocal)
 		frm.trigger("get_default_company_and_warehouse");
-	
+		//For receipt entry one blank row is intially added and couldn't find the reason of it. It is not happening with other doctypes. So removing the same.
+		// frm.doc.receipt_entry_details.splice(0,1)
 	}
 );
 
@@ -379,13 +380,23 @@ allocations: function(frm, cdt, cdn)
 								fieldname: 'reference_type',
 								label: 'Reference Type',								
 								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
+								in_list_view: false,
+								read_only:true,
+								hidden: true
 							},
 							{
 								fieldtype: "Link",
 								fieldname: "reference_name",
 								label: "Reference Name",							
+								in_place_edit: false,
+								in_list_view: true,
+								// width: "40%",
+								read_only:true
+							},					
+							{
+								fieldtype: "Link",
+								fieldname: "reference_no",
+								label: "Reference No",							
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
