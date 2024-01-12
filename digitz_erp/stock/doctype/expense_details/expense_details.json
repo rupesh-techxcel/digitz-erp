@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-01-08 15:54:23.515628",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "expense_head",
+  "expense_account",
+  "description",
+  "amount",
+  "tax_excluded",
+  "tax",
+  "tax_rate",
+  "total_amount"
+ ],
+ "fields": [
+  {
+   "fetch_from": "expense_head.expense_account",
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "expense_head",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Expense Head",
+   "options": "Expense Head",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fetch_from": ".",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "fetch_from": "expense_head.tax",
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fetch_from": "expense_head.tax_rate",
+   "fieldname": "tax_rate",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Tax Rate"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Amount"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-01-11 13:59:02.512912",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Expense Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
