@@ -54,6 +54,7 @@ class StockTransfer(Document):
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.do_postings_on_submit()		
 		else:
+			print("do_postings_on_submit_enqueue started")
 			frappe.enqueue(self.do_postings_on_submit, queue="long")
 
 	def do_postings_on_submit(self):
@@ -71,7 +72,7 @@ class StockTransfer(Document):
 		stock_recalc_voucher_for_source.voucher_date = self.posting_date
 		stock_recalc_voucher_for_source.voucher_time = self.posting_time
 		stock_recalc_voucher_for_source.status = 'Not Started'
-		stock_recalc_voucher_for_source.source_action = "Transfer"
+		stock_recalc_voucher_for_source.source_action = "Stock Transfer"
   
 		stock_recalc_voucher_for_target = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher_for_target.voucher = 'Stock Transfer'
@@ -79,7 +80,7 @@ class StockTransfer(Document):
 		stock_recalc_voucher_for_target.voucher_date = self.posting_date
 		stock_recalc_voucher_for_target.voucher_time = self.posting_time
 		stock_recalc_voucher_for_target.status = 'Not Started'
-		stock_recalc_voucher_for_target.source_action = "Transfer"
+		stock_recalc_voucher_for_target.source_action = "Stock Transfer"
 		
 		more_records_for_source = 0
 		more_records_for_target = 0
@@ -203,6 +204,7 @@ class StockTransfer(Document):
    
 			new_stock_ledger_target = frappe.new_doc("Stock Ledger")
 			new_stock_ledger_target.item = docitem.item
+			new_stock_ledger_target.item_name = docitem.item_name
 			new_stock_ledger_target.warehouse = docitem.target_warehouse
 			new_stock_ledger_target.posting_date = posting_date_time
 
@@ -220,14 +222,14 @@ class StockTransfer(Document):
 			new_stock_ledger_target.insert()
 	
 			if(more_records_count_for_item_for_target>0):				
-						stock_recalc_voucher_for_source.append('records',{'item': docitem.item,'warehouse': docitem.target_warehouse,'base_stock_ledger': new_stock_ledger_target.name
-																	})
+				stock_recalc_voucher_for_source.append('records',{'item': docitem.item,'warehouse': docitem.target_warehouse,'base_stock_ledger': new_stock_ledger_target.name																	})
 			else:
 				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.target_warehouse}):    
 					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.target_warehouse} )
 					
 				new_stock_balance = frappe.new_doc('Stock Balance')	
 				new_stock_balance.item = docitem.item
+				new_stock_balance.item_name = docitem.item_name
 				new_stock_balance.unit = docitem.base_unit
 				new_stock_balance.warehouse = docitem.target_warehouse
 				new_stock_balance.stock_qty = new_balance_qty
@@ -240,14 +242,22 @@ class StockTransfer(Document):
     
 		update_posting_status(self.doctype,self.name, 'stock_posted_time')
   
+		print("stock_recalc_voucher_for_source")
+		print(stock_recalc_voucher_for_source)
+	
+		print("stock_recalc_voucher_for_target")
+		print(stock_recalc_voucher_for_target)  
+  
 		if(more_records_for_source>0):
 			update_posting_status(self.doctype,self.name, 'stock_recalc_required', True)
 			stock_recalc_voucher_for_source.insert()
+			print("before recalculate stock ledgers for source")
 			recalculate_stock_ledgers(stock_recalc_voucher_for_source, self.posting_date, self.posting_time)
 			update_posting_status(self.doctype, self.name, 'stock_reclc_time')
    
 		if(more_records_for_target>0):
 				stock_recalc_voucher_for_target.insert()
+				print("before recalculate stock ledgers for target")    
 				recalculate_stock_ledgers(stock_recalc_voucher_for_target, self.posting_date, self.posting_time)
 	
 	def on_cancel(self):   
@@ -301,18 +311,18 @@ class StockTransfer(Document):
 			# If any items in the collection has more records
 			if(more_records_for_item_source_wh>0):
 				
-				stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
-				'warehouse':docitem.source_warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
+				# stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
+				# 'warehouse':docitem.source_warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
 
-				if(stock_ledger_items):
+				# if(stock_ledger_items):
 
-					qty_cancelled = docitem.qty_in_base_unit
-					# Loop to verify the sufficiant quantity
-					for sl in stock_ledger_items:					
-						# On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
-						if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
-							frappe.throw("Cancelling the stock reconciliation is prevented due to sufficiant quantity not available for " + docitem.item +
-						" to fulfil the voucher " + sl.voucher_no)
+				# 	qty_cancelled = docitem.qty_in_base_unit
+				# 	# Loop to verify the sufficiant quantity
+				# 	for sl in stock_ledger_items:					
+				# 		# On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
+				# 		if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
+				# 			frappe.throw("Cancelling the stock reconciliation is prevented due to sufficiant quantity not available for " + docitem.item +
+				# 		" to fulfil the voucher " + sl.voucher_no)
 			
 				if previous_stock_ledger_name_source:					
 					stock_recalc_voucher_source_wh.append('records',{'item': docitem.item, 
@@ -405,23 +415,18 @@ class StockTransfer(Document):
 					balance_value = previous_stock_ledger.balance_value
 					valuation_rate = previous_stock_ledger.valuation_rate
      
-				if stock_balance:		
-					stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance) 
-					# Add qty because of balance increasing due to cancellation of delivery note
-					stock_balance_for_item.stock_qty = balance_qty
-					stock_balance_for_item.stock_value = balance_value
-					stock_balance_for_item.valuation_rate = valuation_rate
-					stock_balance_for_item.save()                    
-				else:
-					stock_balance_for_item = frappe.new_doc("Stock Balance")
-					stock_balance_for_item.item = docitem.item
-					stock_balance_for_item.warehouse = docitem.target_warehouse
-					stock_balance_for_item.stock_qty = balance_qty
-					stock_balance_for_item.stock_value = balance_value
-					stock_balance_for_item.valuation_rate = valuation_rate
-					stock_balance_for_item.insert()                    
-     
-     
+				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+		
+				unit = frappe.get_value("Item", docitem.item,['base_unit'])     
+				stock_balance_for_item = frappe.new_doc("Stock Balance")
+				stock_balance_for_item.item = docitem.item
+				stock_balance_for_item.unit = unit
+				stock_balance_for_item.warehouse = docitem.target_warehouse
+				stock_balance_for_item.stock_qty = balance_qty
+				stock_balance_for_item.stock_value = balance_value
+				stock_balance_for_item.valuation_rate = valuation_rate
+				stock_balance_for_item.insert()                    
 
 				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
 				update_item_stock_balance(docitem.item)	
@@ -429,20 +434,18 @@ class StockTransfer(Document):
 		update_posting_status(self.doctype,self.name, 'stock_posted_on_cancel_time')
   
 		if(more_records_source_wh>0):
-			update_posting_status(self.doctype,self.name, 'stock_recalc_required_on_cancel', True)
-   
-			stock_recalc_voucher_source_wh.insert()
-   
+			update_posting_status(self.doctype,self.name, 'stock_recalc_required_on_cancel', True)   
+			stock_recalc_voucher_source_wh.insert()   
 			recalculate_stock_ledgers(stock_recalc_voucher_source_wh, self.posting_date, self.posting_time)
-
 			update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time')
    
 		if(more_records_target_wh>0):
+			update_posting_status(self.doctype,self.name, 'stock_recalc_required_on_cancel', True)
 			stock_recalc_voucher_target_wh.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher_target_wh, self.posting_date, self.posting_time)
+			update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time')
    
 		frappe.db.delete("Stock Ledger",
 				{"voucher": "Stock Transfer",
 					"voucher_no":self.name
-				})
-		
+				})		

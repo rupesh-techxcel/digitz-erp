@@ -10,12 +10,18 @@ from frappe.utils import *
 class GLPosting(Document):
 	pass
 
-	def on_update(self):
-		self.ledger_closing_balance_updation()
+	# def on_update(self):
+		# self.ledger_closing_balance_updation()
 
 	@frappe.whitelist()
 	def ledger_closing_balance_updation(self):
 		''' Method used for updating balance in account'''
+  
+		# Get current_date from self.posting_date
+		# Get current time from self.posting_time
+		# Write a sql query to get sum(debit) - sum(credit) for the self.account 
+		# Then update in the closing balance
+  
 		current_date = nowdate()
 		current_time = nowtime()
 		credit_sum = {}

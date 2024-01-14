@@ -53,13 +53,15 @@ def get_data(filters):
     )
     """
 
-    print("opening_balance_query")
-    print(opening_balance_query)
-
     opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
+    
+    print(opening_balance_data)
+    print(opening_balance_data)
 
     stock_recon_qty_query = f"""
-        SELECT item as item_code, SUM(balance_qty) as balance_qty
+        SELECT item as item_code, SUM(balance_qty) as balance_qty,
+        SUM(qty_in) as qty_in,
+        SUM(qty_out) as qty_out
         FROM `tabStock Ledger`
         WHERE voucher = 'Stock Reconciliation'
             AND posting_date >= '{from_date} 00:00:00'
@@ -171,10 +173,11 @@ def get_data(filters):
         opening_value_exists = balance_qty != 0
         transaction_value_exists = False
 
+        # For reconciliation it can be qty_in and qty_out both needs to be considered for balance_qty
         for stock_recon_qty_row in stock_recon_qty_data:
             if stock_recon_qty_row.item_code == opening_balance_row.item_code:
                 item_row["stock_recon_qty"] = stock_recon_qty_row.balance_qty
-                balance_qty = stock_recon_qty_row.balance_qty
+                balance_qty += stock_recon_qty_row.qty_in - stock_recon_qty_data.qty_out
 
                 (transaction_value_exists) = True
                 break

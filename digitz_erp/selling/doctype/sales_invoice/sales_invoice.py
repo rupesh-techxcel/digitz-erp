@@ -235,8 +235,7 @@ class SalesInvoice(Document):
                                                             })
 
             else:
-
-                stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
+                
                 balance_qty =0
                 balance_value =0
                 valuation_rate  = 0
@@ -246,13 +245,30 @@ class SalesInvoice(Document):
                     balance_qty = previous_stock_ledger.balance_qty
                     balance_value = previous_stock_ledger.balance_value
                     valuation_rate = previous_stock_ledger.valuation_rate
+                    
+            
+                if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+                    frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
-                stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
-                # Add qty because of balance increasing due to cancellation of delivery note
-                stock_balance_for_item.stock_qty = balance_qty
-                stock_balance_for_item.stock_value = balance_value
-                stock_balance_for_item.valuation_rate = valuation_rate
-                stock_balance_for_item.save()
+                unit = frappe.get_value("Item", docitem.item,['base_unit'])
+
+                new_stock_balance = frappe.new_doc('Stock Balance')
+                new_stock_balance.item = docitem.item
+                new_stock_balance.item_name = docitem.item_name
+                new_stock_balance.unit = unit
+                new_stock_balance.warehouse = docitem.warehouse
+                new_stock_balance.stock_qty = balance_qty
+                new_stock_balance.stock_value = balance_value
+                new_stock_balance.valuation_rate = valuation_rate
+
+                new_stock_balance.insert()
+
+                # stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
+                # # Add qty because of balance increasing due to cancellation of delivery note
+                # stock_balance_for_item.stock_qty = balance_qty
+                # stock_balance_for_item.stock_value = balance_value
+                # stock_balance_for_item.valuation_rate = valuation_rate
+                # stock_balance_for_item.save()
                 
                 update_item_stock_balance(docitem.item)
 

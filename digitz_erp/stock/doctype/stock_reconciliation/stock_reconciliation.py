@@ -261,8 +261,7 @@ class StockReconciliation(Document):
 															'base_stock_ledger': "No Previous Ledger"
 															})
             else:
-
-                stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
+                
                 balance_qty =0
                 balance_value =0
                 valuation_rate  = 0
@@ -273,12 +272,18 @@ class StockReconciliation(Document):
                     balance_value = previous_stock_ledger.balance_value
                     valuation_rate = previous_stock_ledger.valuation_rate
 
-                stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
-                # Add qty because of balance increasing due to cancellation of delivery note
+                if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+                    frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+
+                unit = frappe.get_value("Item", docitem.item,['base_unit'])     
+                stock_balance_for_item = frappe.new_doc("Stock Balance")
+                stock_balance_for_item.item = docitem.item
+                stock_balance_for_item.unit = unit
+                stock_balance_for_item.warehouse = docitem.target_warehouse
                 stock_balance_for_item.stock_qty = balance_qty
                 stock_balance_for_item.stock_value = balance_value
                 stock_balance_for_item.valuation_rate = valuation_rate
-                stock_balance_for_item.save()
+                stock_balance_for_item.insert()
 
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
                 update_item_stock_balance(docitem.item)
@@ -302,12 +307,11 @@ class StockReconciliation(Document):
                 {"Voucher_type": "Stock Reconciliation",
                     "voucher_no":self.name
                 })
+        
         update_posting_status(self.doctype,self.name, 'posting_status','Completed')
 
     def insert_gl_records(self, stock_adjustment_value):
-
-        print("From insert gl records")
-
+        
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")
 

@@ -285,7 +285,15 @@ frappe.ui.form.on('Stock Transfer Item', {
 		frm.target_warehouse = row.target_warehouse
 		frm.trigger("get_item_stock_balance");
 	},
-
+	items_add(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		row.source_warehouse = frm.doc.source_warehouse
+		row.target_warehouse = frm.doc.target_warehouse
+		frm.refresh_field("items");
+	},
+	items_remove(frm, cdt, cdn) {
+		frm.trigger("make_totals")
+	},
 	qty(frm, cdt, cdn) {	
 		
 		frm.trigger("make_totals")

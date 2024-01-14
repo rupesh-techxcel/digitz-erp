@@ -24,7 +24,8 @@
   "voucher_no",
   "source",
   "source_document_id",
-  "recalculated"
+  "recalculated",
+  "log"
  ],
  "fields": [
   {
@@ -152,12 +153,17 @@
    "fieldname": "recalculated",
    "fieldtype": "Check",
    "label": "Recalculated"
+  },
+  {
+   "fieldname": "log",
+   "fieldtype": "Small Text",
+   "label": "Log"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-28 17:55:59.927456",
+ "modified": "2024-01-12 20:55:51.266238",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

@@ -174,36 +174,42 @@ class DeliveryNote(Document):
             previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
                 , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
 
-            stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
+            if(more_record_for_item == 0):        
+                
+                if(previous_stock_ledger_name):
+                    previous_stock_ledger = frappe.get_doc('Stock Ledger',previous_stock_ledger_name)
+                    balance_qty = previous_stock_ledger.balance_qty
+                    balance_value = previous_stock_ledger.balance_value
+                    valuation_rate = previous_stock_ledger.valuation_rate
+                
+                if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+                    frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
-            # Not likely to occur
-            if(not stock_balance):
-                frappe.throw("Stock Balance record not found for the item in the warehouse")
+                unit = frappe.get_value("Item", docitem.item,['base_unit'])
+
+                new_stock_balance = frappe.new_doc('Stock Balance')
+                new_stock_balance.item = docitem.item
+                new_stock_balance.item_name = docitem.item_name
+                new_stock_balance.unit = unit
+                new_stock_balance.warehouse = docitem.warehouse
+                new_stock_balance.stock_qty = balance_qty
+                new_stock_balance.stock_value = balance_value
+                new_stock_balance.valuation_rate = valuation_rate
+
+                new_stock_balance.insert()
+                update_item_stock_balance(docitem.item)
             else:
-                # If more records is 0, subsequent process is not doing so that balances need to be updated here
-
-                previous_stock_ledger = frappe.get_doc('Stock Ledger',previous_stock_ledger_name)
-
-                if(more_record_for_item == 0):
-                    stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
-                    # Add qty because of balance increasing due to cancellation of delivery note
-                    stock_balance_for_item.stock_qty = previous_stock_ledger.balance_qty
-                    stock_balance_for_item.stock_value = previous_stock_ledger.balance_value
-                    stock_balance_for_item.save()
-                    # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                    update_item_stock_balance(docitem.item)
+                if previous_stock_ledger_name:
+                # Previous stock ledger assigned to base stock ledger
+                    stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                            'warehouse': docitem.warehouse,
+                                                            'base_stock_ledger': previous_stock_ledger_name
+                                                            })
                 else:
-                    if previous_stock_ledger_name:
-                    # Previous stock ledger assigned to base stock ledger
-                        stock_recalc_voucher.append('records',{'item': docitem.item,
-                                                                'warehouse': docitem.warehouse,
-                                                                'base_stock_ledger': previous_stock_ledger_name
-                                                                })
-                    else:
-                        stock_recalc_voucher.append('records',{'item': docitem.item,
-                                                                'warehouse': docitem.warehouse,
-                                                                'base_stock_ledger': "No Previous Ledger"
-                                                                })
+                    stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                            'warehouse': docitem.warehouse,
+                                                            'base_stock_ledger': "No Previous Ledger"
+                                                            })
         
         print("stock posting on cancel time")
         update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')

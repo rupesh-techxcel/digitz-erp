@@ -12,48 +12,89 @@ def execute(filters=None):
 def get_data(filters):
 
 	data = ""
-	# Item, from_date, to_date, warehouse
-	if(filters.get('item')  and  filters.get('from_date') and filters.get('to_date') and filters.get('warehouse')):
-		data = frappe.db.sql(""" SELECT i.item_name as item, sl.voucher, sl.voucher_no,posting_date,warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl   inner join `tabItem` i on i.name=sl.item where sl.item = '{0}' and warehouse='{1}' and sl.posting_date BETWEEN '{2}' and '{3}' order by sl.item, posting_date """.format(filters.get('item'),filters.get('warehouse'),filters.get('from_date'),filters.get('to_date')),as_dict=True)
-	# Item, from_date, to_date
-	elif(filters.get('item')  and  filters.get('from_date') and filters.get('to_date') and not( filters.get('warehouse'))):
-		data = frappe.db.sql(""" SELECT i.item_name as item, sl.voucher, sl.voucher_no,posting_date,warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl inner join `tabItem` i on i.name=sl.item where sl.item = '{0}'  and sl.posting_date BETWEEN '{1}' and '{2}' order by sl.item, posting_date """.format(filters.get('item'),filters.get('from_date'),filters.get('to_date')),as_dict=True)
-	# Item, warehouse
-	elif(filters.get('item')  and  filters.get('warehouse') and not(filters.get('from_date') and filters.get('to_date'))):
-		data = frappe.db.sql(""" SELECT i.item_name as item, sl.voucher, sl.voucher_no,posting_date,warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl inner join `tabItem` i on i.name=sl.item where sl.item = '{0}'  and sl.warehouse='{1}' order by sl.item, posting_date """.format(filters.get('item'),filters.get('warehouse')),as_dict=True)
-	# from_date, to_date
-	elif(filters.get('from_date') and filters.get('to_date') and not(filters.get('item'))  and not(filters.get('warehouse'))):
-		data = frappe.db.sql(""" SELECT i.item_name as item, sl.voucher, sl.voucher_no, posting_date, warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl inner join `tabItem` i on i.name=sl.item where sl.posting_date BETWEEN '{0}' and '{1}' order by sl.item, posting_date  """.format(filters.get('from_date'),filters.get('to_date')),as_dict=True)
-  # from_date
-	elif(filters.get('from_date') and not(filters.get('item') and not(filters.get('warehouse') and not(filters('to_date'))))):
-		data = frappe.db.sql(""" SELECT i.item_name as item,sl.voucher, sl.voucher_no,posting_date, warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl inner join `tabItem` i on i.name=sl.item where sl.posting_date >= '{0}' order by sl.item, posting_date """.format(filters.get('from_date')),as_dict=True)
-  # Item
-	elif (filters.get('item') and not(filters.get('warehouse')) and not(filters.get('from_date') and filters.get('to_date'))) :
-		data = frappe.db.sql(""" SELECT i.item_name as item,sl.voucher, sl.voucher_no, posting_date, warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl inner join `tabItem` i on i.name=sl.item where sl.item = '{0}' order by sl.item, posting_date """.format(filters.get('item')),as_dict=True)
-  #warehouse
-	elif (filters.get('warehouse') and not(filters.get('item') and not(filters.get('from_date') and filters.get('to_date'))) ):
-		data = frappe.db.sql(""" SELECT i.item_name as item,sl.voucher, sl.voucher_no, posting_date, warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl inner join `tabItem` i on i.name=sl.item where sl.warehouse = '{0}' order by sl.item, posting_date """.format(filters.get('warehouse')),as_dict=True)
-	else:
-		data = frappe.db.sql(""" SELECT i.item_name as item,sl.voucher, sl.voucher_no, posting_date, warehouse,qty_in, round(incoming_rate,2)  as 'incoming_rate', sl.unit  as 'unit', round(qty_out,2)  as 'qty_out', round(outgoing_rate,2)  as 'outgoing_rate', round(valuation_rate,2) as 'valuation_rate',round(change_in_stock_value,2) as change_in_stock_value, round(balance_qty,2)  as 'balance_qty', round(balance_value,2) as 'balance_value' FROM `tabStock Ledger` sl order by sl.item, posting_date  """,as_dict=True)
 
+	# Constructing the base query
+	base_query = """
+		SELECT
+			sl.item as item_code,
+			i.item_name as item,
+			sl.voucher,
+			sl.voucher_no,
+			posting_date,
+			warehouse,
+			qty_in,
+			round(incoming_rate, 2) as 'incoming_rate',
+			sl.unit as 'unit',
+			round(qty_out, 2) as 'qty_out',
+			round(outgoing_rate, 2) as 'outgoing_rate',
+			round(valuation_rate, 2) as 'valuation_rate',
+			round(change_in_stock_value, 2) as change_in_stock_value,
+			round(balance_qty, 2) as 'balance_qty',
+			round(balance_value, 2) as 'balance_value'
+		FROM
+			`tabStock Ledger` sl
+		INNER JOIN
+			`tabItem` i ON i.name = sl.item
+	"""
+	print("filters")
+	print(filters)
+	print("filters.get('item'")
+	print(filters.get('item'))
+
+	# Constructing the WHERE clause based on filters
+	where_clause = ""
+	if filters.get('item'):
+		where_clause += f" AND sl.item = '{filters['item']}'"
+	if filters.get('from_date') and filters.get('to_date'):
+		where_clause += f" AND sl.posting_date BETWEEN '{filters['from_date']} 00:00:00' AND '{filters['to_date']} 23:59:59'"
+	if filters.get('warehouse'):
+		where_clause += f" AND sl.warehouse = '{filters['warehouse']}'"
+
+	print("where_clause")    
+	print(where_clause)
+
+	# Finalizing the SQL query
+	sql = f"{base_query} WHERE 1=1 {where_clause} ORDER BY i.item_name, sl.posting_date"
+
+	print("sql")
+	print(sql)
+
+	# Executing the query
+	data = frappe.db.sql(sql, as_dict=True)
+
+	print("data")
+	print(data)
+
+	# Processing the data
 	last_item = ""
 	last_warehouse = ""
 	last_qty = 0
+
 	for dl in data:
-		if not(dl.item == last_item and dl.warehouse == last_warehouse):
-			print(dl.item)
-			print(dl.warehouse)
+		
+		if not (dl.item == last_item and dl.warehouse == last_warehouse):
+			sql ="""
+				SELECT balance_qty
+				FROM `tabStock Ledger`
+				WHERE item = '{item}'
+				AND warehouse = '{warehouse}'
+				AND posting_date < '{date}'
+				ORDER BY posting_date DESC
+				LIMIT 1
+				""".format(item=dl.item_code,warehouse= dl.warehouse, date=dl.posting_date)
+    
+			print(sql)
+   
+			result = frappe.db.sql(sql)
 
-			opening_qty = frappe.get_value('Stock Ledger',{'item':dl.item,'warehouse':dl.warehouse, 'posting_date':['<', dl.posting_date]}, 'balance_qty', order_by='posting_date')
+			opening_qty = result[0][0] if result and result[0] else 0
 
-			if(opening_qty):
-				dl.update({"opening_qty":round(opening_qty,2)})
-			else:
-				dl.update({"opening_qty":0})
-
-			print(opening_qty)
+			dl.update({"opening_qty": round(opening_qty, 2)} if opening_qty else {"opening_qty": 0})
+   
+			print("opening_qty")
+			print(opening_qty)			
 		else:
-			dl.update({"opening_qty":round(last_qty,2)})
+			dl.update({"opening_qty": round(last_qty, 2)})
 
 		last_item = dl.item
 		last_qty = dl.balance_qty

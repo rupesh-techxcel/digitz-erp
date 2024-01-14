@@ -26,9 +26,13 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         new_balance_value = 0
         new_valuation_rate = 0
         
+        base_stock_ledger_name = ""
+                
         if record.base_stock_ledger != "No Previous Ledger":
         
             base_stock_ledger = frappe.get_doc('Stock Ledger', record.base_stock_ledger)        	
+            base_stock_ledger_name = base_stock_ledger.name
+            
             new_balance_qty = base_stock_ledger.balance_qty
             new_balance_value = base_stock_ledger.balance_value
             new_valuation_rate = base_stock_ledger.valuation_rate
@@ -37,10 +41,12 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]}, 'name',order_by='posting_date')
 
         # Scenario 1- PUrchase Invoice - current row cancelled. For this assigned previous stock ledger balance to 'Stock Recalculate Voucher'
+                
+        log = ""
 
         for sl_name in next_stock_ledgers:
             
-            sl = frappe.get_doc('Stock Ledger', sl_name)                
+            sl = frappe.get_doc('Stock Ledger', sl_name)
             qty_in = 0
             qty_out = 0
             previous_stock_value = sl.change_in_stock_value
@@ -72,19 +78,21 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
             
             # Sales invoice included to favor Tab Sales
             if(sl.voucher == "Delivery Note" or sl.voucher== "Purchase Return" or sl.voucher== "Sales Invoice"):
+                previous_balance_qty = new_balance_qty
                 previous_balance_value = new_balance_value #Assign before change                    
                 new_balance_qty = new_balance_qty - sl.qty_out
                 new_balance_value = new_balance_qty * new_valuation_rate                    
                 change_in_stock_value = new_balance_value - previous_balance_value
                 sl.change_in_stock_value = change_in_stock_value
+                sl.log = f"previous stock balance {previous_balance_qty}"
                 
                 # If there is a value change for stock, make adjustment in GL Posting
-                if(previous_stock_value != change_in_stock_value):
-                    gl_postings = frappe.get_list('GL Posting',{'voucher_type': sl.voucher,'voucher_no': sl.voucher_no},['name'])
-                    for gl_posting in gl_postings:
-                        gl = frappe.get_doc('GL Posting', gl_posting.name)
-                        gl.change_in_stock_value = change_in_stock_value
-                        gl.save()                            
+                # if(previous_stock_value != change_in_stock_value):
+                #     gl_postings = frappe.get_list('GL Posting',{'voucher_type': sl.voucher,'voucher_no': sl.voucher_no},['name'])
+                #     for gl_posting in gl_postings:
+                #         gl = frappe.get_doc('GL Posting', gl_posting.name)
+                #         gl.change_in_stock_value = change_in_stock_value
+                #         gl.save()                            
                         
                 # if(new_balance_qty<0 and allow_negative_stock== False):
                 #     frappe.throw("Stock availability is not sufficiant to make this transaction, the delivery note " + sl.voucher_no + " cannot be fulfilled.")

@@ -417,6 +417,22 @@ class PurchaseInvoice(Document):
 					balance_value = previous_stock_ledger.balance_value
 					valuation_rate = previous_stock_ledger.valuation_rate
 
+					if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+						frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+
+				unit = frappe.get_value("Item", docitem.item,['base_unit'])
+
+				new_stock_balance = frappe.new_doc('Stock Balance')
+				new_stock_balance.item = docitem.item
+				new_stock_balance.item_name = docitem.item_name
+				new_stock_balance.unit = unit
+				new_stock_balance.warehouse = docitem.warehouse
+				new_stock_balance.stock_qty = balance_qty
+				new_stock_balance.stock_value = balance_value
+				new_stock_balance.valuation_rate = valuation_rate
+
+				new_stock_balance.insert()
+
 				stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
 				# Add qty because of balance increasing due to cancellation of delivery note
 				stock_balance_for_item.stock_qty = balance_qty
