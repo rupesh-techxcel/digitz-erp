@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 
-class AdditionalExpenseVoucher(Document):
+class AdditionalExpenseEntry(Document):
 	pass
 
 @frappe.whitelist()

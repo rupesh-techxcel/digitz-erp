@@ -1,7 +1,7 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Additional Expense Voucher", {
+frappe.ui.form.on("Additional Expense Entry", {
 	refresh(frm) {
   },
   onload: function(frm)
@@ -158,7 +158,7 @@ d.show();
 	get_purchase_items: function(frm){
 		var selectedInvoices = frm.doc.additional_cost_purchase.map(row => row.purchase_invoice);
 		frappe.call({
-        method: "digitz_erp.stock.doctype.additional_expense_voucher.additional_expense_voucher.get_purchase_invoice_items",
+        method: "digitz_erp.stock.doctype.additional_expense_entry.additional_expense_entry.get_purchase_invoice_items",
         args: {
             selected_invoices: selectedInvoices
         },
@@ -180,7 +180,7 @@ d.show();
 	get_sales_items: function(frm){
 		var selectedInvoices = frm.doc.additional_cost_sales.map(row => row.sales_invoice);
 		frappe.call({
-				method: "digitz_erp.stock.doctype.additional_expense_voucher.additional_expense_voucher.get_sales_invoice_items",
+				method: "digitz_erp.stock.doctype.additional_expense_entry.additional_expense_entry.get_sales_invoice_items",
 				args: {
 						selected_invoices: selectedInvoices
 				},
