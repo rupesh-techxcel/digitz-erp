@@ -37,6 +37,16 @@ frappe.ui.form.on('Delivery Note', {
 						}
 					});
 			}
+
+			frm.add_custom_button('Recalculate Stock', () => {
+				frm.call("do_stock_re_posting")
+			});
+		
+		if(frm.docstatus == 2)
+			frm.add_custom_button('Recalculate Stock', () => {
+				frm.call("do_stock_re_posting")
+			});
+
 	},
 
 	setup: function (frm) {

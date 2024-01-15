@@ -21,16 +21,17 @@
   "warehouse",
   "supplier_inv_no",
   "supplier_inv_date",
-  "default_payable_account",
   "accounts_section",
-  "credit_expense",
+  "on_credit",
   "credit_days",
   "payment_mode",
   "payment_account",
   "column_break_nnfu",
   "remarks",
-  "debit_note_item_section",
-  "debit_note_items",
+  "payable_account",
+  "column_break_hcea",
+  "debit_note_detail_section",
+  "debit_note_details",
   "total_amount",
   "tax_total",
   "grand_total",
@@ -146,17 +147,6 @@
    "label": "Supplier Inv Date"
   },
   {
-   "fieldname": "debit_note_item_section",
-   "fieldtype": "Section Break",
-   "label": "Debit Note Item"
-  },
-  {
-   "fieldname": "debit_note_items",
-   "fieldtype": "Table",
-   "label": "Debit Note Items",
-   "options": "Debit Note Item"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -167,12 +157,7 @@
    "search_index": 1
   },
   {
-   "default": "0",
-   "fieldname": "credit_expense",
-   "fieldtype": "Check",
-   "label": "Credit Expense"
-  },
-  {
+   "fetch_from": "payment_mode.account",
    "fieldname": "payment_account",
    "fieldtype": "Link",
    "label": "Payment Account",
@@ -182,13 +167,6 @@
    "fieldname": "credit_days",
    "fieldtype": "Int",
    "label": "Credit Days"
-  },
-  {
-   "fieldname": "default_payable_account",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Default Payable Account",
-   "options": "Account"
   },
   {
    "fieldname": "total_amount",
@@ -204,12 +182,39 @@
    "fieldname": "grand_total",
    "fieldtype": "Currency",
    "label": "Grand Total"
+  },
+  {
+   "fieldname": "payable_account",
+   "fieldtype": "Link",
+   "label": "Payable Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "on_credit",
+   "fieldtype": "Check",
+   "label": "On Credit"
+  },
+  {
+   "fieldname": "debit_note_details",
+   "fieldtype": "Table",
+   "label": "Debit Note Details",
+   "options": "Debit Note Detail"
+  },
+  {
+   "fieldname": "column_break_hcea",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "debit_note_detail_section",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-28 16:43:46.184128",
+ "modified": "2024-01-15 19:14:08.347570",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Debit Note",

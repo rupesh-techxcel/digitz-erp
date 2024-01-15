@@ -17,7 +17,11 @@
   "payment_posted_time",
   "stock_posted_on_cancel_time",
   "stock_recalc_required_on_cancel",
-  "stock_recalc_on_cancel_time"
+  "stock_recalc_on_cancel_time",
+  "stock_recalc_required_after_submit",
+  "stock_recalc_after_submit_time",
+  "stock_recalc_required_after_cancel",
+  "stock_recalc_after_cancel_time"
  ],
  "fields": [
   {
@@ -84,12 +88,34 @@
    "fieldtype": "Dynamic Link",
    "label": "Document Name",
    "options": "document_type"
+  },
+  {
+   "default": "0",
+   "fieldname": "stock_recalc_required_after_submit",
+   "fieldtype": "Check",
+   "label": "Stock Recalc Required After Submit"
+  },
+  {
+   "fieldname": "stock_recalc_after_submit_time",
+   "fieldtype": "Datetime",
+   "label": "Stock Recalc After Submit Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "stock_recalc_required_after_cancel",
+   "fieldtype": "Check",
+   "label": "Stock Recalc Required After Cancel"
+  },
+  {
+   "fieldname": "stock_recalc_after_cancel_time",
+   "fieldtype": "Datetime",
+   "label": "Stock Recalc After Cancel Time"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-12-15 15:58:58.765913",
+ "modified": "2024-01-14 22:12:53.799772",
  "modified_by": "Administrator",
  "module": "General",
  "name": "Document Posting Status",

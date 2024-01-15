@@ -11,7 +11,7 @@ class DebitNote(Document):
 
 	def insert_gl_records(self):
 		idx = 1
-		for debit_note in self.debit_note_items:
+		for debit_note in self.debit_note_details:
 
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.idx = idx

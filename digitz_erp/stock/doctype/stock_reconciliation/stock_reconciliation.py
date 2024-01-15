@@ -304,7 +304,7 @@ class StockReconciliation(Document):
                 })
 
         frappe.db.delete("GL Posting",
-                {"Voucher_type": "Stock Reconciliation",
+                {"voucher_type": "Stock Reconciliation",
                     "voucher_no":self.name
                 })
         
@@ -321,7 +321,7 @@ class StockReconciliation(Document):
 
         # Inventory account Eg: Stock In Hand
         gl_doc = frappe.new_doc('GL Posting')
-        gl_doc.voucher_type = "Delivery Note"
+        gl_doc.voucher_type = "Stock Reconciliation"
         gl_doc.voucher_no = self.name
         gl_doc.idx = idx
         gl_doc.posting_date = self.posting_date
@@ -338,7 +338,7 @@ class StockReconciliation(Document):
         # Cost Of Goods Sold
         idx = 2
         gl_doc = frappe.new_doc('GL Posting')
-        gl_doc.voucher_type = "Delivery Note"
+        gl_doc.voucher_type = "Stock Reconciliation"
         gl_doc.voucher_no = self.name
         gl_doc.idx = idx
         gl_doc.posting_date = self.posting_date

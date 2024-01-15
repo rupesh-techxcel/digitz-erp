@@ -323,7 +323,7 @@
    "default": "0",
    "fieldname": "tax_excluded",
    "fieldtype": "Check",
-   "label": "Tax Excluded"
+   "label": "Tax not applicable for the company"
   },
   {
    "default": "0",
@@ -334,7 +334,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-06 06:39:57.993326",
+ "modified": "2024-01-15 16:14:30.172473",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
