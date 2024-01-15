@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "MAT-AEV-.YYYY.-.#####",
+ "autoname": "MAT-AEE-.YYYY.-.#####",
  "creation": "2024-01-08 08:03:09.477415",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -50,7 +50,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Additional Expense Voucher",
+   "options": "Additional Expense Entry",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
@@ -127,20 +127,38 @@
    "label": "Total Taxes and Charges"
   },
   {
+   "fieldname": "get_purchase",
+   "fieldtype": "Button",
+   "label": "Get Purchase"
+  },
+  {
+   "depends_on": "eval:doc.is_sales==1",
+   "fieldname": "get_sales",
+   "fieldtype": "Button",
+   "label": "Get Sales"
+  },
+  {
+   "fieldname": "expense_details",
+   "fieldtype": "Table",
+   "label": "Expense Details",
+   "options": "Expense Details"
+  },
+  {
    "fieldname": "purchase_item_section",
    "fieldtype": "Section Break",
    "label": "Purchase Item"
-  },
-  {
-   "fieldname": "get_purchase_items",
-   "fieldtype": "Button",
-   "label": "Get Purchase Items"
   },
   {
    "fieldname": "purchase_item",
    "fieldtype": "Table",
    "label": "Purchase Item",
    "options": "Purchase Item"
+  },
+  {
+   "depends_on": "eval:doc.is_sales==0",
+   "fieldname": "get_purchase_items",
+   "fieldtype": "Button",
+   "label": "Get Purchase Items"
   },
   {
    "fieldname": "sales_item_section",
@@ -159,32 +177,15 @@
    "fieldtype": "Table",
    "label": "Sales Item",
    "options": "Sales Item"
-  },
-  {
-   "fieldname": "get_purchase",
-   "fieldtype": "Button",
-   "label": "Get Purchase"
-  },
-  {
-   "depends_on": "eval:doc.is_sales==1",
-   "fieldname": "get_sales",
-   "fieldtype": "Button",
-   "label": "Get Sales"
-  },
-  {
-   "fieldname": "expense_details",
-   "fieldtype": "Table",
-   "label": "Expense Details",
-   "options": "Expense Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-11 11:26:30.183341",
+ "modified": "2024-01-15 11:42:13.058048",
  "modified_by": "Administrator",
  "module": "Stock",
- "name": "Additional Expense Voucher",
+ "name": "Additional Expense Entry",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [

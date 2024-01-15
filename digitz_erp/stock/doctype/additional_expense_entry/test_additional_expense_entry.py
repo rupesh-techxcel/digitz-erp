@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestAdditionalExpenseVoucher(FrappeTestCase):
+class TestAdditionalExpenseEntry(FrappeTestCase):
 	pass
