@@ -32,9 +32,12 @@
   "column_break_hcea",
   "debit_note_detail_section",
   "debit_note_details",
+  "section_break_elat",
   "total_amount",
   "tax_total",
   "grand_total",
+  "column_break_2qwz",
+  "column_break_pdvw",
   "amended_from"
  ],
  "fields": [
@@ -133,7 +136,8 @@
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks"
+   "label": "Remarks",
+   "reqd": 1
   },
   {
    "fieldname": "supplier_inv_no",
@@ -209,12 +213,24 @@
   {
    "fieldname": "debit_note_detail_section",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_2qwz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pdvw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_elat",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-15 19:14:08.347570",
+ "modified": "2024-01-16 12:56:55.396407",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Debit Note",

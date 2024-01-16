@@ -6,10 +6,10 @@ frappe.ui.form.on("Debit Note", {
 		frm.trigger("assign_defaults");		
 	},
 	refresh(frm){
-		frm.set_query('debit_account', 'debit_note_details', () => {
+		frm.set_query('account', 'debit_note_details', () => {
       return {
         filters: {
-          root_type: ['in',  ['Expense', 'Liability']],
+          root_type: ['in',  ['Expense','Income','Liability','Asset']],
           is_group: 0
         }
       }
@@ -54,24 +54,29 @@ frappe.ui.form.on("Debit Note", {
 		frm.doc.total_amount = 0;
 		frm.doc.tax_total = 0;
 		frm.doc.grand_total = 0;
-		console.log("make 1")
+		
 		frm.doc.debit_note_details.forEach(function (entry) {
-			console.log("make inner")
+			
 			var tax_in_rate = 0;
-			var amount_excluded_tax = 0;
+			var amount_excluded_tax = entry.amount;
 			var tax_amount = 0;
 			var total = 0;
-			entry.rate_included_tax = frm.doc.rate_includes_tax;
-			if (entry.rate_included_tax)
+
+			if(!entry.tax_excluded)
 			{
-				tax_in_rate = entry.amount * (entry.tax_rate / (100 + entry.tax_rate));
-				amount_excluded_tax = entry.amount - tax_in_rate;
-				tax_amount = entry.amount * (entry.tax_rate / (100 + entry.tax_rate))
+				entry.rate_included_tax = frm.doc.rate_includes_tax;
+				if (entry.rate_included_tax)
+				{
+					tax_in_rate = entry.amount * (entry.tax_rate / (100 + entry.tax_rate));
+					amount_excluded_tax = entry.amount - tax_in_rate;
+					tax_amount = entry.amount * (entry.tax_rate / (100 + entry.tax_rate))
+				}
+				else {
+					amount_excluded_tax = entry.amount;
+					tax_amount = (entry.amount * (entry.tax_rate / 100))
+				}
 			}
-			else {
-				amount_excluded_tax = entry.amount;
-				tax_amount = (entry.amount * (entry.tax_rate / 100))
-			}
+			
 			total = amount_excluded_tax + tax_amount;
 			frappe.model.set_value(entry.doctype, entry.name, "amount_excluded_tax", amount_excluded_tax);
 			frappe.model.set_value(entry.doctype, entry.name, "tax_amount", tax_amount);
@@ -125,24 +130,32 @@ frappe.ui.form.on("Debit Note", {
 			frm.doc.payment_account = "";
 		}
 	},
+	validate: function (frm) {
+
+		if(!frm.doc.on_credit && !frm.doc.payment_mode)
+		{
+			frappe.throw("Select payment mode.")
+		}
+
+		if(!frm.doc.on_credit && !frm.doc.payment_account)
+		{
+			frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+			frm.refresh_field("payment_account");
+			frappe.throw("Select payment account.")
+		}
+	},
 });
 
-frappe.ui.form.on('Debit Note Details',{
+frappe.ui.form.on('Debit Note Detail',{
 
 	tax_excluded: function(frm, cdt, cdn) {
-        var child = locals[cdt][cdn];
-        if (child.tax_excluded == 1) {
-            frappe.model.set_value(cdt, cdn, 'tax_rate', 0);
-			frappe.model.set_value(cdt, cdn, 'tax', '');
-        }
-		else{
-			frappe.model.set_value(cdt, cdn, 'tax_rate', '');
-		}
+        frm.trigger("make_taxes_and_totals");
     },	
 	amount: function(frm, cdt, cdn){
-
-		console.log("amount")
 		frm.trigger("make_taxes_and_totals");
   	},
+	tax_rate: function(frm,cdt,cdn){
+		frm.trigger("make_taxes_and_totals");
+	}
 });
 

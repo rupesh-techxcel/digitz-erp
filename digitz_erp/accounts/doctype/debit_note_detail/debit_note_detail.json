@@ -7,7 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "narration",
-  "debit_account",
+  "account",
   "rate_include_tax",
   "column_break_ldel",
   "amount",
@@ -16,21 +16,16 @@
   "tax_rate",
   "tax_amount",
   "total",
-  "amount_excluded_tax"
+  "amount_excluded_tax",
+  "tax_account"
  ],
  "fields": [
-  {
-   "fieldname": "debit_account",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Debit Account",
-   "options": "Account"
-  },
   {
    "fieldname": "narration",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Narration"
+   "label": "Narration",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_ldel",
@@ -40,7 +35,8 @@
    "fieldname": "amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Amount"
+   "label": "Amount",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -53,12 +49,15 @@
    "fetch_from": "tax.tax_rate",
    "fieldname": "tax_rate",
    "fieldtype": "Int",
-   "label": "Tax Rate"
+   "in_list_view": 1,
+   "label": "Tax Rate",
+   "read_only": 1
   },
   {
    "default": "UAE VAT - 5%",
    "fieldname": "tax",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Tax",
    "options": "Tax"
   },
@@ -72,23 +71,43 @@
   {
    "fieldname": "amount_excluded_tax",
    "fieldtype": "Float",
-   "label": "Amount Excluded Tax"
+   "label": "Amount Excluded Tax",
+   "reqd": 1
   },
   {
    "fieldname": "tax_amount",
    "fieldtype": "Float",
-   "label": "Tax Amount"
+   "in_list_view": 1,
+   "label": "Tax Amount",
+   "read_only": 1
   },
   {
    "fieldname": "total",
    "fieldtype": "Float",
-   "label": "Total"
+   "in_list_view": 1,
+   "label": "Total",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Against Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "tax.account",
+   "fieldname": "tax_account",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Tax Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-01-15 18:19:34.748993",
+ "modified": "2024-01-16 10:23:24.297941",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Debit Note Detail",
