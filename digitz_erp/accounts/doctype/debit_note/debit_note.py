@@ -42,9 +42,9 @@ class DebitNote(Document):
 			gl_doc.voucher_no = self.name
 			gl_doc.posting_date = self.date
 			gl_doc.account = debit_note_detail.account
-			gl_doc.credit_amount = debit_note_detail.amount
+			gl_doc.credit_amount = debit_note_detail.amount_excluded_tax
 			gl_doc.against_account = self.payable_account
-			gl_doc.remarks = debit_note_detail.narration;
+			gl_doc.remarks = debit_note_detail.narration
 			gl_doc.insert()
    
 			if not debit_note_detail.tax_excluded and debit_note_detail.tax_amount > 0:

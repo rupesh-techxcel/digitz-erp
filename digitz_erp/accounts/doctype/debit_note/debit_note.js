@@ -7,17 +7,32 @@ frappe.ui.form.on("Debit Note", {
 	},
 	refresh(frm){
 		frm.set_query('account', 'debit_note_details', () => {
-      return {
-        filters: {
-          root_type: ['in',  ['Expense','Income','Liability','Asset']],
-          is_group: 0
-        }
-      }
-    })
+		return {
+			filters: {
+			root_type: ['in',  ['Expense','Income','Liability','Asset']],
+			is_group: 0
+			}
+		}
+		});
+
+		frm.set_query('payable_account', () => {
+			return {
+				filters: {
+				root_type: ['in',  ['Liability','Asset']],
+				is_group: 0
+				}
+			}
+			});
 	},
 	rate_includes_tax: function(frm) {
-		frappe.confirm('Are you sure you want to change this setting which will change the tax calculation in the expense entry ?', () => {
-		frm.trigger("make_taxes_and_totals");
+		frappe.confirm("Updating this will modify the 'rate includes tax' information in the details section and related calculations. Are you sure you want to proceed?", () => {
+
+			frm.doc.debit_note_details.forEach(function (entry) {
+				entry.rate_includes_tax = frm.doc.rate_includes_tax
+			})
+
+
+			frm.trigger("make_taxes_and_totals");
 		})
 	},
 	assign_defaults: function(frm){
@@ -61,11 +76,11 @@ frappe.ui.form.on("Debit Note", {
 			var amount_excluded_tax = entry.amount;
 			var tax_amount = 0;
 			var total = 0;
-
+			
 			if(!entry.tax_excluded)
 			{
-				entry.rate_included_tax = frm.doc.rate_includes_tax;
-				if (entry.rate_included_tax)
+				entry.rate_includes_tax = frm.doc.rate_includes_tax;
+				if (entry.rate_includes_tax)
 				{
 					tax_in_rate = entry.amount * (entry.tax_rate / (100 + entry.tax_rate));
 					amount_excluded_tax = entry.amount - tax_in_rate;
@@ -139,7 +154,6 @@ frappe.ui.form.on("Debit Note", {
 
 		if(!frm.doc.on_credit && !frm.doc.payment_account)
 		{
-			frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 			frm.refresh_field("payment_account");
 			frappe.throw("Select payment account.")
 		}
@@ -151,10 +165,50 @@ frappe.ui.form.on('Debit Note Detail',{
 	tax_excluded: function(frm, cdt, cdn) {
         frm.trigger("make_taxes_and_totals");
     },	
+	rate_includes_tax:function(frm,cdt,cdn){
+		frm.trigger("make_taxes_and_totals");
+	},
 	amount: function(frm, cdt, cdn){
 		frm.trigger("make_taxes_and_totals");
   	},
 	tax_rate: function(frm,cdt,cdn){
+		frm.trigger("make_taxes_and_totals");
+	},
+	debit_note_details_add(frm,cdt,cdn){
+
+		let row = frappe.get_doc(cdt, cdn);
+
+		frappe.call(
+			{
+				method:'digitz_erp.api.settings_api.get_default_tax',
+				async:false,
+				callback(r){
+					row.tax = r.message					
+					
+					frappe.call(
+						{
+						  method: 'frappe.client.get_value',
+						  args: {
+							'doctype': 'Tax',
+							'filters': { 'tax_name': row.tax },
+							'fieldname': ['tax_name', 'tax_rate']
+						  },
+						  callback: (r2) => {
+							row.tax_rate = r2.message.tax_rate;                
+							frm.trigger("make_taxes_and_totals");
+						  }
+						});
+
+						frm.refresh_field("debit_note_details");
+								
+				}
+				
+				
+			}
+		);
+
+	},
+	debit_note_details_remove(frm,cdt,cdn){
 		frm.trigger("make_taxes_and_totals");
 	}
 });

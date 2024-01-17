@@ -11,27 +11,31 @@
   "customer_name",
   "customer_balance",
   "address",
+  "tax_id",
   "column_break_bcln",
   "date",
   "posting_time",
   "edit_posting_date_and_time",
-  "tax_id",
+  "rate_includes_tax",
   "column_break_hzrg",
   "company",
-  "rate_include_tax",
   "warehouse",
   "amended_from",
   "section_break_dufs",
-  "credit_sales",
+  "on_credit",
   "credit_days",
   "payment_terms",
   "payment_mode",
   "payment_account",
   "column_break_rari",
   "remarks",
+  "receivable_account",
+  "column_break_s1hi",
   "credit_note_item_section",
-  "credit_note_item",
+  "credit_note_details",
   "section_break_jmhg",
+  "column_break_qigd",
+  "column_break_ohgp",
   "total_amount",
   "tax_total",
   "grand_total"
@@ -98,12 +102,6 @@
    "options": "Company"
   },
   {
-   "default": "0",
-   "fieldname": "rate_include_tax",
-   "fieldtype": "Check",
-   "label": "Rate Include Tax"
-  },
-  {
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "label": "Warehouse",
@@ -122,12 +120,6 @@
   {
    "fieldname": "section_break_dufs",
    "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "credit_sales",
-   "fieldtype": "Check",
-   "label": "Credit Sale"
   },
   {
    "fieldname": "payment_terms",
@@ -155,18 +147,12 @@
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks"
+   "label": "Remarks",
+   "reqd": 1
   },
   {
    "fieldname": "credit_note_item_section",
-   "fieldtype": "Section Break",
-   "label": "Credit Note Item"
-  },
-  {
-   "fieldname": "credit_note_item",
-   "fieldtype": "Table",
-   "label": "Credit Note Item",
-   "options": "Credit Note Item"
+   "fieldtype": "Section Break"
   },
   {
    "fetch_from": "customer.customer_name",
@@ -202,12 +188,50 @@
    "fieldname": "grand_total",
    "fieldtype": "Currency",
    "label": "Grand Total"
+  },
+  {
+   "fieldname": "receivable_account",
+   "fieldtype": "Link",
+   "label": "Receivable Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "on_credit",
+   "fieldtype": "Check",
+   "label": "On Credit"
+  },
+  {
+   "fieldname": "credit_note_details",
+   "fieldtype": "Table",
+   "label": "Credit Note Details",
+   "options": "Credit Note Detail",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax"
+  },
+  {
+   "fieldname": "column_break_s1hi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qigd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ohgp",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-28 16:43:14.515579",
+ "modified": "2024-01-17 09:05:15.802798",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Credit Note",

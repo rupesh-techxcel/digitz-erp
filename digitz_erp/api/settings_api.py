@@ -13,12 +13,18 @@ def get_default_currency():
     default_company = get_default_company()
     default_currency = frappe.get_value('Company', default_company,  ['default_currency'])
     return default_currency
+
 @frappe.whitelist()
-def get_default_payable_account():
-        
+def get_default_payable_account():        
     default_company = get_default_company()
     default_payable_account = frappe.get_value('Company', default_company,  ['default_payable_account'])
     return default_payable_account
+
+@frappe.whitelist()
+def get_default_tax():        
+    default_company = get_default_company()
+    tax = frappe.get_value('Company', default_company,  ['tax'])
+    return tax
 
 
 @frappe.whitelist()

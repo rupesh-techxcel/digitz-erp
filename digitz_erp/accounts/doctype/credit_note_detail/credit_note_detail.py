@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class CreditNoteItem(Document):
+class CreditNoteDetail(Document):
 	pass
