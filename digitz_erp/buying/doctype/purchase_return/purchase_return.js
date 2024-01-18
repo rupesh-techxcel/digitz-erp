@@ -109,7 +109,7 @@ frappe.ui.form.on('Purchase Return', {
 												return_item.rate = newRow.rate
 												return_item.rate_in_base_unit = newRow.rate_in_base_unit
 												return_item.tax = newRow.tax
-												item(					return_item.tax_rate = newRow.tax_rate
+												return_item.tax_rate = newRow.tax_rate
 												return_item.rate_includes_tax = newRow.rate_includes_tax
 												console.log("before storing item_reference")
 												console.log(newRow.pi_item_reference)
