@@ -175,7 +175,10 @@ def get_opening_balance(account, filters):
 	return data
 
 def accumulate_values_into_parents(accounts, accounts_by_name):
-	for d in reversed(accounts):
-		if d.parent_account:
-			for key in value_fields:
-				accounts_by_name[d.parent_account][key] += d[key]
+    for d in reversed(accounts):
+        if d.parent_account:
+            difference = d['debit'] - d['credit']
+            if difference > 0:
+                accounts_by_name[d.parent_account]['debit'] += difference
+            elif difference < 0:
+                accounts_by_name[d.parent_account]['credit'] -= difference
