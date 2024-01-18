@@ -3,13 +3,18 @@
 
 import frappe
 from frappe.model.document import Document
+from digitz_erp.api.gl_posting_api import update_account_balance 
 
 class JournalEntry(Document):
 	def on_submit(self):
-		frappe.enqueue(self.insert_gl_records, queue="long")
+		# frappe.enqueue(self.insert_gl_records, queue="long")
+		self.insert_gl_records()
 
 	def insert_gl_records(self):
 		idx = 1
+  
+		accounts = []
+  
 		for journal_entry in self.journal_entry_account:
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.idx = idx
@@ -20,5 +25,12 @@ class JournalEntry(Document):
 			gl_doc.account = journal_entry.account
 			gl_doc.debit_amount = journal_entry.debit
 			gl_doc.credit_amount = journal_entry.credit
+			gl_doc.remarks = journal_entry.narration
 			gl_doc.insert()
 			idx += 1
+			if journal_entry.account not in accounts:
+				accounts.append(journal_entry.account)
+    
+		for account in accounts:
+			update_account_balance(account)
+			

@@ -4,9 +4,16 @@
 frappe.ui.form.on('Account', {
 
 
-	// refresh: function(frm) {
+	refresh: function(frm) {
+		frm.set_query('parent_account', () => {
+			return {
+				filters: {				
+					is_group: 1
+				}
+			}
+			});
 
-	// }
+	}
 });
 
 frappe.ui.form.on("Account", "onload", function(frm) {
