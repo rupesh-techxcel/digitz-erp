@@ -14,7 +14,7 @@ frappe.ui.form.on('Payment Entry', {
 		}
 		// Allocations are mean for readonly purpose and not for user inputs. So make it hidden first and show it on demand
 		frm.doc.show_allocations = false;
-		frm.trigger("show_allocations");		
+		frm.trigger("show_allocations");
 	},
 	setup: function(frm){
 		frm.add_fetch('payment_mode', 'account', 'account')
@@ -36,10 +36,10 @@ frappe.ui.form.on('Payment Entry', {
 			frm.set_df_property("posting_date", "read_only", 1);
 			frm.set_df_property("posting_time", "read_only", 1);
 		}
-	},	
+	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
-		
+
 		frm.trigger("get_user_warehouse")
 
 		frappe.call({
@@ -72,10 +72,10 @@ frappe.ui.form.on('Payment Entry', {
 							{
 								frm.doc.warehouse = r2.message.default_warehouse;
 							}
-							
+
 							console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-							frm.refresh_field("warehouse");							
+							frm.refresh_field("warehouse");
 						}
 					}
 
@@ -96,7 +96,7 @@ frappe.ui.form.on('Payment Entry', {
             },
             callback: function(response) {
 				if (response && response.message && response.message.warehouse) {
-					window.warehouse = response.message.warehouse;					
+					window.warehouse = response.message.warehouse;
 					// Do something with warehouseValue
 				}
 			}
@@ -223,7 +223,7 @@ frappe.ui.form.on("Payment Entry", "onload", function (frm) {
 
 	if(frm.doc.__islocal)
 		frm.trigger("get_default_company_and_warehouse");
-	
+
 	}
 );
 
@@ -233,7 +233,7 @@ payment_type: function(frm, cdt, cdn) {
 
   	var row = locals[cdt][cdn];
 	if(row.payment_type == "Supplier")
-	{	
+	{
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -252,7 +252,7 @@ payment_type: function(frm, cdt, cdn) {
 	}
 },
 payment_entry_details_add:function(frm,cdt,cdn)
-{	
+{
 	frappe.call({
 		method: 'frappe.client.get_value',
 		args: {
@@ -271,8 +271,8 @@ payment_entry_details_add:function(frm,cdt,cdn)
 	var row = locals[cdt][cdn];
 	row.payment_type = "Supplier"
 	row.reference_type = "Purchase Invoice"
-	row.reference_no = frm.doc.reference_no	
-	row.reference_date = frm.doc.reference_date	
+	row.reference_no = frm.doc.reference_no
+	row.reference_date = frm.doc.reference_date
 },
 payment_entry_details_remove: function(frm,cdt,cdn)
 {
@@ -289,7 +289,7 @@ amount: function(frm,cdt,cdn)
 // 	if(row.payment_type != "Supplier")
 // 	{
 // 		row.supplier = ""
-		
+
 // 		frm.set_df_property('payment_entry_details', 'hidden', !frm.doc.show_allocations);
 // 		frappe.model.set_df_property('[Payment Entry Detail]', row.name, '[supplier]', 'read_only', 1);
 // 		frm.refresh_field("payment_entry_details")
@@ -299,7 +299,7 @@ allocations: function(frm, cdt, cdn)
 {
 	const row = locals[cdt][cdn];
 	let child_table_control	;
-	
+
 	if(row.payment_type != "Supplier" || (!row.reference_type) ||  row.reference_type == "" ||  (!row.supplier))
 	{
 		frappe.throw("Invalid criteria for allocations.")
@@ -347,12 +347,12 @@ allocations: function(frm, cdt, cdn)
 			payment_no: cur_frm.doc.__islocal ? "" : frm.doc.name
 		},
 		callback:(r) => {
-			allocations_exists_in_other_payments = r.message.values	
-			console.log("allocations_exists_in_other_payments")	
+			allocations_exists_in_other_payments = r.message.values
+			console.log("allocations_exists_in_other_payments")
 			console.log(allocations_exists_in_other_payments)
-		}});	
+		}});
 
-	let pending_invoices_data	
+	let pending_invoices_data
 	//Fetch all supplier pending invoices and invoices already allocated in this payment_entry
 	frappe.call({
 		method: "digitz_erp.api.payment_entry_api.get_supplier_pending_documents",
@@ -378,7 +378,7 @@ allocations: function(frm, cdt, cdn)
 								fieldtype: 'Select',
 								fieldname: 'reference_type',
 								label: 'Reference Type',
-								options: 'Purchase Invoice\n Expense Entry',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return',
 								in_place_edit: false,
 								in_list_view: true,
 								read_only:true
@@ -386,16 +386,81 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: "Link",
 								fieldname: "reference_name",
-								label: "Reference Name",							
+								label: "Reference Name",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
 								read_only:true
-							},					
+							},
 							// {
 							// 	fieldtype: "Date",
 							// 	fieldname: "date",
-							// 	label: "Date",							
+							// 	label: "Date",
+							// 	in_place_edit: false,
+							// 	in_list_view: true,
+							// 	// width: "40%",
+							// 	read_only:true
+							// },
+							{
+								fieldtype: "Currency",
+								fieldname: "invoice_amount",
+								label: "Invoice Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "balance_amount",
+								label: "Balance Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "paying_amount",
+								label: "Paying Amount",
+								in_place_edit: true,
+								in_list_view: true
+							}
+						],
+					},
+					parent: dialog.get_field("purchase").$wrapper,
+					render_input: true,
+				});
+			}
+			else if(selected_reference_type == "Purchase Return")
+			{
+				console.log('purchase return');
+				child_table_control = frappe.ui.form.make_control({
+					df: {
+						fieldname: "payment_allocation",
+						fieldtype: "Table",
+						cannot_add_rows:true,
+						fields: [
+							{
+								fieldtype: 'Select',
+								fieldname: 'reference_type',
+								label: 'Reference Type',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return',
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_name",
+								label: "Reference Name",
+								in_place_edit: false,
+								in_list_view: true,
+								// width: "40%",
+								read_only:true
+							},
+							// {
+							// 	fieldtype: "Date",
+							// 	fieldname: "date",
+							// 	label: "Date",
 							// 	in_place_edit: false,
 							// 	in_list_view: true,
 							// 	// width: "40%",
@@ -443,7 +508,7 @@ allocations: function(frm, cdt, cdn)
 								fieldtype: 'Select',
 								fieldname: 'reference_type',
 								label: 'Reference Type',
-								options: 'Purchase Invoice\n Expense Entry',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return',
 								in_place_edit: false,
 								in_list_view: true,
 								read_only:true
@@ -451,7 +516,7 @@ allocations: function(frm, cdt, cdn)
 							// {
 							// 	fieldtype: "Link",
 							// 	fieldname: "reference_name",
-							// 	label: "Reference Name",							
+							// 	label: "Reference Name",
 							// 	in_place_edit: false,
 							// 	in_list_view: true,
 							// 	// width: "40%",
@@ -460,12 +525,12 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: "Link",
 								fieldname: "document_no",
-								label: "Document No",							
+								label: "Document No",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
 								read_only:true
-							},							
+							},
 							{
 								fieldtype: "Currency",
 								fieldname: "invoice_amount",
@@ -493,15 +558,15 @@ allocations: function(frm, cdt, cdn)
 					},
 					parent: dialog.get_field("purchase").$wrapper,
 					render_input: true,
-				});	
+				});
 			}
-			
+
 			//Stage 1.
 			//Intiially set the paid_amount as zero and balance_amount as invoice amount
 			//Iterate through the allocations for the particular invoice
 			//During the iteeration assign the paid amount and balance amount based on the allocation
 			//Note that the allocations fetched does not include current document allocation
-			
+
 			// console.log("pending_invoices_data")
 			// console.log(pending_invoices_data)
 
@@ -509,40 +574,22 @@ allocations: function(frm, cdt, cdn)
 			console.log(allocations_exists_in_other_payments)
 
 			for (var idx1= pending_invoices_data.length - 1; idx1>=0; idx1--)
-			{	
-				// console.log("value of j")
-				// console.log(j)
-
+			{
+		
 				pending_invoices_data[idx1].paid_amount = 0;
 				pending_invoices_data[idx1].balance_amount =  pending_invoices_data[idx1].invoice_amount;
 				// pending_invoices_data[j].posting_date = frappe.format(pending_invoices_data[j].posting_date, { fieldtype: 'Date' })
 
 				for (var idx2 = allocations_exists_in_other_payments.length - 1; idx2>=0; idx2--)
 				{
-					// console.log("pending_invoices_data[j].reference_name")
-					// console.log(pending_invoices_data[j].reference_name)
-
-					// console.log("allocations_exists_in_other_payments[i].reference_name")
-					// console.log(allocations_exists_in_other_payments[i].reference_name)
-
 					if(pending_invoices_data[idx1].reference_name == allocations_exists_in_other_payments[idx2].reference_name)
 					{
 						//Update teh paid amount
 						pending_invoices_data[idx1].paid_amount  = pending_invoices_data[idx1].paid_amount  + allocations_exists_in_other_payments[idx2].paying_amount;
-						// console.log("allocations_exists_in_other_payments[i].paying_amount");
-						// console.log(allocations_exists_in_other_payments[i].paying_amount);
-						// console.log("new paid_amount")
-						// console.log(pending_invoices_data[j].paid_amount)
-						//First set balance amount as invoice_amount - paid amount
 						pending_invoices_data[idx1].balance_amount = pending_invoices_data[idx1].balance_amount - allocations_exists_in_other_payments[idx2].paying_amount;
-						// console.log("pending_invoices_data[j].balance_amount")							
-						// console.log(pending_invoices_data[j].balance_amount)
-						
-						// console.log("inner loop i")
-						// console.log(i)				
 					}
 				}
-			}			
+			}
 
 			console.log("pending_invoices_data after the loop")
 			console.log(pending_invoices_data)
@@ -560,15 +607,15 @@ allocations: function(frm, cdt, cdn)
 			// if(pending_invoices_data.length> pending_invoices_with_value.length)
 			// {
 			// 	frappe.msgprint("Allocations without balance amount has been removed")
-			// }				
-					
-			
+			// }
+
+
 			//Stage 2.
 			// Get the values input from the allocations table in the current document
 			// Adjust the paid amount based on the paying amount
 			var allocations = cur_frm.doc.payment_allocation;
 			console.log(allocations)
-		
+
 			if(allocations)
 			{
 				for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
@@ -578,10 +625,10 @@ allocations: function(frm, cdt, cdn)
 					console.log(allocation)
 
 					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
-					if((allocation.reference_type=="Expense Entry Details" && selected_reference_type!="Expense Entry")  || (allocation.reference_type == "Purchase Invoice" && selected_reference_type!="Purchase Invoice"))
+					if((allocation.reference_type=="Expense Entry Details" && selected_reference_type!="Expense Entry")  || (allocation.reference_type == "Purchase Invoice" && selected_reference_type!="Purchase Invoice") || (allocation.reference_type == "Purchase Return" && selected_reference_type!="Purchase Return"))
 					{
 						console.log("hitted continue")
-						continue;	
+						continue;
 					}
 
 					for (var idx1= pending_invoices_with_value.length - 1; idx1>=0; idx1--)
@@ -608,7 +655,7 @@ allocations: function(frm, cdt, cdn)
 				}
 			}
 
-			child_table_control.df.data = pending_invoices_with_value;							
+			child_table_control.df.data = pending_invoices_with_value;
 			child_table_control.refresh();
 		}
 	});
@@ -676,8 +723,8 @@ allocations: function(frm, cdt, cdn)
 				{
 					var row_allocation = frappe.model.get_new_doc('Payment Allocation');
 					row_allocation.supplier = element.supplier
-					//Issue fix for the dynamic link mismatch 
-					// Change reference type to 'Expense Entry Details' for Expense Entry since the actual doctype for the dynamic link is 'Expense Entry Details' and not 'Expense Entry'. 
+					//Issue fix for the dynamic link mismatch
+					// Change reference type to 'Expense Entry Details' for Expense Entry since the actual doctype for the dynamic link is 'Expense Entry Details' and not 'Expense Entry'.
 					if(element.reference_type == "Expense Entry")
 					{
 						row_allocation.reference_type = "Expense Entry Details"
@@ -686,7 +733,7 @@ allocations: function(frm, cdt, cdn)
 					{
 						row_allocation.reference_type = element.reference_type
 					}
-					
+
 					row_allocation.reference_name =  element.reference_name
 					row_allocation.total_amount = element.invoice_amount
 
