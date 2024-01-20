@@ -74,6 +74,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "supplier.full_address",
    "fieldname": "supplier_address",
    "fieldtype": "Small Text",
    "label": "Supplier Address"
@@ -354,7 +355,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-28 16:25:07.027296",
+ "modified": "2024-01-19 09:24:02.130551",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

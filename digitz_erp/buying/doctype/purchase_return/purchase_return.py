@@ -9,35 +9,35 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_s
 from frappe.model.mapper import *
 
 class PurchaseReturn(Document):
-    
+
 	def validate(self):
 		self.validate_purchase()
 		self.validate_stock()
-    
+
 	def validate_purchase(self):
-				
+
 		for docitem in self.items:
 			if(docitem.pi_item_reference):
-       
+
 				pi = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
-    
+
 				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(docitem.pi_item_reference, self.name))[0][0]
-				
+
 				pi_item = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
 
 				print("total_returned_qty_not_in_this_pr")
 				print(total_returned_qty_not_in_this_pr)
 				print(docitem.qty)
-    
+
 				if total_returned_qty_not_in_this_pr:
 					if(pi_item.qty < (total_returned_qty_not_in_this_pr + docitem.qty)):
 						frappe.throw("The quantity available for return in the original purchase is less than the quantity specified in the line item {}".format(docitem.idx))
 				else:
 					if(pi_item.qty < docitem.qty):
 						frappe.throw("The quantity available for return in the original purchase is less than the quantity specified in the line item {}".format(docitem.idx))
-    
+
 	def validate_stock(self):
-		
+
 		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
 		default_company = frappe.db.get_single_value("Global Settings", "default_company")
@@ -63,43 +63,43 @@ class PurchaseReturn(Document):
 				if(previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
 					frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) +
 					" " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
- 
+
 	def on_submit(self):
 
 		self.do_voucher_stock_posting()
-  
+
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-		
+
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.do_posting()
 		else:
 			frappe.enqueue(self.do_posting, queue="long")
-  
+
 	def on_update(self):
 		self.update_purchase_invoice_quantities_on_update()
-  
+
 	def on_cancel(self):
-     
+
 		self.update_purchase_invoice_quantities_before_delete_or_cancel()
-	
+
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-		
+
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.cancel_purchase_return()
 		else:
 			frappe.enqueue(self.cancel_purchase_return, queue ="long")
-		
-  
+
+
 	def on_trash(self):
 		# On cancel, the quantities are already deleted.
 		if(self.docstatus < 2):
-			self.update_purchase_invoice_quantities_before_delete_or_cancel()	
+			self.update_purchase_invoice_quantities_before_delete_or_cancel()
 
 	def do_posting(self):
 		self.insert_gl_records()
 		self.insert_payment_postings()
-		self.do_voucher_stock_posting()		
- 
+		self.do_voucher_stock_posting()
+
 	def do_voucher_stock_posting(self):
 		# Note that negative stock checking is handled in the validate method
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
@@ -110,7 +110,7 @@ class PurchaseReturn(Document):
 		stock_recalc_voucher.status = 'Not Started'
 		stock_recalc_voucher.source_action = "Insert"
 		more_records = 0
-	
+
 		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
 		for docitem in self.items:
@@ -129,19 +129,19 @@ class PurchaseReturn(Document):
 			valuation_rate = docitem.rate_in_base_unit
 			# Default balance value calculating withe the current row only. Note that it holds negative value
 			new_balance_value = new_balance_qty * valuation_rate
-   
+
 			# Assigned current stock value to use if previous values not exist
 			change_in_stock_value = new_balance_value
-   
-			dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse],
+
+			dbCount = frappe.db.count('Stock Ledger',{'item': ['=', docitem.item],'warehouse':['=', docitem.warehouse],
                                              'posting_date': ['<', posting_date_time]})
 			if(dbCount>0):
 				# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
 				# from the balance qty in the existing rows x actual incoming rate
-				last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item_code': ['=', docitem.item_code], 'warehouse':['=', docitem.warehouse],
+				last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse],
                                                         'posting_date':['<', posting_date_time]},
                                             ['balance_qty', 'balance_value', 'valuation_rate'],order_by='posting_date desc', as_dict=True)
-    
+
 				# Note that in the first step new_balance_qty and new_balance_value is negative
 				new_balance_qty = last_stock_ledger.balance_qty - abs(new_balance_qty)
 				new_balance_value = last_stock_ledger.balance_value - abs(new_balance_value)
@@ -149,7 +149,7 @@ class PurchaseReturn(Document):
 				if new_balance_qty!=0:
 					# Sometimes the balance_value and balance_qty can be negative, so it is ideal to take the abs value
 					valuation_rate = abs(new_balance_value)/abs(new_balance_qty)
-     
+
 				change_in_stock_value = new_balance_value - last_stock_ledger.balance_value
 
 			new_stock_ledger = frappe.new_doc("Stock Ledger")
@@ -221,7 +221,7 @@ class PurchaseReturn(Document):
             		    , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
 			# If any items in the collection has more records
 			if(more_records_for_item>0):
-				
+
 				if(previous_stock_ledger_name):
 					stock_recalc_voucher.append('records',{'item': docitem.item,
                                                             'warehouse': docitem.warehouse,
@@ -258,15 +258,15 @@ class PurchaseReturn(Document):
 		{"voucher": "Purchase Return",
 			"voucher_no":self.name
 		})
-  
+
 		if(more_records>0):
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
 
- 
+
 	def cancel_purchase_return(self):
-     
+
 		self.do_cancel_stock_posting()
 
 		frappe.db.delete("GL Posting",
@@ -275,7 +275,7 @@ class PurchaseReturn(Document):
 				})
 
 	def insert_gl_records(self):
-     
+
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
 		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
@@ -291,7 +291,7 @@ class PurchaseReturn(Document):
 		gl_doc.account = default_accounts.default_payable_account
 		gl_doc.debit_amount = self.rounded_total
 		gl_doc.party_type = "Supplier"
-  
+
 		gl_doc.party = self.supplier
 		gl_doc.against_account = default_accounts.default_inventory_account
 		gl_doc.insert()
@@ -332,7 +332,7 @@ class PurchaseReturn(Document):
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = default_accounts.round_off_account
-   
+
 			# If rounded_total more than net_total debit is more in the payable account
 			if self.rounded_total > self.net_total:
 				gl_doc.credit_amount = self.round_off
@@ -340,7 +340,7 @@ class PurchaseReturn(Document):
 			else:
 				gl_doc.debit_amount = self.round_off
 				gl_doc.against_account = default_accounts.default_inventory_account
-			
+
 			gl_doc.insert()
 
 		# Credit Inventory A/c
@@ -367,9 +367,9 @@ class PurchaseReturn(Document):
 		# gl_doc.credit_amount = self.net_total - self.tax_total
 		# gl_doc.against_account = default_accounts.default_inventory_account
 		# gl_doc.insert()
-	
+
 	def insert_payment_postings(self):
-     
+
 		if self.credit_purchase==0:
 			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Purchase Return', 'voucher_no': self.name})
 			default_company = frappe.db.get_single_value("Global Settings","default_company")
@@ -404,19 +404,19 @@ class PurchaseReturn(Document):
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.against_account = default_accounts.default_payable_account
 			gl_doc.insert()
-   
-	def update_purchase_invoice_quantities_on_update(self):		
+
+	def update_purchase_invoice_quantities_on_update(self):
 
 		pi_reference_any = False
-  
+
 		for item in self.items:
 			if not item.pi_item_reference:
 				continue
 			else:
 				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
-    
+
 				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
-    
+
 				if total_returned_qty_not_in_this_pr:
 					pi_item.qty_returned = total_returned_qty_not_in_this_pr + item.qty
 				else:
@@ -426,8 +426,8 @@ class PurchaseReturn(Document):
 
 		if pi_reference_any:
 			frappe.msgprint("Returned qty of items in the corresponding purchase invoice updated successfully", indicator= "green", alert= True)
-   
-	def update_purchase_invoice_quantities_before_delete_or_cancel(self):		
+
+	def update_purchase_invoice_quantities_before_delete_or_cancel(self):
 
 		pi_reference_any = False
 
@@ -440,13 +440,12 @@ class PurchaseReturn(Document):
 				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
 
 				if total_returned_qty_not_in_this_pr:
-					pi_item.qty_returned = total_returned_qty_not_in_this_pr     
+					pi_item.qty_returned = total_returned_qty_not_in_this_pr
 				else:
 					pi_item.qty_returned = 0
-     
+
 				pi_item.save()
 				pi_reference_any = True
 
 		if pi_reference_any:
 			frappe.msgprint("Returned qty of items in the corresponding purchase invoice reverted successfully", indicator= "green", alert= True)
-
