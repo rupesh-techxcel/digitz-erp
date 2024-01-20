@@ -16,7 +16,7 @@ frappe.ui.form.on('Receipt Entry', {
 		// Allocations are mean for readonly purpose and not for user inputs. So make it hidden first and show it on demand
 		frm.doc.show_allocations = false;
 		frm.trigger("show_allocations");
-	},	
+	},
 	setup: function(frm){
 		frm.add_fetch('payment_mode', 'account', 'account')
 	},
@@ -37,10 +37,10 @@ frappe.ui.form.on('Receipt Entry', {
 			frm.set_df_property("posting_date", "read_only", 1);
 			frm.set_df_property("posting_time", "read_only", 1);
 		}
-	},	
+	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
-		
+
 		frm.trigger("get_user_warehouse")
 
 		frappe.call({
@@ -73,10 +73,10 @@ frappe.ui.form.on('Receipt Entry', {
 							{
 								frm.doc.warehouse = r2.message.default_warehouse;
 							}
-							
+
 							console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-							frm.refresh_field("warehouse");							
+							frm.refresh_field("warehouse");
 						}
 					}
 
@@ -97,7 +97,7 @@ frappe.ui.form.on('Receipt Entry', {
             },
             callback: function(response) {
 				if (response && response.message && response.message.warehouse) {
-					window.warehouse = response.message.warehouse;					
+					window.warehouse = response.message.warehouse;
 					// Do something with warehouseValue
 				}
 			}
@@ -108,39 +108,39 @@ frappe.ui.form.on('Receipt Entry', {
 		var allocations = frm.doc.receipt_allocation || [];
 		for(var i = 0; i < allocations.length; i++)
 		{
-			
+
 			var receipts = frm.doc.receipt_entry_details;
 
 			var allocation_found =false;
-			
-			for(var j = 0; j < receipts.length; j++)			
+
+			for(var j = 0; j < receipts.length; j++)
 			{
 				if(receipts[j].customer == allocations[i].customer && allocations[i].allocated_amount>0)
 				{
-					allocation_found = true;					
+					allocation_found = true;
 				}
 			}
 
 			if( !allocation_found)
 			{
 				cur_frm.get_field('receipt_allocation').grid.grid_rows[i].remove();
-			}		
-		
+			}
+
 		}
 		cur_frm.refresh()
-	},	
+	},
 	before_save(frm)
 	{
 		frm.trigger("clean_allocations");
-		frm.trigger("calculate_total_and_set_fields");		
-	},	
+		frm.trigger("calculate_total_and_set_fields");
+	},
 	calculate_total_and_set_fields(frm)
-	{		
+	{
 		var receipt_detail = frm.doc.receipt_entry_details;
 
 		var total =0;
 		var total_allocated = 0;
-				
+
 		for (var i = 0; i< receipt_detail.length; i++) {
 
 			total = total + receipt_detail[i].amount;
@@ -154,7 +154,7 @@ frappe.ui.form.on('Receipt Entry', {
 		}
 
 		frm.doc.amount = total;
-		frm.doc.allocated_amount = total_allocated;		 
+		frm.doc.allocated_amount = total_allocated;
 
 		frm.refresh_field("amount");
 		frm.refresh_field("allocated_amount");
@@ -171,13 +171,13 @@ frappe.ui.form.on('Receipt Entry', {
 
 		if(allocations != undefined)
 		{
-			for (var i = allocations.length - 1; i >= 0; i--) 
+			for (var i = allocations.length - 1; i >= 0; i--)
 			{
 				var allocation = allocations[i];
 
 				var receipts = cur_frm.doc.receipt_entry_details;
 
-				if(receipts != undefined)					
+				if(receipts != undefined)
 				{
 					var receipt_exists = false;
 					for (var j = 0; j< receipts.length;  j++) {
@@ -193,9 +193,9 @@ frappe.ui.form.on('Receipt Entry', {
 						allocations_to_remove.push(allocation)
 
 					}
-				}					
+				}
 				else
-				{					
+				{
 					allocations_to_remove.push(allocation)
 
 				}
@@ -211,9 +211,9 @@ frappe.ui.form.on('Receipt Entry', {
 						}
 					)
 
-					cur_frm.refresh_field("receipt_allocation");	
+					cur_frm.refresh_field("receipt_allocation");
 				}
-			
+
 			}
 		}
 	}
@@ -242,17 +242,17 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 				'doctype': 'Global Settings',
 				'fieldname': 'default_company'
 			},
-			callback: (r) => {				
+			callback: (r) => {
 
 		 		frappe.db.get_value("Company", r.message.default_company, "default_receivable_account").then((r) => {
 	 			var default_receivable_account = r.message.default_receivable_account;
 	 			frappe.model.set_value(cdt, cdn, 'account', default_receivable_account)});
 			}
-		})		
+		})
 	}
 },
 receipt_entry_details_add:function(frm,cdt,cdn)
-{	
+{
 	frappe.call({
 		method: 'frappe.client.get_value',
 		args: {
@@ -271,11 +271,11 @@ receipt_entry_details_add:function(frm,cdt,cdn)
 	var row = locals[cdt][cdn];
 	row.receipt_type = "Customer"
 	row.reference_type = "Sales Invoice"
-	row.reference_no = frm.doc.reference_no	
-	row.reference_date = frm.doc.reference_date	
+	row.reference_no = frm.doc.reference_no
+	row.reference_date = frm.doc.reference_date
 	frm.refresh_field("receipt_entry_details")
 },
-receipt_entry_details_remove: function(frm,cdt,cdn) 
+receipt_entry_details_remove: function(frm,cdt,cdn)
 {
 	frm.trigger("clean_allocations");
 	frm.trigger("calculate_total_and_set_fields");
@@ -283,7 +283,7 @@ receipt_entry_details_remove: function(frm,cdt,cdn)
 
 customer: function(frm,cdt,cdn){
 
-	
+
 
 },
 amount: function(frm,cdt,cdn)
@@ -295,7 +295,7 @@ allocations: function(frm, cdt, cdn)
 {
 	const row = locals[cdt][cdn];
 	let child_table_control	;
-	
+
 	if(row.receipt_type != "Customer" || (!row.reference_type) ||  row.reference_type == "" ||  (!row.customer))
 	{
 		frappe.throw("Invalid criteria for allocations.")
@@ -343,15 +343,15 @@ allocations: function(frm, cdt, cdn)
 			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name
 		},
 		callback:(r) => {
-			allocations_exists_in_other_receipts = r.message.values	
-			console.log("allocations_exists_in_other_receipts")	
+			allocations_exists_in_other_receipts = r.message.values
+			console.log("allocations_exists_in_other_receipts")
 			console.log(allocations_exists_in_other_receipts)
-		}});	
+		}});
 
 
 	console.log("Here")
-	
-	let pending_invoices_data	
+
+	let pending_invoices_data
 	//Fetch all supplier pending invoices and invoices already allocated in this payment_entry
 	frappe.call({
 		method: "digitz_erp.api.receipt_entry_api.get_customer_pending_documents",
@@ -378,7 +378,7 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: 'Data',
 								fieldname: 'reference_type',
-								label: 'Reference Type',								
+								label: 'Reference Type',
 								in_place_edit: false,
 								in_list_view: false,
 								read_only:true,
@@ -387,25 +387,25 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: "Link",
 								fieldname: "reference_name",
-								label: "Reference Name",							
+								label: "Reference Name",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
 								read_only:true
-							},					
+							},
 							{
 								fieldtype: "Link",
 								fieldname: "reference_no",
-								label: "Reference No",							
+								label: "Reference No",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
 								read_only:true
-							},					
+							},
 							// {
 							// 	fieldtype: "Date",
 							// 	fieldname: "date",
-							// 	label: "Date",							
+							// 	label: "Date",
 							// 	in_place_edit: false,
 							// 	in_list_view: true,
 							// 	// width: "40%",
@@ -440,14 +440,76 @@ allocations: function(frm, cdt, cdn)
 					render_input: true,
 				});
 			}
-			
-			
+			else if(selected_reference_type == "Sales Return")
+			{
+				child_table_control = frappe.ui.form.make_control({
+					df: {
+						fieldname: "receipt_allocation",
+						fieldtype: "Table",
+						cannot_add_rows:true,
+						fields: [
+							{
+								fieldtype: 'Data',
+								fieldname: 'reference_type',
+								label: 'Reference Type',
+								in_place_edit: false,
+								in_list_view: false,
+								read_only:true,
+								hidden: true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_name",
+								label: "Reference Name",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_no",
+								label: "Reference No",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "invoice_amount",
+								label: "Invoice Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "balance_amount",
+								label: "Balance Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "paying_amount",
+								label: "Paying Amount",
+								in_place_edit: true,
+								in_list_view: true
+							}
+						],
+					},
+					parent: dialog.get_field("sales").$wrapper,
+					render_input: true,
+				});
+			}
+
+
 			//Stage 1.
 			//Intiially set the paid_amount as zero and balance_amount as invoice amount
 			//Iterate through the allocations for the particular invoice
 			//During the iteeration assign the paid amount and balance amount based on the allocation
 			//Note that the allocations fetched does not include current document allocation
-			
+
 			console.log("pending_invoices_data")
 			console.log(pending_invoices_data)
 
@@ -455,7 +517,7 @@ allocations: function(frm, cdt, cdn)
 			console.log(allocations_exists_in_other_receipts)
 
 			for (var idx1= pending_invoices_data.length - 1; idx1>=0; idx1--)
-			{	
+			{
 				// console.log("value of j")
 				// console.log(j)
 
@@ -481,14 +543,14 @@ allocations: function(frm, cdt, cdn)
 						// console.log(pending_invoices_data[j].paid_amount)
 						//First set balance amount as invoice_amount - paid amount
 						pending_invoices_data[idx1].balance_amount = pending_invoices_data[idx1].balance_amount - allocations_exists_in_other_receipts[idx2].paying_amount;
-						// console.log("pending_invoices_data[j].balance_amount")							
+						// console.log("pending_invoices_data[j].balance_amount")
 						// console.log(pending_invoices_data[j].balance_amount)
-						
+
 						// console.log("inner loop i")
-						// console.log(i)				
+						// console.log(i)
 					}
 				}
-			}			
+			}
 
 			console.log("pending_invoices_data after the loop")
 			console.log(pending_invoices_data)
@@ -506,15 +568,15 @@ allocations: function(frm, cdt, cdn)
 			// if(pending_invoices_data.length> pending_invoices_with_value.length)
 			// {
 			// 	frappe.msgprint("Allocations without balance amount has been removed")
-			// }				
-					
-			
+			// }
+
+
 			//Stage 2.
 			// Get the values input from the allocations table in the current document
 			// Adjust the paid amount based on the paying amount
 			var allocations = cur_frm.doc.receipt_allocation;
 			console.log(allocations)
-		
+
 			if(allocations)
 			{
 				for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
@@ -524,10 +586,10 @@ allocations: function(frm, cdt, cdn)
 					console.log(allocation)
 
 					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
-					if(allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice")
+					if((allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return"))
 					{
 						console.log("hitted continue")
-						continue;	
+						continue;
 					}
 
 					for (var idx1= pending_invoices_with_value.length - 1; idx1>=0; idx1--)
@@ -554,7 +616,7 @@ allocations: function(frm, cdt, cdn)
 				}
 			}
 
-			child_table_control.df.data = pending_invoices_with_value;							
+			child_table_control.df.data = pending_invoices_with_value;
 			child_table_control.refresh();
 		}
 	});
@@ -622,7 +684,7 @@ allocations: function(frm, cdt, cdn)
 				{
 					var row_allocation = frappe.model.get_new_doc('Payment Allocation');
 					row_allocation.customer = element.customer
-					
+
 					row_allocation.reference_type = element.reference_type
 					row_allocation.reference_name =  element.reference_name
 					row_allocation.total_amount = element.invoice_amount

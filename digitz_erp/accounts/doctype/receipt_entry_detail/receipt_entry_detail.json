@@ -24,18 +24,21 @@
   {
    "fieldname": "receipt_type",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Receipt Type",
    "options": "\nCustomer\nOther"
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Customer",
    "options": "Customer"
   },
   {
    "fieldname": "account",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Account",
    "options": "Account"
   },
@@ -57,6 +60,7 @@
   {
    "fieldname": "amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Amount"
   },
   {
@@ -85,14 +89,15 @@
   {
    "fieldname": "reference_type",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Reference Type",
-   "options": "\nSales Invoice"
+   "options": "\nSales Invoice\nSales Return"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-12 09:52:35.685472",
+ "modified": "2024-01-19 13:37:22.353367",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry Detail",
