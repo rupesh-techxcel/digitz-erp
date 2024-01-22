@@ -49,7 +49,8 @@ class StockReconciliation(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.do_postings_on_submit()
         else:
-            frappe.enqueue(self.do_postings_on_submit, queue="long")        
+            # frappe.enqueue(self.do_postings_on_submit, queue="long") 
+              self.do_postings_on_submit()     
         
     def do_postings_on_submit(self):
         
@@ -206,7 +207,8 @@ class StockReconciliation(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job): 
             self.cancel_stock_reconciliation()
         else:
-            frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
+            # frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
+            self.cancel_stock_reconciliation()
         
     def cancel_stock_reconciliation(self):
 
@@ -239,15 +241,15 @@ class StockReconciliation(Document):
                 stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
                 'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
 
-                if(stock_ledger_items):
+                # if(stock_ledger_items):
 
-                    qty_cancelled = docitem.qty_in_base_unit
-                    # Loop to verify the sufficiant quantity
-                    for sl in stock_ledger_items:
-                        # On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
-                        if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
-                            frappe.throw("Cancelling the stock reconciliation is prevented due to sufficiant quantity not available for " + docitem.item +
-                        " to fulfil the voucher " + sl.voucher_no)
+                #     qty_cancelled = docitem.qty_in_base_unit
+                #     # Loop to verify the sufficiant quantity
+                #     for sl in stock_ledger_items:
+                #         # On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
+                #         if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
+                #             frappe.throw("Cancelling the stock reconciliation is prevented due to sufficiant quantity not available for " + docitem.item +
+                #         " to fulfil the voucher " + sl.voucher_no)
 
                 if(previous_stock_ledger_name):
                     stock_recalc_voucher.append('records',{'item': docitem.item,
@@ -279,7 +281,7 @@ class StockReconciliation(Document):
                 stock_balance_for_item = frappe.new_doc("Stock Balance")
                 stock_balance_for_item.item = docitem.item
                 stock_balance_for_item.unit = unit
-                stock_balance_for_item.warehouse = docitem.target_warehouse
+                stock_balance_for_item.warehouse = docitem.warehouse
                 stock_balance_for_item.stock_qty = balance_qty
                 stock_balance_for_item.stock_value = balance_value
                 stock_balance_for_item.valuation_rate = valuation_rate

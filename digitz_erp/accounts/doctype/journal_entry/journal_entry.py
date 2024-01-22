@@ -31,6 +31,8 @@ class JournalEntry(Document):
 			if journal_entry.account not in accounts:
 				accounts.append(journal_entry.account)
     
+		print(accounts)
+    
 		for account in accounts:
 			update_account_balance(account)
 			

@@ -4,6 +4,9 @@ from frappe.utils import *
 @frappe.whitelist()
 def update_account_balance(account):
     
+    print("account")
+    print(account)
+    
     query = """
         SELECT
             SUM(debit_amount) - SUM(credit_amount) AS account_balance
@@ -13,8 +16,19 @@ def update_account_balance(account):
             account = %s
     """
     data = frappe.db.sql(query, (account,), as_dict=True)
+    
+    print("data")
+    print(data)
+    
     account_balance = data[0].get('account_balance') if data and data[0].get('account_balance') else 0
     account_doc = frappe.get_doc('Account', account)
+    
+    print("account_doc")
+    print(account_doc)   
+    print(account_doc.account_name)
+    print(account_doc.balance)
+    print(account_doc.balance_dr_cr)
+     
     if account_balance >= 0:
         account_doc.balance = account_balance
         account_doc.balance_dr_cr = 'Dr'
@@ -24,200 +38,144 @@ def update_account_balance(account):
 
     account_doc.save()
     
-    update_direct_groups_recursive(account_doc.root_type)
-    # update_parent_groups(account_doc.parent_account, account_balances)
+    print("account_balance")
+    print(account_balance)
     
-    # update_parent_groups("Indirect Expense", account_balances)
+    print("account_doc")
+    print(account_doc)
     
+    print("account_doc.account_name")
+    print(account_doc.account_name)
+    print("account_doc.balance")
+    print(account_doc.balance)
+    print("account_doc.balance_dr_cr")
+    print(account_doc.balance_dr_cr)
     
-# def update_parent_groups(parent_account, account_balances):    
+    if account_doc.root_type == None:
+        frappe.throw("Root type not found for the account {}".format(account_doc.name))
     
-#     update_parent_and_inner_group_balances(parent_account, account_balances)    
-    
-#     # account_doc = frappe.get_doc('Account', parent_account)
-    
-#     # if(account_doc.parent_account != None):
-#     #     update_parent_groups(account_doc.parent_account, account_balances)
-        
+    update_all_direct_parent_accounts_from_gl_postings_for_the_root_type(account_doc.root_type)
 
-# # This method recursively iterate through the groups and get the balances from the get_account_balance_recursive_for_parent_account method for each group and update it to the account 
-# def update_parent_and_inner_group_balances(parent_account, account_balances):
+# With this method all direct account groups will be upadated based on the gl_posting under the root_type. 
+# And then will update each parent groups upto root
+def update_all_direct_parent_accounts_from_gl_postings_for_the_root_type(root_type):
     
-#     if(parent_account == None):
-#         return
+    # Reset all parent_groups to zero
+    query = """
+    UPDATE `tabAccount` set balance = 0 where root_type= %s and is_group = 1    
+    """    
+    frappe.db.sql(query, (root_type,))
     
-#     # if(parent_account in account_balances):
-#     #     balance = account_balances[parent_account]
-#     # else:
-    
-#     balance = get_account_balance_recursive_for_parent_account(parent_account,0)
-
-#     account_doc = frappe.get_doc('Account', parent_account)
-#     if balance >= 0:
-#         account_doc.balance = balance
-#         account_doc.balance_dr_cr = 'Dr'
-#     else:
-#         account_doc.balance = -balance
-#         account_doc.balance_dr_cr = 'Cr'
-                
-#     account_doc.save()        
-#     account_balances[parent_account] = balance
-        
-    
-#     inner_groups_query = """
-#             SELECT account_name from `tabAccount` a where a.parent_account = %s and a.is_group = 1 
-#     """
-    
-#     data = frappe.db.sql(inner_groups_query, (parent_account,), as_dict=True)
-    
-#     for d in data:
-#        update_parent_and_inner_group_balances(d.name, account_balances)
-
-# # This method get the balance of all ledgers and inner group ledgers with recurssion
-# def get_account_balance_recursive_for_parent_account(parent_account,parent_account_balance):
-        
-#     balance = get_ledger_balances_for_parent_account(parent_account)
-    
-#     print("parent account ledger balance")    
-#     print(parent_account)
-#     print(balance)
-    
-#     inner_groups_query = """
-#           SELECT account_name from `tabAccount` a where a.parent_account = %s and a.is_group = 1 
-#     """
-    
-#     data = frappe.db.sql(inner_groups_query, (parent_account,), as_dict=True)
-    
-#     for d in data:
-#         balance = balance + get_account_balance_recursive_for_parent_account(d.name,0)
-    
-#     parent_account_balance = parent_account_balance + balance
-         
-#     print("parent account total balance")    
-#     print(parent_account_balance)
-    
-#     return parent_account_balance
-
-# def get_ledger_balances_for_parent_account(parent_account):
-    
-#     query = """
-#         SELECT
-#             SUM(gl.debit_amount) - SUM(gl.credit_amount) AS account_balance
-#         FROM
-#             `tabGL Posting` gl INNER JOIN `tabAccount` a on a.name= gl.account
-#         WHERE
-#             a.parent_account = %s
-#     """
-#     data = frappe.db.sql(query, (parent_account,), as_dict=True)
-#     balance = data[0].get('account_balance') if data and data[0].get('account_balance') else 0
-    
-#     return balance
-
-
-# def update_direct_groups_recursive(root_type):
-    
-#     # # Update immediate parent_account of all gl postings which is in the the root_type as the param
-     
-#     group_balances_query = """
-#         SELECT
-#             a.parent_account,
-#             SUM(gl.debit_amount) - SUM(gl.credit_amount) AS group_balance
-#         FROM
-#             `tabGL Posting` gl
-#         INNER JOIN
-#             `tabAccount` a ON a.name = gl.account
-#         WHERE
-#             a.root_type = %s
-#         GROUP BY
-#             a.parent_account
-#     """
-
-#     group_balances = frappe.db.sql(group_balances_query, (root_type,), as_dict=True)
-    #  >= 0 THEN %s ELSE -%s END
-#     # Update immediate parent accounts with group balances
-#     for entry in group_balances:
-#         parent_account = entry.get("parent_account")
-#         group_balance = entry.get("group_balance")
-
-#     # Determine the balance_dr_cr value based on group_balance
-#     balance_dr_cr = "Dr" if group_balance > 0 else "Cr"
-
-#     update_query = """
-#         UPDATE
-#             `tabAccount`
-#         SET
-#             balance = CASE WHEN %s >= 0 THEN %s ELSE -%s END,
-#             balance_dr_cr = %s
-#         WHERE
-#             name = %s
-#     """
-
-#     # Use abs() to get the absolute value of group_balance
-#     frappe.db.sql(update_query, (group_balance, abs(group_balance), abs(group_balance), balance_dr_cr, parent_account))
-
-def update_direct_groups_recursive(root_type):
-    # Step 1: Update immediate parent_account groups
-    update_direct_groups(root_type)
-
-    # Step 2: Cumulative update to parent accounts recursively
-    update_query = """
-    UPDATE
-        `tabAccount` a
-    SET
-        balance = COALESCE((
-            SELECT
-                SUM(b.balance)
-            FROM
-                `tabAccount` b
-            WHERE
-                b.parent_account = a.name
-        ), 0),
-        balance_dr_cr = CASE WHEN COALESCE(SUM(b.balance), 0) >= 0 THEN 'Dr' ELSE 'Cr' END
+    query = """
+    SELECT
+    a.parent_account,
+    SUM(debit_amount) - SUM(credit_amount) AS account_balance
+    FROM
+    `tabGL Posting` gp
+    INNER JOIN `tabAccount` a on gp.account = a.name
     WHERE
-        a.parent_account IS NULL
-        AND a.root_type = %s
-        AND a.is_group = 1
-    """
-
-    # Execute the update query
-    frappe.db.sql(update_query, (root_type,))
-
-def update_direct_groups(root_type):
-    # Update immediate parent_account groups
-    group_balances_query = """
-        SELECT
-            a.parent_account,
-            SUM(gl.debit_amount) - SUM(gl.credit_amount) AS group_balance
-        FROM
-            `tabGL Posting` gl
-        INNER JOIN
-            `tabAccount` a ON a.name = gl.account
-        WHERE
-            a.root_type = %s
-        GROUP BY
-            a.parent_account
-    """
-
-    group_balances = frappe.db.sql(group_balances_query, (root_type,), as_dict=True)
-
-    # Update immediate parent accounts with group balances
-    for entry in group_balances:
-        parent_account = entry.get("parent_account")
-        group_balance = entry.get("group_balance")
-
-        # Determine the balance_dr_cr value based on group_balance
-        balance_dr_cr = "Dr" if group_balance > 0 else "Cr"
-
-        update_query = """
-            UPDATE
-                `tabAccount`
-            SET
-                balance = %s,
-                balance_dr_cr = %s
-            WHERE
-                name = %s
-                AND root_type = %s
+    a.root_type = '{root_type}'
+    GROUP BY a.parent_account
+    """.format(root_type=root_type)
+    
+    print("query")
+    print(query)
+    
+    data = frappe.db.sql(query , as_dict=True)   
+    print("data")
+    print(data)
+    
+    for d in data:
+        print(d.parent_account)
+        account = frappe.get_doc('Account', d.parent_account)
+        if(account):
+            account.balance = 0    
+            account.save()
+            print("account on update")
+            print(account)
+            print(account.balance)
+    
+    
+    for d in data:
+        print(d.parent_account)
+        account = frappe.get_doc('Account', d.parent_account)
+        if(account):            
+            print("account after update")
+            print(account)
+            print(account.balance)
+            
+    data = frappe.db.sql(query , as_dict=True)   
+    print("data 2")
+    print(data)
+        
+    parent_accounts = {}
+    
+    for d in data:
+        # Note that each parent account getting here may or may not have child parent accounts
+        account = frappe.get_doc('Account', d.parent_account)
+        account.balance= abs(d.account_balance)
+        if account.balance == 0:
+            account.balance_dr_cr = None
+        else:
+            account.balance_dr_cr = "Dr" if account.balance > 0 else "Cr"
+        
+        account.save()
+        
+        # Here also we check the value exists in the dictionary because for parent_accounts which 
+        # has child parent group already exists the parent_account may be already exists in the dictionary
+        if d.parent_account not in parent_accounts:
+            parent_accounts[d.parent_account] = d.account_balance
+        else:
+            parent_accounts[d.parent_account] += d.account_balance
+        
+        # Direct parent accounts are already updated in this loop but still adds to the dictionary
+        # because those parent accounts may also contain group which can have accounts with values
+        # so the value cummilation needs to occur again.
+        
+        update_parent_account_to_root_recursive(d.parent_account, parent_accounts)
+        
+    for key in parent_accounts:
+        
+        account = frappe.get_doc('Account', key)
+        account.balance = abs(parent_accounts[key])
+        if account.balance == 0:
+            account.balance_dr_cr = None
+        else:
+            account.balance_dr_cr = "Dr" if parent_accounts[key] > 0 else "Cr"
+        
+        account.save()
+    
+def update_parent_account_to_root_recursive(parent_account, parent_accounts):
+   
+    # Note that we take only parent accounts and not considering the child account groups of each
+    # parent account since from the calling method we consider all the gl_postings and start with
+    # the direct parent account of each account in the gl_postings. So only backward (to the top) 
+    # recursion is required. Because it considre all the accounts in gl_postings the balances will 
+    # be correct
+    query="""
+        SELECT parent_account from `tabAccount` where name=%s
         """
+    data = frappe.db.sql(query, (parent_account,), as_dict=True)
+    
+    data[0].parent_account
+    
+    # When it reached the root need to go further.
+    if(data == None or data[0].parent_account ==None):
+        return
+    
+    # Simply take the parent_account passing in and its balance to cummilate to its parent account    
+    if(data[0].parent_account not in parent_accounts):
+        parent_accounts[data[0].parent_account] = parent_accounts[parent_account]
+    else:
+        parent_accounts[data[0].parent_account] += parent_accounts[parent_account]
+        
+    update_parent_account_to_root_recursive(data[0].parent_account, parent_accounts)
 
-        # Use abs() to get the absolute value of group_balance
-        frappe.db.sql(update_query, (abs(group_balance), balance_dr_cr, parent_account, root_type))
+    
+
+    
+    
+    
+    
+    
+      
