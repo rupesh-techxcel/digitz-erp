@@ -378,7 +378,7 @@ allocations: function(frm, cdt, cdn)
 								fieldtype: 'Select',
 								fieldname: 'reference_type',
 								label: 'Reference Type',
-								options: 'Purchase Invoice\n Expense Entry\n Purchase Return',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return\n Debit Note',
 								in_place_edit: false,
 								in_list_view: true,
 								read_only:true
@@ -443,7 +443,72 @@ allocations: function(frm, cdt, cdn)
 								fieldtype: 'Select',
 								fieldname: 'reference_type',
 								label: 'Reference Type',
-								options: 'Purchase Invoice\n Expense Entry\n Purchase Return',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return\n Debit Note',
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_name",
+								label: "Reference Name",
+								in_place_edit: false,
+								in_list_view: true,
+								// width: "40%",
+								read_only:true
+							},
+							// {
+							// 	fieldtype: "Date",
+							// 	fieldname: "date",
+							// 	label: "Date",
+							// 	in_place_edit: false,
+							// 	in_list_view: true,
+							// 	// width: "40%",
+							// 	read_only:true
+							// },
+							{
+								fieldtype: "Currency",
+								fieldname: "invoice_amount",
+								label: "Invoice Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "balance_amount",
+								label: "Balance Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "paying_amount",
+								label: "Paying Amount",
+								in_place_edit: true,
+								in_list_view: true
+							}
+						],
+					},
+					parent: dialog.get_field("purchase").$wrapper,
+					render_input: true,
+				});
+			}
+			else if(selected_reference_type == "Debit Note")
+			{
+				console.log('Debit Note');
+				child_table_control = frappe.ui.form.make_control({
+					df: {
+						fieldname: "payment_allocation",
+						fieldtype: "Table",
+						cannot_add_rows:true,
+						fields: [
+							{
+								fieldtype: 'Select',
+								fieldname: 'reference_type',
+								label: 'Reference Type',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return\n Debit Note',
 								in_place_edit: false,
 								in_list_view: true,
 								read_only:true
@@ -508,7 +573,7 @@ allocations: function(frm, cdt, cdn)
 								fieldtype: 'Select',
 								fieldname: 'reference_type',
 								label: 'Reference Type',
-								options: 'Purchase Invoice\n Expense Entry\n Purchase Return',
+								options: 'Purchase Invoice\n Expense Entry\n Purchase Return\n Debit Note',
 								in_place_edit: false,
 								in_list_view: true,
 								read_only:true
@@ -575,7 +640,7 @@ allocations: function(frm, cdt, cdn)
 
 			for (var idx1= pending_invoices_data.length - 1; idx1>=0; idx1--)
 			{
-		
+
 				pending_invoices_data[idx1].paid_amount = 0;
 				pending_invoices_data[idx1].balance_amount =  pending_invoices_data[idx1].invoice_amount;
 				// pending_invoices_data[j].posting_date = frappe.format(pending_invoices_data[j].posting_date, { fieldtype: 'Date' })
@@ -625,7 +690,7 @@ allocations: function(frm, cdt, cdn)
 					console.log(allocation)
 
 					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
-					if((allocation.reference_type=="Expense Entry Details" && selected_reference_type!="Expense Entry")  || (allocation.reference_type == "Purchase Invoice" && selected_reference_type!="Purchase Invoice") || (allocation.reference_type == "Purchase Return" && selected_reference_type!="Purchase Return"))
+					if((allocation.reference_type=="Expense Entry Details" && selected_reference_type!="Expense Entry")  || (allocation.reference_type == "Purchase Invoice" && selected_reference_type!="Purchase Invoice") || (allocation.reference_type == "Purchase Return" && selected_reference_type!="Purchase Return") || (allocation.reference_type == "Debit Note" && selected_reference_type!="Debit Note"))
 					{
 						console.log("hitted continue")
 						continue;
