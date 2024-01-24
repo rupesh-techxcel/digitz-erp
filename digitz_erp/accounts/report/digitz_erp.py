@@ -9,13 +9,12 @@ from six import itervalues
 def filter_accounts(accounts, depth=20):
     parent_children_map = {}
     accounts_by_name = {}
+    
     for d in accounts:
-        print("d")
-        print(d)
+        
         accounts_by_name[d.name] = d
         parent_children_map.setdefault(d.parent_account or None, []).append(d)
-    filtered_accounts = []
-    
+    filtered_accounts = []    
 
     def add_to_list(parent, level):
         

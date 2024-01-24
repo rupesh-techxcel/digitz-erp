@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.gl_posting_api import update_account_balance 
+from digitz_erp.api.gl_posting_api import update_account_balance, update_all_account_balances
 
 class JournalEntry(Document):
 	def on_submit(self):
@@ -15,7 +15,7 @@ class JournalEntry(Document):
   
 		accounts = []
   
-		for journal_entry in self.journal_entry_account:
+		for journal_entry in self.journal_entry_details:
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.idx = idx
 			gl_doc.voucher_type = 'Journal Entry'
@@ -30,9 +30,11 @@ class JournalEntry(Document):
 			idx += 1
 			if journal_entry.account not in accounts:
 				accounts.append(journal_entry.account)
-    
-		print(accounts)
-    
+        
 		for account in accounts:
-			update_account_balance(account)
+		  	update_account_balance(account)
+  
+		# update_account_balance("Rent")
+   
+		# update_all_account_balances()
 			

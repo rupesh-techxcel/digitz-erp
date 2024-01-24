@@ -176,8 +176,15 @@ def get_data(filters):
         # For reconciliation it can be qty_in and qty_out both needs to be considered for balance_qty
         for stock_recon_qty_row in stock_recon_qty_data:
             if stock_recon_qty_row.item_code == opening_balance_row.item_code:
-                item_row["stock_recon_qty"] = stock_recon_qty_row.balance_qty
-                balance_qty += stock_recon_qty_row.qty_in - stock_recon_qty_data.qty_out
+                # item_row["stock_recon_qty"] = stock_recon_qty_row.balance_qty
+                # Fill the recon column with the effective value 
+                if(stock_recon_qty_row.qty_in>0):
+                    item_row["stock_recon_qty"] = stock_recon_qty_row.qty_in
+                
+                if(stock_recon_qty_row.qty_out>0):
+                    item_row["stock_recon_qty"] = stock_recon_qty_row.qty_out * -1
+                
+                balance_qty += stock_recon_qty_row.qty_in - stock_recon_qty_row.qty_out
 
                 (transaction_value_exists) = True
                 break

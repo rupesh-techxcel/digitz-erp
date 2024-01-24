@@ -12,13 +12,17 @@
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
+  "column_break_iewy",
+  "column_break_xapi",
   "section_break_hkdjm",
-  "journal_entry_account",
+  "journal_entry_details",
   "section_break_ubjfr",
   "remarks",
   "column_break_yiml0",
   "total_debit",
   "total_credit",
+  "balance",
+  "column_break_elys",
   "amended_from"
  ],
  "fields": [
@@ -73,12 +77,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "journal_entry_account",
-   "fieldtype": "Table",
-   "label": "Journal Entry Account",
-   "options": "Journal Entry Account"
-  },
-  {
    "default": "Now",
    "fieldname": "posting_time",
    "fieldtype": "Time",
@@ -94,13 +92,37 @@
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks"
+   "label": "Remarks",
+   "reqd": 1
+  },
+  {
+   "fieldname": "journal_entry_details",
+   "fieldtype": "Table",
+   "label": "Details",
+   "options": "Journal Entry Detail"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Data",
+   "label": "Balance"
+  },
+  {
+   "fieldname": "column_break_iewy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_xapi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_elys",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-08-03 15:51:06.271940",
+ "modified": "2024-01-22 11:10:43.165684",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry",

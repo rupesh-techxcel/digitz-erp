@@ -1,0 +1,137 @@
+import frappe
+from frappe.utils import *
+
+@frappe.whitelist()
+def get_accounts_data(from_date,to_date):
+    
+    query = """
+            SELECT parent_account,account_name from `tabAccount` where is_group = 0
+            """
+    data = frappe.db.sql(query, as_dict=True)
+    
+    accounts = {}
+    
+    for d in data:      
+          
+        opening_balance = get_opening_balance(d.account_name, from_date)
+        
+        if not opening_balance:
+            opening_balance = 0
+
+        opening_balance_debit = max(0, opening_balance)
+        opening_balance_credit = abs(min(0, opening_balance))
+
+        transaction_debit = get_transaction_debit(d.account_name, from_date,to_date)
+        
+        if not transaction_debit:
+            transaction_debit = 0
+        
+        transaction_credit = get_transaction_credit(d.account_name, from_date,to_date)
+        
+        if not transaction_credit:
+            transaction_credit = 0
+
+        closing_balance = opening_balance + transaction_debit - transaction_credit
+
+        if not closing_balance:
+            closing_balance = 0
+        closing_balance_debit = max(0, closing_balance )
+        closing_balance_credit = abs(min(0, closing_balance))
+
+        accounts[d.account_name] = {
+            'opening_debit': opening_balance_debit,
+            'opening_credit': opening_balance_credit,
+            'debit': transaction_debit,
+            'credit': transaction_credit,
+            'closing_debit': closing_balance_debit,
+            'closing_credit': closing_balance_credit
+        }
+
+        if d.parent_account in accounts:
+            accounts[d.parent_account] = {
+                'opening_debit': accounts[d.parent_account]['opening_debit'] + opening_balance_debit,
+                'opening_credit': accounts[d.parent_account]['opening_credit'] + opening_balance_credit,
+                'debit': accounts[d.parent_account]['debit'] + transaction_debit,
+                'credit': accounts[d.parent_account]['credit'] + transaction_credit,
+                'closing_debit': accounts[d.parent_account]['closing_debit'] + closing_balance_debit,
+                'closing_credit': accounts[d.parent_account]['closing_credit'] + closing_balance_credit
+            }
+        else:
+            accounts[d.parent_account] = {
+                'opening_debit': opening_balance_debit,
+                'opening_credit': opening_balance_credit,
+                'debit': transaction_debit,
+                'credit': transaction_credit,
+                'closing_debit': closing_balance_debit,
+                'closing_credit': closing_balance_credit
+            }
+        
+        update_parent_accounts_recursive(d.parent_account,accounts,d.account_name)
+    
+    print("accounts")  
+    print(accounts)  
+    return accounts
+
+def update_parent_accounts_recursive(account, accounts, account_name):
+    
+    account_doc = frappe.get_doc('Account',account)
+    if(account_doc.parent_account == 'Accounts'):
+        return;
+    
+    parent_account = account_doc.parent_account
+    
+    if parent_account in accounts:
+            accounts[parent_account] = {
+                'opening_debit': accounts[parent_account]['opening_debit'] + accounts[account_name]['opening_debit'],
+                'opening_credit': accounts[parent_account]['opening_credit'] + accounts[account_name]['opening_credit'],
+                'debit': accounts[parent_account]['debit'] + accounts[account_name]['debit'],
+                'credit': accounts[parent_account]['credit'] + accounts[account_name]['credit'],
+                'closing_debit': accounts[parent_account]['closing_debit'] + accounts[account_name]['closing_debit'],
+                'closing_credit': accounts[parent_account]['closing_credit'] + accounts[account_name]['closing_credit']            }
+    else:
+            accounts[parent_account] = {
+                'opening_debit': accounts[account_name]['opening_debit'],
+                'opening_credit': accounts[account_name]['opening_credit'],
+                'debit': accounts[account_name]['debit'],
+                'credit': accounts[account_name]['credit'],
+                'closing_debit': accounts[account_name]['closing_debit'],
+                'closing_credit': accounts[account_name]['closing_credit'] }
+            
+    update_parent_accounts_recursive(parent_account,accounts,account_name)
+        
+def get_opening_balance(account, from_date):
+    
+    query="""
+    SELECT sum(debit_amount)-sum(credit_amount) as opening_balance from `tabGL Posting` gl where gl.account = %s and posting_date < %s
+    """
+    
+    data = frappe.db.sql(query,(account,from_date), as_dict=True)
+    if data and data[0]:
+        return data[0].opening_balance
+    else:
+        return 0
+
+def get_transaction_debit(account, from_date, to_date):
+    
+    query="""
+    SELECT sum(debit_amount) as debit_amount from `tabGL Posting` gl where gl.account = '{account}' and posting_date >= '{from_date}' and posting_date<='{to_date}'
+    """.format(account=account,from_date=from_date, to_date=to_date)
+    
+    data = frappe.db.sql(query, as_dict=True)
+    if data and data[0]:
+        return data[0].debit_amount
+    else:
+        return 0
+
+def get_transaction_credit(account, from_date, to_date):
+    
+    query="""
+    SELECT sum(credit_amount) as credit_amount from `tabGL Posting` gl where gl.account = '{account}' and posting_date >= '{from_date}' and posting_date<='{to_date}'
+    """.format(account=account,from_date=from_date, to_date=to_date)
+    
+    data = frappe.db.sql(query, as_dict=True)
+    if data and data[0]:
+        return data[0].credit_amount
+    else:
+        return 0
+    

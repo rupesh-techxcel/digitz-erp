@@ -3,7 +3,7 @@
  "allow_rename": 1,
  "autoname": "field:account_name",
  "creation": "2022-12-21 11:47:46.978910",
- "default_view": "Tree",
+ "default_view": "Report",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -53,6 +53,7 @@
   {
    "fieldname": "old_parent",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Old Parent",
    "options": "Account"
   },
@@ -79,18 +80,20 @@
   {
    "fieldname": "balance",
    "fieldtype": "Currency",
-   "label": "Balance"
+   "label": "Balance",
+   "read_only": 1
   },
   {
    "fieldname": "balance_dr_cr",
    "fieldtype": "Data",
-   "label": "Balance Dr Cr"
+   "label": "Balance Dr Cr",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2024-01-18 14:47:52.563558",
+ "modified": "2024-01-22 10:17:58.500325",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

@@ -20,7 +20,8 @@ def get_data(filters=None):
                 rgt,
                 balance
             from
-                `tabAccount` order by lft
+                `tabAccount` 
+            order by lft
         """, as_dict=True
     )
     accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
@@ -30,9 +31,12 @@ def get_data(filters=None):
 def prepare_data(accounts, parent_children_map, accounts_by_name):
     data = []
     for d in accounts:
+        # Remove the root element
+        if(d.name == "Accounts"):
+            continue;
         row = get_account_details(d.name, d.parent_account, d.indent)
-        accounts_by_name[d.name]['balance'] += row['balance']
-        accumulate_values_into_parents(accounts_by_name, d.parent_account, row['balance'])
+        # accounts_by_name[d.name]['balance'] += row['balance']
+        # accumulate_values_into_parents(accounts_by_name, d.parent_account, row['balance'])
         row['account'] = d.name
         data.append(row)
     return data
@@ -43,11 +47,12 @@ def get_account_details(account, parent_account, indent):
     data['indent'] = indent
     data['account'] = account
     data['balance'] = frappe.get_value("Account", account, "balance")
+    data['balance_dr_cr'] = frappe.get_value("Account", account, "balance_dr_cr")
     return data
 
 def accumulate_values_into_parents(accounts_by_name, parent_account, balance):
     if parent_account:
-        accounts_by_name[parent_account]['balance'] += balance
+        # accounts_by_name[parent_account]['balance'] += balance
         accumulate_values_into_parents(accounts_by_name, accounts_by_name[parent_account]['parent_account'], balance)
 
 def get_columns():
@@ -64,6 +69,12 @@ def get_columns():
             "label": _("Balance"),
             "fieldtype": "Currency",
             "options": "currency",
+            "width": 150,
+        },
+        {
+            "fieldname": "balance_dr_cr",
+            "label": _("Dr_Cr"),
+            "fieldtype": "Data",            
             "width": 150,
         }
     ]

@@ -1,8 +1,36 @@
 import frappe
 from frappe.utils import *
 
+
 @frappe.whitelist()
-def update_account_balance(account):
+def update_all_account_balances():
+    
+    query = """
+            SELECT account_name from `tabAccount` where is_group = 0
+            """
+    data = frappe.db.sql(query, as_dict=True)
+    
+    for d in data:
+        update_account_balance(d.account_name)
+        
+    update_all_parent_accounts()
+
+@frappe.whitelist()    
+def update_all_parent_accounts():
+    print("Asset data updation")
+    update_all_parent_accounts_for_the_root_type("Asset")
+    print("Liability data updation")
+    update_all_parent_accounts_for_the_root_type("Liability")
+    print("Income data updation")
+    update_all_parent_accounts_for_the_root_type("Income")
+    print("Expense data updation")
+    update_all_parent_accounts_for_the_root_type("Expense")
+        
+@frappe.whitelist()
+def update_account_balance(account, update_parent_accounts=True):
+    print("")
+    print("")
+    print("")
     
     print("account")
     print(account)
@@ -16,18 +44,9 @@ def update_account_balance(account):
             account = %s
     """
     data = frappe.db.sql(query, (account,), as_dict=True)
-    
-    print("data")
-    print(data)
-    
+       
     account_balance = data[0].get('account_balance') if data and data[0].get('account_balance') else 0
     account_doc = frappe.get_doc('Account', account)
-    
-    print("account_doc")
-    print(account_doc)   
-    print(account_doc.account_name)
-    print(account_doc.balance)
-    print(account_doc.balance_dr_cr)
      
     if account_balance >= 0:
         account_doc.balance = account_balance
@@ -38,144 +57,107 @@ def update_account_balance(account):
 
     account_doc.save()
     
-    print("account_balance")
-    print(account_balance)
-    
-    print("account_doc")
-    print(account_doc)
-    
-    print("account_doc.account_name")
-    print(account_doc.account_name)
-    print("account_doc.balance")
-    print(account_doc.balance)
-    print("account_doc.balance_dr_cr")
-    print(account_doc.balance_dr_cr)
-    
     if account_doc.root_type == None:
         frappe.throw("Root type not found for the account {}".format(account_doc.name))
-    
-    update_all_direct_parent_accounts_from_gl_postings_for_the_root_type(account_doc.root_type)
+        
+    if update_parent_accounts:
+        update_all_parent_accounts_for_the_root_type(account_doc.root_type)
 
 # With this method all direct account groups will be upadated based on the gl_posting under the root_type. 
 # And then will update each parent groups upto root
-def update_all_direct_parent_accounts_from_gl_postings_for_the_root_type(root_type):
+def update_all_parent_accounts_for_the_root_type(root_type):
     
     # Reset all parent_groups to zero
     query = """
-    UPDATE `tabAccount` set balance = 0 where root_type= %s and is_group = 1    
+    SELECT name from `tabAccount` where root_type= %s and is_group = 1    
     """    
-    frappe.db.sql(query, (root_type,))
+    data = frappe.db.sql(query, (root_type,), as_dict = 1)
     
+    for d in data:
+        account = frappe.get_doc('Account',d.name)
+        account.balance = 0
+        account.balance_dr_cr = None
+        account.save()
+    
+    # Query to get gl_postings balances for the account and  direct parent_account
     query = """
     SELECT
-    a.parent_account,
-    SUM(debit_amount) - SUM(credit_amount) AS account_balance
+        a.parent_account,
+        gp.account,
+        SUM(debit_amount) - SUM(credit_amount) AS account_balance
     FROM
-    `tabGL Posting` gp
-    INNER JOIN `tabAccount` a on gp.account = a.name
+        `tabGL Posting` gp
+    INNER JOIN
+        `tabAccount` a ON gp.account = a.name
     WHERE
-    a.root_type = '{root_type}'
-    GROUP BY a.parent_account
+        a.root_type = '{root_type}'
+    GROUP BY
+        a.parent_account, gp.account
+    HAVING
+        SUM(debit_amount) <> SUM(credit_amount)
     """.format(root_type=root_type)
-    
-    print("query")
-    print(query)
-    
-    data = frappe.db.sql(query , as_dict=True)   
-    print("data")
-    print(data)
-    
-    for d in data:
-        print(d.parent_account)
-        account = frappe.get_doc('Account', d.parent_account)
-        if(account):
-            account.balance = 0    
-            account.save()
-            print("account on update")
-            print(account)
-            print(account.balance)
-    
-    
-    for d in data:
-        print(d.parent_account)
-        account = frappe.get_doc('Account', d.parent_account)
-        if(account):            
-            print("account after update")
-            print(account)
-            print(account.balance)
-            
-    data = frappe.db.sql(query , as_dict=True)   
-    print("data 2")
-    print(data)
-        
+
+    data = frappe.db.sql(query, as_dict=True)
+          
+    direct_parent_accounts = {}
     parent_accounts = {}
     
-    for d in data:
-        # Note that each parent account getting here may or may not have child parent accounts
-        account = frappe.get_doc('Account', d.parent_account)
-        account.balance= abs(d.account_balance)
-        if account.balance == 0:
-            account.balance_dr_cr = None
-        else:
-            account.balance_dr_cr = "Dr" if account.balance > 0 else "Cr"
-        
-        account.save()
-        
-        # Here also we check the value exists in the dictionary because for parent_accounts which 
-        # has child parent group already exists the parent_account may be already exists in the dictionary
-        if d.parent_account not in parent_accounts:
-            parent_accounts[d.parent_account] = d.account_balance
-        else:
-            parent_accounts[d.parent_account] += d.account_balance
-        
-        # Direct parent accounts are already updated in this loop but still adds to the dictionary
-        # because those parent accounts may also contain group which can have accounts with values
-        # so the value cummilation needs to occur again.
-        
-        update_parent_account_to_root_recursive(d.parent_account, parent_accounts)
-        
-    for key in parent_accounts:
-        
-        account = frappe.get_doc('Account', key)
-        account.balance = abs(parent_accounts[key])
-        if account.balance == 0:
-            account.balance_dr_cr = None
-        else:
-            account.balance_dr_cr = "Dr" if parent_accounts[key] > 0 else "Cr"
-        
-        account.save()
+    print("parent accounts and accounts")
     
-def update_parent_account_to_root_recursive(parent_account, parent_accounts):
+    # Cummilate all the values of the direct_parent_accounts dictionary
+    for d in data: 
+        
+        if d.parent_account not in direct_parent_accounts:
+            direct_parent_accounts[d.parent_account] = d.account_balance
+        else:
+            direct_parent_accounts[d.parent_account] += d.account_balance
+        
    
-    # Note that we take only parent accounts and not considering the child account groups of each
-    # parent account since from the calling method we consider all the gl_postings and start with
-    # the direct parent account of each account in the gl_postings. So only backward (to the top) 
-    # recursion is required. Because it considre all the accounts in gl_postings the balances will 
-    # be correct
+    #  Update corresponding direct_parent_account values to the table
+    for key in direct_parent_accounts:
+              
+        account = frappe.get_doc('Account', key)
+        account.balance = abs(direct_parent_accounts[key])
+        
+        if(direct_parent_accounts[key] == 0):    
+            account.balance_dr_cr  = None
+        else:    
+            account.balance_dr_cr = 'Dr' if direct_parent_accounts[key] > 0 else 'Cr'
+            
+        account.save()
+        
+        # Save the direct_parent_account and balance to the generic parent_accounts dictionary
+        parent_accounts[key] = direct_parent_accounts[key]
+        update_parent_account_to_root_recursive(key,parent_accounts, parent_accounts[key])
+
+    # After recursively update the balances to the parent_accounts dictionary save them to the database
+    for key in parent_accounts:
+        account = frappe.get_doc('Account', key)
+        if(account):
+            account.balance = abs(parent_accounts[key])
+            
+            if(parent_accounts[key] == 0):    
+                account.balance_dr_cr  = None
+            else:    
+                account.balance_dr_cr = 'Dr' if parent_accounts[key] > 0 else 'Cr'
+                
+            account.save()
+    
+def update_parent_account_to_root_recursive(account, parent_accounts, account_balance):
+      
     query="""
         SELECT parent_account from `tabAccount` where name=%s
         """
-    data = frappe.db.sql(query, (parent_account,), as_dict=True)
-    
-    data[0].parent_account
-    
-    # When it reached the root need to go further.
-    if(data == None or data[0].parent_account ==None):
+    data = frappe.db.sql(query, (account,), as_dict=True)
+        
+    # Need not update for root account
+    if(data[0].parent_account == "Accounts"):
         return
-    
+      
     # Simply take the parent_account passing in and its balance to cummilate to its parent account    
     if(data[0].parent_account not in parent_accounts):
-        parent_accounts[data[0].parent_account] = parent_accounts[parent_account]
+        parent_accounts[data[0].parent_account] = account_balance
     else:
-        parent_accounts[data[0].parent_account] += parent_accounts[parent_account]
-        
-    update_parent_account_to_root_recursive(data[0].parent_account, parent_accounts)
-
+        parent_accounts[data[0].parent_account] += account_balance
     
-
-    
-    
-    
-    
-    
-      
+    update_parent_account_to_root_recursive(data[0].parent_account, parent_accounts, account_balance)

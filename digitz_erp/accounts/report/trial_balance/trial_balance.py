@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from digitz_erp.accounts.report.digitz_erp import filter_accounts
+from digitz_erp.api.trial_balance_api import get_accounts_data
 
 value_fields = (
 	"opening_debit",
@@ -16,7 +17,9 @@ value_fields = (
 
 def execute(filters=None):
 	columns = get_columns()
-	data = get_data(filters)
+	# data = get_data(filters)
+	data = get_accounts_data(filters.get('from_date'), filters.get('to_date'))
+	
 	return columns, data
 
 def get_data(filters=None):
@@ -64,8 +67,8 @@ def prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_
 			row[key] = accounts_by_name[d.name][key]
 		row['indent'] = d.indent
 		data.append(row)
+  
 	return data
-
 
 def get_account_details(account, parent_account, indent, filters):
     data = {}

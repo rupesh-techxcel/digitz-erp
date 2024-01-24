@@ -18,7 +18,8 @@
    "fieldname": "narration",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Narration"
+   "label": "Narration",
+   "reqd": 1
   },
   {
    "fieldname": "account",
@@ -56,10 +57,10 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-08-03 15:52:49.767872",
+ "modified": "2024-01-22 11:35:03.058084",
  "modified_by": "Administrator",
  "module": "Accounts",
- "name": "Journal Entry Account",
+ "name": "Journal Entry Detail",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
