@@ -502,6 +502,68 @@ allocations: function(frm, cdt, cdn)
 					render_input: true,
 				});
 			}
+			else if(selected_reference_type == "Credit Note")
+			{
+				child_table_control = frappe.ui.form.make_control({
+					df: {
+						fieldname: "receipt_allocation",
+						fieldtype: "Table",
+						cannot_add_rows:true,
+						fields: [
+							{
+								fieldtype: 'Data',
+								fieldname: 'reference_type',
+								label: 'Reference Type',
+								in_place_edit: false,
+								in_list_view: false,
+								read_only:true,
+								hidden: true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_name",
+								label: "Reference Name",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Link",
+								fieldname: "reference_no",
+								label: "Reference No",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "invoice_amount",
+								label: "Invoice Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "balance_amount",
+								label: "Balance Amount",
+								in_place_edit: false,
+								in_list_view: true,
+								read_only:true
+							},
+							{
+								fieldtype: "Currency",
+								fieldname: "paying_amount",
+								label: "Paying Amount",
+								in_place_edit: true,
+								in_list_view: true
+							}
+						],
+					},
+					parent: dialog.get_field("sales").$wrapper,
+					render_input: true,
+				});
+			}
 
 
 			//Stage 1.
@@ -586,7 +648,7 @@ allocations: function(frm, cdt, cdn)
 					console.log(allocation)
 
 					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
-					if((allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return"))
+					if((allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return") || (allocation.reference_type == "Credit Note" && selected_reference_type!="Credit Note"))
 					{
 						console.log("hitted continue")
 						continue;
