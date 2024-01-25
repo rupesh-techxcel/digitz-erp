@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice, get_allocations_for_expense_entry, get_allocations_for_purchase_return
+from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice, get_allocations_for_expense_entry, get_allocations_for_purchase_return,get_allocations_for_debit_note
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
@@ -103,11 +103,11 @@ class PaymentEntry(Document):
 				messge = """Supplier is mandatory for the payment type Supplier, at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
 
-			if (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" or payment_entry.reference_type=="Purchase Return") and (not payment_entry.supplier):
-				messge = """Supplier is mandatory for the referene type Purchase Invoice/ Expense Entry/ Purchase Return, at line {0} """.format(payment_entry.idx)
+			if (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" or payment_entry.reference_type=="Purchase Return" or payment_entry.reference_type=="Debit Note") and (not payment_entry.supplier):
+				messge = """Supplier is mandatory for the referene type Purchase Invoice/ Expense Entry/ Purchase Return/ Debit Note, at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
 
-			if (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" or payment_entry.reference_type=="Purchase Return") and payment_entry.supplier and payment_entry.allocated_amount ==0:
+			if (payment_entry.reference_type == "Purchase Invoice" or payment_entry.reference_type=="Expense Entry" or payment_entry.reference_type=="Purchase Return" or payment_entry.reference_type=="Debit Note") and payment_entry.supplier and payment_entry.allocated_amount ==0:
 				messge = """Allocation not found for the payment at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
 
@@ -213,6 +213,11 @@ class PaymentEntry(Document):
 						allocations_exists = get_allocations_for_purchase_return(allocation.reference_name, payment_no)
 						print('allocations_exists :', allocations_exists)
 
+					if(allocation.reference_type == "Debit Note"):
+
+						allocations_exists = get_allocations_for_debit_note(allocation.reference_name, payment_no)
+						print('allocations_exists :', allocations_exists)
+
 					if(allocation.reference_type == "Purchase Invoice"):
 
 						allocations_exists = get_allocations_for_purchase_invoice(allocation.reference_name, payment_no)
@@ -262,6 +267,7 @@ class PaymentEntry(Document):
 		self.update_purchase_invoices()
 		self.update_expense_entry()
 		self.update_purchase_returns()
+		self.update_debit_note()
 
 	def on_submit(self):
 
@@ -288,6 +294,7 @@ class PaymentEntry(Document):
 
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
+		self.insert_gl_records_for_debit_note()
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 
@@ -306,6 +313,23 @@ class PaymentEntry(Document):
 							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
 						invoice_total = previous_paid_amount + allocation.paying_amount
 						frappe.db.set_value("Purchase Return", allocation.reference_name, {'paid_amount': invoice_total})
+
+	def update_debit_note(self):
+		allocations = self.payment_allocation
+		if(allocations):
+			for allocation in allocations:
+				if allocation.reference_type == "Debit Note":
+					if(allocation.paying_amount>0):
+						payment_no = self.name
+						if self.is_new():
+							payment_no = ""
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_debit_note(allocation.reference_name, payment_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+						invoice_total = previous_paid_amount + allocation.paying_amount
+						frappe.db.set_value("Debit Note", allocation.reference_name, {'grand_total': invoice_total})
+
 
 	def update_purchase_invoices(self):
 		allocations = self.payment_allocation
@@ -352,6 +376,19 @@ class PaymentEntry(Document):
 							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
 						total_paid_Amount = previous_paid_amount
 						frappe.db.set_value("Purchase Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
+
+				elif allocation.reference_type == "Debit Note":
+					if(allocation.paying_amount>0):
+						payment_no = self.name
+						if self.is_new():
+							payment_no = ""
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_debit_note(allocation.reference_name, payment_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+						total_paid_Amount = previous_paid_amount
+						frappe.db.set_value("Debit Note", allocation.reference_name, {'grand_total': total_paid_Amount})
+
 				elif allocation.reference_type == "Expense Entry Details":
 					if(allocation.paying_amount>0):
 						payment_no = self.name
@@ -448,6 +485,64 @@ class PaymentEntry(Document):
 						gl_doc.party_type = "Supplier"
 						gl_doc.party = payment_entry.supplier
 					gl_doc.insert()
+
+	def insert_gl_records_for_debit_note(self):
+		idx = 1
+
+		# Trade Receivable - Debit
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Payment Entry"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = self.account
+		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+		gl_doc.credit_amount = self.amount
+		gl_doc.remarks = self.remarks
+		gl_doc.insert()
+
+		payment_details = self.payment_entry_details
+
+		if(payment_details):
+			for payment_entry in payment_details:
+
+				if(payment_entry.reference_type == "Debit Note"):
+					idx = idx + 1
+					gl_doc = frappe.new_doc('GL Posting')
+					gl_doc.voucher_type = "Payment Entry"
+					gl_doc.voucher_no = self.name
+					gl_doc.idx = idx
+					gl_doc.posting_date = self.date
+					gl_doc.posting_time = self.posting_time
+					gl_doc.account = payment_entry.account
+					gl_doc.against_account = self.account
+					gl_doc.debit_amount = payment_entry.amount
+					gl_doc.party_type = "Supplier"
+					gl_doc.party = payment_entry.supplier
+					gl_doc.remarks = payment_entry.remarks
+					print("payment_entry.remarks")
+					print(payment_entry.remarks)
+					gl_doc.insert()
+				else:
+					# Case when there is no allocation, but supplier may or may not selected
+					# or payment_type ='Other'
+					idx = idx + 1
+					gl_doc = frappe.new_doc('GL Posting')
+					gl_doc.voucher_type = "Payment Entry"
+					gl_doc.voucher_no = self.name
+					gl_doc.idx = idx
+					gl_doc.posting_date = self.date
+					gl_doc.posting_time = self.posting_time
+					gl_doc.account = payment_entry.account
+					gl_doc.against_account = self.account
+					gl_doc.debit_amount = payment_entry.amount
+					gl_doc.remarks = payment_entry.remarks
+					if payment_entry.supplier:
+						gl_doc.party_type = "Supplier"
+						gl_doc.party = payment_entry.supplier
+					gl_doc.insert()
+
 
 	def GetAccountForTheHighestAmountInPayments(self):
 

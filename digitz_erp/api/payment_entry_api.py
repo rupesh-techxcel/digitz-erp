@@ -203,6 +203,65 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
         else:
             return documents_values
 
+    elif reference_type == 'Debit Note':
+        documents_query = """
+            SELECT
+                supplier,
+                'Debit Note' as reference_type,
+                name as reference_name,
+                date as date,
+                supplier_inv_no,
+                grand_total,
+                grand_total as invoice_amount,
+                grand_total as balance_amount
+            FROM
+                `tabDebit Note`
+            WHERE
+                supplier = '{0}'
+                AND docstatus = 1
+                AND on_credit = 1
+        """.format(supplier)
+
+        # Additional Query for Payment Allocation (if payment_no is not None)
+        payment_allocation_values = []
+        if payment_no != "":
+            # payment_allocation_query to include the existing allocations for this payment, irrespective of qty is pending
+            payment_allocation_query = """
+                SELECT
+                    dn.supplier,
+                    dn.name as reference_name,
+                    'Debit Note' as reference_type,
+                    dn.date as date,
+                    dn.supplier_inv_no,
+                    dn.grand_total,
+                    dn.grand_total as invoice_amount,
+                FROM
+                    `tabDebit Note` dn
+                JOIN
+                    `tabPayment Allocation` pa ON pr.name = pa.reference_name and pa.reference_type='Debit Note'
+                WHERE
+                    dn.supplier = '{0}'
+                    AND dn.docstatus = 1
+                    AND dn.on_credit = 1
+                    AND dn.parent = '{1}'
+                    AND (dn.docstatus = 0 or dn.docstatus = 1)
+            """.format(supplier, payment_no)
+
+            payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
+            print("payment_allocation_values")
+            print(payment_allocation_values)
+
+
+        documents_values = frappe.db.sql(documents_query, as_dict=1)
+        print("expense values")
+        print(documents_values)
+        if payment_allocation_values !=[]:
+            documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
+            combined_values = documents_values + payment_allocation_values
+            return combined_values
+        else:
+            return documents_values
+
 # Get all supplier other payment allocations which is still pending, to reconcile with the payment entry allocations to refresh the balances and pending of each documents. This calls in the stage 1 (as per the comment in the payment entry) of the loading of pending payments.
 # Eg: Suppose the purchase invoice has total amount 1000 and 500 alocated in a payment entry. To create a new payment entry it requires to check the existing payment entires (other than the current payment entry) to get the actual balance of the invoice ie, 500 in the example. Here also only pending allocations are considering because if it is fully paid , in the initial call (with get_supplier_pending_documents) it only fetch pending documents and comparing only those documents
 @frappe.whitelist()
@@ -242,6 +301,15 @@ def get_all_supplier_pending_payment_allocations_with_other_payments(supplier, r
             print(values)
             return {'values': values}
 
+        elif reference_type == 'Debit Note':
+            values = frappe.db.sql("""SELECT DISTINCT pa.reference_name, pa.parent as payment_no, dn.grand_total as invoice_amount, pa.paying_amount FROM `tabPayment Allocation` pa INNER JOIN `tabDebit Note` dn ON dn.name = pa.reference_name AND pa.reference_type = 'Debit Note' WHERE pa.supplier = '{0}' AND pa.parent != '{1}' AND dn.docstatus = 1 AND (pa.docstatus = 1 OR pa.docstatus = 0) AND (dn.name IN (SELECT DISTINCT reference_name FROM `tabPayment Allocation`
+            WHERE reference_type = 'Debit Note' AND parent = '{1}')) ORDER BY pa.reference_name""".format(supplier, payment_no), as_dict=1)
+
+            return {'values': values}
+
+
+
+
 @frappe.whitelist()
 def get_allocations_for_purchase_invoice(purchase_invoice_no, payment_no):
     if(payment_no ==""):
@@ -266,3 +334,10 @@ def get_allocations_for_purchase_return(purchase_return_no, payment_no):
         return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,pr.rounded_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabPurchase Return` pr ON pr.name= pa.reference_name AND pa.reference_type='Purchase Return' WHERE pa.reference_name = '{0}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND pr.docstatus=1 ORDER BY pa.reference_name """.format(purchase_return_no),as_dict=1)
     else:
         return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,pr.rounded_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabPurchase Return` pr ON pr.name= pa.reference_name AND pa.reference_type='Purchase Return' WHERE pa.reference_name = '{0}' AND pa.parent!='{1}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND pr.docstatus=1 ORDER BY pa.reference_name """.format(purchase_return_no, payment_no),as_dict=1)
+
+@frappe.whitelist()
+def get_allocations_for_debit_note(debit_note_no, payment_no):
+    if(payment_no ==""):
+        return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,dn.grand_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabDebit Note` dn ON dn.name= pa.reference_name AND pa.reference_type='Debit Note' WHERE pa.reference_name = '{0}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND dn.docstatus=1 ORDER BY pa.reference_name """.format(debit_note_no),as_dict=1)
+    else:
+        return frappe.db.sql("""SELECT pa.reference_name,pa.parent as payment_no,dn.grand_total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join `tabDebit Note` dn ON dn.name= pa.reference_name AND pa.reference_type='Debit Note' WHERE pa.reference_name = '{0}' AND pa.parent!='{1}' AND (pa.docstatus= 1 or pa.docstatus = 0) AND dn.docstatus=1 ORDER BY pa.reference_name """.format(debit_note_no, payment_no),as_dict=1)
