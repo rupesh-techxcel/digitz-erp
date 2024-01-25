@@ -26,11 +26,11 @@ frappe.ui.form.on("Credit Note", {
 	},
   edit_posting_date_and_time(frm) {
     if (frm.doc.edit_posting_date_and_time == 1) {
-      frm.set_df_property("date", "read_only", 0);
+      frm.set_df_property("posting_date", "read_only", 0);
       frm.set_df_property("posting_time", "read_only", 0);
     }
     else {
-      frm.set_df_property("date", "read_only", 1);
+      frm.set_df_property("posting_date", "read_only", 1);
       frm.set_df_property("posting_time", "read_only", 1);
     }
   },
@@ -78,14 +78,14 @@ frappe.ui.form.on("Credit Note", {
 		frm.doc.total_amount = 0;
 		frm.doc.tax_total = 0;
 		frm.doc.grand_total = 0;
-		
+
 		frm.doc.credit_note_details.forEach(function (entry) {
-			
+
 			var tax_in_rate = 0;
 			var amount_excluded_tax = entry.amount;
 			var tax_amount = 0;
 			var total = 0;
-			
+
       console.log(entry)
 
 			if(!entry.tax_excluded)
@@ -113,7 +113,7 @@ frappe.ui.form.on("Credit Note", {
           console.log("here 3")
 				}
 			}
-			
+
 			total = amount_excluded_tax + tax_amount;
 			frappe.model.set_value(entry.doctype, entry.name, "amount_excluded_tax", amount_excluded_tax);
 			frappe.model.set_value(entry.doctype, entry.name, "tax_amount", tax_amount);
@@ -129,9 +129,9 @@ frappe.ui.form.on("Credit Note", {
 		frm.refresh_fields();
 	},
   assign_defaults: function(frm){
-	
+
 		default_company = "";
-	
+
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
@@ -139,16 +139,16 @@ frappe.ui.form.on("Credit Note", {
 				'fieldname': 'default_company'
 			},
 			callback: (r) => {
-	
+
 				default_company = r.message.default_company
 				frm.set_value('company',default_company);
 
         frappe.db.get_value("Company", default_company, "default_receivable_account").then((r) => {
-          
+
           frm.set_value('receivable_account',r.message.default_receivable_account);
           });
 			}
-		});	
+		});
 	},
   validate: function (frm) {
 
@@ -168,7 +168,7 @@ frappe.ui.form.on('Credit Note Detail',{
 
   tax_excluded: function(frm, cdt, cdn) {
     frm.trigger("make_taxes_and_totals");
-  },	
+  },
   rate_includes_tax:function(frm,cdt,cdn){
     frm.trigger("make_taxes_and_totals");
   },
@@ -190,8 +190,8 @@ frappe.ui.form.on('Credit Note Detail',{
 				callback(r){
           console.log("r for tax")
           console.log(r)
-					row.tax = r.message		
-          console.log("row.tax")			
+					row.tax = r.message
+          console.log("row.tax")
           console.log(row.tax)
 
           frappe.call(
@@ -203,7 +203,7 @@ frappe.ui.form.on('Credit Note Detail',{
                 'fieldname': ['tax_name', 'tax_rate']
               },
               callback: (r2) => {
-                row.tax_rate = r2.message.tax_rate;                
+                row.tax_rate = r2.message.tax_rate;
                 frm.trigger("make_taxes_and_totals");
               }
             });

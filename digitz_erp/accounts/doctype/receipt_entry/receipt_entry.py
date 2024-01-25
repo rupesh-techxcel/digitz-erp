@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice ,get_allocations_for_sales_return
+from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice ,get_allocations_for_sales_return, get_allocations_for_credit_note
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
@@ -234,6 +234,7 @@ class ReceiptEntry(Document):
 
 		self.update_sales_invoices()
 		self.update_sales_return()
+		self.update_credit_note()
 		self.insert_gl_records()
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
@@ -279,6 +280,26 @@ class ReceiptEntry(Document):
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
 					frappe.db.set_value("Sales Return", allocation.reference_name, {'paid_amount': invoice_total})
+	def update_credit_note(self):
+		allocations = self.receipt_allocation
+
+		if(allocations):
+			for allocation in allocations:
+				if(allocation.paying_amount>0):
+
+					receipt_no = self.name
+					if self.is_new():
+						receipt_no = ""
+
+					previous_paid_amount = 0
+					allocations_exists = get_allocations_for_credit_note(allocation.reference_name, receipt_no)
+
+					for existing_allocation in allocations_exists:
+						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+
+					invoice_total = previous_paid_amount + allocation.paying_amount
+
+					frappe.db.set_value("Credit Note", allocation.reference_name, {'grand_total': invoice_total})
 
 	def insert_gl_records(self):
 
