@@ -73,7 +73,7 @@ def get_columns():
         },
         {
             "fieldname": "balance_dr_cr",
-            "label": _("Dr_Cr"),
+            "label": _("Dr\Cr"),
             "fieldtype": "Data",            
             "width": 150,
         }

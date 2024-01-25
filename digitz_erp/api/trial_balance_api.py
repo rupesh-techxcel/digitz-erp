@@ -8,6 +8,8 @@ def get_accounts_data(from_date,to_date):
             SELECT parent_account,account_name from `tabAccount` where is_group = 0
             """
     data = frappe.db.sql(query, as_dict=True)
+    print("data")
+    print(data)
     
     accounts = {}
     
@@ -65,12 +67,51 @@ def get_accounts_data(from_date,to_date):
                 'closing_debit': closing_balance_debit,
                 'closing_credit': closing_balance_credit
             }
+        # opening
+        if(accounts[d.parent_account]['opening_debit'] == accounts[d.parent_account]['opening_credit']):
+            accounts[d.parent_account]['opening_debit'] = 0
+            accounts[d.parent_account]['opening_credit'] = 0
+        elif(accounts[d.parent_account]['opening_debit']> accounts[d.parent_account]['opening_credit']):
+            accounts[d.parent_account]['opening_debit'] = accounts[d.parent_account]['opening_debit'] - accounts[d.parent_account]['opening_credit'] 
+            accounts[d.parent_account]['opening_credit'] = 0
+            
+        elif(accounts[d.parent_account]['opening_debit']< accounts[d.parent_account]['opening_credit']):
+            accounts[d.parent_account]['opening_credit'] = accounts[d.parent_account]['opening_credit'] - accounts[d.parent_account]['opening_debit'] 
+            accounts[d.parent_account]['opening_debit'] = 0
+        
+         # closing
+        if(accounts[d.parent_account]['closing_debit'] == accounts[d.parent_account]['closing_credit']):
+            accounts[d.parent_account]['closing_debit'] = 0
+            accounts[d.parent_account]['closing_credit'] = 0
+        elif(accounts[d.parent_account]['closing_debit']> accounts[d.parent_account]['closing_credit']):
+            accounts[d.parent_account]['closing_debit'] = accounts[d.parent_account]['closing_debit'] - accounts[d.parent_account]['closing_credit'] 
+            accounts[d.parent_account]['closing_credit'] = 0
+            
+        elif(accounts[d.parent_account]['closing_debit']< accounts[d.parent_account]['closing_credit']):
+            accounts[d.parent_account]['closing_credit'] = accounts[d.parent_account]['closing_credit'] - accounts[d.parent_account]['closing_debit'] 
+            accounts[d.parent_account]['closing_debit'] = 0
         
         update_parent_accounts_recursive(d.parent_account,accounts,d.account_name)
     
     print("accounts")  
     print(accounts)  
-    return accounts
+    return re_process_account_data(accounts)
+
+def re_process_account_data(accounts):
+    
+    data = []
+    for account in accounts:  
+        
+        parent_account = frappe.db.get_value('Account',account,['parent_account'])
+        
+        print(accounts[account]['opening_debit'])     
+        account_data = {'name':account,'parent_account':parent_account, 'opening_debit':accounts[account]['opening_debit'], 'opening_credit':accounts[account]['opening_credit'], 'debit':accounts[account]['debit'], 'credit':accounts[account]['credit'],'closing_debit': accounts[account]['closing_debit'],'closing_credit':accounts[account]['closing_credit']}
+        
+        data.append(account_data)
+     
+    print("data processed")  
+    print(data) 
+    return data
 
 def update_parent_accounts_recursive(account, accounts, account_name):
     
@@ -96,6 +137,32 @@ def update_parent_accounts_recursive(account, accounts, account_name):
                 'credit': accounts[account_name]['credit'],
                 'closing_debit': accounts[account_name]['closing_debit'],
                 'closing_credit': accounts[account_name]['closing_credit'] }
+    
+    # Opening balances 
+    if(accounts[parent_account]['opening_debit']== accounts[parent_account]['opening_credit']):
+        accounts[parent_account]['opening_debit'] = 0
+        accounts[parent_account]['opening_credit'] = 0
+    
+    elif (accounts[parent_account]['opening_debit']> accounts[parent_account]['opening_credit'] ):
+        accounts[parent_account]['opening_debit'] = accounts[parent_account]['opening_debit'] - accounts[parent_account]['opening_credit']
+        accounts[parent_account]['opening_credit'] = 0
+        
+    elif (accounts[parent_account]['opening_debit']< accounts[parent_account]['opening_credit'] ):
+        accounts[parent_account]['opening_credit'] = accounts[parent_account]['opening_credit'] - accounts[parent_account]['opening_debit']
+        accounts[parent_account]['opening_debit'] = 0
+        
+    # Closing balances 
+    if(accounts[parent_account]['closing_debit']== accounts[parent_account]['closing_credit']):
+        accounts[parent_account]['closing_debit'] = 0
+        accounts[parent_account]['closing_credit'] = 0
+    
+    elif (accounts[parent_account]['closing_debit']> accounts[parent_account]['closing_credit'] ):
+        accounts[parent_account]['closing_debit'] = accounts[parent_account]['closing_debit'] - accounts[parent_account]['closing_credit']
+        accounts[parent_account]['closing_credit'] = 0
+        
+    elif (accounts[parent_account]['closing_debit']< accounts[parent_account]['closing_credit'] ):
+        accounts[parent_account]['closing_credit'] = accounts[parent_account]['closing_credit'] - accounts[parent_account]['closing_debit']
+        accounts[parent_account]['closing_debit'] = 0
             
     update_parent_accounts_recursive(parent_account,accounts,account_name)
         

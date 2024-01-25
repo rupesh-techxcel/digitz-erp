@@ -10,7 +10,14 @@ def filter_accounts(accounts, depth=20):
     parent_children_map = {}
     accounts_by_name = {}
     
+    print("accounts")
+    print(accounts)
+    
     for d in accounts:
+        print("d")
+        print(d)
+        print("d.name")
+        print(d.name)
         
         accounts_by_name[d.name] = d
         parent_children_map.setdefault(d.parent_account or None, []).append(d)

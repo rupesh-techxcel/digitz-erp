@@ -18,12 +18,9 @@ value_fields = (
 def execute(filters=None):
 	columns = get_columns()
 	# data = get_data(filters)
-	data = get_accounts_data(filters.get('from_date'), filters.get('to_date'))
-	
-	return columns, data
-
-def get_data(filters=None):
-	accounts = frappe.db.sql(
+	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'))
+	 
+	accounts_from_table = frappe.db.sql(
 		"""
 			select
 				name,
@@ -36,37 +33,51 @@ def get_data(filters=None):
 				0 as closing_debit,
 				0 as closing_credit
 			from
-				`tabAccount` order by lft
+				`tabAccount`			
+			order by lft
 		""",as_dict=True
 	)
-	accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
-	min_lft, max_rgt = frappe.db.sql(
-		"""
-			select
-				min(lft),
-				max(rgt)
-			from
-				`tabAccount`
-		""",)[0]
-	total_row = []
-	data = prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_name)
-	return data
+	
+	for account in accounts_from_table:
+		for account2 in accounts:
+			if(account['name'] == account2['name']):
+				account['opening_debit'] = account2['opening_debit']
+				account['opening_credit'] = account2['opening_credit']
+				account['debit'] = account2['debit']
+				account['credit'] = account2['credit']
+				account['closing_debit'] = account2['closing_debit']
+				account['closing_credit'] = account2['closing_credit']
+
+
+	print("accounts_from_table")
+	print(accounts_from_table)
+  
+	condition_to_remove = {'name': 'Accounts'}
+ 
+	accounts_from_table = [account for account in accounts_from_table if account != condition_to_remove]
+ 
+	filter_accounts(accounts_from_table)
+ 
+	
+	print(accounts_from_table)
+ 
+	data =[]
+	for account in accounts_from_table:
+     
+		if account.name == "Accounts":
+			continue
+		else:
+			data.append(account)
+	
+
+	return columns, data
 
 def prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_name):
 	data = []
-	for d in accounts:
-		row = get_account_details(d.name, d.parent_account, d.indent, filters)
-		for key in value_fields:
-			amt = row.get(key) or 0
-			accounts_by_name[d.name][key] += amt
-	accumulate_values_into_parents(accounts, accounts_by_name)
-	for d in accounts:
-		row = {}
-		row['account'] = d.name
-		for key in value_fields:
-			row[key] = accounts_by_name[d.name][key]
-		row['indent'] = d.indent
-		data.append(row)
+	
+	for account in accounts:
+     
+		data.append(account)
   
 	return data
 
@@ -101,7 +112,7 @@ def get_account_details(account, parent_account, indent, filters):
 def get_columns():
 	return [
 		{
-			"fieldname": "account",
+			"fieldname": "name",
 			"label": _("Account"),
 			"fieldtype": "Link",
 			"options": "Account",
