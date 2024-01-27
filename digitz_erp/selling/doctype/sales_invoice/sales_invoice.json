@@ -32,6 +32,7 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
+  "payment_status",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -508,12 +509,18 @@
    "fieldname": "ignore_posting",
    "fieldtype": "Check",
    "label": "Ignore Posting"
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payment Status"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-04 06:25:17.780468",
+ "modified": "2024-01-27 08:27:42.974587",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

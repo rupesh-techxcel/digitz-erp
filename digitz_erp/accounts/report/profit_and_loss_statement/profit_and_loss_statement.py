@@ -44,11 +44,18 @@ def get_data(filters=None):
         FROM
             `tabAccount` a
         WHERE
-            a.root_type IN ('Expense', 'Income')
+            (a.root_type = 'Expense' AND a.include_in_gross_profit = 1)
+        OR
+        	(a.root_type = 'Income')
         OR
             a.name = 'Accounts'
         ORDER BY
-            a.lft;
+        CASE
+            WHEN a.root_type = 'Expense' THEN 0
+            WHEN a.root_type = 'Income' THEN 1
+            ELSE 2
+        END,
+        a.lft        
         """,
         as_dict=True
     )

@@ -4,12 +4,6 @@
 
 frappe.query_reports["Trial Balance"] = {
 	"filters": [
-		{
-				"fieldname": "company",
-				"label": __("Company"),
-				"fieldtype": "Link",
-				"options": "Company",
-			},
 			{
 				"fieldname": "from_date",
 				"fieldtype": "Date",

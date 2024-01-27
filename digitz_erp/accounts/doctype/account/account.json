@@ -14,10 +14,13 @@
   "is_group",
   "old_parent",
   "parent_account",
+  "column_break_1tjg",
   "account_type",
   "root_type",
+  "include_in_gross_profit",
   "balance",
-  "balance_dr_cr"
+  "balance_dr_cr",
+  "column_break_zdij"
  ],
  "fields": [
   {
@@ -65,6 +68,7 @@
    "options": "Account"
   },
   {
+   "description": "Use the Account Type to configure specific accounts from the provided list. Disregard this field for other account types.",
    "fieldname": "account_type",
    "fieldtype": "Select",
    "label": "Account Type",
@@ -88,12 +92,27 @@
    "fieldtype": "Data",
    "label": "Balance Dr Cr",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1tjg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zdij",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_in_gross_profit",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Include in gross profit"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2024-01-22 10:17:58.500325",
+ "modified": "2024-01-26 15:07:06.039942",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

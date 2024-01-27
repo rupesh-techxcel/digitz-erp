@@ -12,7 +12,10 @@ frappe.ui.form.on('Account', {
 				}
 			}
 			});
-
+	},
+	root_type: function(frm)
+	{
+		frm.set_df_property("include_in_gross_profit", "hidden", frm.doc.root_type != "Expense");
 	}
 });
 

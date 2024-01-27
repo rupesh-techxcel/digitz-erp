@@ -15,14 +15,7 @@ from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 
 class SalesInvoice(Document):    
-    
-    @property
-    def cash_or_credit(self):
-        if self.get("credit_sale"):
-            return "Credit"
-        else:
-            return "Cash"
-    
+       
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
@@ -56,8 +49,10 @@ class SalesInvoice(Document):
             self.paid_amount = 0
         
         if self.credit_sale == 0:
-            self.paid_amount = self.rounded_total            
+            self.paid_amount = self.rounded_total   
+            self.payment_status = "Cheque" if self.payment_mode == "Bank" else self.payment_mode
         else:
+            self.payment_status = "Credit"
             self.payment_mode = ""
             self.payment_account = ""
             self.meta.get_field("payment_mode").hidden = 1
