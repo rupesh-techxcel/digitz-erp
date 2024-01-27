@@ -1,6 +1,15 @@
 frappe.listview_settings['Sales Invoice'] = {
+  get_indicator: function(doc) {
+      var colors = {
+          'Cash': 'green',
+          'Paid': 'orange',
+          'Credit': 'red'
+      };
+
+      return [__(doc.payment_status), colors[doc.payment_status], 'payment_status,=,' + doc.payment_status];
+  },
     refresh: function(me) {
-		
+
 		console.log("listview_settings")
 
         me.page.add_action_item(__('Submit'), function() {
@@ -18,8 +27,8 @@ frappe.listview_settings['Sales Invoice'] = {
                             callback: (r) => {
 
                             }
-        
-                       
+
+
                     })
                 });
             })
