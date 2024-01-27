@@ -1,6 +1,31 @@
 import frappe
 from frappe.utils import *
 
+@frappe.whitelist()
+def update_accounts_for_doc_type(doc_type, name):
+    
+    query = """
+            SELECT distinct account from `tabGL Posting` gp where gp.voucher_type=%s and gp.name=%s
+            """
+    account_list = frappe.db.sql(query, (doc_type,name),as_dict=True)
+    
+    for account in account_list:
+        update_account_balance(account.account)
+        
+def delete_gl_postings_for_cancel_doc_type(doc_type,name):
+    
+    query = """
+        SELECT distinct account from `tabGL Posting` gp where gp.voucher_type=%s and gp.name=%s
+        """
+    account_list = frappe.db.sql(query, (doc_type,name),as_dict=True)
+    
+    frappe.db.delete("GL Posting",
+                {"voucher_type": doc_type,
+                  "voucher_no":name
+                })
+        
+    for account in account_list:
+        update_account_balance(account.account)
 
 @frappe.whitelist()
 def update_all_account_balances():

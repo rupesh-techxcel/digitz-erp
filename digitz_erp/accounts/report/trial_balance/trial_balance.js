@@ -16,10 +16,6 @@ frappe.query_reports["Trial Balance"] = {
 				"label": "To Date",
 				"default":frappe.datetime.month_end()
 			},
-	],
-		"tree": true,
-		"treeView": true,
-		"name_field": "account",
-		"parent_field": "parent_account",
-		"initial_depth": 3
+	],		
+	
 };

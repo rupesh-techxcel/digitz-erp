@@ -3,14 +3,19 @@
 
 import frappe
 from frappe.model.document import Document
-
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class DebitNote(Document):
 	def on_submit(self):
-		frappe.enqueue(self.insert_gl_records, queue="long")
+		frappe.enqueue(self.do_postings_on_submit, queue="long")
   
 	def on_cancel(self):
-		self.do_cancel_debit_note()		
+		self.do_cancel_debit_note()
+  
+	def do_postings_on_submit(self):
+     
+		self.insert_gl_records()
+		update_accounts_for_doc_type('Debit Note',self.name)
 
 	def insert_gl_records(self):
      
@@ -112,7 +117,9 @@ class DebitNote(Document):
 
 	def do_cancel_debit_note(self):
      
-		frappe.db.delete("GL Posting",
-                         {"Voucher_type": "Debit Note",
-                          "voucher_no": self.name
-                          })
+		delete_gl_postings_for_cancel_doc_type('Debit Note',self.name)
+     
+		# frappe.db.delete("GL Posting",
+        #                  {"Voucher_type": "Debit Note",
+        #                   "voucher_no": self.name
+        #                   })

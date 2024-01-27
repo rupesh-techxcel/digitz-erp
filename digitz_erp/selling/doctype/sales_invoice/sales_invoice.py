@@ -13,6 +13,7 @@ from digitz_erp.api.item_price_api import update_item_price
 from digitz_erp.api.settings_api import get_default_currency
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class SalesInvoice(Document):    
        
@@ -69,10 +70,8 @@ class SalesInvoice(Document):
     
     def on_update(self):
         self.update_item_prices()
-        
     
-    
-    def on_submit(self):       
+    def on_submit(self):
         
         init_document_posting_status(self.doctype, self.name)
         
@@ -101,6 +100,8 @@ class SalesInvoice(Document):
                    
         self.insert_gl_records(cost_of_goods_sold=cost_of_goods_sold)
         self.insert_payment_postings()
+        
+        update_accounts_for_doc_type('Sales Invoice',self.name)
                 
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
     
@@ -170,12 +171,14 @@ class SalesInvoice(Document):
             
         # When correspdonding tab_sales cancelled, it hits here.  
         if self.tab_sales:
-            self.cancel_stock_postings_for_tab_sales()            
+            self.cancel_stock_postings_for_tab_sales()   
+            
+        delete_gl_postings_for_cancel_doc_type('Sales Invoice',self.name)         
 
-        frappe.db.delete("GL Posting",
-                         {"Voucher_type": "Sales Invoice",
-                          "voucher_no": self.name
-                          })
+        # frappe.db.delete("GL Posting",
+        #                  {"Voucher_type": "Sales Invoice",
+        #                   "voucher_no": self.name
+        #                   })
     
     def cancel_stock_postings_for_tab_sales(self):
         

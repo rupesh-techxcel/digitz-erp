@@ -4,12 +4,19 @@
 import frappe
 from frappe import _
 from digitz_erp.accounts.report.digitz_erp import filter_accounts
+from digitz_erp.api.profit_and_loss_statement_api import get_accounts_data
 
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
-    chart = get_chart_data(filters)
-    return columns, data, None, chart
+    
+    print("columns")
+    print(columns)
+    print("data for report")
+    print(data)
+    # chart = get_chart_data(filters)
+    # return columns, data, None, chart
+    return columns, data, None
 
 def get_chart_data(filters=None):
     
@@ -31,7 +38,13 @@ def get_chart_data(filters=None):
     chart["fieldtype"] = "Currency"
     return chart
 
-def get_data(filters=None):
+def get_data(filters= None):
+    accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=True)
+    print(accounts)
+    return accounts
+
+def get_data_old(filters=None):
+    
     accounts = frappe.db.sql(
         """
         SELECT
@@ -46,7 +59,7 @@ def get_data(filters=None):
         WHERE
             (a.root_type = 'Expense' AND a.include_in_gross_profit = 1)
         OR
-        	(a.root_type = 'Income')
+        	(a.root_type = 'Income' AND a.include_in_gross_profit = 1)
         OR
             a.name = 'Accounts'
         ORDER BY
@@ -59,9 +72,12 @@ def get_data(filters=None):
         """,
         as_dict=True
     )
+    print("accounts 1")
+    print(accounts)
+    
     accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
     data = prepare_data(accounts, filters, parent_children_map, accounts_by_name)
-
+    
     total_income_credit = sum(row['amount'] for row in data if row.get('root_type') == 'Income')
     total_expense_debit = sum(row['amount'] for row in data if row.get('root_type') == 'Expense')
     net_profit = total_income_credit - total_expense_debit
@@ -96,6 +112,7 @@ def get_data(filters=None):
         'indent': 0
     }
     data.append(total_row)
+   
     return data
 
 value_fields = (
@@ -103,13 +120,19 @@ value_fields = (
 )
 
 def prepare_data(accounts, filters, parent_children_map, accounts_by_name):
+    
+    print("accounts")
+    print(accounts)
+    
     data = []
     for d in accounts:
         row = get_account_details(d.name, d.parent_account, d.indent, filters)
         for key in value_fields:
             amt = row.get(key) or 0
             accounts_by_name[d.name][key] += amt
-    accumulate_values_into_parents(accounts, accounts_by_name)
+    
+    # accumulate_values_into_parents(accounts, accounts_by_name)
+    
     for d in accounts:
         row = {}
         row['account'] = d.name
@@ -165,7 +188,7 @@ def get_columns():
             "width": 600,
         },
         {
-            "fieldname": "amount",
+            "fieldname": "balance",
             "label": _("Amount"),
             "fieldtype": "Currency",
             "options": "currency",

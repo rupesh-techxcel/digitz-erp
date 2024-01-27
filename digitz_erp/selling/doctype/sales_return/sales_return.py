@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from digitz_erp.utils import *
 from frappe.model.mapper import *
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class SalesReturn(Document):
     
@@ -40,15 +41,16 @@ class SalesReturn(Document):
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
         if(frappe.session.user == "Administrator" and turn_off_background_job):
-            self.do_posting()    
+            self.do_postings_on_submit()    
         else: 
-            frappe.enqueue(self.do_posting, queue="long")
+            frappe.enqueue(self.do_postings_on_submit, queue="long")
 
-    def do_posting(self):
+    def do_postings_on_submit(self):
         # Cost of goods sold need not include for Sales Return because it is not an expense but its only a reduction of sales revenue.
         self.do_voucher_stock_posting()
         self.insert_gl_records()
-        self.insert_payment_postings()        	
+        self.insert_payment_postings()    
+        update_accounts_for_doc_type('Sales Return', self.name)    	
 
     def insert_gl_records(self):
         default_company = frappe.db.get_single_value(
@@ -271,11 +273,13 @@ class SalesReturn(Document):
         print("before do_cancel_stock_posting")
         
         self.do_cancel_stock_posting()
+        
+        delete_gl_postings_for_cancel_doc_type('Sales Return',self.name)
                 
-        frappe.db.delete("GL Posting",
-                {"Voucher_type": "Sales Return",
-                    "voucher_no":self.name
-                })
+        # frappe.db.delete("GL Posting",
+        #         {"Voucher_type": "Sales Return",
+        #             "voucher_no":self.name
+        #         })
         
     def do_voucher_stock_posting(self):
         cost_of_goods_sold =0

@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from datetime import datetime,timedelta
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class StockReconciliation(Document):
     
@@ -60,6 +61,8 @@ class StockReconciliation(Document):
             self.insert_gl_records(stock_adjustment_value = stock_adjustment_value)
             
         update_posting_status(self.doctype,self.name, 'posting_status','Completed')
+        
+        update_accounts_for_doc_type('Stock Reconciliation', self.name)
 
     def add_stock_reconciliation(self):
 
@@ -305,10 +308,7 @@ class StockReconciliation(Document):
                     "voucher_no":self.name
                 })
 
-        frappe.db.delete("GL Posting",
-                {"voucher_type": "Stock Reconciliation",
-                    "voucher_no":self.name
-                })
+        delete_gl_postings_for_cancel_doc_type('Stock Reconciliation', self.name)
         
         update_posting_status(self.doctype,self.name, 'posting_status','Completed')
 

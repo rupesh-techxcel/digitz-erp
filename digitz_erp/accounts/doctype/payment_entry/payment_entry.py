@@ -6,9 +6,9 @@ from frappe.model.document import Document
 from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoice, get_allocations_for_expense_entry, get_allocations_for_purchase_return,get_allocations_for_debit_note
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class PaymentEntry(Document):
-
 
 	temp_payment_allocation = None
 	# def before_save(self):
@@ -286,16 +286,19 @@ class PaymentEntry(Document):
 	def on_cancel(self):
 		print("from on cancel")
 		self.revert_documents_paid_amount_for_payment()
+  
+		delete_gl_postings_for_cancel_doc_type('Payment Entry',self.name)
 
-		frappe.db.delete("GL Posting",
-                         {"Voucher_type": "Payment Entry",
-                          "voucher_no": self.name
-                          })
+		# frappe.db.delete("GL Posting",
+        #                  {"Voucher_type": "Payment Entry",
+        #                   "voucher_no": self.name
+        #                   })
 
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
 		self.insert_gl_records_for_debit_note()
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
+		update_accounts_for_doc_type('Payment Entry', self.name)
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 
 	def update_purchase_returns(self):

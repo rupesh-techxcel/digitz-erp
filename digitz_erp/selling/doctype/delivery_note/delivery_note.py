@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from frappe.utils.data import now
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, reset_document_posting_status_for_recalc_after_submit, update_posting_status, reset_document_posting_status_for_recalc_after_cancel
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class DeliveryNote(Document):
     
@@ -75,6 +76,8 @@ class DeliveryNote(Document):
    
         cost_of_goods_sold = self.do_stock_posting()
         self.insert_gl_records(cost_of_goods_sold = cost_of_goods_sold)
+        
+        update_accounts_for_doc_type('Delivery Note',self.name)
         
         update_posting_status(self.doctype, self.name,'posting_status', 'Completed')
 
@@ -171,11 +174,13 @@ class DeliveryNote(Document):
             {"voucher": "Delivery Note",
                 "voucher_no":self.name
             })
+        
+        delete_gl_postings_for_cancel_doc_type('Delivery Note', self.name)
 
-        frappe.db.delete("GL Posting",
-				{"Voucher_type": "Delivery Note",
-				 "voucher_no":self.name
-				})
+        # frappe.db.delete("GL Posting",
+		# 		{"Voucher_type": "Delivery Note",
+		# 		 "voucher_no":self.name
+		# 		})
         
     def do_stock_posting(self, recalculate_after_submit=False):
 

@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class ExpenseEntry(Document):
     
@@ -56,10 +57,12 @@ class ExpenseEntry(Document):
   
 	def cancel_expense(self):
      
-		frappe.db.delete("GL Posting",
-				{"Voucher_type": "Expense Entry",
-				 "voucher_no":self.name
-				})
+		delete_gl_postings_for_cancel_doc_type('Expense Entry',self.name)
+     
+		# frappe.db.delete("GL Posting",
+		# 		{"Voucher_type": "Expense Entry",
+		# 		 "voucher_no":self.name
+		# 		})
      
 		update_posting_status(self.doctype,self.name, "posting_status", "Completed")
   
@@ -71,6 +74,8 @@ class ExpenseEntry(Document):
 				
 		self.insert_payment_postings()
 		update_posting_status(self.doctype,self.name,'payment_posted_time')
+  
+		update_accounts_for_doc_type('Expense Entry',self.name)
   
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 

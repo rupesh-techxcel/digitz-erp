@@ -7,6 +7,7 @@ from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from frappe.model.mapper import *
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class PurchaseReturn(Document):
 
@@ -71,9 +72,9 @@ class PurchaseReturn(Document):
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
-			self.do_posting()
+			self.do_postings_on_submit()
 		else:
-			frappe.enqueue(self.do_posting, queue="long")
+			frappe.enqueue(self.do_postings_on_submit, queue="long")
 
 	def on_update(self):
 		self.update_purchase_invoice_quantities_on_update()
@@ -95,10 +96,11 @@ class PurchaseReturn(Document):
 		if(self.docstatus < 2):
 			self.update_purchase_invoice_quantities_before_delete_or_cancel()
 
-	def do_posting(self):
+	def do_postings_on_submit(self):
 		self.insert_gl_records()
 		self.insert_payment_postings()
 		self.do_voucher_stock_posting()
+		update_accounts_for_doc_type('Purchase Return', self.name)
 
 	def do_voucher_stock_posting(self):
 		# Note that negative stock checking is handled in the validate method
@@ -268,11 +270,9 @@ class PurchaseReturn(Document):
 	def cancel_purchase_return(self):
 
 		self.do_cancel_stock_posting()
+  
+		delete_gl_postings_for_cancel_doc_type('Purchase Return',self.name)
 
-		frappe.db.delete("GL Posting",
-				{"Voucher_type": "Purchase Return",
-					"voucher_no":self.name
-				})
 
 	def insert_gl_records(self):
 

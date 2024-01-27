@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice ,get_allocations_for_sales_return, get_allocations_for_credit_note
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class ReceiptEntry(Document):
 
@@ -236,6 +237,7 @@ class ReceiptEntry(Document):
 		self.update_sales_return()
 		self.update_credit_note()
 		self.insert_gl_records()
+		update_accounts_for_doc_type('Receipt Entry',self.name)
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
 
@@ -267,10 +269,7 @@ class ReceiptEntry(Document):
 					elif invoice_amount == invoice_total:
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
          
-						
-         
-
-     
+		
 	def update_sales_return(self):
 		allocations = self.receipt_allocation
 
@@ -379,11 +378,13 @@ class ReceiptEntry(Document):
 	def on_cancel(self):
 		print("from on cancel")
 		self.revert_documents_paid_amount_for_receipt()
+  
+		delete_gl_postings_for_cancel_doc_type('Receipt Entry',self.name)
 
-		frappe.db.delete("GL Posting",
-				{"Voucher_type": "Receipt Entry",
-				"voucher_no": self.name
-				})
+		# frappe.db.delete("GL Posting",
+		# 		{"Voucher_type": "Receipt Entry",
+		# 		"voucher_no": self.name
+		# 		})
 
 	def GetAccountForTheHighestAmountInPayments(self):
 
