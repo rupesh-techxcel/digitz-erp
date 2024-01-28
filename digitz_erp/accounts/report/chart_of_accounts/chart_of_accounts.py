@@ -25,6 +25,7 @@ def get_data(filters=None):
         """, as_dict=True
     )
     accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
+    
     data = prepare_data(accounts, parent_children_map, accounts_by_name)
     return data
 

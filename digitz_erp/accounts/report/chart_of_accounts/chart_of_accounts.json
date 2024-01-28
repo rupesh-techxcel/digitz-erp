@@ -1,5 +1,5 @@
 {
- "add_total_row": 1,
+ "add_total_row": 0,
  "columns": [],
  "creation": "2024-01-16 15:06:42.113886",
  "disabled": 0,
@@ -11,7 +11,7 @@
  "json": "{}",
  "letter_head": "sales invoice footer",
  "letterhead": null,
- "modified": "2024-01-17 12:40:44.087617",
+ "modified": "2024-01-28 08:25:35.664158",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Chart Of Accounts",

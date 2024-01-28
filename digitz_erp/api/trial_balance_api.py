@@ -113,9 +113,13 @@ def re_process_account_data(accounts):
     print(data) 
     return data
 
+# Method to update the parent account of the account passing in, not the account's 
+# Means, currently passed in account's values already updated
 def update_parent_accounts_recursive(account, accounts, account_name):
     
     account_doc = frappe.get_doc('Account',account)
+    
+    # The parent account intend to be updated is the root account and need not update
     if(account_doc.parent_account == 'Accounts'):
         return;
     
