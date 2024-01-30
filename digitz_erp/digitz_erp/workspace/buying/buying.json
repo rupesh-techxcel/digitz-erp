@@ -1,0 +1,53 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"_FGFR4b3VC\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Buying</span>\",\"col\":12}},{\"id\":\"Oi1P17yObD\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"NmjPlgvCgk\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"qqI8hoAXck\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UA9w6zYFfa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"id\":\"_7Z8bOn3qG\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"L4yYuSBhzG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"2zQxAth6Cg\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"gt95eU3ssd\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"qZsS_DpRBx\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"XhRO76t51q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Register\",\"col\":3}}]",
+ "creation": "2024-01-30 13:39:58.558886",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "buying",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Buying",
+ "links": [],
+ "modified": "2024-01-30 14:11:31.529470",
+ "modified_by": "Administrator",
+ "module": "Digitz ERP",
+ "name": "Buying",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "Digitz Erp",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 25.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Invoice",
+   "link_to": "Purchase Invoice",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Supplier",
+   "link_to": "Supplier",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Register",
+   "link_to": "Purchase Register",
+   "type": "Report"
+  }
+ ],
+ "title": "Buying"
+}
