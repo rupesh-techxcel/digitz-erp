@@ -58,7 +58,7 @@ def get_data(filters= None):
     gp_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=True)
     
     indices_to_remove = []
-    gross_profit = 0
+    profit = 0
     for i,account in enumerate(accounts):
         found = False
         for account2 in gp_accounts:
@@ -73,9 +73,6 @@ def get_data(filters= None):
     for index in reversed(indices_to_remove):
         del accounts[index]
     
-    print("accounts") 
-    print(accounts)
-  
     filter_accounts(accounts)
     
     data =[]
@@ -100,9 +97,9 @@ def get_data(filters= None):
             """
     expense_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
     
-    gross_profit = income_balance_data[0].balance - expense_balance_data[0].balance 
+    profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
     
-    gp_data = {'name':'Gross Profit','indent':2,'balance' :gross_profit}
+    gp_data = {'name':'Gross Profit','indent':2,'balance' :profit}
     data.append(gp_data)
     
     # Net Profit Section
@@ -125,7 +122,7 @@ def get_data(filters= None):
     np_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=False)
     
     indices_to_remove = []
-    gross_profit = 0
+    profit = 0
     for i,account in enumerate(accounts):
         found = False
         for account2 in np_accounts:
@@ -140,9 +137,6 @@ def get_data(filters= None):
     for index in reversed(indices_to_remove):
         del accounts[index]
     
-    print("accounts") 
-    print(accounts)
-  
     filter_accounts(accounts)
     
     for account in accounts:
@@ -155,7 +149,7 @@ def get_data(filters= None):
                 
             data.append(account)
     
-    # Get Gross Profit
+    # Net Profit
     query = """
             SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') 
             """
@@ -166,121 +160,13 @@ def get_data(filters= None):
             """
     expense_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
     
-    gross_profit = income_balance_data[0].balance - expense_balance_data[0].balance 
+    profit = income_balance_data[0].balance - expense_balance_data[0].balance 
     
-    gp_data = {'name':'Net Profit','indent':2,'balance' :gross_profit}
+    gp_data = {'name':'Net Profit','indent':2,'balance' :profit}
     data.append(gp_data)
     
-    
-    
     return data
 
-def prepare_data(accounts):
-    data = []
-    
-    for d in accounts:
-        print("d[name]")
-        print(d["name"])
-        
-        account = d["name"]
-        print(account)
-        parent_account = d["parent_account"]
-        print(parent_account)
-        balance = d["balance"]
-        print(balance)
-        
-        row = get_account_details(accounts[d]["name"], accounts[d]["parent_account"],accounts[d]["balance"])
-        # accounts_by_name[d.name]['balance'] += row['balance']
-        # accumulate_values_into_parents(accounts_by_name, d.parent_account, row['balance'])
-        row['account'] = accounts[d]["name"]
-        data.append(row)
-        
-    return data
-
-def get_account_details(account, parent_account, balance):
-    data = {}
-    data['parent_account'] = parent_account
-    # data['indent'] = indent
-    data['account'] = account
-    data['balance'] = balance
-    # data['balance_dr_cr'] = frappe.get_value("Account", account, "balance_dr_cr")
-    return data
-
-def get_data_old(filters=None):
-    
-    accounts = frappe.db.sql(
-        """
-        SELECT
-            a.name,
-            a.parent_account,
-            a.lft,
-            a.rgt,
-            a.root_type,
-            0 as amount
-        FROM
-            `tabAccount` a
-        WHERE
-            (a.root_type = 'Expense' AND a.include_in_gross_profit = 1)
-        OR
-        	(a.root_type = 'Income' AND a.include_in_gross_profit = 1)
-        OR
-            a.name = 'Accounts'
-        ORDER BY
-        CASE
-            WHEN a.root_type = 'Expense' THEN 0
-            WHEN a.root_type = 'Income' THEN 1
-            ELSE 2
-        END,
-        a.lft        
-        """,
-        as_dict=True
-    )
-    print("accounts 1")
-    print(accounts)
-    
-    accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
-    data = prepare_data(accounts, filters, parent_children_map, accounts_by_name)
-    
-    total_income_credit = sum(row['amount'] for row in data if row.get('root_type') == 'Income')
-    total_expense_debit = sum(row['amount'] for row in data if row.get('root_type') == 'Expense')
-    net_profit = total_income_credit - total_expense_debit
-
-    # Append the total_income_credit and total_expense_debit to the data as the last row
-    total_row = {
-        'account': 'Total Income (Credit)',
-        'amount':  '<span style="color: blue;">{0}</span>'.format(total_income_credit),
-        'parent_account': '',
-        'indent': 0
-    }
-    total_row = {
-        'account': 'Total Income (Credit)',
-        'amount': total_income_credit,
-        'parent_account': '',
-        'indent': 0
-    }
-    data.append(total_row)
-
-    total_row = {
-        'account': 'Total Expense (Debit)',
-        'amount': total_expense_debit,
-        'parent_account': '',
-        'indent': 0
-    }
-    data.append(total_row)
-
-    total_row = {
-        'account': 'Net Profit',
-        'amount': net_profit,
-        'parent_account': '',
-        'indent': 0
-    }
-    data.append(total_row)
-   
-    return data
-
-value_fields = (
-	"amount",
-)
 
 def get_columns():
     return [
@@ -299,8 +185,3 @@ def get_columns():
         }
     ]
 
-def accumulate_values_into_parents(accounts, accounts_by_name):
-	for d in reversed(accounts):
-		if d.parent_account:
-			for key in value_fields:
-				accounts_by_name[d.parent_account][key] += d[key]

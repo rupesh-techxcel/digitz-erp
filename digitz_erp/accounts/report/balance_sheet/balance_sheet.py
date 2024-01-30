@@ -4,12 +4,18 @@
 import frappe
 from frappe import _
 from digitz_erp.accounts.report.digitz_erp import filter_accounts
+from digitz_erp.api.balance_sheet_api import get_accounts_data
+from datetime import datetime, timedelta
 
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
-    chart = get_chart_data(filters)
-    return columns, data, None, chart
+    
+    print("filters")
+    print(filters)
+        
+    # chart = get_chart_data(filters)
+    return columns, data, None, None
 
 def get_chart_data(filters=None):
     data = get_data(filters)
@@ -30,133 +36,100 @@ def get_chart_data(filters=None):
 
 def get_data(filters=None):
     accounts = frappe.db.sql(
-        """
-        SELECT
-            a.name,
-            a.parent_account,
-            a.lft,
-            a.rgt,
-            a.root_type,
-            0 as amount
-        FROM
-            `tabAccount` a
-        WHERE
-            a.root_type IN ('Asset','Liability')
-        OR
-            a.name = 'Accounts'
-        ORDER BY
-            a.lft;
-        """,
-        as_dict=True
+    """
+        select
+            name,
+            parent_account,
+            lft,
+            rgt,
+            balance
+        from
+            `tabAccount` 
+        where root_type in ('Asset','Liability')  or name = 'Accounts' 
+        ORDER BY FIELD(root_type, 'Asset', 'Liability') , lft
+    """, as_dict=True
     )
-    accounts, accounts_by_name, parent_children_map = filter_accounts(accounts)
-    data = prepare_data(accounts, filters, parent_children_map, accounts_by_name)
 
-    total_asset_debit = sum(row['amount'] for row in data if row.get('root_type') == 'Asset')
-    total_liability_credit = sum(row['amount'] for row in data if row.get('root_type') == 'Liability')
-    provisional_profit_or_loss = total_liability_credit - total_asset_debit
-    total_row = {
-        'account': 'Total Asset (Debit)',
-        'amount': total_asset_debit,
-        'parent_account': '',
-        'indent': 0
-    }
-    data.append(total_row)
+    from_date = filters.get('from_date')
+    to_date = filters.get('to_date')
+    
+    if(filters.get('period_selection')== "Fiscal Year"):
+        print("in Fiscal Year")
+        from_date = datetime(filters.get('select_year'),1,1)
+        to_date = datetime(filters.get('select_year',12,31))
+        
+    if filters.get('accumulated_values'):
+        from_date = datetime(2000,1,1)
+        
+    print("from_date")
+    print(from_date)
+    print("to_date")
+    print(to_date)
 
-    total_row = {
-        'account': 'Total Liability (Credit)',
-        'amount': total_liability_credit,
-        'parent_account': '',
-        'indent': 0
-    }
-    data.append(total_row)
+    bs_accounts = get_accounts_data(from_date, to_date)
+    print("bs_accounts")
+    print(bs_accounts)
+    
+    indices_to_remove = []
+    gross_profit = 0
+    for i,account in enumerate(accounts):
+        found = False
+        for account2 in bs_accounts:
+            if account["name"] == account2["name"]:
+                account["balance"] = account2["balance"] 
+                found = True
+        
+        if not found:
+                    indices_to_remove.append(i)
 
-    total_row = {
-        'account': 'Provisional Profit/Loss',
-        'amount': provisional_profit_or_loss,
-        'parent_account': '',
-        'indent': 0
-    }
-    data.append(total_row)
-    return data
-
-value_fields = (
-	"amount",
-)
-
-def prepare_data(accounts, filters, parent_children_map, accounts_by_name):
-    data = []
-    for d in accounts:
-        row = get_account_details(d.name, d.parent_account, d.indent, filters)
-        for key in value_fields:
-            amt = row.get(key) or 0
-            accounts_by_name[d.name][key] += amt
-    accumulate_values_into_parents(accounts, accounts_by_name)
-    for d in accounts:
-        row = {}
-        row['account'] = d.name
-        row['root_type'] = d.root_type
-        for key in value_fields:
-            row[key] = accounts_by_name[d.name][key]
-        row['indent'] = d.indent
-        data.append(row)
-    return data
-
-def get_account_details(account, parent_account, indent, filters):
+    # Remove rows based on indices
+    for index in reversed(indices_to_remove):
+        del accounts[index]
+      
+    filter_accounts(accounts)
+    
+    data =[]
+    for account in accounts:
+        
+        if account.name == "Accounts":
+            continue
+       
+        data.append(account)
+    
+      # Net Profit
     query = """
-        SELECT
-            a.root_type,
-            CASE
-				WHEN SUM(glp.debit_amount) < SUM(glp.credit_amount) THEN SUM(glp.credit_amount) - SUM(glp.debit_amount)
-                WHEN SUM(glp.debit_amount) > SUM(glp.credit_amount) THEN SUM(glp.debit_amount) - SUM(glp.credit_amount)
-				ELSE 0
-			END AS amount
-        FROM
-            `tabGL Posting` as glp,
-            `tabAccount` as a
-        WHERE
-            a.name = '{0}' AND
-            glp.account = a.name
-    """.format(account)
-    if filters.get('year_selection') == 'Date Range':
-        if filters.get('from_date'):
-            query += "AND glp.posting_date >= '{0}'".format(filters.get('from_date'))
-        if filters.get('to_date'):
-            query += "AND glp.posting_date <= '{0}'".format(filters.get('to_date'))
-    elif filters.get('year_selection') == 'Fiscal Year':
-        fiscal_year = filters.get('select_year')
-        if fiscal_year:
-            query += " AND glp.posting_date >= '{0}-01-01' AND glp.posting_date <= '{0}-12-31'".format(fiscal_year)
-    result = frappe.db.sql(query, as_dict=True)[0]
-
-    data = {
-        'account': account,
-        'parent_account': parent_account,
-        'indent': indent,
-        'amount': result['amount'] or 0,
-        'root_type': result['root_type'] or '',
-    }
+            SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') 
+            """
+    income_balance_data = frappe.db.sql(query,(from_date, to_date), as_dict = 1)
+    
+    query = """
+            SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Expense') 
+            """
+    expense_balance_data = frappe.db.sql(query,(from_date, to_date), as_dict = 1)
+    
+    profit = income_balance_data[0].balance - expense_balance_data[0].balance 
+    
+    gp_data = {'name':'Provisional Profit','indent':2,'balance' :profit*-1}
+    data.append(gp_data)
+    
+    
     return data
 
 def get_columns():
     return [
         {
-            "fieldname": "account",
+            "fieldname": "name",
             "label": _("Account"),
             "fieldtype": "Data",
-            "width": 600,
+            "width": 400,
         },
         {
-            "fieldname": "amount",
+            "fieldname": "balance",
             "label": _("Amount"),
             "fieldtype": "Currency",
             "options": "currency",
-            "width": 600,
+            "width": 200,
         }
     ]
 
-def accumulate_values_into_parents(accounts, accounts_by_name):
-	for d in reversed(accounts):
-		if d.parent_account:
-			for key in value_fields:
-				accounts_by_name[d.parent_account][key] += d[key]
+

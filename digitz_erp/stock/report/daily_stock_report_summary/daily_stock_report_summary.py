@@ -5,13 +5,34 @@ import frappe
 from frappe import _
 
 def execute(filters=None):
-    columns = get_columns()
-    data = get_data(filters)
-    return columns, data
+	columns = get_columns()
+	data= None
+	show_datewise = filters.get("show_datewise")
+ 
+	if show_datewise:
+		data = get_data_datewise(filters)
+		columns = get_columns_date_wise()
+	else:
+		print("get_data")
+		data = get_data(filters)
+		
+	return columns, data
 
 def get_columns():
     return [
-        {"label": _("Item"), "fieldname": "item_name", "fieldtype": "Link", "options": "Item", "width": 330},
+        {"label": _("Item"), "fieldname": "item_name", "fieldtype": "Link", "options": "Item", "width": 250},       
+        {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 140},
+        {"label": _("Stock Recon"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 140},
+        {"label": _("Qty In"), "fieldname": "qty_in", "fieldtype": "Float", "width": 140},
+        {"label": _("Qty Out"), "fieldname": "qty_out", "fieldtype": "Float", "width": 140},
+        {"label": _("Balance Qty"), "fieldname": "balance_qty", "fieldtype": "Float", "width": 140},
+        # Add other columns as needed
+    ]
+    
+def get_columns_date_wise():
+    return [
+        {"label": _("Item"), "fieldname": "item_name", "fieldtype": "Link", "options": "Item", "width": 250},
+        {"label": _("Date"), "fieldname": "date", "fieldtype": "Date", "width": 120},
         {"label": _("Opening Qty"), "fieldname": "opening_qty", "fieldtype": "Float", "width": 140},
         {"label": _("Stock Recon"), "fieldname": "stock_recon_qty", "fieldtype": "Float", "width": 140},
         {"label": _("Qty In"), "fieldname": "qty_in", "fieldtype": "Float", "width": 140},
@@ -49,6 +70,7 @@ def get_data(filters):
 			{warehouse_condition}
 		GROUP BY item
 	)
+	order by item_name
 	"""
 
 	opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
@@ -283,7 +305,42 @@ def get_data(filters):
 
 	return data
 
+def set_dates_for_items(data, transaction_item_dates):
+    
+	item_code = data.get('item_code')
+	posting_date = data.get('posting_date')
+
+	if item_code in transaction_item_dates:
+		date_set = transaction_item_dates[item_code]
+		if posting_date not in date_set:
+			date_set.add(posting_date)
+			transaction_item_dates[item_code] = date_set
+	else:
+		date_set = {posting_date}
+		transaction_item_dates[item_code] = date_set
+
+	print("Updated transaction_item_dates:")
+	print(transaction_item_dates)
+
+	return transaction_item_dates
+
+def get_dates_for_item(item_code, transaction_item_dates):
+    """
+    Retrieve the posting dates associated with a specific item code.
+
+    Parameters:
+    - item_code (str): The item code for which posting dates are to be retrieved.
+    - transaction_item_dates (dict): Dictionary containing item codes and corresponding posting dates.
+
+    Returns:
+    - List of posting dates for the specified item code, or None if the item code is not found.
+    """
+    dates = transaction_item_dates.get(item_code)
+    return list(dates) if dates else None
+    
+
 def get_data_datewise(filters):
+    
 	from_date = filters.get("from_date")
 	to_date = filters.get("to_date")
 	item = filters.get("item")
@@ -294,6 +351,12 @@ def get_data_datewise(filters):
 	item_condition = f" AND item = '{item}'" if item else ""
 	warehouse_condition = f" AND warehouse = '{warehouse}'" if warehouse else ""
 
+	# items query
+	items_query = f"""
+	select distinct sl.item as item_code,i.item_name from `tabStock Ledger` sl inner join `tabItem` i on i.name= sl.item where sl.posting_date<= '{to_date}' order by i.item_name
+	"""
+	items_data = frappe.db.sql(items_query, as_dict=1)
+	
 	# Fetch the opening quantity for all items based on the last record's balance quantity
 	opening_balance_query = f"""
 	SELECT
@@ -310,11 +373,15 @@ def get_data_datewise(filters):
 		WHERE posting_date < '{from_date}'
 			{item_condition}
 			{warehouse_condition}
-		GROUP BY item
+		GROUP BY item order by item
 	)
 	"""
 
 	opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
+ 
+	item_opening_balances = {}
+	for opening_balance in opening_balance_data:		
+		item_opening_balances[opening_balance.item_code] = opening_balance.opening_qty
 
 	stock_recon_qty_query = f"""
 		SELECT item as item_code,posting_date, SUM(balance_qty) as balance_qty,
@@ -330,10 +397,17 @@ def get_data_datewise(filters):
 	"""
 
 	stock_recon_qty_data = frappe.db.sql(stock_recon_qty_query, as_dict=True)
-	transaction_dates = []
+	transaction_item_dates = {}
 	for data in stock_recon_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+     
+		print("stock recon")
+		print(data)
+     
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates) 
+  
+	print("transaction_item_dates")
+	print(transaction_item_dates)
+			
 
 	purchase_qty_query = f"""
 		SELECT item as item_code,posting_date, SUM(qty_in) as purchase_qty
@@ -348,8 +422,11 @@ def get_data_datewise(filters):
 
 	purchase_qty_data = frappe.db.sql(purchase_qty_query, as_dict=True)
 	for data in purchase_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+		
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates)
+  
+		print("purchase")
+		print(data)
 
 		# Fetch the purchase return quantity for all items within the specified date range
 	purchase_return_qty_query = f"""
@@ -365,8 +442,9 @@ def get_data_datewise(filters):
 
 	purchase_return_qty_data = frappe.db.sql(purchase_return_qty_query, as_dict=True)
 	for data in purchase_return_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+		
+		print(data)
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates) 
 
 	sales_qty_query = f"""
 		SELECT item as item_code,posting_date, SUM(qty_out) as sales_qty
@@ -381,8 +459,7 @@ def get_data_datewise(filters):
 
 	sales_qty_data = frappe.db.sql(sales_qty_query, as_dict=True)
 	for data in sales_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates)
 
 	# Fetch the sales return quantity for all items within the specified date range
 	sales_return_qty_query = f"""
@@ -399,8 +476,7 @@ def get_data_datewise(filters):
 
 	sales_return_qty_data = frappe.db.sql(sales_return_qty_query, as_dict=True)
 	for data in sales_return_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates) 
 
 	transfer_in_qty_query = f"""
 	SELECT item as item_code,posting_date, SUM(qty_in) as transfer_in_qty
@@ -416,8 +492,7 @@ def get_data_datewise(filters):
 
 	transfer_in_qty_data = frappe.db.sql(transfer_in_qty_query, as_dict=True)
 	for data in transfer_in_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates)
  
 	print("transfer_in_qty_data")
 	print(transfer_in_qty_data)
@@ -439,39 +514,55 @@ def get_data_datewise(filters):
 	transfer_out_qty_data = frappe.db.sql(transfer_out_qty_query, as_dict=True)
 	
 	for data in transfer_out_qty_data:
-		if data.posting_date not in transaction_dates:
-			transaction_dates.append(data.posting_date)
+		transaction_item_dates = set_dates_for_items(data, transaction_item_dates)
  
 	opening_value_exists = False
 	transaction_value_exists = False
  
 	data = []
-	for opening_balance_row in opening_balance_data:
-     
-		item_row =None
+	print("transaction_item_dates")
+	print(transaction_item_dates)
+ 
+	for item_data in items_data:
+		
+		item_code = item_data.item_code
+		item_name = item_data.item_name
+		opening_balance_qty = item_opening_balances[item_code] if item_code in item_opening_balances else 0
+		item_row = {"item_name": item_name, "date":from_date, "opening_qty": opening_balance_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
+		
+		transaction_exists = False
   
-		for transaction_date in transaction_dates:
-
-			if item_row == None:
-				item_row = {"item_name": opening_balance_row.item_name, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
-			
-
-			print("item_row")
-			print(item_row)
-
-			opening_qty =  opening_balance_row.opening_qty
-			balance_qty = opening_balance_row.opening_qty
+		if not transaction_item_dates:
+			break
+    
+		date_list = get_dates_for_item(item_code,transaction_item_dates)
+  
+		if date_list == None :
+			if opening_balance_qty !=0:
+				data.append(item_row)
+			continue
+		
+		date_list.sort()		
+  
+		balance_qty = opening_balance_qty
+  
+		first_row = True
+  
+		for transaction_date in date_list:
+      		
+			item_row = {"item_name": item_name if first_row else "", "date":None, "opening_qty": balance_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}		
+			       
+			item_row["date"] = transaction_date
+			opening_qty =  balance_qty			
 			stock_recon_qty = 0
 			qty_in  = 0
 			qty_out = 0
 
-			opening_value_exists = balance_qty != 0
-			transaction_value_exists = False
-
+			first_row = False
 		
 			# For reconciliation it can be qty_in and qty_out both needs to be considered for balance_qty
 			for stock_recon_qty_row in stock_recon_qty_data:
-				if stock_recon_qty_row.item_code == opening_balance_row.item_code and stock_recon_qty_row.posting_date == transaction_date:
+				if stock_recon_qty_row.item_code == item_code and stock_recon_qty_row.posting_date == transaction_date:
 					stock_recon_qty = stock_recon_qty_row.balance_qty
 					balance_qty += stock_recon_qty_row.qty_in - stock_recon_qty_row.qty_out
 					qty_in += stock_recon_qty_row.qty_in
@@ -481,7 +572,7 @@ def get_data_datewise(filters):
 
 			# Find the matching purchase_qty_row for the item
 			for purchase_qty_row in purchase_qty_data:
-				if purchase_qty_row.item_code == opening_balance_row.item_code:
+				if purchase_qty_row.item_code == item_code and purchase_qty_row.posting_date == transaction_date:
 
 					balance_qty += purchase_qty_row.purchase_qty
 					qty_in += purchase_qty_row.purchase_qty
@@ -493,7 +584,7 @@ def get_data_datewise(filters):
 
 			# Find the matching purchase_return_qty_row for the item
 			for purchase_return_qty_row in purchase_return_qty_data:
-				if purchase_return_qty_row.item_code == opening_balance_row.item_code:
+				if purchase_return_qty_row.item_code == item_code and purchase_return_qty_row.posting_date == transaction_date:
 
 					balance_qty += (purchase_return_qty_row.purchase_return_qty * -1)
 					qty_out += purchase_return_qty_row.purchase_return_qty
@@ -505,7 +596,7 @@ def get_data_datewise(filters):
 
 			# Find the matching sales_qty_row for the item
 			for sales_qty_row in sales_qty_data:
-				if sales_qty_row.item_code == opening_balance_row.item_code:
+				if sales_qty_row.item_code == item_code and sales_qty_row.posting_date == transaction_date:
 					balance_qty += (sales_qty_row.sales_qty * -1)
 					qty_out += sales_qty_row.sales_qty
 
@@ -516,7 +607,7 @@ def get_data_datewise(filters):
 
 			# Find the matching sales_return_qty_row for the item
 			for sales_return_qty_row in sales_return_qty_data:
-				if sales_return_qty_row.item_code == opening_balance_row.item_code:
+				if sales_return_qty_row.item_code == item_code and sales_return_qty_row.transaction_date == transaction_date:
 					balance_qty += sales_return_qty_row.sales_return_qty
 
 					qty_in += sales_return_qty_row.sales_return_qty
@@ -530,7 +621,7 @@ def get_data_datewise(filters):
 		
 				print("here")
 		
-				if transfer_in_qty_row.item_code == opening_balance_row.item_code:
+				if transfer_in_qty_row.item_code == item_code and transfer_in_qty_row.posting_date == transaction_date :
 					
 					print("item code matching")
 					print("transfer_in_qty_row.transfer_in_qty")
@@ -543,7 +634,6 @@ def get_data_datewise(filters):
 					print("qty_in")
 					print(qty_in)
 
-
 					if not transaction_value_exists:
 						transaction_value_exists = transfer_in_qty_row.transfer_in_qty !=0
 
@@ -551,7 +641,7 @@ def get_data_datewise(filters):
 
 			# Find the matching transfer_out_qty_row for the item
 			for transfer_out_qty_row in transfer_out_qty_data:
-				if transfer_out_qty_row.item_code == opening_balance_row.item_code:
+				if transfer_out_qty_row.item_code == item_code and transfer_out_qty_row.posting_date == transaction_date:
 
 					balance_qty += (transfer_out_qty_row.transfer_out_qty * -1)
 					qty_out += transfer_out_qty_row.transfer_out_qty
@@ -570,10 +660,8 @@ def get_data_datewise(filters):
 			item_row["qty_out"] = qty_out
 			item_row["balance_qty"] = balance_qty
 
-			if not show_all and transaction_value_exists:
-				data.append(item_row)
-			elif show_all and (transaction_value_exists or opening_value_exists):
-				data.append(item_row)
-
+			
+			data.append(item_row)
+		      
 	return data
 
