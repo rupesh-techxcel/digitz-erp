@@ -1,0 +1,69 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"teho5w9rmd\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Stock</span>\",\"col\":12}},{\"id\":\"qFNTP9odHH\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"yJcnePr_zI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"iRfwDuOvYz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"id\":\"6iHaN1B3xe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Group\",\"col\":3}},{\"id\":\"I_uf6DAR1m\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"1sTyVyka2V\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"id\":\"1E7eShlsXa\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"0i810PYxPQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Reconciliation\",\"col\":3}},{\"id\":\"gLQp2mi380\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"PMEuXdMMl4\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"PaZwgjuLvv\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2uRhaBBDV3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Report\",\"col\":3}}]",
+ "creation": "2024-01-30 13:37:58.900800",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "stock",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Stock",
+ "links": [],
+ "modified": "2024-01-30 14:06:44.438058",
+ "modified_by": "Administrator",
+ "module": "Digitz ERP",
+ "name": "Stock",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "Digitz Erp",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 24.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Stock Ledger Report",
+   "link_to": "Stock Ledger Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Stock Reconciliation",
+   "link_to": "Stock Reconciliation",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Item",
+   "link_to": "Item",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Price List",
+   "link_to": "Price List",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Item Group",
+   "link_to": "Item Group",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Stock"
+}

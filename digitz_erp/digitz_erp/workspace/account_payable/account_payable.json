@@ -1,0 +1,38 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"N55HtmznUD\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Account Payable</span>\",\"col\":12}},{\"id\":\"-xI92gWcwf\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"4wbcFXmAMX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Entry\",\"col\":3}}]",
+ "creation": "2024-01-30 13:44:25.726887",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "income",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Account Payable",
+ "links": [],
+ "modified": "2024-01-30 14:16:59.497832",
+ "modified_by": "Administrator",
+ "module": "Digitz ERP",
+ "name": "Account Payable",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "Digitz Erp",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 29.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Payment Entry",
+   "link_to": "Payment Entry",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Account Payable"
+}

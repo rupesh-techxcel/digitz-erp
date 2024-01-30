@@ -1,0 +1,38 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"0jHP96h03L\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">HR</span>\",\"col\":12}},{\"id\":\"P6PYHswNDh\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2N0GhntgMK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}}]",
+ "creation": "2024-01-30 13:45:14.430359",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "hr",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "HR",
+ "links": [],
+ "modified": "2024-01-30 14:17:35.148157",
+ "modified_by": "Administrator",
+ "module": "Digitz ERP",
+ "name": "HR",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "Digitz Erp",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 30.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee",
+   "link_to": "Employee",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "HR"
+}
