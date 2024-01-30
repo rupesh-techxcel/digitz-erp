@@ -663,6 +663,10 @@ frappe.ui.form.on('Sales Invoice Item', {
 										row.rate = r.message[0];
 										row.rate_in_base_unit = r.message[0];
 									}
+									else if (r.message!= undefined) {
+										row.rate = parseFloat(r.message)
+										row.rate_in_base_unit = parseFloat(r.message)
+									}
 								}
 							});			
 					}	

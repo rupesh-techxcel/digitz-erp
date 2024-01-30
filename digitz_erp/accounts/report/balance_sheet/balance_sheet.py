@@ -61,11 +61,6 @@ def get_data(filters=None):
     if filters.get('accumulated_values'):
         from_date = datetime(2000,1,1)
         
-    print("from_date")
-    print(from_date)
-    print("to_date")
-    print(to_date)
-
     bs_accounts = get_accounts_data(from_date, to_date)
     print("bs_accounts")
     print(bs_accounts)
@@ -107,9 +102,9 @@ def get_data(filters=None):
             """
     expense_balance_data = frappe.db.sql(query,(from_date, to_date), as_dict = 1)
     
-    profit = income_balance_data[0].balance - expense_balance_data[0].balance 
+    profit = (income_balance_data[0].balance if (income_balance_data and income_balance_data[0].balance) else 0) - (expense_balance_data[0].balance if (expense_balance_data and expense_balance_data[0].balance ) else 0)
     
-    gp_data = {'name':'Provisional Profit','indent':2,'balance' :profit*-1}
+    gp_data = {'name':'Provisional Profit','indent':2,'balance' :profit}
     data.append(gp_data)
     
     

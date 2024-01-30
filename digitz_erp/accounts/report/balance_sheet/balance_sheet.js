@@ -8,7 +8,8 @@ frappe.query_reports["Balance Sheet"] = {
 				"fieldname": "period_selection",
 				"label": __("Period Selection"),
 				"fieldtype": "Select",
-				"options": "Date Range\nFiscal Year",
+				// "options": "Date Range\nFiscal Year",
+				"options": "Date Range",
 				"default": "Date Range",
 				"on_change": function(query_report) {
 					var period_selection = query_report.get_values().period_selection;
