@@ -43,11 +43,12 @@ class SalesReturn(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.do_postings_on_submit()    
         else: 
-            frappe.enqueue(self.do_postings_on_submit, queue="long")
+            # frappe.enqueue(self.do_postings_on_submit, queue="long")
+            self.do_postings_on_submit() 
 
     def do_postings_on_submit(self):
         # Cost of goods sold need not include for Sales Return because it is not an expense but its only a reduction of sales revenue.
-        self.do_voucher_stock_posting()
+        self.add_stock_for_sales_return()
         self.insert_gl_records()
         self.insert_payment_postings()    
         update_accounts_for_doc_type('Sales Return', self.name)    	
@@ -123,8 +124,7 @@ class SalesReturn(Document):
         gl_doc.credit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
-        
-
+     
         # Round Off
         if self.round_off != 0.00:
             idx = 6
@@ -191,7 +191,8 @@ class SalesReturn(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):        
             self.cancel_sales_return()
         else:
-            frappe.enqueue(self.cancel_sales_return, queue="long")
+            # frappe.enqueue(self.cancel_sales_return, queue="long")
+            self.cancel_sales_return()
 
     def on_trash(self):
         # On cancel the quantities are already deleted.
@@ -224,7 +225,7 @@ class SalesReturn(Document):
         if si_reference_any:
             frappe.msgprint("Returned qty of items in the corresponding sales invoice reverted successfully", indicator= "green", alert= True)   
 
-    def update_delivery_note_quantities_for_invoice(si_item_reference,do_item_reference,qty_returned):
+    def update_delivery_note_quantities_for_invoice(self,si_item_reference,do_item_reference,qty_returned):
     
         do_item = frappe.get_doc("Delivery Note Item", do_item_reference)
         
@@ -234,9 +235,7 @@ class SalesReturn(Document):
         if(not total_returned_qty_not_in_this_si):
             total_returned_qty_not_in_this_si = 0
         do_item.qty_returned = qty_returned + total_returned_qty_not_in_this_si
-        
-        
-        
+                
         do_item.save()    
             
     def update_sales_invoice_quantities_on_update(self):		
@@ -281,7 +280,7 @@ class SalesReturn(Document):
         #             "voucher_no":self.name
         #         })
         
-    def do_voucher_stock_posting(self):
+    def add_stock_for_sales_return(self):
         cost_of_goods_sold =0
         # Note that negative stock checking is handled in the validate method
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')

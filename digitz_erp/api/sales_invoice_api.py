@@ -26,7 +26,7 @@ def get_sales_invoices_for_return(customer):
 def get_sales_line_items_for_return(sales_invoice):
     
     result = frappe.db.sql("""
-                SELECT si.name as si_item_reference, si.item, si.item_name,si.display_name, si.unit,si.base_unit, si.rate, si.qty-si.qty_returned as qty, si.rate_in_base_unit, si.tax, si.tax_rate, rate_includes_tax from `tabSales Invoice Item` si where si.parent ='{0}' and si.qty> si.qty_returned""".format(sales_invoice), as_dict =1
+                SELECT si.name as si_item_reference, si.item, si.item_name,si.display_name, si.unit,si.base_unit, si.rate, si.qty-si.qty_returned as qty,si.qty_in_base_unit,si.conversion_factor, si.rate_in_base_unit, si.tax, si.tax_rate, rate_includes_tax from `tabSales Invoice Item` si where si.parent ='{0}' and si.qty> si.qty_returned""".format(sales_invoice), as_dict =1
                 )
     
     return result

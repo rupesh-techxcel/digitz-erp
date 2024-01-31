@@ -82,16 +82,8 @@ def get_data(filters=None):
         del accounts[index]
       
     filter_accounts(accounts)
-    
-    data =[]
-    for account in accounts:
         
-        if account.name == "Accounts":
-            continue
-       
-        data.append(account)
-    
-      # Net Profit
+    # Net Profit
     query = """
             SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') 
             """
@@ -103,6 +95,19 @@ def get_data(filters=None):
     expense_balance_data = frappe.db.sql(query,(from_date, to_date), as_dict = 1)
     
     profit = (income_balance_data[0].balance if (income_balance_data and income_balance_data[0].balance) else 0) - (expense_balance_data[0].balance if (expense_balance_data and expense_balance_data[0].balance ) else 0)
+    
+    
+    data =[]
+    for account in accounts:
+        
+        if account.name == "Accounts":
+            continue
+        
+        # Include profit in the liability
+        if account.name =="Liability":
+            account.balance = account.balance + profit
+       
+        data.append(account)
     
     gp_data = {'name':'Provisional Profit','indent':2,'balance' :profit}
     data.append(gp_data)

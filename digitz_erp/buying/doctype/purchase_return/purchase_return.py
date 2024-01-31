@@ -74,7 +74,8 @@ class PurchaseReturn(Document):
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.do_postings_on_submit()
 		else:
-			frappe.enqueue(self.do_postings_on_submit, queue="long")
+			# frappe.enqueue(self.do_postings_on_submit, queue="long")
+			self.do_postings_on_submit()
 
 	def on_update(self):
 		self.update_purchase_invoice_quantities_on_update()
@@ -88,7 +89,8 @@ class PurchaseReturn(Document):
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.cancel_purchase_return()
 		else:
-			frappe.enqueue(self.cancel_purchase_return, queue ="long")
+			self.cancel_purchase_return()
+			# frappe.enqueue(self.cancel_purchase_return, queue ="long")
 
 
 	def on_trash(self):

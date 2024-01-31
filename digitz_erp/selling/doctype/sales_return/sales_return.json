@@ -31,8 +31,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "print_in_progress",
-  "pdf_url",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -87,7 +85,7 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "SI-.#####.-.MM.-.YYYY."
+   "options": "SR-.#####.-.MM.-.YYYY."
   },
   {
    "fieldname": "customer",
@@ -228,19 +226,6 @@
    "label": "Warehouse",
    "options": "Warehouse",
    "reqd": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "print_in_progress",
-   "fieldtype": "Check",
-   "label": "Print In Progress",
-   "read_only": 1
-  },
-  {
-   "fieldname": "pdf_url",
-   "fieldtype": "Data",
-   "label": "PDF URL",
-   "read_only": 1
   },
   {
    "fieldname": "accounts_section",
@@ -521,7 +506,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-17 20:53:43.958084",
+ "modified": "2024-01-30 18:06:58.818496",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

@@ -80,9 +80,9 @@ class SalesInvoice(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.do_postings_on_submit()
         else:
-            frappe.enqueue(self.do_postings_on_submit, queue="long")
-        
-        frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
+            # frappe.enqueue(self.do_postings_on_submit, queue="long")        
+            # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
+            self.do_postings_on_submit()
     
         if(self.auto_generate_delivery_note):
             print("submitting DO from sales_invoice")
@@ -161,7 +161,8 @@ class SalesInvoice(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.cancel_sales_invoice()            
         else:
-            frappe.enqueue(self.cancel_sales_invoice, queue="long")
+            # frappe.enqueue(self.cancel_sales_invoice, queue="long")
+            self.cancel_sales_invoice()
         
     def cancel_sales_invoice(self):
 

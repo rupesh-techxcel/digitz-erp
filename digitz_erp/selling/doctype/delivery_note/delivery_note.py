@@ -55,9 +55,9 @@ class DeliveryNote(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.cancel_delivery_note()
         else:
-            frappe.enqueue(self.cancel_delivery_note, queue="long")
-    
-        frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
+            # frappe.enqueue(self.cancel_delivery_note, queue="long")    
+            # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
+            self.cancel_delivery_note()
 
     def on_submit(self):
         
@@ -67,9 +67,9 @@ class DeliveryNote(Document):
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.do_postings_on_submit()
         else:        
-            frappe.enqueue(self.do_postings_on_submit, queue="long")
-        
-        frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
+            # frappe.enqueue(self.do_postings_on_submit, queue="long")        
+            # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
+            self.do_postings_on_submit()
         
    
     def do_postings_on_submit(self):

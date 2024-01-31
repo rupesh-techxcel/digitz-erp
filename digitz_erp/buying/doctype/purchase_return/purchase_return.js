@@ -78,6 +78,7 @@ frappe.ui.form.on('Purchase Return', {
 									},
 									callback: (r) => {
 
+										console.log("digitz_erp.api.purchase_invoice_api.get_purchase_line_items_for_return")
 										console.log(r.message)
 
 										const returnRows = r.message;
@@ -85,6 +86,8 @@ frappe.ui.form.on('Purchase Return', {
 										// Iterate through each row in the items child table
 										returnRows.forEach(newRow => {
 
+											console.log("newRow")
+											console.log(newRow)
 																						
 											// Check if the row already exists in the child table
 											const existingRow = frm.doc.items.find(row => row.pi_item_reference === newRow.pi_item_reference);
@@ -104,6 +107,8 @@ frappe.ui.form.on('Purchase Return', {
 													return_item.display_name = newRow.item_name
 												}
 												return_item.qty = newRow.qty
+												return_item.qty_in_base_unit = newRow.qty_in_base_unit
+												return_item.conversion_factor = newrow.conversion_factor
 												return_item.unit = newRow.unit
 												return_item.base_unit = newRow.base_unit
 												return_item.rate = newRow.rate

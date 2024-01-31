@@ -29,12 +29,12 @@
    "fieldname": "mode",
    "fieldtype": "Select",
    "label": "Mode",
-   "options": "Cash\nBank\nCard"
+   "options": "Cash\nBank\nCard\nOther"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-23 16:45:35.147173",
+ "modified": "2024-01-31 08:59:54.326134",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Mode",

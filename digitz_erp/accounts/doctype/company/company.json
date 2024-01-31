@@ -20,6 +20,8 @@
   "company_logo",
   "company_logo_display",
   "default_currency",
+  "default_bank_account",
+  "bank_ac_print_details",
   "inventory_settings_tab",
   "inventory_settings",
   "use_customer_last_price",
@@ -330,11 +332,24 @@
    "fieldname": "do_not_apply_round_off_in_si",
    "fieldtype": "Check",
    "label": "Do not apply round off in Sales Invoice"
+  },
+  {
+   "fieldname": "default_bank_account",
+   "fieldtype": "Link",
+   "label": "Default Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fetch_from": "default_bank_account.print_details",
+   "fieldname": "bank_ac_print_details",
+   "fieldtype": "Small Text",
+   "label": "Bank A/c Print Details",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-15 16:14:30.172473",
+ "modified": "2024-01-31 09:16:51.745542",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

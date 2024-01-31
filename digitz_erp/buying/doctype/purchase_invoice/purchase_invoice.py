@@ -82,9 +82,9 @@ class PurchaseInvoice(Document):
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.do_postings_on_submit()
 		else:					
-			frappe.enqueue(self.do_postings_on_submit, queue="long")
-  
-		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
+			# frappe.enqueue(self.do_postings_on_submit, queue="long")
+  			# frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
+			self.do_postings_on_submit()
   
 	def do_postings_on_submit(self):		
 
