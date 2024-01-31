@@ -108,7 +108,7 @@ frappe.ui.form.on('Purchase Return', {
 												}
 												return_item.qty = newRow.qty
 												return_item.qty_in_base_unit = newRow.qty_in_base_unit
-												return_item.conversion_factor = newrow.conversion_factor
+												return_item.conversion_factor = newRow.conversion_factor
 												return_item.unit = newRow.unit
 												return_item.base_unit = newRow.base_unit
 												return_item.rate = newRow.rate

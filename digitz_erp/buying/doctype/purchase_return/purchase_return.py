@@ -67,7 +67,7 @@ class PurchaseReturn(Document):
 
 	def on_submit(self):
 
-		self.do_voucher_stock_posting()
+		self.deduct_stock_posting()
 
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
@@ -101,10 +101,10 @@ class PurchaseReturn(Document):
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
 		self.insert_payment_postings()
-		self.do_voucher_stock_posting()
+		self.deduct_stock_posting()
 		update_accounts_for_doc_type('Purchase Return', self.name)
 
-	def do_voucher_stock_posting(self):
+	def deduct_stock_posting(self):
 		# Note that negative stock checking is handled in the validate method
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher.voucher = 'Purchase Return'
@@ -160,7 +160,7 @@ class PurchaseReturn(Document):
 			new_stock_ledger.item = docitem.item
 			new_stock_ledger.warehouse = docitem.warehouse
 			new_stock_ledger.posting_date = posting_date_time
-			new_stock_ledger.qty_in = docitem.qty_in_base_unit
+			new_stock_ledger.qty_out = docitem.qty_in_base_unit
 			new_stock_ledger.incoming_rate = docitem.rate_in_base_unit
 			new_stock_ledger.unit = docitem.base_unit
 			new_stock_ledger.valuation_rate = valuation_rate

@@ -324,7 +324,7 @@ class SalesReturn(Document):
 
                 # Note that in the first step new_balance_qty and new_balance_value is negative
                 new_balance_qty = last_stock_ledger.balance_qty + abs(new_balance_qty)
-                new_balance_value = last_stock_ledger.balance_value - abs(new_balance_value)
+                new_balance_value = last_stock_ledger.balance_value + abs(new_balance_value)
 
                 if new_balance_qty!=0:
                     # Sometimes the balance_value and balance_qty can be negative, so it is ideal to take the abs value
