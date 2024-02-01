@@ -37,6 +37,7 @@
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
+  "column_break_aiug",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -46,6 +47,7 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "column_break_bwyw",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -370,12 +372,20 @@
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
+  },
+  {
+   "fieldname": "column_break_aiug",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bwyw",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-17 17:32:13.030442",
+ "modified": "2024-01-31 16:11:26.419450",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

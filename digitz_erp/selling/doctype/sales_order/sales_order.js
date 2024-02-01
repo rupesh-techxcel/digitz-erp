@@ -77,13 +77,13 @@ frappe.ui.form.on('Sales Order', {
 								//Have a button to create delivery note in case delivery note is not integrated with SI
 								if (frm.doc.docstatus==1 && !alreadyUsed) {
 
-									frm.add_custom_button('Delivery Note', () => {
+									frm.add_custom_button('Create Delivery Note', () => {
 										frm.call("generate_delivery_note")
 									});
 
 									if(r2.message.delivery_note_integrated_with_sales_invoice)
 									{
-										frm.add_custom_button('Create Sales Invoice & DO', () => {
+										frm.add_custom_button('Create Sales Invoice & Delivery Note', () => {
 											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
 										});
 									}

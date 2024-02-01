@@ -67,8 +67,6 @@ class PurchaseReturn(Document):
 
 	def on_submit(self):
 
-		self.deduct_stock_posting()
-
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
@@ -161,7 +159,7 @@ class PurchaseReturn(Document):
 			new_stock_ledger.warehouse = docitem.warehouse
 			new_stock_ledger.posting_date = posting_date_time
 			new_stock_ledger.qty_out = docitem.qty_in_base_unit
-			new_stock_ledger.incoming_rate = docitem.rate_in_base_unit
+			new_stock_ledger.outgoing_rate = docitem.rate_in_base_unit
 			new_stock_ledger.unit = docitem.base_unit
 			new_stock_ledger.valuation_rate = valuation_rate
 			new_stock_ledger.balance_qty = new_balance_qty
@@ -180,6 +178,7 @@ class PurchaseReturn(Document):
 					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
 				new_stock_balance = frappe.new_doc('Stock Balance')
 				new_stock_balance.item = docitem.item
+				new_stock_balance.item_name = docitem.item_name
 				new_stock_balance.unit = docitem.unit
 				new_stock_balance.warehouse = docitem.warehouse
 				new_stock_balance.stock_qty = new_balance_qty
@@ -266,8 +265,6 @@ class PurchaseReturn(Document):
 		if(more_records>0):
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
-
-
 
 	def cancel_purchase_return(self):
 

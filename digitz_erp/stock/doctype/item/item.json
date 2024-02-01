@@ -16,17 +16,15 @@
   "brand",
   "tax_excluded",
   "tax",
-  "section_break_10",
+  "section_break_ohog",
   "standard_buying_price",
-  "column_break_14",
   "standard_selling_price",
-  "section_break_15",
-  "section_break_13",
+  "stock_balance",
+  "stock_value",
   "uoms_section",
   "base_unit",
   "column_break_19",
-  "stock_balance",
-  "stock_value",
+  "column_break_q9ow",
   "section_break_20",
   "units",
   "disabled",
@@ -46,6 +44,9 @@
   {
    "fieldname": "item_name",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_standard_filter": 1,
    "label": "Item Name",
    "unique": 1
   },
@@ -60,6 +61,8 @@
    "default": "All Item Groups",
    "fieldname": "item_group",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_standard_filter": 1,
    "label": "Item Group",
    "options": "Item Group"
   },
@@ -148,23 +151,6 @@
    "options": "Item Unit"
   },
   {
-   "fieldname": "section_break_15",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_14",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_13",
-   "fieldtype": "Section Break",
-   "label": "Pricing"
-  },
-  {
-   "fieldname": "section_break_10",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "stock_balance",
    "fieldtype": "Float",
    "label": "Stock Balance(Base Unit)"
@@ -188,11 +174,19 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Do Not Update Price"
+  },
+  {
+   "fieldname": "section_break_ohog",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_q9ow",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-30 13:14:10.811449",
+ "modified": "2024-01-31 15:11:38.214721",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

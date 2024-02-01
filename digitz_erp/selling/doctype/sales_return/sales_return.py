@@ -334,6 +334,7 @@ class SalesReturn(Document):
 
             new_stock_ledger = frappe.new_doc("Stock Ledger")
             new_stock_ledger.item = docitem.item
+            new_stock_ledger.item_name = docitem.item_name
             new_stock_ledger.warehouse = docitem.warehouse
             new_stock_ledger.posting_date = posting_date_time
             new_stock_ledger.qty_in = docitem.qty_in_base_unit
