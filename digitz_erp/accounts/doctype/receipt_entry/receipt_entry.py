@@ -266,9 +266,9 @@ class ReceiptEntry(Document):
 					frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': invoice_total})
 
 					invoice_amount = frappe.db.get_value("Sales Invoice", allocation.reference_name,["rounded_total"])
-					if(invoice_amount > invoice_total):
+					if(round(invoice_amount,2) > round(invoice_total,2)):
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Partial"})
-					elif invoice_amount == invoice_total:
+					elif round(invoice_amount,2) == round(invoice_total,2):
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
 
 

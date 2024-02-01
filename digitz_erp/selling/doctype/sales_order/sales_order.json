@@ -28,17 +28,18 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "section_break_11",
   "accounts_section",
   "payment_terms",
   "column_break_25",
   "remarks",
+  "column_break_rkkd",
   "section_break_19",
   "items",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
+  "column_break_ywbh",
   "section_break_25",
   "gross_total",
   "total_discount_in_line_items",
@@ -48,12 +49,12 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "column_break_engq",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
   "tab_break_50",
   "data_53",
   "quotation",
@@ -175,10 +176,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -298,10 +295,6 @@
    "label": "Terms and Conditions"
   },
   {
-   "fieldname": "section_break_27",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
    "label": "References"
@@ -344,12 +337,24 @@
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
+  },
+  {
+   "fieldname": "column_break_rkkd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ywbh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_engq",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-05-22 05:33:30.251826",
+ "modified": "2024-01-31 16:22:24.651956",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
