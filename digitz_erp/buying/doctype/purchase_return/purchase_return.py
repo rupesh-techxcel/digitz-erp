@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from frappe.model.mapper import *
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
 
 class PurchaseReturn(Document):
 
@@ -79,7 +80,7 @@ class PurchaseReturn(Document):
 		self.update_purchase_invoice_quantities_on_update()
 
 	def on_cancel(self):
-
+		cancel_bank_reconciliation("Purchase Return", self.name)
 		self.update_purchase_invoice_quantities_before_delete_or_cancel()
 
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
@@ -101,6 +102,7 @@ class PurchaseReturn(Document):
 		self.insert_payment_postings()
 		self.deduct_stock_posting()
 		update_accounts_for_doc_type('Purchase Return', self.name)
+		create_bank_reconciliation("Purchase Return", self.name)
 
 	def deduct_stock_posting(self):
 		# Note that negative stock checking is handled in the validate method
@@ -269,7 +271,7 @@ class PurchaseReturn(Document):
 	def cancel_purchase_return(self):
 
 		self.do_cancel_stock_posting()
-  
+
 		delete_gl_postings_for_cancel_doc_type('Purchase Return',self.name)
 
 

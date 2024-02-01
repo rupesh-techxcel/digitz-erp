@@ -15,6 +15,7 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from datetime import datetime,timedelta
 from frappe.model.mapper import get_mapped_doc
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
 
 class PurchaseInvoice(Document):
 
@@ -26,7 +27,7 @@ class PurchaseInvoice(Document):
 		# to get balance qty and balance value.
 		# if(possible_invalid >0):
 		# 	frappe.throw("There is another purchase invoice exist with the same date and time. Please correct the date and time.")
-	
+
 	def Voucher_In_The_Same_Time(self):
 		possible_invalid= frappe.db.count('Purchase Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
 		return possible_invalid
@@ -40,74 +41,75 @@ class PurchaseInvoice(Document):
 		# Extract the new time as a string
 		self.posting_time = new_datetime.strftime('%H:%M:%S')
 
-           
+
 	def before_validate(self):
-     		
+
 		print("before_validate")
 		if not self.credit_purchase or self.credit_purchase  == False:
 
 			self.paid_amount = self.rounded_total
-		else:			
-			self.paid_amount = 0	
-   
-		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be 
+		else:
+			self.paid_amount = 0
+
+		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
-            
+
 		if(self.Voucher_In_The_Same_Time()):
-						
+
 			self.Set_Posting_Time_To_Next_Second()
 
 			if(self.Voucher_In_The_Same_Time()):
-				self.Set_Posting_Time_To_Next_Second()				
-				
+				self.Set_Posting_Time_To_Next_Second()
+
 				if(self.Voucher_In_The_Same_Time()):
 					self.Set_Posting_Time_To_Next_Second()
-					
+
 					if(self.Voucher_In_The_Same_Time()):
-						frappe.throw("Voucher with same time already exists.")  
+						frappe.throw("Voucher with same time already exists.")
 
 	def validate(self):
-				
+
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
-   
+
 	def on_submit(self):
-     
+
 		print("on_submit")
-  
+
 		init_document_posting_status(self.doctype, self.name)
-  
+
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-		
+
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.do_postings_on_submit()
-		else:					
+		else:
 			# frappe.enqueue(self.do_postings_on_submit, queue="long")
   			# frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
 			self.do_postings_on_submit()
-  
-	def do_postings_on_submit(self):		
+
+	def do_postings_on_submit(self):
 
 		self.insert_gl_records(self.remarks)
-		self.insert_payment_postings()  
-		self.add_stock_for_purchase_receipt()  
-		
-		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+		self.insert_payment_postings()
+		self.add_stock_for_purchase_receipt()
+		create_bank_reconciliation("Purchase Invoice", self.name)
+
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
 		# print(posting_status_doc)
 		# posting_status_doc.posting_status = "Completed"
 		# posting_status_doc.save()
 
 		update_accounts_for_doc_type('Purchase Invoice',self.name)
-  
+
 		update_posting_status(self.doctype, self.name, 'posting_status','Completed')
 		print("after status update")
-		
+
 	def on_update(self):
 		print("on_update")
 		if self.purchase_order:
 			self.update_purchase_order_quantities_before_save()
-			check_and_update_purchase_order_status(self.purchase_order)   
-   
+			check_and_update_purchase_order_status(self.purchase_order)
+
 		self.update_item_prices()
 		self.update_payment_schedules()
 
@@ -126,27 +128,27 @@ class PurchaseInvoice(Document):
 			else:
 				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
-    
-				print("po_item")
-				print(po_item)    
 
-				if total_used_qty_not_in_this_pi: 
+				print("po_item")
+				print(po_item)
+
+				if total_used_qty_not_in_this_pi:
 					po_item.qty_purchased = total_used_qty_not_in_this_pi
 				else:
 					po_item.qty_purchased = 0
 
 				po_item.save()
 				po_reference_any = True
-    
+
 		print("po_reference_any")
 		print(po_reference_any)
-    
+
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
-	
 
-	def update_purchase_order_quantities_before_save(self):		
-  
+
+	def update_purchase_order_quantities_before_save(self):
+
 		po_reference_any = False
 		for item in self.items:
 			if not item.po_item_reference:
@@ -160,7 +162,7 @@ class PurchaseInvoice(Document):
 					po_item.qty_purchased = item.qty
 				po_item.save()
 				po_reference_any = True
-    
+
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
 
@@ -186,7 +188,7 @@ class PurchaseInvoice(Document):
 			more_records = more_records + more_records_count_for_item
 
 			new_balance_qty = docitem.qty_in_base_unit
-   
+
 			print("default balance qty")
 			print(new_balance_qty)
 
@@ -195,7 +197,7 @@ class PurchaseInvoice(Document):
 
 			print("default valuation rate")
 			print(valuation_rate)
-   
+
 			# Default balance value calculating withe the current row only
 			new_balance_value = new_balance_qty * valuation_rate
 
@@ -208,7 +210,7 @@ class PurchaseInvoice(Document):
                                              'posting_date': ['<', posting_date_time]})
 
 			if(dbCount>0):
-			
+
 				# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
 				# from the balance qty in the existing rows x actual incoming rate
 
@@ -219,11 +221,11 @@ class PurchaseInvoice(Document):
 				new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty
 
 				new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
-	
-				print("new_balance_qty")    
+
+				print("new_balance_qty")
 				print(new_balance_qty)
-    
-				print("new_balance_value")    
+
+				print("new_balance_value")
 				print(new_balance_value)
 
 				if new_balance_qty!=0:
@@ -268,7 +270,7 @@ class PurchaseInvoice(Document):
 				new_stock_balance.stock_value = new_balance_value
 				new_stock_balance.valuation_rate = valuation_rate
 
-				new_stock_balance.insert()				
+				new_stock_balance.insert()
 
 
 				update_item_stock_balance(docitem.item)
@@ -279,54 +281,54 @@ class PurchaseInvoice(Document):
                                                         'base_stock_ledger': new_stock_ledger.name
                                                             })
 		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
-		# posting_status_doc.stock_posted_time = datetime.now()		
+		# posting_status_doc.stock_posted_time = datetime.now()
 		# posting_status_doc.save()
 		update_posting_status(self.doctype, self.name, 'stock_posted_time', None)
-  
+
 		if(more_records>0):
-			stock_recalc_voucher.insert()			
-			# self.stock_recalc_voucher = stock_recalc_voucher.name  
+			stock_recalc_voucher.insert()
+			# self.stock_recalc_voucher = stock_recalc_voucher.name
 			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
 			# posting_status_doc.stock_recalc_required = True
 			# posting_status_doc.save()
-	
+
 			update_posting_status(self.doctype, self.name, 'stock_recalc_required', True)
-   
-			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)	
-			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})			
+
+			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
 			# posting_status_doc.stock_recalc_time =datetime.now()
 			# posting_status_doc.save()
-   
+
 			update_posting_status(self.doctype, self.name, 'stock_recalc_time', None)
-   	
+
 	def on_cancel(self):
-     
+		cancel_bank_reconciliation("Purchase Invoice", self.name)
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Cancel Pending')
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-		
+
 		if(frappe.session.user == "Administrator" and turn_off_background_job):
 			self.cancel_purchase()
 		else:
 			# frappe.enqueue(self.cancel_purchase, queue="long")
 			self.cancel_purchase()
-  
+
 		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
-  
+
 	def update_item_prices(self):
-     
-		if(self.update_rates_in_price_list):				
-			currency = get_default_currency()			
+
+		if(self.update_rates_in_price_list):
+			currency = get_default_currency()
 			for docitem in self.items:
 				print("docitem to update price")
 				print(docitem)
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_item_price(item,self.price_list,currency,rate, self.posting_date)
-    
+
 	def update_payment_schedules(self):
 		# Check for existing payment schedules
 		existing_entries = frappe.get_all("Payment Schedule", filters={"payment_against": "Purchase", "document_no": self.name})
-    
+
     # Delete existing payment schedules if found
 		for entry in existing_entries:
 			try:
@@ -344,19 +346,19 @@ class PurchaseInvoice(Document):
 				new_payment_schedule.document_date = self.posting_date
 				new_payment_schedule.scheduled_date = schedule.date
 				new_payment_schedule.amount = schedule.amount
-				
+
 				try:
 					new_payment_schedule.insert()
 				except Exception as e:
 					frappe.log_error("Error creating payment schedule: " + str(e))
 
-  
+
 	def on_trash(self):
-       	
+
 		if self.purchase_order:
 			self.update_purchase_order_quantities_before_cancel_or_delete()
 			check_and_update_purchase_order_status(self.purchase_order)
-     
+
 	def cancel_purchase(self):
 
         # Insert record to 'Stock Recalculate Voucher' doc
@@ -444,53 +446,53 @@ class PurchaseInvoice(Document):
 				stock_balance_for_item.stock_value = balance_value
 				stock_balance_for_item.valuation_rate = valuation_rate
 				stock_balance_for_item.save()
-				
+
 				update_item_stock_balance(docitem.item)
 
-		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
-		# posting_status_doc.stock_posted_on_cancel_time = datetime.now()		
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+		# posting_status_doc.stock_posted_on_cancel_time = datetime.now()
 		# posting_status_doc.save()
-  
+
 		update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time', None)
 
 		if(more_records>0):
-			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
 			# posting_status_doc.stock_recalc_required_on_cancel = True
 			# posting_status_doc.save()
-   
+
 			update_posting_status(self.doctype, self.name, 'stock_recalc_required_on_cancel', True)
-   
+
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
 			# posting_status_doc.stock_recalc_on_cancel_time = datetime.now()
 			# posting_status_doc.save()
 			update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time', None)
-	
+
 		frappe.db.delete("Stock Ledger",
 				{"voucher": "Purchase Invoice",
 					"voucher_no":self.name
 				})
 
 		delete_gl_postings_for_cancel_doc_type('Purchase Invoice', self.name)
-  
+
 		# frappe.db.delete("GL Posting",
 		# 		{"voucher_type": "Purchase Invoice",
 		# 			"voucher_no":self.name
 		# 		})
-    
-		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')		
+
+		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
 	def insert_gl_records(self, remarks):
-     
+
 		print("from insert_gl_records")
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
 
 		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
-  
+
 		idx =1
 		# Trade Payable - Credit - Against Inventory A/c
 		gl_doc = frappe.new_doc('GL Posting')
@@ -506,7 +508,7 @@ class PurchaseInvoice(Document):
 		gl_doc.against_account = default_accounts.default_inventory_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
-		
+
 		# Stock Received But Not Billed - Debit - Against Trade Payable A/c
 		idx =2
 		gl_doc = frappe.new_doc('GL Posting')
@@ -552,18 +554,18 @@ class PurchaseInvoice(Document):
 			else:
 				gl_doc.credit_amount = abs(self.round_off)
 				gl_doc.against_account = default_accounts.default_payable_account
-			
+
 			gl_doc.remarks = remarks
 
 			gl_doc.insert()
-  		
+
 		update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
-  
+
 	def insert_gl_record(self,gl_doc, accounts):
 		gl_doc.insert()
 		if gl_doc.account not in accounts:
-				accounts.append(gl_doc.account)	
-   
+				accounts.append(gl_doc.account)
+
 	def insert_payment_postings(self):
 
 		if self.credit_purchase==0:
@@ -610,10 +612,10 @@ class PurchaseInvoice(Document):
 			# posting_status_doc.payment_posted_time = datetime.now()
 			# posting_status_doc.save()
 			update_posting_status(self.doctype, self.name, 'payment_posted_time', None)
-			
+
 @frappe.whitelist()
 def create_purchase_return(source_name):
-    
+
 	if(not check_balance_qty_to_return_for_purchase_invoice(source_name)):
 		frappe.throw("The chosen purchase invoice lacks the eligible quantity for return.")
 
@@ -630,7 +632,7 @@ def create_purchase_return(source_name):
 	# Modify the existing lists to exclude 'name' field
 	source_fields = [field for field in source_fields if field['fieldname'] != exclude_field]
 	target_fields = [field for field in target_fields if field['fieldname'] != exclude_field]
- 
+
 	# Create a field map based on matching field names, other than name field
 	field_map = {field['fieldname']: field['fieldname'] for field in source_fields if field['fieldname'] in target_fields and field['fieldname'] != 'name'}
 
@@ -643,7 +645,7 @@ def create_purchase_return(source_name):
 	for key, value in pi_reference_mapping.items():
 		if key not in field_map:
 			field_map[key] = value
-	
+
 	doc = get_mapped_doc(
 			'Purchase Invoice',
 			source_name,
@@ -657,13 +659,13 @@ def create_purchase_return(source_name):
 				},
 			}
 	)
- 
+
 	# doc.name = frappe.get_auto_incremented_value('Purchase Return')
- 
+
 	doc.name = ""
-	
+
 	pi_doc = frappe.get_doc("Purchase Invoice", source_name)
-		
+
 	selected_item_names = []
 
 	# Iterate through items
@@ -674,9 +676,9 @@ def create_purchase_return(source_name):
 		# Check condition: qty_returned < qty
 		if qty_returned < qty:
 			selected_item_names.append(item.get('name'))
- 
+
 	filtered_items = []
- 
+
 	# Create a new list to store items without removing unwanted ones
 	for item_name in selected_item_names:
 		# Check if the item with pi_item_reference already exists in filtered_items
@@ -686,7 +688,7 @@ def create_purchase_return(source_name):
 			# If the item doesn't exist in filtered_items, find it in doc.items and append it
 			for item in doc.items:
 				if item.pi_item_reference == item_name:
-        
+
 						# Again check in the orginal PI to get the qty for return
 						for pi_item in pi_doc.items:
 							if pi_item.name == item_name:
@@ -702,4 +704,3 @@ def create_purchase_return(source_name):
  	# Update the document with the filtered items
 	doc.items = filtered_items
 	return doc
-

@@ -14,6 +14,7 @@
   "customer_name",
   "customer_display_name",
   "reference_no",
+  "reference_date",
   "customer_address",
   "column_break_6",
   "posting_date",
@@ -37,6 +38,9 @@
   "payment_terms",
   "payment_mode",
   "payment_account",
+  "bank_account",
+  "cheque_no",
+  "cheque_date",
   "column_break_25",
   "remarks",
   "column_break_mu02",
@@ -118,7 +122,8 @@
   {
    "fieldname": "reference_no",
    "fieldtype": "Data",
-   "label": "Reference No"
+   "label": "Reference No",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
   },
   {
    "fieldname": "customer_address",
@@ -302,15 +307,6 @@
    "label": "Item Units"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Sales Invoice",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_25",
    "fieldtype": "Section Break",
    "label": "Totals"
@@ -470,15 +466,6 @@
    "options": "Sales Order"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Sales Invoice",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_mu02",
    "fieldtype": "Column Break"
   },
@@ -501,12 +488,50 @@
   {
    "fieldname": "column_break_opxg",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'",
+   "options": "Bank Account"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "cheque_no",
+   "fieldtype": "Data",
+   "label": "Cheque No",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "cheque_date",
+   "fieldtype": "Date",
+   "label": "Cheque Date",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Sales Return",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-30 18:06:58.818496",
+ "modified": "2024-02-01 09:54:48.565353",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

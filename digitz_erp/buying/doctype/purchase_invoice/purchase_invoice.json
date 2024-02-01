@@ -27,12 +27,17 @@
   "purchase_order",
   "do_no",
   "warehouse",
+  "reference_no",
+  "reference_date",
   "accounts_section",
   "credit_purchase",
   "credit_days",
   "payment_terms",
   "payment_mode",
   "payment_account",
+  "bank_account",
+  "cheque_no",
+  "cheque_date",
   "column_break_24",
   "remarks",
   "column_break_yo6a",
@@ -394,12 +399,46 @@
   {
    "fieldname": "column_break_6ljx",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'",
+   "options": "Bank Account"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "cheque_no",
+   "fieldtype": "Data",
+   "label": "Cheque No",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "cheque_date",
+   "fieldtype": "Date",
+   "label": "Cheque Date",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-17 12:17:33.072351",
+ "modified": "2024-02-01 09:26:38.960253",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

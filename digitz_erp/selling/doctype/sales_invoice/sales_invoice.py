@@ -14,9 +14,10 @@ from digitz_erp.api.settings_api import get_default_currency
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
 
-class SalesInvoice(Document):    
-       
+class SalesInvoice(Document):
+
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
@@ -29,28 +30,28 @@ class SalesInvoice(Document):
 
         # Extract the new time as a string
         self.posting_time = new_datetime.strftime('%H:%M:%S')
-    
+
     def before_validate(self):
-        
+
         if(self.Voucher_In_The_Same_Time()):
-                            
+
                 self.Set_Posting_Time_To_Next_Second()
 
                 if(self.Voucher_In_The_Same_Time()):
-                    self.Set_Posting_Time_To_Next_Second()				
-                    
+                    self.Set_Posting_Time_To_Next_Second()
+
                     if(self.Voucher_In_The_Same_Time()):
                         self.Set_Posting_Time_To_Next_Second()
-                        
+
                         if(self.Voucher_In_The_Same_Time()):
-                            frappe.throw("Voucher with same time already exists.") 
-        
+                            frappe.throw("Voucher with same time already exists.")
+
         # Fix for paid_amount copies while duplicating the document
-        if self.is_new():            
+        if self.is_new():
             self.paid_amount = 0
-        
+
         if self.credit_sale == 0:
-            self.paid_amount = self.rounded_total   
+            self.paid_amount = self.rounded_total
             self.payment_status = "Cheque" if self.payment_mode == "Bank" else self.payment_mode
         else:
             self.payment_status = "Credit"
@@ -58,56 +59,57 @@ class SalesInvoice(Document):
             self.payment_account = ""
             self.meta.get_field("payment_mode").hidden = 1
             self.meta.get_field("payment_account").hidden = 1
-            # For submitted invoice only paid_amount is filling up with allocation. 
+            # For submitted invoice only paid_amount is filling up with allocation.
             # So its safe to make paid_amount 0 to avoid the issue below
             # Issue - First save the invoie not as credit sale, it will fill up the paid_amount
             # equal to rounded_total. Make it as credit sale in the draft mode and then save.
             # In this case its required to make the paid_amount zero
             self.paid_amount = 0
-    
-    def validate(self): 
+
+    def validate(self):
         self.validate_item()
-    
+
     def on_update(self):
         self.update_item_prices()
-    
+
     def on_submit(self):
-        
+
         init_document_posting_status(self.doctype, self.name)
-        
+
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-        
+
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.do_postings_on_submit()
         else:
-            # frappe.enqueue(self.do_postings_on_submit, queue="long")        
+            # frappe.enqueue(self.do_postings_on_submit, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
             self.do_postings_on_submit()
-    
+
         if(self.auto_generate_delivery_note):
             print("submitting DO from sales_invoice")
-            self.submit_delivery_note() 
-            
+            self.submit_delivery_note()
+
     def do_postings_on_submit(self):
-        
+
         cost_of_goods_sold = 0
 
-        if self.tab_sales :       
+        if self.tab_sales :
             cost_of_goods_sold = self.deduct_stock_for_tab_sales()
-        
+
         print("cost_of_goods_sold")
         print(cost_of_goods_sold)
-                   
+
         self.insert_gl_records(cost_of_goods_sold=cost_of_goods_sold)
         self.insert_payment_postings()
-        
+        create_bank_reconciliation("Sales Invoice", self.name)
+
         update_accounts_for_doc_type('Sales Invoice',self.name)
-                
+
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
-    
+
     def update_item_prices(self):
-        
-        if(self.update_rates_in_price_list):        
+
+        if(self.update_rates_in_price_list):
             currency = get_default_currency()
             print(self.items)
             for docitem in self.items:
@@ -121,8 +123,8 @@ class SalesInvoice(Document):
                 print(currency)
                 print(rate)
                 print(self.posting_date)
-                
-                update_item_price(item, self.price_list,currency,rate, self.posting_date)            
+
+                update_item_price(item, self.price_list,currency,rate, self.posting_date)
 
     def validate_item(self):
 
@@ -155,34 +157,34 @@ class SalesInvoice(Document):
                 " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
 
     def on_cancel(self):
-        
+        cancel_bank_reconciliation("Sales Invoice", self.name)
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-        
+
         if(frappe.session.user == "Administrator" and turn_off_background_job):
-            self.cancel_sales_invoice()            
+            self.cancel_sales_invoice()
         else:
             # frappe.enqueue(self.cancel_sales_invoice, queue="long")
             self.cancel_sales_invoice()
-        
+
     def cancel_sales_invoice(self):
 
-        if self.auto_save_delivery_note:           
+        if self.auto_save_delivery_note:
 
             self.cancel_delivery_note_for_sales_invoice()
-            
-        # When correspdonding tab_sales cancelled, it hits here.  
+
+        # When correspdonding tab_sales cancelled, it hits here.
         if self.tab_sales:
-            self.cancel_stock_postings_for_tab_sales()   
-            
-        delete_gl_postings_for_cancel_doc_type('Sales Invoice',self.name)         
+            self.cancel_stock_postings_for_tab_sales()
+
+        delete_gl_postings_for_cancel_doc_type('Sales Invoice',self.name)
 
         # frappe.db.delete("GL Posting",
         #                  {"Voucher_type": "Sales Invoice",
         #                   "voucher_no": self.name
         #                   })
-    
+
     def cancel_stock_postings_for_tab_sales(self):
-        
+
          # Insert record to 'Stock Recalculate Voucher' doc
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
         stock_recalc_voucher.voucher = 'Sales Invoice'
@@ -234,7 +236,7 @@ class SalesInvoice(Document):
                                                             })
 
             else:
-                
+
                 balance_qty =0
                 balance_value =0
                 valuation_rate  = 0
@@ -244,8 +246,8 @@ class SalesInvoice(Document):
                     balance_qty = previous_stock_ledger.balance_qty
                     balance_value = previous_stock_ledger.balance_value
                     valuation_rate = previous_stock_ledger.valuation_rate
-                    
-            
+
+
                 if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
                     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
@@ -268,17 +270,17 @@ class SalesInvoice(Document):
                 # stock_balance_for_item.stock_value = balance_value
                 # stock_balance_for_item.valuation_rate = valuation_rate
                 # stock_balance_for_item.save()
-                
+
                 update_item_stock_balance(docitem.item)
 
-        # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
-        # posting_status_doc.stock_posted_on_cancel_time = datetime.now()		
+        # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+        # posting_status_doc.stock_posted_on_cancel_time = datetime.now()
         # posting_status_doc.save()
 
         update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time', None)
 
         if(more_records>0):
-            # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+            # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
             # posting_status_doc.stock_recalc_required_on_cancel = True
             # posting_status_doc.save()
 
@@ -287,7 +289,7 @@ class SalesInvoice(Document):
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-            # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})		
+            # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
             # posting_status_doc.stock_recalc_on_cancel_time = datetime.now()
             # posting_status_doc.save()
             update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time', None)
@@ -297,7 +299,7 @@ class SalesInvoice(Document):
                     "voucher_no":self.name
                 })
 
-        update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')	
+        update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
     def insert_gl_records(self, cost_of_goods_sold):
 
@@ -369,7 +371,7 @@ class SalesInvoice(Document):
                 gl_doc.debit_amount = abs(self.round_off)
 
             gl_doc.insert()
-            
+
         if self.tab_sales:
 
             default_company = frappe.db.get_single_value("Global Settings", "default_company")
@@ -391,8 +393,8 @@ class SalesInvoice(Document):
             gl_doc.debit_amount = cost_of_goods_sold
             gl_doc.against_account = default_accounts.default_inventory_account
             gl_doc.insert()
-            
-            
+
+
             idx = idx + 1
 
             # Inventory account Eg: Stock In Hand
@@ -403,7 +405,7 @@ class SalesInvoice(Document):
             gl_doc.posting_date = self.posting_date
             gl_doc.posting_time = self.posting_time
             gl_doc.account = default_accounts.default_inventory_account
-            gl_doc.credit_amount = cost_of_goods_sold                        
+            gl_doc.credit_amount = cost_of_goods_sold
             gl_doc.against_account = default_accounts.cost_of_goods_sold_account
             gl_doc.insert()
 
@@ -457,12 +459,12 @@ class SalesInvoice(Document):
 
     @frappe.whitelist()
     def submit_delivery_note(self):
-        
+
         print("from submit delivery note")
         if self.docstatus == 1:
             print("logic_test-102")
             if self.auto_save_delivery_note:
-                print("logic_test-103")               
+                print("logic_test-103")
                 result = frappe.db.sql("""SELECT * FROM `tabSales Invoice Delivery Notes` WHERE `parent` = %s""", (self.name,), as_dict=True)
                 print("result")
                 print(result)
@@ -491,7 +493,7 @@ class SalesInvoice(Document):
         doNo = ""
 
         si_name = self.name
-        
+
         print("si_name")
         print(si_name)
 
@@ -506,12 +508,12 @@ class SalesInvoice(Document):
         do_exists = False
 
         if self.auto_save_delivery_note:
-            
+
             if frappe.db.exists('Sales Invoice Delivery Notes', {'parent': self.name}):
                 do_exists = True
-                
+
                 delivery_note_name =  frappe.db.get_value('Sales Invoice Delivery Notes',{'parent':self.name},['delivery_note'] )
-                
+
                 # Remove the reference first before deleting the actual document
                 # frappe.db.delete('Sales Invoice Delivery Notes',{'parent':self.name})
                 delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_name)
@@ -614,13 +616,13 @@ class SalesInvoice(Document):
 
                 frappe.msgprint("Delivery Note for the Sales Invoice updated successfully.", alert=True)
 
-            else:                   
-                
-                if(self.amended_from):                    
+            else:
+
+                if(self.amended_from):
                     frappe.msgprint("Corresponding Delivery cannot amend automatically. System generates a new delivery note instead.")
 
                 print("create delivery note")
-                
+
                 delivery_note = self.__dict__
                 delivery_note['doctype'] = 'Delivery Note'
                 # delivery_note['against_sales_invoice'] = delivery_note['name']
@@ -634,41 +636,41 @@ class SalesInvoice(Document):
 
                 for item in delivery_note['items']:
                     item.doctype = "Delivery Note Item"
-                    item._meta = ""         
+                    item._meta = ""
 
                 delivery_note_doc = frappe.get_doc(delivery_note).insert()
                 frappe.db.commit()
-                
+
                 print("delivery note created")
-                
+
                 delivery_note_name = delivery_note_doc.name
-                
+
                 print("delivery note name")
                 print(delivery_note_name)
                 frappe.msgprint("A Delivery Note corresponding to the  Sales invoice created successfully", alert = True)
-                
+
 
         # Rename the delivery note to the original dnoNo which is deleted
         # if(do_exists):
         #     frappe.rename_doc('Delivery Note', doNo.name, delivery_note_name)
 
         # do = frappe.get_doc('Delivery Note', delivery_note_name)
-        si = frappe.get_doc('Sales Invoice',si_name)        
+        si = frappe.get_doc('Sales Invoice',si_name)
 
         # if frappe.db.exists('Sales Invoice Delivery Notes', {'parent': self.name}):
         if(not do_exists):
             si.append('delivery_notes', {'delivery_note': delivery_note_name})
 
         si.save()
-        
+
         print("si saved")
 
         # delivery_notes = frappe.db.get_all('Sales Invoice Delivery Notes', {'parent': ['=', si_name]},{'delivery_note'})
-        delivery_notes = frappe.db.get_all('Sales Invoice Delivery Notes', 
+        delivery_notes = frappe.db.get_all('Sales Invoice Delivery Notes',
                                    filters={'parent': si_name},
                                    fields=['delivery_note'])
 
-        
+
         print("delivery notes")
         print(delivery_notes)
 
@@ -679,13 +681,13 @@ class SalesInvoice(Document):
 
         for delivery_note_saved in delivery_notes:
             do_created = frappe.get_doc('Delivery Note',delivery_note_saved.delivery_note )
-            
+
             print(doNo)
             if(doNos == ""):
                 doNos = do_created.name
             else:
                 doNos = doNos + ", " + do_created.name
-                
+
             index= index + 1
             if index == maxIndex:
                 break
@@ -703,7 +705,7 @@ class SalesInvoice(Document):
         # Need to remove the next line to set auto_save_delivery_note
         si.auto_save_delivery_note = True
         si.save()
-        
+
         print("From end of auto gen delivery note")
 
     def cancel_delivery_note_for_sales_invoice(self):
@@ -771,10 +773,10 @@ class SalesInvoice(Document):
             previous_stock_balance_value = 0
 
             if previous_stock_balance:
-                
+
                 print("previous_stock_balance.valuation_rate")
                 print(previous_stock_balance.valuation_rate)
-                
+
                 new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
                 valuation_rate = previous_stock_balance.valuation_rate
                 previous_stock_balance_value = previous_stock_balance.balance_value
@@ -782,7 +784,7 @@ class SalesInvoice(Document):
                 print("no previous stock balance")
                 new_balance_qty = 0 - docitem.qty_in_base_unit
                 valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
-                
+
             print("docitem.qty_in_base_unit")
             print(docitem.qty_in_base_unit)
             print("valuation_rate")
@@ -797,10 +799,10 @@ class SalesInvoice(Document):
             change_in_stock_value = new_balance_value - previous_stock_balance_value
             print("change in stock value")
             print(change_in_stock_value)
-            
+
             print("new_balanmce_value")
             print(new_balance_value)
-            
+
             print("previous_stock_balance_value")
             print(previous_stock_balance_value)
             new_stock_ledger = frappe.new_doc("Stock Ledger")
@@ -855,5 +857,3 @@ class SalesInvoice(Document):
             update_posting_status(self.doctype,self.name,'stock_recalc_time')
 
         return cost_of_goods_sold
-    
-
