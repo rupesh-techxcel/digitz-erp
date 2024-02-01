@@ -7,6 +7,7 @@ from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoic
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
 
 class PaymentEntry(Document):
 
@@ -284,9 +285,10 @@ class PaymentEntry(Document):
 		self.revert_documents_paid_amount_for_payment()
 
 	def on_cancel(self):
+		cancel_bank_reconciliation("Sales Invoice", self.name)
 		print("from on cancel")
 		self.revert_documents_paid_amount_for_payment()
-  
+
 		delete_gl_postings_for_cancel_doc_type('Payment Entry',self.name)
 
 		# frappe.db.delete("GL Posting",
@@ -300,6 +302,7 @@ class PaymentEntry(Document):
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_accounts_for_doc_type('Payment Entry', self.name)
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
+		create_bank_reconciliation("Payment Entry", self.name)
 
 	def update_purchase_returns(self):
 		allocations = self.payment_allocation

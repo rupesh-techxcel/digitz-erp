@@ -33,6 +33,9 @@
   "payment_terms",
   "payment_mode",
   "payment_account",
+  "bank_account",
+  "cheque_no",
+  "cheque_date",
   "column_break_24",
   "remarks",
   "column_break_9hcl",
@@ -365,12 +368,34 @@
   {
    "fieldname": "column_break_uwmk",
    "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'",
+   "options": "Bank Account"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "cheque_no",
+   "fieldtype": "Data",
+   "label": "Cheque No",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode == 'Bank'",
+   "fieldname": "cheque_date",
+   "fieldtype": "Date",
+   "label": "Cheque Date",
+   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-31 11:03:35.240659",
+ "modified": "2024-02-01 10:05:50.584072",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

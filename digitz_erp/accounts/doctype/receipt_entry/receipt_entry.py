@@ -7,6 +7,7 @@ from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice ,
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
 
 class ReceiptEntry(Document):
 
@@ -240,6 +241,7 @@ class ReceiptEntry(Document):
 		update_accounts_for_doc_type('Receipt Entry',self.name)
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
+		create_bank_reconciliation("Receipt Entry", self.name)
 
 	def update_sales_invoices(self):
 		print("from update_sales_invoices")
@@ -268,8 +270,8 @@ class ReceiptEntry(Document):
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Partial"})
 					elif invoice_amount == invoice_total:
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
-         
-		
+
+
 	def update_sales_return(self):
 		allocations = self.receipt_allocation
 
@@ -376,9 +378,10 @@ class ReceiptEntry(Document):
 		self.revert_documents_paid_amount_for_receipt()
 
 	def on_cancel(self):
+		cancel_bank_reconciliation("Receipt Entry", self.name)
 		print("from on cancel")
 		self.revert_documents_paid_amount_for_receipt()
-  
+
 		delete_gl_postings_for_cancel_doc_type('Receipt Entry',self.name)
 
 		# frappe.db.delete("GL Posting",
