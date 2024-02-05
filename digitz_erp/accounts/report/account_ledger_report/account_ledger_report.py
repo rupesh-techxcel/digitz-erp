@@ -1194,20 +1194,23 @@ def get_columns():
 	return [
 		{		
 			"fieldname": "account",
-			"fieldtype": "Data",
-			"label": "Account Ledger",			
+			"fieldtype": "Link",
+			"label": "Account Ledger",	
+			"options":"Account",
 			"width": 230,	
 		},		
 		{		
 			"fieldname": "voucher_type",
-			"fieldtype": "Data",
+			"fieldtype": "Link",
 			"label": "Voucher Type",
+   			"options":"DocType",
 			"width": 110,	
 		},
   		{		
 			"fieldname": "voucher_no",
-			"fieldtype": "Data",
+			"fieldtype": "Dynamic Link",
 			"label": "Voucher No",
+			"options" : "voucher_type",
 			"width": 130,	
 		},
 		{
@@ -1231,13 +1234,13 @@ def get_columns():
     		{
 				"fieldname": "opening_debit",
 				"fieldtype": "Currency",
-				"label": "Debit",
+				"label": "Opening Debit",
 				"width": 110,	
 			},
 			{
 				"fieldname": "opening_credit",
 				"fieldtype": "Currency",
-				"label": "Credit",
+				"label": "Opening Credit",
 				"width": 110,	
 			},
 			{
@@ -1255,13 +1258,13 @@ def get_columns():
    			{
 				"fieldname": "closing_debit",
 				"fieldtype": "Currency",
-				"label": "Debit",
+				"label": "Closing Debit",
 				"width": 110,	
 			},
 			{
 				"fieldname": "closing_credit",
 				"fieldtype": "Currency",
-				"label": "Credit",
+				"label": "Closing Credit",
 				"width": 110,	
 			},
        
@@ -1273,7 +1276,8 @@ def get_columns_for_summary():
 			{		
 				"fieldname": "account",
 				"fieldtype": "Data",
-				"label": "Account Ledger",			
+				"label": "Account Ledger",	
+				"options":"Account",
 				"width": 200,	
 			},			
 			{
@@ -1327,7 +1331,8 @@ def get_columns_for_condensed():
 			{		
 				"fieldname": "account",
 				"fieldtype": "Data",
-				"label": "Account Ledger",			
+				"label": "Account Ledger",	
+				"options":"Account",
 				"width": 230,	
 			},						
    			{

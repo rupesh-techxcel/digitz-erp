@@ -3,12 +3,13 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.gl_posting_api import update_account_balance, update_all_account_balances
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type
 
 class JournalEntry(Document):
 	def on_submit(self):
 		# frappe.enqueue(self.insert_gl_records, queue="long")
 		self.insert_gl_records()
+		update_accounts_for_doc_type('Journal Entry',self.name)
 
 	def insert_gl_records(self):
 		idx = 1
@@ -31,12 +32,10 @@ class JournalEntry(Document):
 			if journal_entry.account not in accounts:
 				accounts.append(journal_entry.account)
     
-		update_all_account_balances()
+		# update_all_account_balances()
         
 		# for account in accounts:
 		#   	update_account_balance(account)
-  
-		# update_account_balance("Rent")
-   
+     
 			
 			
