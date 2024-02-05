@@ -50,18 +50,18 @@ frappe.query_reports["Account Ledger Report"] = {
 			"width": 40,		
 			"default":false	
 		},
-		{
-            "fieldname": "summary_view",
-            "fieldtype": "Check",
-            "label": "Summary View",            
-			default: false            
-        },
-		{
-            "fieldname": "condensed_view",
-            "fieldtype": "Check",
-            "label": "Condensed View",            
-			default: false            
-        }
+		// {
+        //     "fieldname": "summary_view",
+        //     "fieldtype": "Check",
+        //     "label": "Summary View",            
+		// 	default: false            
+        // },
+		// {
+        //     "fieldname": "condensed_view",
+        //     "fieldtype": "Check",
+        //     "label": "Condensed View",            
+		// 	default: false            
+        // }
 
 	]
 };

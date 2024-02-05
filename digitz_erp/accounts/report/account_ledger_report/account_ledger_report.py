@@ -8,21 +8,22 @@ def execute(filters=None):
  
 	include_party = False
  
-	if(filters.get('show_party')):
-		include_party = True
+	# if(filters.get('show_party')):
+	# 	include_party = True
  
-	if(filters.get('summary_view')):
-		data = get_transactions_summary_data(filters)
-		columns = get_columns_for_summary()
+	# if(filters.get('summary_view')):
+	# 	data = get_transactions_summary_data(filters)
+	# 	columns = get_columns_for_summary()
     
-	elif(filters.get('condensed_view')):     
-		data = get_transactions_condensed_data(filters)
-		columns = get_columns_for_condensed()		
-	else:
-		data = get_transactions_data(filters)
-		columns = get_columns()
-  
-		include_party = False
+	# elif(filters.get('condensed_view')):     
+	# 	data = get_transactions_condensed_data(filters)
+	# 	columns = get_columns_for_condensed()		
+	# else:
+ 
+	data = get_transactions_data(filters)
+	columns = get_columns()
+
+	include_party = False
  
 	if(filters.get('show_party')):
 			include_party = True
@@ -39,6 +40,7 @@ def get_transactions_data(filters):
 
 	# Filter for account, supplier and dates
 	if filters.get('account') and filters.get('supplier') and filters.get('from_date') and filters.get('to_date'):
+		print("case 1")
 		sql = """
 			SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
 			FROM `tabGL Posting` pi
@@ -48,7 +50,7 @@ def get_transactions_data(filters):
 		opening_data = frappe.db.sql(sql, as_dict = True)
 	
 		if opening_data and opening_data[0].difference:
-			opening_balance = abs(opening_data[0].difference)
+			opening_balance = opening_data[0].difference
 			dr_or_cr = "Dr" if opening_balance > 0 else "Cr"
 			
 			summary_row = {
@@ -97,6 +99,7 @@ def get_transactions_data(filters):
 			data.append(summary_row)
 	# Filters for account , customer and dates   
 	elif filters.get('account') and filters.get('customer') and filters.get('from_date') and filters.get('to_date'):
+		print("case 2")
 		sql = """
 			SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
 			FROM `tabGL Posting` pi
@@ -106,7 +109,7 @@ def get_transactions_data(filters):
 		opening_data = frappe.db.sql(sql, as_dict = True)
 
 		if opening_data and opening_data[0].difference:
-			opening_balance = abs(opening_data[0].difference)
+			opening_balance = opening_data[0].difference
 			dr_or_cr = "Dr" if opening_balance > 0 else "Cr"
 
 			# Create a summary row with the difference value and 'Supplier Opening Balance'
@@ -157,6 +160,8 @@ def get_transactions_data(filters):
    
 	# Filter for supplier and dates
 	elif filters.get('supplier') and filters.get('from_date') and filters.get('to_date'):
+     
+		print("case 3")
 		sql = """
 			SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
 			FROM `tabGL Posting` pi
@@ -166,7 +171,7 @@ def get_transactions_data(filters):
 		opening_data = frappe.db.sql(sql, as_dict = True)
 	
 		if opening_data and opening_data[0].difference:
-			opening_balance = abs(opening_data[0].difference)
+			opening_balance = opening_data[0].difference
 			dr_or_cr = "Dr" if opening_balance > 0 else "Cr"
 
 			# Create a summary row with the difference value and 'Supplier Opening Balance'
@@ -217,6 +222,9 @@ def get_transactions_data(filters):
    
 	# Filter for customer and dates
 	elif filters.get('customer') and filters.get('from_date') and filters.get('to_date'):
+     
+			print("case 4")
+   
 			sql = """
 				SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
 				FROM `tabGL Posting` pi
@@ -226,7 +234,7 @@ def get_transactions_data(filters):
 			opening_data = frappe.db.sql(sql, as_dict = True)
 
 			if opening_data and opening_data[0].difference:
-				opening_balance = abs(opening_data[0].difference)
+				opening_balance = opening_data[0].difference
 				dr_or_cr = "Dr" if opening_balance > 0 else "Cr"
 
 				# Create a summary row with the difference value and 'Supplier Opening Balance'
@@ -277,18 +285,28 @@ def get_transactions_data(filters):
   
 	elif filters.get('account') and  filters.get('from_date') and filters.get('to_date'):
 		# New data query to calculate the difference and 'Dr Or Cr'
+  
+		print("case 5")
 		
 		sql = """
 			SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
 			FROM `tabGL Posting` pi
 			WHERE account = '{account}' and pi.posting_date < '{from_date}'
 		""".format(account = filters.get('account'), from_date = filters.get('from_date'))
+  
+		print(sql)
 
 		opening_data = frappe.db.sql(sql, as_dict = True)
+  
+		print("opening_data")
+		print(opening_data)
 	
 		if opening_data and opening_data[0].difference:
-			opening_balance = abs(opening_data[0].difference)
+			opening_balance = opening_data[0].difference
 			dr_or_cr = "Dr" if opening_balance > 0 else "Cr"
+			   
+			print("dr_or_cr")
+			print(dr_or_cr)
 
 			# Create a summary row with the difference value and 'Supplier Opening Balance'
 			summary_row = {
@@ -338,6 +356,8 @@ def get_transactions_data(filters):
 	# # Filter dates
 	elif filters.get('from_date') and filters.get('to_date'):
 	# New data query to calculate the difference and 'Dr Or Cr'
+ 
+		print("case 6")
 		
 		sql = """
 			SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
@@ -348,7 +368,7 @@ def get_transactions_data(filters):
 		opening_data = frappe.db.sql(sql, as_dict = True)
 
 		if opening_data and opening_data[0].difference:
-			opening_balance = abs(opening_data[0].difference)
+			opening_balance = opening_data[0].difference
 			dr_or_cr = "Dr" if opening_balance > 0 else "Cr"
 
 			# Create a summary row with the difference value and 'Supplier Opening Balance'
@@ -677,7 +697,7 @@ def get_transactions_summary_data(filters):
 			account,party, sum(debit_amount) as debit_amount, sum(credit_amount) as credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE  and account='{account}' and  pi.posting_date < '{from_date}' GROUP BY account,party	ORDER BY pi.posting_date """.format(account=filters.get('account'), from_date=filters.get('from_date')), as_dict=True)  
+			WHERE account='{account}' and  pi.posting_date < '{from_date}' GROUP BY account,party	ORDER BY pi.posting_date """.format(account=filters.get('account'), from_date=filters.get('from_date')), as_dict=True)  
 		
 		for td_opening in trans_data_opening:
 			for td in trans_data:
@@ -1071,7 +1091,7 @@ def get_transactions_condensed_data(filters):
 			account,party, sum(debit_amount) as debit_amount, sum(credit_amount) as credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE  and account='{account}' and  pi.posting_date < '{from_date}' GROUP BY account	ORDER BY pi.posting_date """.format(account=filters.get('account'), from_date=filters.get('from_date')), as_dict=True)  
+			WHERE  account='{account}' and  pi.posting_date < '{from_date}' GROUP BY account	ORDER BY pi.posting_date """.format(account=filters.get('account'), from_date=filters.get('from_date')), as_dict=True)  
 		
 		for td_opening in trans_data_opening:
 			for td in trans_data:
@@ -1231,18 +1251,18 @@ def get_columns():
 			"label": "Remarks",
 			"width": 210,	
 		},
-    		{
-				"fieldname": "opening_debit",
-				"fieldtype": "Currency",
-				"label": "Opening Debit",
-				"width": 110,	
-			},
-			{
-				"fieldname": "opening_credit",
-				"fieldtype": "Currency",
-				"label": "Opening Credit",
-				"width": 110,	
-			},
+    		# {
+			# 	"fieldname": "opening_debit",
+			# 	"fieldtype": "Currency",
+			# 	"label": "Opening Debit",
+			# 	"width": 110,	
+			# },
+			# {
+			# 	"fieldname": "opening_credit",
+			# 	"fieldtype": "Currency",
+			# 	"label": "Opening Credit",
+			# 	"width": 110,	
+			# },
 			{
 				"fieldname": "debit_amount",
 				"fieldtype": "Currency",
@@ -1255,18 +1275,18 @@ def get_columns():
 				"label": "Credit",
 				"width": 110,	
 			},
-   			{
-				"fieldname": "closing_debit",
-				"fieldtype": "Currency",
-				"label": "Closing Debit",
-				"width": 110,	
-			},
-			{
-				"fieldname": "closing_credit",
-				"fieldtype": "Currency",
-				"label": "Closing Credit",
-				"width": 110,	
-			},
+   			# {
+			# 	"fieldname": "closing_debit",
+			# 	"fieldtype": "Currency",
+			# 	"label": "Closing Debit",
+			# 	"width": 110,	
+			# },
+			# {
+			# 	"fieldname": "closing_credit",
+			# 	"fieldtype": "Currency",
+			# 	"label": "Closing Credit",
+			# 	"width": 110,	
+			# },
        
 	]
  
