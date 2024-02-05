@@ -53,7 +53,7 @@ class SalesReturn(Document):
         self.insert_gl_records()
         self.insert_payment_postings()
         update_accounts_for_doc_type('Sales Return', self.name)
-create_bank_reconciliation("Sales Return", self.name)
+        create_bank_reconciliation("Sales Return", self.name)
 
     def insert_gl_records(self):
         default_company = frappe.db.get_single_value(
