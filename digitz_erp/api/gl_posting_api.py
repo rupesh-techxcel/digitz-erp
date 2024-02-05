@@ -186,3 +186,14 @@ def update_parent_account_to_root_recursive(account, parent_accounts, account_ba
         parent_accounts[data[0].parent_account] += account_balance
     
     update_parent_account_to_root_recursive(data[0].parent_account, parent_accounts, account_balance)
+
+@frappe.whitelist()
+def get_account_balances_for_period_closing(to_date):
+    
+    query = """Select a.name,sum(debit_amount)- sum(credit_amount) as balance from `tabGL Posting` gp inner join `tabAccount` a on a.name = gp.account where posting_date<%s and (a.root_type='Expense' or a.root_type='Income') group by a.name """
+    
+    data = frappe.db.sql(query,(to_date),as_dict= True)
+    print("get_account_balances_for_period_closing")
+    print(data)
+    return data
+    

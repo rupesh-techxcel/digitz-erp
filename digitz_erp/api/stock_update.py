@@ -9,7 +9,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
     
     allow_negative_stock = True
     
-    posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  		
+    posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time)) if posting_date and posting_time else None 		
             
     default_company = frappe.db.get_single_value("Global Settings",'default_company')
             
@@ -36,6 +36,10 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
             new_balance_qty = base_stock_ledger.balance_qty
             new_balance_value = base_stock_ledger.balance_value
             new_valuation_rate = base_stock_ledger.valuation_rate
+            
+            # For additional_stock there is no posting_date and time passing in
+            if posting_date_time is None:
+                posting_date_time = base_stock_ledger.posting_date
         
         next_stock_ledgers = frappe.get_list('Stock Ledger',{'item':record.item,
         'warehouse':record.warehouse, 'posting_date':['>', posting_date_time]}, 'name',order_by='posting_date')
@@ -160,7 +164,7 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
 def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
     do_recalculate_stock_ledgers(stock_recalc_voucher= stock_recalc_voucher, posting_date=posting_date, posting_time=posting_time)
 
-        
+# Update item stock balance based on all warehouse balances
 def update_item_stock_balance(item):
     
     print("before udpate item stock balance")

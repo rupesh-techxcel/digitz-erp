@@ -221,6 +221,12 @@ class ReceiptEntry(Document):
 							print("throws error")
 							frappe.throw("Excess allocation for the invoice numer " + allocation.reference_name )
 
+	def on_update(self):
+     
+		self.update_sales_invoices()
+		self.update_sales_return()
+		self.update_credit_note()
+  
 	def on_submit(self):
 		# self.do_posting()
 		init_document_posting_status(self.doctype,self.name)
@@ -234,9 +240,6 @@ class ReceiptEntry(Document):
 
 	def do_postings_on_submit(self):
 
-		self.update_sales_invoices()
-		self.update_sales_return()
-		self.update_credit_note()
 		self.insert_gl_records()
 		update_accounts_for_doc_type('Receipt Entry',self.name)
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
@@ -249,6 +252,10 @@ class ReceiptEntry(Document):
 
 		if(allocations):
 			for allocation in allocations:
+				
+				if allocation.reference_type != "Sales Invoice":
+					continue        
+					
 				if(allocation.paying_amount>0):
 
 					receipt_no = self.name
@@ -277,6 +284,10 @@ class ReceiptEntry(Document):
 
 		if(allocations):
 			for allocation in allocations:
+       
+				if allocation.reference_type != "Sales Return":
+					continue   
+ 
 				if(allocation.paying_amount>0):
 
 					receipt_no = self.name
@@ -292,11 +303,16 @@ class ReceiptEntry(Document):
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
 					frappe.db.set_value("Sales Return", allocation.reference_name, {'paid_amount': invoice_total})
+     
 	def update_credit_note(self):
 		allocations = self.receipt_allocation
 
 		if(allocations):
 			for allocation in allocations:
+       
+				if allocation.reference_type != "Credit Note":
+					continue   
+ 
 				if(allocation.paying_amount>0):
 
 					receipt_no = self.name

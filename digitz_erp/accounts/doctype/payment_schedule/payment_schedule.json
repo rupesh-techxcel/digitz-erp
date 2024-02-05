@@ -60,7 +60,7 @@
    "fieldname": "payment_against",
    "fieldtype": "Select",
    "label": "Payment Against",
-   "options": "Purchase\nExpense"
+   "options": "Purchase\nExpense\nAdditional Expense"
   },
   {
    "fieldname": "document_no",
@@ -81,7 +81,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-11 17:35:29.313021",
+ "modified": "2024-02-04 10:39:29.896421",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Schedule",

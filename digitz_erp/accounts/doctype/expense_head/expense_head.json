@@ -9,10 +9,11 @@
  "field_order": [
   "expense_head",
   "expense_account",
-  "tax_excluded",
+  "expense_group",
   "column_break_bdvm7",
   "tax",
-  "tax_rate"
+  "tax_rate",
+  "tax_excluded"
  ],
  "fields": [
   {
@@ -51,11 +52,18 @@
    "fieldname": "tax_excluded",
    "fieldtype": "Check",
    "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "expense_group",
+   "fieldtype": "Link",
+   "label": "Expense Group",
+   "options": "Expense Group",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-13 09:36:57.778742",
+ "modified": "2024-02-01 21:06:58.548656",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Head",

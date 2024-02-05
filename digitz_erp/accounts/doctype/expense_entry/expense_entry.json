@@ -15,15 +15,17 @@
   "column_break_ovhu",
   "company",
   "default_payable_account",
-  "column_break_3fo8",
   "rate_includes_tax",
+  "column_break_3fo8",
   "accounts_section",
   "credit_expense",
   "payment_mode",
   "payment_account",
   "column_break_hugq",
-  "remarks",
+  "reference_no",
+  "reference_date",
   "column_break_ntgt",
+  "remarks",
   "section_break_xwqi",
   "expense_entry_details",
   "section_break_shsu",
@@ -79,7 +81,7 @@
   },
   {
    "fieldname": "total_expense_amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Total Expense Amount",
    "read_only": 1
   },
@@ -110,13 +112,13 @@
   },
   {
    "fieldname": "total_tax_amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Total Tax Amount",
    "read_only": 1
   },
   {
    "fieldname": "grand_total",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Grand Total",
    "read_only": 1
   },
@@ -205,12 +207,22 @@
    "fieldtype": "Link",
    "label": "Default Payable Account",
    "options": "Account"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-17 16:35:54.384921",
+ "modified": "2024-02-03 15:29:27.332403",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

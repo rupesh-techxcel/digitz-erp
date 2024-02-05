@@ -32,7 +32,21 @@ frappe.ui.form.on('Expense Entry', {
       frm.trigger("make_taxes_and_totals");
     })
 	},
+  validate: function (frm) {
+
+		if(!frm.doc.credit_expense && !frm.doc.payment_mode)
+		{
+			frappe.throw("Select payment mode.")
+		}
+
+		if(!frm.doc.credit_expense && !frm.doc.payment_account)
+		{			
+			frappe.throw("Select payment account.")
+		}
+	},
   make_taxes_and_totals: function(frm) {
+
+    console.log("from make_tax_and_totals")
 		var total_expense_amount = 0;
 		var total_tax_amount = 0;
     var grand_total = 0;
@@ -60,12 +74,20 @@ frappe.ui.form.on('Expense Entry', {
           }
 
           total = amount_excluded_tax + tax_amount;
+
           frappe.model.set_value(entry.doctype, entry.name, "amount_excluded_tax", amount_excluded_tax);
           frappe.model.set_value(entry.doctype, entry.name, "tax_amount", tax_amount);
           frappe.model.set_value(entry.doctype, entry.name, "total", total);
-          total_expense_amount  = grand_total+entry.amount;
+          
+          total_expense_amount  = total_expense_amount+ entry.amount;
+          
+          console.log("entry.amount")
+          console.log(entry.amount)
+          console.log("total_expense_amount")
+          console.log(total_expense_amount)
+
           total_tax_amount = total_tax_amount + entry.tax_amount;
-          grand_total  = grand_total+entry.total;
+          grand_total  = grand_total+ entry.total;
         }       
 		});
 
@@ -106,6 +128,7 @@ frappe.ui.form.on('Expense Entry Details',{
 
   amount: function(frm, cdt, cdn){
 
+    console.log("amount")
     frm.trigger("make_taxes_and_totals");
 
   },
@@ -266,7 +289,8 @@ function assign_defaults(frm)
 
     // frm.set_value('credit_expense', true);
 
-    refresh_fields();
+  frm.refresh_fields();
+
   }
 
   function fill_payment_schedule(frm)

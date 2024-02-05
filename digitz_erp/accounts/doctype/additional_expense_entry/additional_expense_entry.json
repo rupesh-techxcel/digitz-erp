@@ -1,0 +1,291 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "MAT-AEE-.YYYY.-.#####",
+ "creation": "2024-01-08 08:03:09.477415",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_g3n3",
+  "company",
+  "amended_from",
+  "column_break_draa",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_wayy",
+  "expense_against",
+  "default_payable_account",
+  "additional_cost_purchase_section",
+  "additional_expense_purchases",
+  "total_purchases",
+  "additional_cost_sales_section",
+  "additional_expense_sales",
+  "applicable_charges_section",
+  "credit_expense",
+  "payment_mode",
+  "payment_account",
+  "column_break_jhfu",
+  "reference_no",
+  "reference_date",
+  "column_break_mkwu",
+  "remarks",
+  "section_break_gkmu",
+  "expense_entry_details",
+  "section_break_yzpu",
+  "total_expense_amount",
+  "total_tax_amount",
+  "grand_total",
+  "column_break_wzbi",
+  "paid_amount",
+  "column_break_dvss",
+  "purchase_items_allocation_tab",
+  "purchase_items",
+  "total_allocation_amount",
+  "payment_schedule_tab",
+  "payment_schedule"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_g3n3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Additional Expense Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_draa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "read_only": 1
+  },
+  {
+   "default": "Purchase",
+   "fieldname": "expense_against",
+   "fieldtype": "Select",
+   "label": "Expense Against",
+   "options": "Purchase\nSales"
+  },
+  {
+   "fieldname": "column_break_wayy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_cost_purchase_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.expense_against==\"Purchase\"",
+   "fieldname": "additional_expense_purchases",
+   "fieldtype": "Table",
+   "label": "Purchases",
+   "options": "Additional Expense Entry Purchase"
+  },
+  {
+   "fieldname": "additional_cost_sales_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.expense_against==\"Sales\"",
+   "fieldname": "additional_expense_sales",
+   "fieldtype": "Table",
+   "label": "Sales",
+   "options": "Additional Expense Entry Sales"
+  },
+  {
+   "fieldname": "applicable_charges_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_expense",
+   "fieldtype": "Check",
+   "label": "Credit Expense"
+  },
+  {
+   "depends_on": "eval:doc.credit_expense == 0",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "depends_on": "eval:doc.credit_expense == 0",
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_jhfu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date"
+  },
+  {
+   "fieldname": "column_break_mkwu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_gkmu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "expense_entry_details",
+   "fieldtype": "Table",
+   "label": "Expense Details",
+   "options": "Expense Entry Details",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_yzpu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_expense_amount",
+   "fieldtype": "Currency",
+   "label": "Total Expense Amount"
+  },
+  {
+   "fieldname": "total_tax_amount",
+   "fieldtype": "Currency",
+   "label": "Total Tax Amount"
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total"
+  },
+  {
+   "fieldname": "column_break_wzbi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
+  },
+  {
+   "fieldname": "column_break_dvss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.expense_against==\"Purchase\"",
+   "fieldname": "purchase_items_allocation_tab",
+   "fieldtype": "Tab Break",
+   "label": "Purchase Items Allocation"
+  },
+  {
+   "fieldname": "payment_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Expense Payment Schedule"
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "default_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Payable Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.expense_against == \"Purchase\"",
+   "fieldname": "purchase_items",
+   "fieldtype": "Table",
+   "label": "Purchase Items",
+   "options": "Additional Expense Entry Purchase Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_purchases",
+   "fieldtype": "Currency",
+   "label": "Total Purchases (Gross Amount)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_allocation_amount",
+   "fieldtype": "Currency",
+   "label": "Total Allocation Amount",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-02-04 12:37:41.154946",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Additional Expense Entry",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

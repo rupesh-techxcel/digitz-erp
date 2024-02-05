@@ -276,10 +276,12 @@ class PaymentEntry(Document):
 
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-		if(frappe.session.user == "Administrator" and turn_off_background_job):
-			self.do_postings_on_submit()
-		else:
-			frappe.enqueue(self.do_postings_on_submit, queue ="long")
+		# if(frappe.session.user == "Administrator" and turn_off_background_job):
+		# 	self.do_postings_on_submit()
+		# else:
+		# 	frappe.enqueue(self.do_postings_on_submit, queue ="long")
+   
+		self.do_postings_on_submit()
 
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_payment()
@@ -297,8 +299,7 @@ class PaymentEntry(Document):
         #                   })
 
 	def do_postings_on_submit(self):
-		self.insert_gl_records()
-		self.insert_gl_records_for_debit_note()
+		self.insert_gl_records()		
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_accounts_for_doc_type('Payment Entry', self.name)
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
@@ -456,7 +457,7 @@ class PaymentEntry(Document):
 		if(payment_details):
 			for payment_entry in payment_details:
 
-				if(payment_entry.reference_type == "Purchase Invoice") or (payment_entry.reference_type == "Expense Entry") or (payment_entry.reference_type == "Purchase Return") :
+				if(payment_entry.reference_type == "Purchase Invoice") or (payment_entry.reference_type == "Expense Entry") or (payment_entry.reference_type == "Purchase Return") or (payment_entry.reference_type == "Debit Note") :
 					idx = idx + 1
 					gl_doc = frappe.new_doc('GL Posting')
 					gl_doc.voucher_type = "Payment Entry"
@@ -491,65 +492,7 @@ class PaymentEntry(Document):
 						gl_doc.party_type = "Supplier"
 						gl_doc.party = payment_entry.supplier
 					gl_doc.insert()
-
-	def insert_gl_records_for_debit_note(self):
-		idx = 1
-
-		# Trade Receivable - Debit
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Payment Entry"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = self.account
-		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-		gl_doc.credit_amount = self.amount
-		gl_doc.remarks = self.remarks
-		gl_doc.insert()
-
-		payment_details = self.payment_entry_details
-
-		if(payment_details):
-			for payment_entry in payment_details:
-
-				if(payment_entry.reference_type == "Debit Note"):
-					idx = idx + 1
-					gl_doc = frappe.new_doc('GL Posting')
-					gl_doc.voucher_type = "Payment Entry"
-					gl_doc.voucher_no = self.name
-					gl_doc.idx = idx
-					gl_doc.posting_date = self.date
-					gl_doc.posting_time = self.posting_time
-					gl_doc.account = payment_entry.account
-					gl_doc.against_account = self.account
-					gl_doc.debit_amount = payment_entry.amount
-					gl_doc.party_type = "Supplier"
-					gl_doc.party = payment_entry.supplier
-					gl_doc.remarks = payment_entry.remarks
-					print("payment_entry.remarks")
-					print(payment_entry.remarks)
-					gl_doc.insert()
-				else:
-					# Case when there is no allocation, but supplier may or may not selected
-					# or payment_type ='Other'
-					idx = idx + 1
-					gl_doc = frappe.new_doc('GL Posting')
-					gl_doc.voucher_type = "Payment Entry"
-					gl_doc.voucher_no = self.name
-					gl_doc.idx = idx
-					gl_doc.posting_date = self.date
-					gl_doc.posting_time = self.posting_time
-					gl_doc.account = payment_entry.account
-					gl_doc.against_account = self.account
-					gl_doc.debit_amount = payment_entry.amount
-					gl_doc.remarks = payment_entry.remarks
-					if payment_entry.supplier:
-						gl_doc.party_type = "Supplier"
-						gl_doc.party = payment_entry.supplier
-					gl_doc.insert()
-
-
+	
 	def GetAccountForTheHighestAmountInPayments(self):
 
 		highestAmount = 0

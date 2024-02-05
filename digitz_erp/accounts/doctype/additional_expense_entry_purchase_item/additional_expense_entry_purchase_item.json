@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-01-08 15:40:14.063431",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "purchase_invoice",
+  "item_code",
+  "item_name",
+  "qty",
+  "gross_amount",
+  "net_amount",
+  "allocation_amount",
+  "reference_document_no"
+ ],
+ "fields": [
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Purchase Invoice"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "fieldname": "allocation_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Allocation Amount"
+  },
+  {
+   "fieldname": "reference_document_no",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Reference Document No",
+   "options": "Purchase Invoice Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gross_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Gross Amount"
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Net Amount"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-02-04 11:50:35.498631",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Additional Expense Entry Purchase Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

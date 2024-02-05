@@ -18,6 +18,7 @@
   "valuation_rate",
   "balance_value",
   "change_in_stock_value",
+  "additional_allocation",
   "column_break_8",
   "unit",
   "voucher",
@@ -158,12 +159,17 @@
    "fieldname": "log",
    "fieldtype": "Small Text",
    "label": "Log"
+  },
+  {
+   "fieldname": "additional_allocation",
+   "fieldtype": "Currency",
+   "label": "Additional Allocation"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-12 20:55:51.266238",
+ "modified": "2024-02-04 17:34:42.322610",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

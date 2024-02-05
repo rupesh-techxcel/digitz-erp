@@ -31,14 +31,16 @@
    "fieldname": "expense_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Expense Date"
+   "label": "Expense Date",
+   "reqd": 1
   },
   {
-   "depends_on": "eval:doc.credit_expense == 0",
    "fieldname": "supplier",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Supplier",
-   "options": "Supplier"
+   "options": "Supplier",
+   "reqd": 1
   },
   {
    "fieldname": "expense_head",
@@ -92,7 +94,8 @@
    "fieldname": "amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Amount"
+   "label": "Amount",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -116,7 +119,8 @@
   {
    "fieldname": "supplier_inv_date",
    "fieldtype": "Date",
-   "label": "Supplier Inv Date"
+   "label": "Supplier Inv Date",
+   "reqd": 1
   },
   {
    "fetch_from": "expense_head.expense_account",
@@ -124,13 +128,16 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Expense Account",
-   "options": "Account"
+   "options": "Account",
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "payable_account",
    "fieldtype": "Link",
    "label": "Payable Account",
-   "options": "Account"
+   "options": "Account",
+   "reqd": 1
   },
   {
    "fieldname": "paid_amount",
@@ -141,13 +148,14 @@
   {
    "fieldname": "supplier_inv_no",
    "fieldtype": "Data",
-   "label": "Supplier Inv No"
+   "label": "Supplier Inv No",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-23 16:04:02.989884",
+ "modified": "2024-02-04 07:17:15.046410",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry Details",

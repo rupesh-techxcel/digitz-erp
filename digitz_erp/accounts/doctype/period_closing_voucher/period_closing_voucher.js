@@ -8,7 +8,7 @@ frappe.ui.form.on("Period Closing Voucher", {
     assign_defaults(frm);
   },
 	refresh(frm) {
-    frm.set_query('account', 'period_closing_voucher_account', () => {
+    frm.set_query('account', 'closing_accounts', () => {
     return {
         filters: {
             is_group: 0,
@@ -19,11 +19,77 @@ frappe.ui.form.on("Period Closing Voucher", {
   frm.set_query('closing_account_head', () => {
   return {
       filters: {
-          root_type: 'Liability'
+          is_group :0,
+          root_type: 'Liability'          
       }
   }
   })
-	}
+	},
+  get_accounts:function(frm){
+
+    frm.clear_table('closing_accounts')
+    
+    frappe.call({
+      method: "digitz_erp.api.gl_posting_api.get_account_balances_for_period_closing",
+      args: {
+          to_date: frm.doc.to_date
+      },
+      callback: function(response) {
+
+        total_debit = 0
+        total_credit = 0
+  
+        response.message.forEach(function(account_data)
+        {
+          var period_closing_account = frappe.model.get_new_doc('Period Closing Voucher Account');
+
+          console.log("account_data")
+          console.log(account_data)
+
+          period_closing_account.account = account_data.name
+
+          if(account_data.balance>0)
+          {
+            // For debit balance need to fill credit
+            period_closing_account.credit_amount = account_data.balance 
+            total_credit = total_credit + account_data.balance
+           
+          }
+          else
+          {
+            period_closing_account.debit_amount = account_data.balance * -1
+            total_debit = total_debit + (account_data.balance * -1)
+          }
+
+          frm.add_child('closing_accounts', period_closing_account);
+
+        })
+
+        frm.doc.total_debit = total_debit
+        frm.doc.total_credit = total_credit
+
+        if(total_debit> total_credit)
+        {
+          frm.doc.amount = Math.round(total_debit,3) - Math.round(total_credit,3)
+          frm.doc.amount_dr_cr = "Cr"
+          frm.doc.total_credit = total_debit
+        }
+        else
+        {
+          frm.doc.amount = total_credit - total_debit
+          frm.doc.amount_dr_cr = "Dr"
+          frm.doc.total_debit = total_credit
+        }
+
+        frm.refresh_field('total_debit')
+        frm.refresh_field('total_credit')
+        frm.refresh_field('amount')
+        frm.refresh_field('amount_dr_cr')
+        frm.refresh_field('closing_accounts')
+        
+      }
+  });
+}
 });
 function assign_defaults(frm)
 {

@@ -622,8 +622,12 @@ frappe.ui.form.on('Sales Invoice Item', {
 
 									if (r.message !== undefined && r.message.length > 0) {
 										// Assuming r.message is an array, you might want to handle this differently based on your actual response
-										row.rate = r.message[0];
-										row.rate_in_base_unit = r.message[0];
+										row.rate = parseFloat(r.message[0]);
+										row.rate_in_base_unit = parseFloat(r.message[0]);
+									}
+									else if (r.message!= undefined) {
+										row.rate = parseFloat(r.message)
+										row.rate_in_base_unit = parseFloat(r.message)
 									}
 
 									console.log("customer last price")

@@ -44,10 +44,12 @@ class ExpenseEntry(Document):
 		self.postings_start_time = datetime.now()	
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-		if(frappe.session.user == "Administrator" and turn_off_background_job): 
-			self.do_postings_on_submit()
-		else:
-			frappe.enqueue(self.do_postings_on_submit, queue="long")
+		# if(frappe.session.user == "Administrator" and turn_off_background_job): 
+		# 	self.do_postings_on_submit()
+		# else:
+		# 	frappe.enqueue(self.do_postings_on_submit, queue="long")
+  
+		self.do_postings_on_submit()
   
 	def on_cancel(self):
      
@@ -69,10 +71,11 @@ class ExpenseEntry(Document):
 
 	def do_postings_on_submit(self):
 		
-		self.insert_gl_records()
+		idx = self.insert_gl_records()
 		update_posting_status(self.doctype,self.name,'gl_posted_time')
 				
 		self.insert_payment_postings()
+  
 		update_posting_status(self.doctype,self.name,'payment_posted_time')
   
 		update_accounts_for_doc_type('Expense Entry',self.name)
@@ -125,6 +128,7 @@ class ExpenseEntry(Document):
 				gl_doc.debit_amount = tax_amount
 				gl_doc.remarks = self.remarks;
 				gl_doc.insert()
+				idx += 1
    
 		# Credit Payable Accounts, supplier  
 		payable_items = self.get_payable_totals()
@@ -144,7 +148,8 @@ class ExpenseEntry(Document):
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
 			gl_doc.insert()
-   	
+			idx += 1
+      	
 	def get_payable_totals(self):
      
 		payable_account_dictionary = {}
@@ -214,7 +219,7 @@ class ExpenseEntry(Document):
 
 	def insert_payment_postings(self):
      
-		if self.credit_expense == 0:
+		if not self.credit_expense:
 	
 			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Expense Entry', 'voucher_no': self.name})
 
@@ -236,21 +241,23 @@ class ExpenseEntry(Document):
 				gl_doc.debit_amount = amount
 				gl_doc.remarks = self.remarks;
 				gl_doc.insert()
-   
-		payment_items = self.get_payment_totals()
+				idx += 1
+    
+			payment_items = self.get_payment_totals()
 
-		for key,amount in payment_items.items():
-			payment_account,expense_date = key.split('_') 
-   
-			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.idx = idx
-			gl_doc.voucher_type = 'Expense Entry'
-			gl_doc.voucher_no = self.name
-			gl_doc.posting_date = expense_date			
-			gl_doc.account = payment_account			
-			gl_doc.credit_amount = amount
-			gl_doc.remarks = self.remarks;
-			gl_doc.insert()
+			for key,amount in payment_items.items():
+				payment_account,expense_date = key.split('_') 
+
+				gl_doc = frappe.new_doc('GL Posting')
+				gl_doc.idx = idx
+				gl_doc.voucher_type = 'Expense Entry'
+				gl_doc.voucher_no = self.name
+				gl_doc.posting_date = expense_date			
+				gl_doc.account = payment_account			
+				gl_doc.credit_amount = amount
+				gl_doc.remarks = self.remarks;
+				gl_doc.insert()
+				idx += 1
        
 	def on_update(self):
 		self.update_payment_schedules()

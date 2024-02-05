@@ -7,19 +7,23 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_d56v",
-  "transaction_date",
-  "posting_date",
-  "closing_fiscal_year",
-  "column_break_qnbz",
   "company",
+  "posting_date",
+  "from_date",
+  "to_date",
+  "column_break_qnbz",
+  "remarks",
+  "column_break_jylr",
+  "section_break_kjnj",
+  "get_accounts",
+  "closing_accounts",
+  "section_break_kdau",
+  "column_break_ilgd",
+  "column_break_rifz",
   "closing_account_head",
   "amount",
   "amount_dr_cr",
-  "section_break_kjnj",
-  "period_closing_voucher_account",
-  "section_break_kdau",
-  "remarks",
-  "column_break_uwjz",
+  "column_break_ekza",
   "total_debit",
   "total_credit",
   "amended_from"
@@ -30,6 +34,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -41,12 +46,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "period_closing_voucher_account",
-   "fieldtype": "Table",
-   "label": "Period Closing Voucher Account",
-   "options": "Period Closing Voucher Account"
-  },
-  {
    "fieldname": "section_break_kdau",
    "fieldtype": "Section Break"
   },
@@ -54,10 +53,6 @@
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
-  },
-  {
-   "fieldname": "column_break_uwjz",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "total_debit",
@@ -82,17 +77,6 @@
    "search_index": 1
   },
   {
-   "fieldname": "transaction_date",
-   "fieldtype": "Date",
-   "label": "Transaction Date"
-  },
-  {
-   "fieldname": "closing_fiscal_year",
-   "fieldtype": "Select",
-   "label": "Closing Fiscal Year",
-   "options": "\n2022-2023\n2023-2024"
-  },
-  {
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
@@ -102,7 +86,7 @@
   {
    "fieldname": "closing_account_head",
    "fieldtype": "Link",
-   "label": "Closing Account Head",
+   "label": "Profit and Loss Parking Account",
    "options": "Account",
    "reqd": 1
   },
@@ -121,12 +105,51 @@
   {
    "fieldname": "column_break_qnbz",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_jylr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ilgd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rifz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ekza",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "default": "Today",
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
+  },
+  {
+   "fieldname": "get_accounts",
+   "fieldtype": "Button",
+   "label": "Get Accounts"
+  },
+  {
+   "fieldname": "closing_accounts",
+   "fieldtype": "Table",
+   "label": "Closing Accounts",
+   "options": "Period Closing Voucher Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-02 15:29:02.561141",
+ "modified": "2024-02-04 23:09:29.299181",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Period Closing Voucher",
