@@ -13,9 +13,7 @@ class JournalEntry(Document):
 
 	def insert_gl_records(self):
 		idx = 1
-  
-		accounts = []
-  
+    
 		for journal_entry in self.journal_entry_details:
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.idx = idx
@@ -29,8 +27,7 @@ class JournalEntry(Document):
 			gl_doc.remarks = journal_entry.narration
 			gl_doc.insert()
 			idx += 1
-			if journal_entry.account not in accounts:
-				accounts.append(journal_entry.account)
+			
     
 		# update_all_account_balances()
         

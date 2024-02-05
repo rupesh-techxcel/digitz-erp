@@ -50,8 +50,10 @@ def execute(filters=None):
 				account['closing_credit'] = account2['closing_credit']
     
 	# Remove entries with both opening_debit and opening_credit equal to 0
-	accounts_from_table = [account for account in accounts_from_table if account['opening_debit'] != 0 or account['opening_credit'] != 0 or  account['debit'] !=0 or account['credit'] !=0 or  account['closing_debit'] !=0 or  account['closing_credit'] !=0]
-	  
+	# accounts_from_table = [account for account in accounts_from_table if account['opening_debit'] != 0 or account['opening_credit'] != 0 or  account['debit'] !=0 or account['credit'] !=0 or  account['closing_debit'] !=0 or  account['closing_credit'] !=0]
+ 
+	accounts_from_table = [account for account in accounts_from_table if (any(account[field] != 0 for field in value_fields) or any(child[field] != 0 for child in accounts_from_table if child['parent_account'] == account['name'] for field in value_fields) )]
+	
 	condition_to_remove = {'name': 'Accounts'}
  
 	accounts_from_table = [account for account in accounts_from_table if account != condition_to_remove]
