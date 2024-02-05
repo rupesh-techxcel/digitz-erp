@@ -30,11 +30,13 @@ class JournalEntry(Document):
 			idx += 1
 			if journal_entry.account not in accounts:
 				accounts.append(journal_entry.account)
+    
+		update_all_account_balances()
         
-		for account in accounts:
-		  	update_account_balance(account)
+		# for account in accounts:
+		#   	update_account_balance(account)
   
 		# update_account_balance("Rent")
    
-		# update_all_account_balances()
+			
 			

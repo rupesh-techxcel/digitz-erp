@@ -16,6 +16,7 @@ value_fields = (
 )
 
 def execute(filters=None):
+    
 	columns = get_columns()
 	# data = get_data(filters)
 	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'))
@@ -33,7 +34,7 @@ def execute(filters=None):
 				0 as closing_debit,
 				0 as closing_credit
 			from
-				`tabAccount`			
+				`tabAccount`
 			order by lft
 		""",as_dict=True
 	)
@@ -47,20 +48,19 @@ def execute(filters=None):
 				account['credit'] = account2['credit']
 				account['closing_debit'] = account2['closing_debit']
 				account['closing_credit'] = account2['closing_credit']
-
-
-	print("accounts_from_table")
-	print(accounts_from_table)
-  
+    
+	# Remove entries with both opening_debit and opening_credit equal to 0
+	accounts_from_table = [account for account in accounts_from_table if account['opening_debit'] != 0 or account['opening_credit'] != 0 or  account['debit'] !=0 or account['credit'] !=0 or  account['closing_debit'] !=0 or  account['closing_credit'] !=0]
+	  
 	condition_to_remove = {'name': 'Accounts'}
  
 	accounts_from_table = [account for account in accounts_from_table if account != condition_to_remove]
  
+	print("accounts_from_table")
+	print(accounts_from_table)	
+ 
 	filter_accounts(accounts_from_table)
- 
-	
-	print(accounts_from_table)
- 
+  
 	data =[]
 	for account in accounts_from_table:
      
@@ -80,34 +80,6 @@ def prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_
 		data.append(account)
   
 	return data
-
-def get_account_details(account, parent_account, indent, filters):
-    data = {}
-    data['parent_account'] = parent_account
-    data['indent'] = indent
-    data['account'] = account
-    data['opening_debit'] = 0
-    data['opening_credit'] = 0
-    opening_balance = get_opening_balance(account, filters)
-
-    if opening_balance.get('opening_debit'):
-        data['opening_debit'] = opening_balance.get('opening_debit')
-    if opening_balance.get('opening_credit'):
-        data['opening_credit'] = opening_balance.get('opening_credit')
-
-    data['debit'] = 0
-    data['credit'] = 0
-    data['closing_debit'] = 0
-    data['closing_credit'] = 0
-    data['debit'] = opening_balance.get('debit')
-    data['credit'] = opening_balance.get('credit')
-
-    if data['opening_debit'] > 0:
-        data['closing_debit'] = data['debit'] + data['opening_debit'] - data['credit']
-    elif data['opening_credit'] > 0:
-        data['closing_credit'] = data['credit'] + data['opening_credit'] - data['debit']
-
-    return data
 
 def get_columns():
 	return [
