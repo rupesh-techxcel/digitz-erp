@@ -7,7 +7,7 @@ from digitz_erp.api.payment_entry_api import get_allocations_for_purchase_invoic
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
-from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
+from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 
 class PaymentEntry(Document):
 

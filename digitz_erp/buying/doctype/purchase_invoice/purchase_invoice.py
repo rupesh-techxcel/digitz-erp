@@ -15,7 +15,8 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from datetime import datetime,timedelta
 from frappe.model.mapper import get_mapped_doc
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
-from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
+from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
+from frappe import throw, _
 
 class PurchaseInvoice(Document):
 
@@ -68,9 +69,14 @@ class PurchaseInvoice(Document):
 						frappe.throw("Voucher with same time already exists.")
 
 	def validate(self):
-
+		self.validate_supplier_inv_no()
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
+
+	def validate_supplier_inv_no(self):
+		existing_invoice = frappe.db.get_value("Purchase Invoice",{"supplier": self.supplier, "supplier_inv_no": self.supplier_inv_no,"name": ("!=", self.name) if self.name else None})
+		if existing_invoice:
+			throw(_("Duplicate Supplier Inv No: Supplier {0}, Invoice No {1}, Existing Invoice: {2}").format(self.supplier, self.supplier_inv_no, existing_invoice))
 
 	def on_submit(self):
 

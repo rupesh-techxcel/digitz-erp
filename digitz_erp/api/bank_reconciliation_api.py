@@ -10,8 +10,8 @@ def create_bank_reconciliation(doc_type, name):
             bank_reconciliation.update({
                 "document_type": doc_type,
                 "document_name": name,
-                "cheque_no": doc.cheque_no,
-                "cheque_date": doc.cheque_date,
+                "reference_no": doc.reference_no,
+                "reference_date": doc.reference_date,
                 "bank_account": doc.bank_account,
             })
             bank_reconciliation.insert(ignore_permissions=True)

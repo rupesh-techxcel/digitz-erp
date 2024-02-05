@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-02 09:04:53.659671",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "bank_account",
+  "column_break_vkdl",
+  "from_date",
+  "column_break_ilog",
+  "to_date",
+  "section_break_osds",
+  "show_all",
+  "get_bank_entries",
+  "bank_reconciliation_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fieldname": "column_break_vkdl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "column_break_ilog",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
+  },
+  {
+   "fieldname": "section_break_osds",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_all",
+   "fieldtype": "Check",
+   "label": "Show All"
+  },
+  {
+   "fieldname": "bank_reconciliation_details",
+   "fieldtype": "Table",
+   "label": "Bank Reconciliation Details",
+   "options": "Bank Reconciliation Details"
+  },
+  {
+   "fieldname": "get_bank_entries",
+   "fieldtype": "Button",
+   "label": "Get Bank Entries"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-02-02 09:58:39.775336",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Bank Reconciliation Tool",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

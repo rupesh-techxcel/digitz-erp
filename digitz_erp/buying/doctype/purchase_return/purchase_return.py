@@ -8,7 +8,7 @@ from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
 from frappe.model.mapper import *
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
-from digitz_erp.api.bank_reconciliation import create_bank_reconciliation, cancel_bank_reconciliation
+from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 
 class PurchaseReturn(Document):
 
