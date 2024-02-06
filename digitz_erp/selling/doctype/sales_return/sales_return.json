@@ -13,8 +13,6 @@
   "customer_balance",
   "customer_name",
   "customer_display_name",
-  "reference_no",
-  "reference_date",
   "customer_address",
   "column_break_6",
   "posting_date",
@@ -37,9 +35,11 @@
   "credit_days",
   "payment_terms",
   "payment_mode",
+  "mode",
   "payment_account",
-  "bank_account",
   "column_break_25",
+  "reference_no",
+  "reference_date",
   "remarks",
   "column_break_mu02",
   "section_break_19",
@@ -121,7 +121,7 @@
    "fieldname": "reference_no",
    "fieldtype": "Data",
    "label": "Reference No",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
    "fieldname": "customer_address",
@@ -491,15 +491,7 @@
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
-  },
-  {
-   "depends_on": "eval:doc.payment_mode == 'Bank'",
-   "fieldname": "bank_account",
-   "fieldtype": "Link",
-   "label": "Bank Account",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'",
-   "options": "Bank Account"
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
    "fieldname": "amended_from",
@@ -510,12 +502,20 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-01 15:11:30.073157",
+ "modified": "2024-02-06 09:51:16.372579",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",
