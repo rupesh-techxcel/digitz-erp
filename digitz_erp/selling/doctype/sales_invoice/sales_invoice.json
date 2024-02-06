@@ -13,8 +13,6 @@
   "customer_name",
   "customer_display_name",
   "customer_balance",
-  "reference_no",
-  "reference_date",
   "customer_address",
   "column_break_6",
   "posting_date",
@@ -39,9 +37,11 @@
   "credit_days",
   "payment_terms",
   "payment_mode",
+  "mode",
   "payment_account",
-  "bank_account",
   "column_break_zjj2",
+  "reference_no",
+  "reference_date",
   "remarks",
   "column_break_yacz",
   "ignore_posting",
@@ -301,7 +301,7 @@
    "fieldname": "reference_no",
    "fieldtype": "Data",
    "label": "Reference No",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
    "fieldname": "column_break_4",
@@ -523,21 +523,21 @@
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
-   "depends_on": "eval:doc.payment_mode == 'Bank'",
-   "fieldname": "bank_account",
-   "fieldtype": "Link",
-   "label": "Bank Account",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'",
-   "options": "Bank Account"
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-01 15:08:06.458432",
+ "modified": "2024-02-06 09:39:45.634035",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

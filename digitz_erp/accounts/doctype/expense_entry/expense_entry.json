@@ -21,6 +21,7 @@
   "credit_expense",
   "payment_mode",
   "payment_account",
+  "mode",
   "column_break_hugq",
   "reference_no",
   "reference_date",
@@ -211,18 +212,28 @@
   {
    "fieldname": "reference_no",
    "fieldtype": "Data",
-   "label": "Reference No"
+   "label": "Reference No",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
    "fieldname": "reference_date",
    "fieldtype": "Date",
-   "label": "Reference Date"
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-03 15:29:27.332403",
+ "modified": "2024-02-06 10:02:48.598881",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",
