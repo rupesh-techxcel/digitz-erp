@@ -1,0 +1,32 @@
+{
+ "chart_name": "Top Suppliers",
+ "chart_type": "Report",
+ "creation": "2023-08-27 11:18:25.369593",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "dynamic_filters_json": "{}",
+ "filters_json": "{\"from_date\":\"2023-11-05\",\"to_date\":\"2024-02-05\"}",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "modified": "2024-02-05 18:56:41.529481",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Top Suppliers",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "report_name": "Buying Chart - Top Supplier Purchases",
+ "roles": [],
+ "time_interval": "Yearly",
+ "timeseries": 0,
+ "timespan": "Last Year",
+ "type": "Pie",
+ "use_report_chart": 0,
+ "x_field": "supplier",
+ "y_axis": [
+  {
+   "y_field": "amount"
+  }
+ ]
+}

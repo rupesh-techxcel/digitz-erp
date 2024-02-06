@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:tax_type",
  "creation": "2022-12-21 15:05:39.979648",
  "default_view": "List",
  "doctype": "DocType",
@@ -14,7 +15,8 @@
   {
    "fieldname": "tax_type",
    "fieldtype": "Data",
-   "label": "Tax Type"
+   "label": "Tax Type",
+   "unique": 1
   },
   {
    "fieldname": "type",
@@ -25,10 +27,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-21 15:05:39.979648",
+ "modified": "2024-02-05 15:14:35.198884",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "TAX Type",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

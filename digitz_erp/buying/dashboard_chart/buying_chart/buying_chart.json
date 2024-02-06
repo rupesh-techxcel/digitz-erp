@@ -1,0 +1,36 @@
+{
+ "based_on": "posting_date",
+ "chart_name": "Buying Chart",
+ "chart_type": "Sum",
+ "creation": "2023-02-27 18:38:51.766276",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "document_type": "Purchase Invoice",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[]",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 0,
+ "is_standard": 1,
+ "last_synced_on": "2024-02-05 18:50:47.679136",
+ "modified": "2024-02-05 18:52:32.564747",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Buying Chart",
+ "number_of_groups": 0,
+ "owner": "hariviyer@gmail.com",
+ "parent_document_type": "",
+ "roles": [
+  {
+   "role": "Purchase Manager"
+  }
+ ],
+ "source": "",
+ "time_interval": "Monthly",
+ "timeseries": 1,
+ "timespan": "Last Year",
+ "type": "Bar",
+ "use_report_chart": 0,
+ "value_based_on": "rounded_total",
+ "y_axis": []
+}
