@@ -5,11 +5,11 @@
    "label": "Top Suppliers"
   },
   {
-   "chart_name": "Buying Chart",
-   "label": "Buying Chart"
+   "chart_name": "Buying Trends",
+   "label": "Buying Trends"
   }
  ],
- "content": "[{\"id\":\"D6gkWmQOc1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Buying Chart\",\"col\":12}},{\"id\":\"coYBDmxNtx\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Suppliers\",\"col\":12}},{\"id\":\"BiSssewA2Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ATioYmLOYL\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters</b></span>\",\"col\":12}},{\"id\":\"aWSZAlexN5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"vG_czYzCTn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier Group\",\"col\":3}},{\"id\":\"dCOLFbI9yw\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"FxYlzp5vfK\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"id\":\"b_CK65Pz8n\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"ZVpVfy8ano\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Order\",\"col\":3}},{\"id\":\"EUCDnaVFdr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"3QUOJyH5v_\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Report\",\"col\":4}},{\"id\":\"VOTlnpMerr\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+ "content": "[{\"id\":\"coYBDmxNtx\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Suppliers\",\"col\":12}},{\"id\":\"xoAJWdYEii\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Buying Trends\",\"col\":12}},{\"id\":\"BiSssewA2Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uPcZMrD6LG\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters</b>\",\"col\":12}},{\"id\":\"aWSZAlexN5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"vG_czYzCTn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier Group\",\"col\":3}},{\"id\":\"dCOLFbI9yw\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ZAdhMN-3FF\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Transactions</b>\",\"col\":12}},{\"id\":\"b_CK65Pz8n\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"ZVpVfy8ano\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Order\",\"col\":3}},{\"id\":\"EUCDnaVFdr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"6j2qzBrJRI\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Order Reports\",\"col\":4}},{\"id\":\"3QUOJyH5v_\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Reports\",\"col\":4}},{\"id\":\"VOTlnpMerr\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
  "creation": "2024-02-05 18:19:53.560683",
  "custom_blocks": [],
  "docstatus": 0,
@@ -25,8 +25,27 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Purchase Report",
-   "link_count": 4,
+   "label": "Purchase Order Reports",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Order Register",
+   "link_count": 0,
+   "link_to": "Purchase Order Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Reports",
+   "link_count": 3,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -37,16 +56,6 @@
    "label": "Purchase Register",
    "link_count": 0,
    "link_to": "Purchase Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Order Register",
-   "link_count": 0,
-   "link_to": "Purchase Order Register",
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
@@ -72,7 +81,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-05 19:01:57.662671",
+ "modified": "2024-02-06 10:00:02.449949",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Buying",

@@ -16,14 +16,14 @@ def get_chart_data(filters=None):
 	
 	query = """
     SELECT
-        pi.supplier,
-        SUM(pi.rounded_total) AS amount
+        si.customer_name as customer,
+        SUM(si.rounded_total) AS amount
     FROM
-        `tabPurchase Invoice` pi
+        `tabSales Invoice` si
     WHERE        
-        pi.posting_date >= %s
-        AND pi.posting_date <= %s
-    GROUP BY pi.supplier
+        si.posting_date >= %s
+        AND si.posting_date <= %s
+    GROUP BY si.customer_name
     ORDER BY amount DESC
     LIMIT 20
 """
@@ -68,14 +68,14 @@ def get_data(filters=None):
 
 	query = """
 		SELECT
-			pi.supplier,
-			SUM(pi.rounded_total) AS amount
+			si.customer_name as customer,
+			SUM(si.rounded_total) AS amount
 		FROM
-			`tabPurchase Invoice` pi
+			`tabSales Invoice` si
 		WHERE			
-			pi.posting_date >= %s
-			AND pi.posting_date <= %s
-		GROUP BY pi.supplier
+			si.posting_date >= %s
+			AND si.posting_date <= %s
+		GROUP BY si.customer_name
 		ORDER BY amount DESC
 		LIMIT 20
 		"""
@@ -87,9 +87,9 @@ def get_data(filters=None):
 def get_columns():
     return [
         {
-            "fieldname": "supplier",
+            "fieldname": "customer",
             "fieldtype": "Data",
-            "label": "Supplier",            
+            "label": "Customer",            
             "width": 150,
         },
         {
