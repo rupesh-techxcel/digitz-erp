@@ -12,8 +12,6 @@
   "payment_mode",
   "account",
   "bank_account",
-  "cheque_no",
-  "cheque_date",
   "reference_no",
   "reference_date",
   "column_break_zjjtr",
@@ -168,26 +166,12 @@
    "label": "Bank Account",
    "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'",
    "options": "Bank Account"
-  },
-  {
-   "depends_on": "eval:doc.payment_mode == 'Bank'",
-   "fieldname": "cheque_no",
-   "fieldtype": "Data",
-   "label": "Cheque No",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
-  },
-  {
-   "depends_on": "eval:doc.payment_mode == 'Bank'",
-   "fieldname": "cheque_date",
-   "fieldtype": "Date",
-   "label": "Cheque Date",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-01 10:29:15.250551",
+ "modified": "2024-02-01 15:16:31.717729",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

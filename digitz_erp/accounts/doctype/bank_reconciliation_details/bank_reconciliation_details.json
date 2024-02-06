@@ -1,0 +1,65 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-02 09:14:43.293095",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "bank_reconciliation",
+  "reference_no",
+  "reference_date",
+  "status",
+  "settlement_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "bank_reconciliation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Bank Reconciliation",
+   "options": "Bank Reconciliation"
+  },
+  {
+   "fetch_from": ".status",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nPending\nCleared\nBounsed"
+  },
+  {
+   "fetch_from": ".settlement_date",
+   "fieldname": "settlement_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Settlement Date"
+  },
+  {
+   "fetch_from": ".reference_no",
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reference No"
+  },
+  {
+   "fetch_from": ".reference_date",
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Reference Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-02-05 16:35:55.846153",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Bank Reconciliation Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
