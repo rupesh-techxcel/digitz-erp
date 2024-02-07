@@ -176,11 +176,18 @@ frappe.ui.form.on('Purchase Order', {
 			if (entry.rate_includes_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
 				// also this implementation is streight forward than the other way
-				tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
-				entry.rate_excluded_tax = entry.rate - tax_in_rate;
-				entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
-				console.log("Tax Rate %f", entry.tax_rate);
-				console.log("Tax Amount %f", entry.tax_amount);
+				if( entry.tax_rate >0){
+
+					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
+					entry.rate_excluded_tax = entry.rate - tax_in_rate;
+					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
+				}
+				else
+				{
+					entry.rate_excluded_tax = entry.rate
+					entry.tax_amount = 0
+				}
+				
 				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}

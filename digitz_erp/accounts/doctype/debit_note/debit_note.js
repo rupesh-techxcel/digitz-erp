@@ -77,7 +77,7 @@ frappe.ui.form.on("Debit Note", {
 			var tax_amount = 0;
 			var total = 0;
 			
-			if(!entry.tax_excluded)
+			if(!entry.tax_excluded && entry.tax_rate>0)
 			{
 				entry.rate_includes_tax = frm.doc.rate_includes_tax;
 				if (entry.rate_includes_tax)

@@ -86,31 +86,19 @@ frappe.ui.form.on("Credit Note", {
 			var tax_amount = 0;
 			var total = 0;
 
-      console.log(entry)
-
-			if(!entry.tax_excluded)
+			if(!entry.tax_excluded && entry.tax_rate >0)
 			{
 				entry.rate_includes_tax = frm.doc.rate_includes_tax;
-        console.log("here 1")
+        
 				if (entry.rate_includes_tax)
 				{
-          console.log("here 2")
-					tax_in_rate = entry.amount * (entry.tax_rate / (100 + entry.tax_rate));
+          			tax_in_rate = entry.amount * (entry.tax_rate / (100 + entry.tax_rate));
 					amount_excluded_tax = entry.amount - tax_in_rate;
 					tax_amount = entry.amount * (entry.tax_rate / (100 + entry.tax_rate))
 				}
 				else {
 					amount_excluded_tax = entry.amount;
-					tax_amount = (entry.amount * (entry.tax_rate / 100))
-          console.log("entry.amount")
-          console.log(entry.amount)
-          console.log("entry.tax_rate")
-          console.log(entry.tax_rate)
-          console.log("amount_excluded_tax")
-          console.log(amount_excluded_tax)
-          console.log("tax amount")
-          console.log(tax_amount)
-          console.log("here 3")
+					tax_amount = (entry.amount * (entry.tax_rate / 100))          
 				}
 			}
 
@@ -188,25 +176,21 @@ frappe.ui.form.on('Credit Note Detail',{
 				method:'digitz_erp.api.settings_api.get_default_tax',
 				async:false,
 				callback(r){
-          console.log("r for tax")
-          console.log(r)
-					row.tax = r.message
-          console.log("row.tax")
-          console.log(row.tax)
-
-          frappe.call(
-            {
-              method: 'frappe.client.get_value',
-              args: {
-                'doctype': 'Tax',
-                'filters': { 'tax_name': row.tax },
-                'fieldname': ['tax_name', 'tax_rate']
-              },
-              callback: (r2) => {
-                row.tax_rate = r2.message.tax_rate;
-                frm.trigger("make_taxes_and_totals");
-              }
-            });
+          			row.tax = r.message
+				
+				frappe.call(
+					{
+					method: 'frappe.client.get_value',
+					args: {
+						'doctype': 'Tax',
+						'filters': { 'tax_name': row.tax },
+						'fieldname': ['tax_name', 'tax_rate']
+					},
+					callback: (r2) => {
+						row.tax_rate = r2.message.tax_rate;
+						frm.trigger("make_taxes_and_totals");
+					}
+					});
 
 					frm.refresh_field("credit_note_details");
 				}
