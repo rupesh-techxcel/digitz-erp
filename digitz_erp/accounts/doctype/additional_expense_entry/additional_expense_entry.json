@@ -1,12 +1,13 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "MAT-AEE-.YYYY.-.#####",
+ "autoname": "naming_series:",
  "creation": "2024-01-08 08:03:09.477415",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_g3n3",
+  "naming_series",
   "company",
   "amended_from",
   "column_break_draa",
@@ -270,16 +271,21 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Mode"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 10:05:46.630383",
+ "modified": "2024-02-06 19:19:53.539004",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Additional Expense Entry",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

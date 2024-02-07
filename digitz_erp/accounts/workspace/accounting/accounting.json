@@ -1,0 +1,192 @@
+{
+ "charts": [
+  {
+   "chart_name": "Profit Analysis Chart",
+   "label": "Profit Analysis Chart"
+  }
+ ],
+ "content": "[{\"id\":\"5ORLYzu1ib\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Profit Analysis Chart\",\"col\":12}},{\"id\":\"KCkATRFfwJ\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"HcM23FAM6l\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Account\",\"col\":3}},{\"id\":\"nJ3tWHqoFj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tax\",\"col\":3}},{\"id\":\"T9HnzOoAOH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Company\",\"col\":3}},{\"id\":\"4U8hm_aStb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Mode\",\"col\":3}},{\"id\":\"ZX0JU6ZJAR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expense Head\",\"col\":3}},{\"id\":\"MJJSlZZwEc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expense Group\",\"col\":3}},{\"id\":\"tBQ-LMK2Oy\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"z_FnjO_rkd\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Statements\",\"col\":4}},{\"id\":\"UokzMCQvHI\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}}]",
+ "creation": "2024-02-06 12:33:29.281236",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "income",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Accounting",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Financial Statements",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Chart Of Accounts",
+   "link_count": 0,
+   "link_to": "Chart Of Accounts",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Trial Balance",
+   "link_count": 0,
+   "link_to": "Trial Balance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Profit and Loss Report",
+   "link_count": 0,
+   "link_to": "Profit and Loss Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Balance Sheet",
+   "link_count": 0,
+   "link_to": "Balance Sheet",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Journal Entry",
+   "link_count": 0,
+   "link_to": "Journal Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Reconciliation Tool",
+   "link_count": 0,
+   "link_to": "Bank Reconciliation Tool",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Expense Entry",
+   "link_count": 0,
+   "link_to": "Expense Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Additional Expense Entry",
+   "link_count": 0,
+   "link_to": "Additional Expense Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Period Closing Voucher",
+   "link_count": 0,
+   "link_to": "Period Closing Voucher",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2024-02-06 15:24:43.315443",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Accounting",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 3.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Payment Mode",
+   "link_to": "Payment Mode",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Expense Head",
+   "link_to": "Expense Head",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Tax",
+   "link_to": "Tax",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Account",
+   "link_to": "Account",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Company",
+   "link_to": "Company",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Expense Group",
+   "link_to": "Expense Group",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Accounting"
+}

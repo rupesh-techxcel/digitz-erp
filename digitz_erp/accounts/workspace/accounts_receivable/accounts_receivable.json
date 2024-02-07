@@ -1,0 +1,64 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"C3x4NbweS9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounts Receivable</span>\",\"col\":12}},{\"id\":\"6fWqyJ_Vb8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Entry\",\"col\":3}},{\"id\":\"zM-KXPLJUZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"kOV95J6bj8\",\"type\":\"card\",\"data\":{\"card_name\":\"Outstanding Reports\",\"col\":4}},{\"id\":\"ISiFTPAP1c\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Receipt Entry\",\"col\":4}}]",
+ "creation": "2024-02-06 13:24:19.970683",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "sidebar-expand",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Accounts Receivable",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Outstanding Reports",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Statement Of Account",
+   "link_count": 0,
+   "link_to": "Customer Statement Of Account",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2024-02-06 15:24:43.632243",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Accounts Receivable",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Receipt Entry",
+   "label": "Receipt Entry",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 7.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Receipt Entry",
+   "link_to": "Receipt Entry",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Accounts Receivable"
+}

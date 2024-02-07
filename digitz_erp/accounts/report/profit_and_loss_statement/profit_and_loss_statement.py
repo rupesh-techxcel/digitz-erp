@@ -8,27 +8,43 @@ from digitz_erp.api.profit_and_loss_statement_api import get_accounts_data
 
 def execute(filters=None):
     columns = get_columns()
-    data = get_data(filters)
-    
+    data = get_data(filters)    
    
-    # chart = get_chart_data(filters)
+    chart = get_chart_data(filters)
     # return columns, data, None, chart
-    return columns, data, None
+    return columns, data, None,chart
 
 def get_chart_data(filters=None):
     
-    data = get_data(filters)
+     # Net Profit
+    query = """
+            SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') 
+            """
+    income_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+    
+    query = """
+            SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Expense') 
+            """
+    expense_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+    
+    profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
+  
+    
+    # data = get_data(filters)
     datasets = []
     values = []
     labels = ['Income', 'Expense', 'Net Profit/Loss']
+    values.append(income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0)
+    values.append(expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0)
+    values.append(profit)
     
-    for d in data:
-        if d.get('account') == 'Total Income (Credit)':
-            values.append(d.get('amount'))
-        if d.get('account') == 'Total Expense (Debit)':
-            values.append(d.get('amount'))
-        if d.get('account') == 'Net Profit':
-            values.append(d.get('amount'))
+    # for d in data:
+    #     if d.get('account') == 'Total Income (Credit)':
+    #         values.append(d.get('amount'))
+    #     if d.get('account') == 'Total Expense (Debit)':
+    #         values.append(d.get('amount'))
+    #     if d.get('account') == 'Net Profit':
+    #         values.append(d.get('amount'))
             
     datasets.append({'values': values})
     chart = {"data": {"labels": labels, "datasets": datasets}, "type": "bar"}

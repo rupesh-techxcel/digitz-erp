@@ -131,15 +131,6 @@
    "label": "Show Allocations"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Receipt Entry",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "allow_on_submit": 1,
    "depends_on": "eval:doc.show_allocations == 1;",
    "description": "The \"Paid Amount\" column represents the amount that has already been paid, which is not included in this payment entry.\nAnd The \"Balance Amount\" column indicates the remaining amount that can be settled through this payment entry.",
@@ -192,7 +183,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 09:32:11.784198",
+ "modified": "2024-02-06 19:27:51.826261",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

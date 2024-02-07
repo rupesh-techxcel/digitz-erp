@@ -1,12 +1,13 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "CREN-.###",
+ "autoname": "naming_series:",
  "creation": "2023-12-28 12:56:07.384451",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_gqdf",
+  "naming_series",
   "customer",
   "customer_name",
   "customer_balance",
@@ -226,16 +227,21 @@
    "label": "Date",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-24 14:24:09.318640",
+ "modified": "2024-02-06 18:32:57.332341",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Credit Note",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

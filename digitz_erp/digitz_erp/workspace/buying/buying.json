@@ -9,7 +9,7 @@
    "label": "Buying Trends"
   }
  ],
- "content": "[{\"id\":\"coYBDmxNtx\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Suppliers\",\"col\":12}},{\"id\":\"xoAJWdYEii\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Buying Trends\",\"col\":12}},{\"id\":\"BiSssewA2Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uPcZMrD6LG\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters</b>\",\"col\":12}},{\"id\":\"aWSZAlexN5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"vG_czYzCTn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier Group\",\"col\":3}},{\"id\":\"dCOLFbI9yw\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ZAdhMN-3FF\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Transactions</b>\",\"col\":12}},{\"id\":\"b_CK65Pz8n\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"ZVpVfy8ano\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Order\",\"col\":3}},{\"id\":\"EUCDnaVFdr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"K28-X14RfB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Purchase Invoice\",\"col\":4}},{\"id\":\"6j2qzBrJRI\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Order Reports\",\"col\":4}},{\"id\":\"3QUOJyH5v_\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Reports\",\"col\":4}},{\"id\":\"VOTlnpMerr\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+ "content": "[{\"id\":\"coYBDmxNtx\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Suppliers\",\"col\":12}},{\"id\":\"xoAJWdYEii\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Buying Trends\",\"col\":12}},{\"id\":\"BiSssewA2Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uPcZMrD6LG\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters</b>\",\"col\":12}},{\"id\":\"aWSZAlexN5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"vG_czYzCTn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier Group\",\"col\":3}},{\"id\":\"dCOLFbI9yw\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"EUCDnaVFdr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"pbPR4OuFHy\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"3QUOJyH5v_\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Reports\",\"col\":4}},{\"id\":\"6j2qzBrJRI\",\"type\":\"card\",\"data\":{\"card_name\":\"Purchase Order Reports\",\"col\":4}},{\"id\":\"K28-X14RfB\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Purchase Invoice\",\"col\":4}},{\"id\":\"LMcRI-zjmT\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Purchase Order\",\"col\":4}},{\"id\":\"VOTlnpMerr\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
  "creation": "2024-02-05 18:19:53.560683",
  "custom_blocks": [],
  "docstatus": 0,
@@ -22,25 +22,6 @@
  "is_hidden": 0,
  "label": "Buying",
  "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Order Reports",
-   "link_count": 1,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Order Register",
-   "link_count": 0,
-   "link_to": "Purchase Order Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
   {
    "hidden": 0,
    "is_query_report": 0,
@@ -79,9 +60,77 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Order",
+   "link_count": 0,
+   "link_to": "Purchase Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Invoice",
+   "link_count": 0,
+   "link_to": "Purchase Invoice",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Order Reports",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Order Register",
+   "link_count": 0,
+   "link_to": "Purchase Order Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Order Itemwise Register",
+   "link_count": 0,
+   "link_to": "Purchase Order Itemwise Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Order Itemwise Summary Report",
+   "link_count": 0,
+   "link_to": "Purchase Order Itemwise Summary Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-02-06 11:29:34.630041",
+ "modified": "2024-02-06 15:39:15.848442",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Buying",
@@ -90,6 +139,11 @@
  "parent_page": "",
  "public": 1,
  "quick_lists": [
+  {
+   "document_type": "Purchase Order",
+   "label": "Purchase Order",
+   "quick_list_filter": "[]"
+  },
   {
    "document_type": "Purchase Invoice",
    "label": "Purchase Invoice",
@@ -101,7 +155,7 @@
    "role": "Purchase Manager"
   }
  ],
- "sequence_id": 3.0,
+ "sequence_id": 4.0,
  "shortcuts": [
   {
    "color": "Grey",
@@ -114,24 +168,8 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Purchase Order",
-   "link_to": "Purchase Order",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
    "label": "Supplier Group",
    "link_to": "Supplier Group",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Purchase Invoice",
-   "link_to": "Purchase Invoice",
    "stats_filter": "[]",
    "type": "DocType"
   }

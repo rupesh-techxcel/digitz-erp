@@ -9,7 +9,7 @@
    "label": "Stock Value Chart"
   }
  ],
- "content": "[{\"id\":\"P35bis_h5J\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Balance Chart\",\"col\":12}},{\"id\":\"kEpn_u8Iuq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Value Chart\",\"col\":12}},{\"id\":\"RuLbYqKyaG\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\">Masters</span>\",\"col\":12}},{\"id\":\"bN43W1AZ_O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"c1jI1ri2Ym\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Unit\",\"col\":3}},{\"id\":\"S2zLryISBH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouse\",\"col\":3}},{\"id\":\"xfRygsGbrD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Group\",\"col\":3}},{\"id\":\"mt9US6NL8e\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"u68e_pfdgz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"Oh-H9HKb8Z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"id\":\"Ov1jRWf280\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Price\",\"col\":3}},{\"id\":\"sym89ua4q7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fqq2c6C0A4\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Transactions\",\"col\":4}},{\"id\":\"67gHi3hgMc\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Reports\",\"col\":4}},{\"id\":\"5WLw2nFC8L\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Stock Reports\",\"col\":4}}]",
+ "content": "[{\"id\":\"P35bis_h5J\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Balance Chart\",\"col\":12}},{\"id\":\"kEpn_u8Iuq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Value Chart\",\"col\":12}},{\"id\":\"bN43W1AZ_O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"JuY8XBqiiU\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"c1jI1ri2Ym\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Unit\",\"col\":3}},{\"id\":\"S2zLryISBH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouse\",\"col\":3}},{\"id\":\"xfRygsGbrD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Group\",\"col\":3}},{\"id\":\"mt9US6NL8e\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"u68e_pfdgz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"Oh-H9HKb8Z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"id\":\"Ov1jRWf280\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Price\",\"col\":3}},{\"id\":\"sym89ua4q7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fqq2c6C0A4\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Transactions\",\"col\":4}},{\"id\":\"67gHi3hgMc\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Reports\",\"col\":4}},{\"id\":\"5WLw2nFC8L\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Stock Reports\",\"col\":4}},{\"id\":\"MogKgLO7X9\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fKqMsUooYF\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Item\",\"col\":4}},{\"id\":\"RXVU_-O_8_\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Item Group\",\"col\":4}}]",
  "creation": "2024-02-05 14:33:23.946661",
  "custom_blocks": [],
  "docstatus": 0,
@@ -119,7 +119,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-06 09:14:15.905227",
+ "modified": "2024-02-06 15:24:43.187269",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Stock",
@@ -127,13 +127,20 @@
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
- "quick_lists": [],
- "roles": [
+ "quick_lists": [
   {
-   "role": "Stock Manager"
+   "document_type": "Item",
+   "label": "Item",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Item Group",
+   "label": "Item Group",
+   "quick_list_filter": "[]"
   }
  ],
- "sequence_id": 2.0,
+ "roles": [],
+ "sequence_id": 1.0,
  "shortcuts": [
   {
    "color": "Blue",

@@ -75,6 +75,7 @@
    "options": "\nDuties and Taxes\nStock\nCash\nBank\nStock Received But Not Billed\nRound Off\nCost Of Goods Sold"
   },
   {
+   "fetch_from": "parent_account.root_type",
    "fieldname": "root_type",
    "fieldtype": "Select",
    "in_list_view": 1,
