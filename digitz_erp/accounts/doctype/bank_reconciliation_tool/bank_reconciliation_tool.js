@@ -1,7 +1,7 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Bank Reconciliation Tools", {
+frappe.ui.form.on("Bank Reconciliation Tool", {
 	refresh(frm) {
 	},
   get_bank_entries: function(frm){

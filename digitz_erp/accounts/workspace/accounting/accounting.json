@@ -5,7 +5,7 @@
    "label": "Profit Analysis Chart"
   }
  ],
- "content": "[{\"id\":\"5ORLYzu1ib\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Profit Analysis Chart\",\"col\":12}},{\"id\":\"KCkATRFfwJ\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"HcM23FAM6l\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Account\",\"col\":3}},{\"id\":\"nJ3tWHqoFj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tax\",\"col\":3}},{\"id\":\"T9HnzOoAOH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Company\",\"col\":3}},{\"id\":\"4U8hm_aStb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Mode\",\"col\":3}},{\"id\":\"ZX0JU6ZJAR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expense Head\",\"col\":3}},{\"id\":\"MJJSlZZwEc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expense Group\",\"col\":3}},{\"id\":\"tBQ-LMK2Oy\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"z_FnjO_rkd\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Statements\",\"col\":4}},{\"id\":\"UokzMCQvHI\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}}]",
+ "content": "[{\"id\":\"5ORLYzu1ib\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Profit Analysis Chart\",\"col\":12}},{\"id\":\"KCkATRFfwJ\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"HcM23FAM6l\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Account\",\"col\":3}},{\"id\":\"nJ3tWHqoFj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tax\",\"col\":3}},{\"id\":\"T9HnzOoAOH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Company\",\"col\":3}},{\"id\":\"4U8hm_aStb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Mode\",\"col\":3}},{\"id\":\"ZX0JU6ZJAR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expense Head\",\"col\":3}},{\"id\":\"MJJSlZZwEc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expense Group\",\"col\":3}},{\"id\":\"tBQ-LMK2Oy\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UokzMCQvHI\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"z_FnjO_rkd\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Statements\",\"col\":4}},{\"id\":\"7KhGkblssA\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
  "creation": "2024-02-06 12:33:29.281236",
  "custom_blocks": [],
  "docstatus": 0,
@@ -89,16 +89,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Bank Reconciliation Tool",
-   "link_count": 0,
-   "link_to": "Bank Reconciliation Tool",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Expense Entry",
    "link_count": 0,
    "link_to": "Expense Entry",
@@ -125,9 +115,48 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bank Reconciliation Tool",
+   "link_count": 0,
+   "link_to": "Bank Reconciliation Tool",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Other Reports",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Account Ledger Report",
+   "link_count": 0,
+   "link_to": "Account Ledger Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "General Ledger Report",
+   "link_count": 0,
+   "link_to": "General Ledger Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-02-06 15:24:43.315443",
+ "modified": "2024-02-07 11:59:38.081880",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",

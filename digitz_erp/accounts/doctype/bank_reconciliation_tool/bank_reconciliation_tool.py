@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 
-class BankReconciliationTools(Document):
+class BankReconciliationTool(Document):
     def on_update(self):
         self.update_bank_reconciliation()
 
