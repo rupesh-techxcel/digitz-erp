@@ -229,10 +229,19 @@ frappe.ui.form.on('Sales Invoice', {
 			}
 			else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+				
+				if( entry.tax_rate >0){
+					entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
 					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-
+				}
+				else{
+			
+					entry.tax_amount = 0;
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)					
+				}
+				
+				
 				console.log("entry.tax_amount")
 				console.log(entry.tax_amount)
 

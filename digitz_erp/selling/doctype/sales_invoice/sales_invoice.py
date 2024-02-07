@@ -15,6 +15,7 @@ from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
+from frappe.utils import money_in_words
 
 class SalesInvoice(Document):
 
@@ -65,6 +66,7 @@ class SalesInvoice(Document):
             # equal to rounded_total. Make it as credit sale in the draft mode and then save.
             # In this case its required to make the paid_amount zero
             self.paid_amount = 0
+        self.in_words = money_in_words(self.rounded_total,"AED")
 
     def validate(self):
         self.validate_item()

@@ -60,6 +60,7 @@
   "column_break_e6g4",
   "total_discount_in_line_items",
   "additional_discount",
+  "in_words",
   "column_break_33",
   "round_off",
   "rounded_total",
@@ -532,12 +533,17 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Mode"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In words"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 09:39:45.634035",
+ "modified": "2024-02-07 11:28:39.618357",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
