@@ -1,12 +1,12 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Bank Reconciliation Tool", {
+frappe.ui.form.on("Bank Reconciliation Tools", {
 	refresh(frm) {
 	},
   get_bank_entries: function(frm){
 		frappe.call({
-    method: 'digitz_erp.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.get_all_bank_entries',
+    method: 'digitz_erp.accounts.doctype.bank_reconciliation_tools.bank_reconciliation_tools.get_all_bank_entries',
     args: {},
     callback: function(response) {
         var child_table = frm.fields_dict['bank_reconciliation_details'].grid;
@@ -18,6 +18,7 @@ frappe.ui.form.on("Bank Reconciliation Tool", {
             row.reference_no = entry.reference_no;
             row.reference_date = entry.reference_date;
             row.status = entry.status;
+            row.settlement_date = entry.settlement_date;
         }
         frm.refresh();
     }
