@@ -17,7 +17,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		console.log("refresh")
 
 		if (frm.doc.docstatus == 4) //Hiding for now
-		{			
+		{
 			frappe.call({
 				method: 'digitz_erp.api.purchase_invoice_api.check_balance_qty_to_return_for_purchase_invoice',
 				args: {
@@ -42,7 +42,7 @@ frappe.ui.form.on('Purchase Invoice', {
 						});
 					}
 				}
-			});		
+			});
 		}
 	},
 	validate:function(frm){
@@ -56,8 +56,8 @@ frappe.ui.form.on('Purchase Invoice', {
 		}
 		else if(frm.doc.credit_purchase)
 		{
-			total_scheduled_amount  = 0 
-			
+			total_scheduled_amount  = 0
+
 			frm.doc.payment_schedule.forEach(function(row) {
 				if (row){
 					if(row.amount)
@@ -96,10 +96,10 @@ frappe.ui.form.on('Purchase Invoice', {
 		frappe.call(
 		{
 			method: 'digitz_erp.api.accounts_api.get_supplier_balance',
-			args: {				
+			args: {
 				'supplier': frm.doc.supplier
 			},
-			callback: (r) => {					
+			callback: (r) => {
 				frm.set_value('supplier_balance',r.message[0].supplier_balance)
 				frm.refresh_field("supplier_balance");
 			}
@@ -109,8 +109,8 @@ frappe.ui.form.on('Purchase Invoice', {
 				method:'digitz_erp.api.settings_api.get_supplier_terms',
 				args:{
 					'supplier': frm.doc.supplier
-				},					
-				callback(r){								
+				},
+				callback(r){
 					frm.doc.terms = r.message.template_name,
 					frm.doc.terms_and_conditions = r.message.terms
 					frm.refresh_field("terms_and_conditions");
@@ -143,13 +143,13 @@ frappe.ui.form.on('Purchase Invoice', {
 		if (frm.doc.credit_purchase) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
-		}		
-		
+		}
+
 		fill_payment_schedule(frm,refresh=true);
-	},	
+	},
 	credit_days(frm){
 		fill_payment_schedule(frm,refresh_credit_days= true);
-	},	
+	},
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
@@ -209,7 +209,7 @@ frappe.ui.form.on('Purchase Invoice', {
 			console.log(entry.item);
 			var tax_in_rate = 0;
 
-			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column			
+			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column
 			entry.rate_includes_tax = frm.doc.rate_includes_tax;
 			entry.gross_amount = 0
 			entry.tax_amount = 0;
@@ -229,10 +229,21 @@ frappe.ui.form.on('Purchase Invoice', {
 			}
 			else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
-					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
 
+				if( entry.tax_rate >0){
+					entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+				}
+				else{
+
+					entry.tax_amount = 0;
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+				}
+
+
+				console.log("entry.tax_amount")
+				console.log(entry.tax_amount)
 
 				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
@@ -308,7 +319,7 @@ frappe.ui.form.on('Purchase Invoice', {
 				)
 			}
 			else {
-				console.log("Qty and Rate are NaN");				
+				console.log("Qty and Rate are NaN");
 			}
 
 		});
@@ -331,7 +342,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
-		
+
 		fill_payment_schedule(frm);
 
 		frm.refresh_field("items");
@@ -357,7 +368,7 @@ frappe.ui.form.on('Purchase Invoice', {
             },
             callback: function(response) {
 				if (response && response.message && response.message.warehouse) {
-					window.warehouse = response.message.warehouse;					
+					window.warehouse = response.message.warehouse;
 					// Do something with warehouseValue
 				}
 			}
@@ -400,7 +411,7 @@ frappe.ui.form.on('Purchase Invoice', {
 							{
 								frm.doc.warehouse = r2.message.default_warehouse;
 							}
-							
+
 							console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
@@ -416,8 +427,8 @@ frappe.ui.form.on('Purchase Invoice', {
 							{
 								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_purchase_invoice;
 								frm.refresh_field("update_rates_in_price_list");
-							}	
-							
+							}
+
 							if(r2.message.supplier_terms)
 							{
 								frm.doc.terms = r2.message.supplier_terms
@@ -428,11 +439,11 @@ frappe.ui.form.on('Purchase Invoice', {
 										method:'digitz_erp.api.settings_api.get_terms_for_template',
 										args:{
 											'template': r2.message.supplier_terms
-										},					
-										callback(r){								
-											
+										},
+										callback(r){
+
 											frm.doc.terms_and_conditions = r.message.terms
-											frm.refresh_field("terms_and_conditions");											
+											frm.refresh_field("terms_and_conditions");
 										}
 									});
 							}
@@ -504,7 +515,7 @@ frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 			}
 		};
 	});
-	
+
 	fill_payment_schedule(frm);
 });
 
@@ -512,7 +523,7 @@ frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 frappe.ui.form.on('Purchase Invoice Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
-	
+
 	item(frm, cdt, cdn) {
 
 		if (typeof (frm.doc.supplier) == "undefined") {
@@ -550,7 +561,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					row.display_name = row.item_name					
+					row.display_name = row.item_name
 					frm.warehouse = row.warehouse
 					console.log("before trigger")
 					frm.trigger("get_item_stock_balance");
@@ -578,7 +589,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 
 					console.log("Item:- %s", row.item);
 					console.log("Price List");
-					console.log(frm.doc.price_list);					
+					console.log(frm.doc.price_list);
 
 					var currency = ""
 					console.log("before call digitz_erp.api.settings_api.get_default_currency")
@@ -586,7 +597,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_default_currency',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log(r)
 								currency = r.message
 								console.log("currency")
@@ -602,10 +613,10 @@ frappe.ui.form.on('Purchase Invoice Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_company_settings',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log("digitz_erp.api.settings_api.get_company_settings")
-								console.log(r)								
-								use_supplier_last_price = r.message[0].use_supplier_last_price								
+								console.log(r)
+								use_supplier_last_price = r.message[0].use_supplier_last_price
 								console.log("use_customer_last_price")
 								console.log(use_supplier_last_price)
 							}
@@ -630,12 +641,12 @@ frappe.ui.form.on('Purchase Invoice Item', {
 									if(r.message != undefined)
 									{
 										row.rate = parseFloat(r.message);
-										row.rate_in_base_unit = parseFloat(r.message);		
+										row.rate_in_base_unit = parseFloat(r.message);
 									}
 
 									console.log("supplier last price")
 									console.log(row.rate)
-									
+
 									if(r.message != undefined && r.message > 0 )
 									{
 										use_price_list_price = 0
@@ -644,7 +655,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 							}
 						);
 					}
-				
+
 					if(use_price_list_price ==1)
 					{
 						console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -668,8 +679,8 @@ frappe.ui.form.on('Purchase Invoice Item', {
 										row.rate_in_base_unit = parseFloat(r.message);
 									}
 								}
-							});			
-					}	
+							});
+					}
 
 					frm.refresh_field("items");
 
@@ -824,7 +835,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 		row.warehouse = frm.doc.warehouse
 
 		frm.trigger("make_taxes_and_totals");
-		
+
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
@@ -868,31 +879,31 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 		});
 		console.log("row_count")
 		console.log(row_count)
-		console.log("paymentRow")		
+		console.log("paymentRow")
 		console.log(paymentRow)
 		console.log("refresh_credit_days")
 		console.log(refresh_credit_days)
-		
+
 		//If there is no row exits create one with the relevant values
 		if (!paymentRow) {
 			// Calculate payment schedule and add a new row
 			paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
-			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;	
-			paymentRow.payment_mode = "Cash"				
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			paymentRow.payment_mode = "Cash"
 			paymentRow.amount = roundedTotal;
 			refresh_field("payment_schedule");
 		}
 		else if (row_count==1)
-		{			
+		{
 			//If there is only one row update the amount. If there is more than one row that means there is manual
-			//entry and	user need to manage it by themself				
+			//entry and	user need to manage it by themself
 			paymentRow.amount = roundedTotal;
 			refresh_field("payment_schedule");
 		}
 
-		//Update date based on credit_days if there is a credit days change or change in the credit_purchase checkbox	
+		//Update date based on credit_days if there is a credit days change or change in the credit_purchase checkbox
 		if(refresh || refresh_credit_days)
-			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;			
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
 			refresh_field("payment_schedule");
 	}
 	else

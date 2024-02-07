@@ -255,14 +255,26 @@ frappe.ui.form.on('Quotation', {
 			}
 			else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
-					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
 
+				if( entry.tax_rate >0){
+					entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+				}
+				else{
+
+					entry.tax_amount = 0;
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+				}
+
+
+				console.log("entry.tax_amount")
+				console.log(entry.tax_amount)
 
 				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
+
 
 
 
@@ -533,7 +545,7 @@ frappe.ui.form.on('Quotation Item', {
 					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					
+
 					row.item_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
@@ -573,7 +585,7 @@ frappe.ui.form.on('Quotation Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_default_currency',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log(r)
 								currency = r.message
 								console.log("currency")
@@ -591,7 +603,7 @@ frappe.ui.form.on('Quotation Item', {
 								'item': row.item,
 								'price_list': frm.doc.price_list,
 								'currency': currency	,
-								'date': frm.doc.posting_date							
+								'date': frm.doc.posting_date
 							},
 							callback(r) {
 								console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -599,7 +611,7 @@ frappe.ui.form.on('Quotation Item', {
 								row.rate = parseFloat(r.message);
 								row.rate_in_base_unit = parseFloat(r.message);
 							}
-						});	
+						});
 
 
 					frm.refresh_field("items");
@@ -743,14 +755,14 @@ frappe.ui.form.on('Quotation Item', {
 		frm.trigger("make_taxes_and_totals");
 
 		frm.refresh_field("items");
-	},	
+	},
 	items_add(frm, cdt, cdn) {
-		
+
 		let row = frappe.get_doc(cdt, cdn);
 		row.warehouse = frm.doc.warehouse
 
 		frm.trigger("make_taxes_and_totals");
-		
+
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

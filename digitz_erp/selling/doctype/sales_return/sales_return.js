@@ -13,7 +13,7 @@ frappe.ui.form.on('Sales Return', {
 	}
   },
   get_items_for_return: function (frm) {
-	
+
 	if (!frm.doc.customer) {
 		frappe.msgprint("Select Customer.");
 		return;
@@ -45,18 +45,18 @@ frappe.ui.form.on('Sales Return', {
 				],
 				primary_action: function () {
 
-					
+
 					var child_table_data_updated = child_table_control.get_value();
-										
+
 					// Iterate through the selected items
 					child_table_data_updated.forEach(function (item) {
 
 						if(item.__checked)
-						{					
+						{
 							// Access item fields using item.fieldname
 							console.log("Selected Item: ", item.name);
 							frappe.call({
-								method: "digitz_erp.api.sales_invoice_api.get_sales_line_items_for_return",									
+								method: "digitz_erp.api.sales_invoice_api.get_sales_line_items_for_return",
 								args: {
 									sales_invoice: item.name
 								},
@@ -71,7 +71,7 @@ frappe.ui.form.on('Sales Return', {
 									returnRows.forEach(newRow => {
 
 										console.log(newRow)
-										
+
 										let existingRow =[]
 
 										if(frm.doc.items)
@@ -79,7 +79,7 @@ frappe.ui.form.on('Sales Return', {
 											 existingRow =  frm.doc.items.find(row => row.si_item_reference === newRow.si_item_reference);
 
 										if (!frm.doc.items ||  !existingRow) {
-											
+
 											var return_item = frappe.model.get_new_doc('Sales Return Item');
 												return_item.item = newRow.item
 												return_item.warehouse = frm.doc.warehouse
@@ -101,9 +101,9 @@ frappe.ui.form.on('Sales Return', {
 												return_item.rate_in_base_unit = newRow.rate_in_base_unit
 												return_item.tax = newRow.tax
 												return_item.tax_rate = newRow.tax_rate
-												return_item.rate_includes_tax = newRow.rate_includes_tax												
+												return_item.rate_includes_tax = newRow.rate_includes_tax
 												return_item.si_item_reference = newRow.si_item_reference
-											
+
 											console.log("return_item")
 											console.log(return_item)
 											// If the row doesn't exist, add it to the child table
@@ -118,8 +118,8 @@ frappe.ui.form.on('Sales Return', {
 											// // If the row exists, you might want to update the existing row or handle it as needed
 											// console.log(`Row with pi_item_reference ${newRow.pi_item_reference} already exists`);
 										}
-									});									
-									
+									});
+
 								}})
 						}
 
@@ -127,7 +127,7 @@ frappe.ui.form.on('Sales Return', {
 
 					dialog.hide();
 					// Refresh the child table after adding all rows
-					
+
 				}
 			});
 
@@ -249,11 +249,25 @@ frappe.ui.form.on('Sales Return', {
 				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}
-			else {
+      else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+
+				if( entry.tax_rate >0){
+					entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
 					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+				}
+				else{
+
+					entry.tax_amount = 0;
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+				}
+
+
+				console.log("entry.tax_amount")
+				console.log(entry.tax_amount)
+
+				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
 
@@ -468,7 +482,7 @@ frappe.ui.form.on('Sales Return', {
 				frm.refresh_field("customer_balance");
 			}
 		});
-	
+
   },
 });
 
@@ -563,7 +577,7 @@ frappe.ui.form.on('Sales Return Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_default_currency',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log(r)
 								currency = r.message
 								console.log("currency")
@@ -581,7 +595,7 @@ frappe.ui.form.on('Sales Return Item', {
 								'item': row.item,
 								'price_list': frm.doc.price_list,
 								'currency': currency,
-								'date': frm.doc.posting_date								
+								'date': frm.doc.posting_date
 							},
 							callback(r) {
 								console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -589,7 +603,7 @@ frappe.ui.form.on('Sales Return Item', {
 								row.rate = parseFloat(r.message);
 								row.rate_in_base_unit = parseFloat(r.message);
 							}
-						});	
+						});
 
 
 					frm.refresh_field("items");
@@ -721,7 +735,7 @@ frappe.ui.form.on('Sales Return Item', {
 		row.warehouse = frm.doc.warehouse
 
 		frm.trigger("make_taxes_and_totals");
-		
+
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
