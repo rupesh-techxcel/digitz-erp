@@ -13,7 +13,7 @@ class Account(NestedSet):
 			if(not self.parent_account): 
 				frappe.throw("Parent account mandatory.")
 	
-			if(not self.root_type): 
-				frappe.throw("Root Type mandatory.")
+			# if(not self.root_type): 
+			# 	frappe.throw("Root Type mandatory.")
 
     

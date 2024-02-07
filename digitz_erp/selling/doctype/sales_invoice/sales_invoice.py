@@ -342,18 +342,20 @@ class SalesInvoice(Document):
         gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
 
-        # Tax - Credit
-        idx = 3
-        gl_doc = frappe.new_doc('GL Posting')
-        gl_doc.voucher_type = "Sales Invoice"
-        gl_doc.voucher_no = self.name
-        gl_doc.idx = idx
-        gl_doc.posting_date = self.posting_date
-        gl_doc.posting_time = self.posting_time
-        gl_doc.account = default_accounts.tax_account
-        gl_doc.credit_amount = self.tax_total
-        gl_doc.against_account = default_accounts.default_receivable_account
-        gl_doc.insert()
+
+        if self.tax_total >0:
+            # Tax - Credit
+            idx = 3
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.tax_account
+            gl_doc.credit_amount = self.tax_total
+            gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.insert()
 
         # Round Off
 

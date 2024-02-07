@@ -5,9 +5,11 @@ from frappe.utils import *
 def update_accounts_for_doc_type(doc_type, name):
     
     query = """
-            SELECT distinct account from `tabGL Posting` gp where gp.voucher_type=%s and gp.name=%s
+            SELECT distinct account from `tabGL Posting` gp where gp.voucher_type=%s and gp.voucher_no=%s
             """
     account_list = frappe.db.sql(query, (doc_type,name),as_dict=True)
+    print("account_list")
+    print(account_list)
     
     for account in account_list:
         update_account_balance(account.account)
@@ -60,6 +62,9 @@ def update_account_balance(account, update_parent_accounts=True):
     print("account")
     print(account)
     
+    if(account == "Accounts"):
+        return
+    
     query = """
         SELECT
             SUM(debit_amount) - SUM(credit_amount) AS account_balance
@@ -82,8 +87,8 @@ def update_account_balance(account, update_parent_accounts=True):
 
     account_doc.save()
     
-    if account_doc.root_type == None:
-        frappe.throw("Root type not found for the account {}".format(account_doc.name))
+    # if account_doc.root_type == None:
+    #     frappe.throw("Root type not found for the account {}".format(account_doc.name))
         
     if update_parent_accounts:
         update_all_parent_accounts_for_the_root_type(account_doc.root_type)
