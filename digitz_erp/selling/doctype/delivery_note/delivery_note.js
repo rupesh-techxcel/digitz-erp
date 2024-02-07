@@ -73,7 +73,7 @@ frappe.ui.form.on('Delivery Note', {
 					if (r.message.default_price_list) {
 						frm.doc.price_list = r.message.default_price_list;
 					}
-					
+
 					frm.refresh_field("price_list");
 				}
 			});
@@ -163,14 +163,26 @@ frappe.ui.form.on('Delivery Note', {
 			}
 			else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
-					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
 
+				if( entry.tax_rate >0){
+					entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+				}
+				else{
+
+					entry.tax_amount = 0;
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+				}
+
+
+				console.log("entry.tax_amount")
+				console.log(entry.tax_amount)
 
 				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
+
 
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
@@ -343,10 +355,10 @@ frappe.ui.form.on('Delivery Note', {
 		})
 	},
 	validate: function (frm) {
-						
+
 		// if (frm.doc.auto_generated_from_sales_invoice)
-		// {			
-		// 	frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")			
+		// {
+		// 	frappe.throw("Cannot change Delivery Note created from a Sales Invoice. Do it from the correspodning Sales Invoice.")
 		// }
 	},
 	before_delete: function(frm)
@@ -449,7 +461,7 @@ frappe.ui.form.on('Delivery Note Item', {
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
-					row.conversion_factor = 1;					
+					row.conversion_factor = 1;
 					frm.item = row.item
 					frm.warehouse = row.warehouse
 					frm.trigger("get_item_stock_balance");
@@ -481,7 +493,7 @@ frappe.ui.form.on('Delivery Note Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_default_currency',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log(r)
 								currency = r.message
 								console.log("currency")
@@ -497,10 +509,10 @@ frappe.ui.form.on('Delivery Note Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_company_settings',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log("digitz_erp.api.settings_api.get_company_settings")
-								console.log(r)								
-								use_customer_last_price = r.message[0].use_customer_last_price								
+								console.log(r)
+								use_customer_last_price = r.message[0].use_customer_last_price
 								console.log("use_customer_last_price")
 								console.log(use_customer_last_price)
 							}
@@ -529,12 +541,12 @@ frappe.ui.form.on('Delivery Note Item', {
 									if(r.message != undefined)
 									{
 										row.rate = r.message;
-										row.rate_in_base_unit = r.message;		
+										row.rate_in_base_unit = r.message;
 									}
 
 									console.log("customer last price")
 									console.log(row.rate)
-									
+
 									if(r.message != undefined && r.message > 0 )
 									{
 										use_price_list_price = 0
@@ -543,7 +555,7 @@ frappe.ui.form.on('Delivery Note Item', {
 							}
 						);
 					}
-				
+
 					if(use_price_list_price ==1)
 					{
 						console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -556,7 +568,7 @@ frappe.ui.form.on('Delivery Note Item', {
 									'item': row.item,
 									'price_list': frm.doc.price_list,
 									'currency': currency,
-									'date': frm.doc.posting_date								
+									'date': frm.doc.posting_date
 								},
 								callback(r) {
 									console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -564,7 +576,7 @@ frappe.ui.form.on('Delivery Note Item', {
 									row.rate = r.message;
 									row.rate_in_base_unit = r.message;
 								}
-							});			
+							});
 					}
 
 
@@ -722,7 +734,7 @@ frappe.ui.form.on('Delivery Note Item', {
 		row.warehouse = frm.doc.warehouse
 
 		frm.trigger("make_taxes_and_totals");
-		
+
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");

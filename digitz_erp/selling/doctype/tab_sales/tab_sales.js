@@ -191,15 +191,25 @@ frappe.ui.form.on('Tab Sales', {
 			}
 			else {
 				entry.rate_excluded_tax = entry.rate;
-				entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
-				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
-					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
 
+				if( entry.tax_rate >0){
+					entry.tax_amount = (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+					+ (((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100))
+				}
+				else{
+
+					entry.tax_amount = 0;
+					entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount)
+				}
+
+
+				console.log("entry.tax_amount")
+				console.log(entry.tax_amount)
 
 				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
-
 
 
 			//var taxesTable = frm.add_child("taxes");
@@ -377,7 +387,7 @@ frappe.ui.form.on('Tab Sales', {
             },
             callback: function(response) {
 				if (response && response.message && response.message.warehouse) {
-					window.warehouse = response.message.warehouse;					
+					window.warehouse = response.message.warehouse;
 					// Do something with warehouseValue
 				}
 			}
@@ -419,7 +429,7 @@ frappe.ui.form.on('Tab Sales', {
 							{
 								frm.doc.warehouse = r2.message.default_warehouse;
 							}
-							
+
 							console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
@@ -488,7 +498,7 @@ frappe.ui.form.on('Tab Sales Item', {
 					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					
+
 					row.item_name = r.message.item_name;
 					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
@@ -496,7 +506,7 @@ frappe.ui.form.on('Tab Sales Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					
+
 					frm.item = row.item
 					frm.warehouse = row.warehouse
 					console.log("before trigger")
@@ -534,7 +544,7 @@ frappe.ui.form.on('Tab Sales Item', {
 						{
 							method:'digitz_erp.api.settings_api.get_default_currency',
 							async:false,
-							callback(r){								
+							callback(r){
 								console.log(r)
 								currency = r.message
 								console.log("currency")
@@ -552,7 +562,7 @@ frappe.ui.form.on('Tab Sales Item', {
 								'item': row.item,
 								'price_list': frm.doc.price_list,
 								'currency': currency,
-								'date': frm.doc.posting_date								
+								'date': frm.doc.posting_date
 							},
 							callback(r) {
 								console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -560,7 +570,7 @@ frappe.ui.form.on('Tab Sales Item', {
 								row.rate = parseFloat(r.message);
 								row.rate_in_base_unit = parseFloat(r.message);
 							}
-						});	
+						});
 
 					frm.refresh_field("items");
 				}
