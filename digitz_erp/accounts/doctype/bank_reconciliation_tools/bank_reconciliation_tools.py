@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 
-class BankReconciliationTool(Document):
+class BankReconciliationTools(Document):
     def on_update(self):
         self.update_bank_reconciliation()
 
@@ -20,14 +20,15 @@ class BankReconciliationTool(Document):
 
 @frappe.whitelist()
 def get_all_bank_entries():
-    bank_reconciliations = frappe.get_all("Bank Reconciliation", fields=["name", "reference_no", "reference_date", "status"])
+    bank_reconciliations = frappe.get_all("Bank Reconciliation", fields=["name", "reference_no", "reference_date", "status","settlement_date"])
     entries_list = []
     for bank_reconciliation in bank_reconciliations:
         entry = {
             "name": bank_reconciliation.name,
             "reference_no": bank_reconciliation.reference_no,
             "reference_date": bank_reconciliation.reference_date,
-            "status": bank_reconciliation.status
+            "status": bank_reconciliation.status,
+			"settlement_date": bank_reconciliation.settlement_date
         }
         entries_list.append(entry)
     print(entries_list)

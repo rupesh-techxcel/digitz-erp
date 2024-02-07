@@ -1,16 +1,16 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2024-02-02 09:04:53.659671",
+ "creation": "2024-02-06 13:29:03.747001",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "bank_account",
-  "column_break_vkdl",
+  "column_break_gugt",
   "from_date",
-  "column_break_ilog",
+  "column_break_ybrm",
   "to_date",
-  "section_break_osds",
+  "section_break_eglv",
   "show_all",
   "get_bank_entries",
   "bank_reconciliation_details"
@@ -19,11 +19,12 @@
   {
    "fieldname": "bank_account",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Bank Account",
    "options": "Bank Account"
   },
   {
-   "fieldname": "column_break_vkdl",
+   "fieldname": "column_break_gugt",
    "fieldtype": "Column Break"
   },
   {
@@ -32,7 +33,7 @@
    "label": "From Date"
   },
   {
-   "fieldname": "column_break_ilog",
+   "fieldname": "column_break_ybrm",
    "fieldtype": "Column Break"
   },
   {
@@ -41,7 +42,7 @@
    "label": "To Date"
   },
   {
-   "fieldname": "section_break_osds",
+   "fieldname": "section_break_eglv",
    "fieldtype": "Section Break"
   },
   {
@@ -51,33 +52,32 @@
    "label": "Show All"
   },
   {
+   "fieldname": "get_bank_entries",
+   "fieldtype": "Button",
+   "label": "Get Bank Entries"
+  },
+  {
    "fieldname": "bank_reconciliation_details",
    "fieldtype": "Table",
    "label": "Bank Reconciliation Details",
    "options": "Bank Reconciliation Details"
-  },
-  {
-   "fieldname": "get_bank_entries",
-   "fieldtype": "Button",
-   "label": "Get Bank Entries"
   }
  ],
  "index_web_pages_for_search": 1,
+ "issingle": 1,
  "links": [],
- "modified": "2024-02-02 09:58:39.775336",
+ "modified": "2024-02-06 13:37:38.006097",
  "modified_by": "Administrator",
  "module": "Accounts",
- "name": "Bank Reconciliation Tool",
+ "name": "Bank Reconciliation Tools",
  "owner": "Administrator",
  "permissions": [
   {
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
    "role": "System Manager",
    "share": 1,
    "write": 1
