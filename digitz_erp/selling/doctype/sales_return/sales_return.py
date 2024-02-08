@@ -476,3 +476,9 @@ class SalesReturn(Document):
             stock_recalc_voucher.insert()
             print("going to recalculate")
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+
+@frappe.whitelist()
+def get_default_payment_mode():
+    default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
+    print(default_payment_mode)
+    return default_payment_mode

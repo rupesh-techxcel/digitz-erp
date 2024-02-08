@@ -3,6 +3,11 @@
 
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
+		 frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+ 				if (r && r.default_credit_sale === 1) {
+ 						frm.set_value('credit_sale', 1);
+ 				}
+ 		});
 
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
@@ -194,10 +199,10 @@ frappe.ui.form.on('Quotation', {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 
-		if (frm.doc.credit_sale) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		// if (frm.doc.credit_sale) {
+		// 	frm.doc.payment_mode = "";
+		// 	frm.doc.payment_account = "";
+		// }
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -250,14 +255,14 @@ frappe.ui.form.on('Quotation', {
 					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 					entry.rate_excluded_tax = entry.rate - tax_in_rate;
 					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
-					
+
 				}
 				else
 				{
 					entry.rate_excluded_tax = entry.rate
 					entry.tax_amount = 0
 				}
-				
+
 				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}
@@ -488,6 +493,18 @@ frappe.ui.form.on('Quotation', {
 });
 
 frappe.ui.form.on("Quotation", "onload", function (frm) {
+	if(frm.doc.credit_sale == 0){
+        frappe.call({
+                method: 'digitz_erp.selling.doctype.quotation.quotation.get_default_payment_mode',
+                callback: function(response) {
+                        if (response && response.message) {
+                                frm.set_value('payment_mode', response.message);
+                        } else {
+                                frappe.msgprint('Default payment mode for sales not found.');
+                        }
+                }
+        });
+    }
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);

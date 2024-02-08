@@ -51,7 +51,6 @@
   "round_off",
   "rounded_total",
   "paid_amount",
-  "section_break_33",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
@@ -150,7 +149,7 @@
    "label": "Accounts"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "credit_purchase",
    "fieldtype": "Check",
    "label": "Credit Purchase"
@@ -168,14 +167,12 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
   {
    "fieldname": "payment_account",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Account",
    "options": "Account"
   },
@@ -280,10 +277,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
    "label": "Terms And Conditions"
@@ -339,7 +332,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-10-29 08:42:06.022759",
+ "modified": "2024-02-08 10:12:30.791393",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

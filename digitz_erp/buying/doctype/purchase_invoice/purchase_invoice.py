@@ -618,6 +618,12 @@ class PurchaseInvoice(Document):
 			# posting_status_doc.payment_posted_time = datetime.now()
 			# posting_status_doc.save()
 			update_posting_status(self.doctype, self.name, 'payment_posted_time', None)
+			
+@frappe.whitelist()
+def get_default_payment_mode():
+    default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
+    print(default_payment_mode)
+    return default_payment_mode
 
 @frappe.whitelist()
 def create_purchase_return(source_name):

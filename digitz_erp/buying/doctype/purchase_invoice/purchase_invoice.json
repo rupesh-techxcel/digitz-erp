@@ -138,7 +138,7 @@
    "label": "Accounts"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "credit_purchase",
    "fieldtype": "Check",
    "in_standard_filter": 1,
@@ -422,7 +422,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 09:44:17.097764",
+ "modified": "2024-02-08 09:55:00.456317",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",
