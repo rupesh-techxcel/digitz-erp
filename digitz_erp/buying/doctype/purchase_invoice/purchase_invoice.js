@@ -13,6 +13,11 @@ frappe.ui.form.on('Purchase Invoice', {
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
 	},
 	refresh:function (frm) {
+		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+				if (r && r.default_credit_purchase === 1) {
+						frm.set_value('credit_purchase', 1);
+				}
+		});
 
 		console.log("refresh")
 
@@ -223,7 +228,7 @@ frappe.ui.form.on('Purchase Invoice', {
 
 					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 					entry.rate_excluded_tax = entry.rate - tax_in_rate;
-					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))					
+					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
 				}
 				else
 				{
@@ -857,6 +862,19 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 		frm.doc.payment_schedule = [];
 		refresh_field("payment_schedule");
 	}
+
+	if(frm.doc.credit_purchase == 0){
+        frappe.call({
+                method: 'digitz_erp.buying.doctype.purchase_invoice.purchase_invoice.get_default_payment_mode',
+                callback: function(response) {
+                        if (response && response.message) {
+                                frm.set_value('payment_mode', response.message);
+                        } else {
+                                frappe.msgprint('Default payment mode for purchase not found.');
+                        }
+                }
+        });
+    }
 
 	if (frm.doc.credit_purchase) {
 		var postingDate = frm.doc.posting_date;

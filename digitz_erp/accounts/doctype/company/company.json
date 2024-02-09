@@ -49,6 +49,11 @@
   "default_income_account",
   "cost_of_goods_sold_account",
   "stock_adjustment_account",
+  "column_break_jltm",
+  "default_payment_mode_for_purchase",
+  "default_payment_mode_for_sales",
+  "default_credit_purchase",
+  "default_credit_sale",
   "terms_and_conditions_tab",
   "supplier_terms",
   "section_break_39",
@@ -345,11 +350,39 @@
    "fieldtype": "Small Text",
    "label": "Bank A/c Print Details",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jltm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_payment_mode_for_purchase",
+   "fieldtype": "Link",
+   "label": "Default Payment Mode For Purchase",
+   "options": "Payment Mode"
+  },
+  {
+   "fieldname": "default_payment_mode_for_sales",
+   "fieldtype": "Link",
+   "label": "Default Payment Mode For Sales",
+   "options": "Payment Mode"
+  },
+  {
+   "default": "1",
+   "fieldname": "default_credit_sale",
+   "fieldtype": "Check",
+   "label": "Default Credit Sale"
+  },
+  {
+   "default": "1",
+   "fieldname": "default_credit_purchase",
+   "fieldtype": "Check",
+   "label": "Default Credit Purchase"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-31 09:16:51.745542",
+ "modified": "2024-02-08 14:56:59.846893",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

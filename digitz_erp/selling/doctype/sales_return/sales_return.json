@@ -253,7 +253,6 @@
    "label": "Payment Terms "
   },
   {
-   "default": "Cash",
    "fieldname": "payment_mode",
    "fieldtype": "Link",
    "label": "Payment Mode",
@@ -515,7 +514,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 09:51:16.372579",
+ "modified": "2024-02-08 13:03:20.408614",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

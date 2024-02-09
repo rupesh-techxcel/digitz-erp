@@ -4,6 +4,11 @@
 frappe.ui.form.on('Sales Return', {
 
   refresh: function(frm){
+    frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+       if (r && r.default_credit_sale === 1) {
+           frm.set_value('credit_sale', 1);
+       }
+   });
 
 	if (frm.doc.docstatus < 1) {
 		frm.add_custom_button('Get Items From Sales', function () {
@@ -208,10 +213,10 @@ frappe.ui.form.on('Sales Return', {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 
-		if (frm.doc.credit_sale) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		// if (frm.doc.credit_sale) {
+		// 	frm.doc.payment_mode = "";
+		// 	frm.doc.payment_account = "";
+		// }
 	},
   make_taxes_and_totals(frm) {
 		frm.clear_table("taxes");
@@ -243,11 +248,11 @@ frappe.ui.form.on('Sales Return', {
 			if (entry.rate_includes_tax) //Disclaimer - since tax is calculated after discounted amount. this implementation
 			{							// has a mismatch with it. But still it approves to avoid complexity for the customer
 				// also this implementation is streight forward than the other way
-				
+
 				if( entry.tax_rate >0){
 					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 					entry.rate_excluded_tax = entry.rate - tax_in_rate;
-					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))					
+					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
 				}
 				else
 				{
@@ -495,6 +500,18 @@ frappe.ui.form.on('Sales Return', {
 });
 
 frappe.ui.form.on("Sales Return", "onload", function (frm) {
+  if(frm.doc.credit_sale == 0){
+        frappe.call({
+                method: 'digitz_erp.selling.doctype.sales_return.sales_return.get_default_payment_mode',
+                callback: function(response) {
+                        if (response && response.message) {
+                                frm.set_value('payment_mode', response.message);
+                        } else {
+                                frappe.msgprint('Default payment mode for sales not found.');
+                        }
+                }
+        });
+    }
 	frm.trigger("get_default_company_and_warehouse");
 
 	frm.set_query("price_list", function () {

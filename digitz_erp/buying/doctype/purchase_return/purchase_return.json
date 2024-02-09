@@ -179,7 +179,7 @@
    "label": "Accounts"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "credit_purchase",
    "fieldtype": "Check",
    "label": "Credit Purchase"
@@ -197,14 +197,13 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
   {
+   "fetch_from": "payment_mode.account",
    "fieldname": "payment_account",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Account",
    "options": "Account"
   },
@@ -393,7 +392,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 18:38:08.137936",
+ "modified": "2024-02-08 12:37:28.443621",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

@@ -4,7 +4,11 @@
 frappe.ui.form.on('Purchase Order', {
 
 	refresh:function(frm){
-
+		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+				if (r && r.default_credit_purchase === 1) {
+						frm.set_value('credit_purchase', 1);
+				}
+		});
 		if (frm.doc.docstatus == 1)
 
 			if (frm.doc.docstatus == 1) {
@@ -102,10 +106,10 @@ frappe.ui.form.on('Purchase Order', {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
 
-		if (frm.doc.credit_purchase) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		// if (frm.doc.credit_purchase) {
+		// 	frm.doc.payment_mode = "";
+		// 	frm.doc.payment_account = "";
+		// }
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -187,7 +191,7 @@ frappe.ui.form.on('Purchase Order', {
 					entry.rate_excluded_tax = entry.rate
 					entry.tax_amount = 0
 				}
-				
+
 				entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				entry.gross_amount = entry.net_amount - entry.tax_amount;
 			}
@@ -393,6 +397,19 @@ frappe.ui.form.on('Purchase Order', {
 
 
 frappe.ui.form.on("Purchase Order", "onload", function (frm) {
+	if(frm.doc.credit_purchase == 0){
+				frappe.call({
+								method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.get_default_payment_mode',
+								callback: function(response) {
+												if (response && response.message) {
+																frm.set_value('payment_mode', response.message);
+												} else {
+																frappe.msgprint('Default payment mode for purchase not found.');
+												}
+								}
+				});
+		}
+
 
 	//Since the default selectionis cash
 	//frm.set_df_property("date","read_only",1);

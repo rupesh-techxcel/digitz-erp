@@ -450,3 +450,9 @@ class PurchaseReturn(Document):
 
 		if pi_reference_any:
 			frappe.msgprint("Returned qty of items in the corresponding purchase invoice reverted successfully", indicator= "green", alert= True)
+
+@frappe.whitelist()
+def get_default_payment_mode():
+    default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
+    print(default_payment_mode)
+    return default_payment_mode

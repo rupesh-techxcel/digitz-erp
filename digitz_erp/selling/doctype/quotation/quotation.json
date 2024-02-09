@@ -28,7 +28,6 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "section_break_11",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -58,7 +57,6 @@
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
   "tab_break_50",
   "data_53",
   "do_no",
@@ -184,16 +182,12 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "credit_sale",
    "fieldtype": "Check",
    "label": "Credit Sale"
@@ -211,14 +205,13 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Mode",
    "options": "Payment Mode"
   },
   {
+   "fetch_from": "payment_mode.account",
    "fieldname": "payment_account",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Payment Account",
    "options": "Account"
   },
@@ -341,10 +334,6 @@
    "label": "Terms and Conditions"
   },
   {
-   "fieldname": "section_break_27",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
    "label": "References"
@@ -406,7 +395,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 18:17:40.585542",
+ "modified": "2024-02-08 12:58:57.156839",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
