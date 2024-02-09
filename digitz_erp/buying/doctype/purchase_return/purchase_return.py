@@ -296,6 +296,7 @@ class PurchaseReturn(Document):
 		gl_doc.party = self.supplier
 		gl_doc.against_account = default_accounts.default_inventory_account
 		gl_doc.insert()
+		idx +=1
 
 		# # Stock Received But Not Billed
 		# idx =2
@@ -311,21 +312,21 @@ class PurchaseReturn(Document):
 		# gl_doc.insert()
 
 		# Credit Tax
-		idx =2
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Purchase Return"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.tax_account
-		gl_doc.credit_amount = self.tax_total
-		gl_doc.against_account = default_accounts.default_payable_account
-		gl_doc.insert()
+		if self.tax_total>0:
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Purchase Return"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = default_accounts.tax_account
+			gl_doc.credit_amount = self.tax_total
+			gl_doc.against_account = default_accounts.default_payable_account
+			gl_doc.insert()
+			idx +=1
 
 		# Rounded Total
-		if self.round_off!=0.00:
-			idx = idx + 1
+		if self.round_off!=0.00:			
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.voucher_type = "Purchase Return"
 			gl_doc.voucher_no = self.name
@@ -343,9 +344,10 @@ class PurchaseReturn(Document):
 				gl_doc.against_account = default_accounts.default_inventory_account
 
 			gl_doc.insert()
+			idx +=1
 
 		# Credit Inventory A/c
-		idx =idx+1
+		
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Return"
 		gl_doc.voucher_no = self.name
@@ -356,18 +358,7 @@ class PurchaseReturn(Document):
 		gl_doc.credit_amount = self.net_total - self.tax_total
 		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.insert()
-
-		# idx =idx + 1
-		# gl_doc = frappe.new_doc('GL Posting')
-		# gl_doc.voucher_type = "Purchase Return"
-		# gl_doc.voucher_no = self.name
-		# gl_doc.idx = idx
-		# gl_doc.posting_date = self.posting_date
-		# gl_doc.posting_time = self.posting_time
-		# gl_doc.account = default_accounts.stock_received_but_not_billed
-		# gl_doc.credit_amount = self.net_total - self.tax_total
-		# gl_doc.against_account = default_accounts.default_inventory_account
-		# gl_doc.insert()
+		idx +=1
 
 	def insert_payment_postings(self):
 

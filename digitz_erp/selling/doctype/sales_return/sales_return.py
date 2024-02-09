@@ -73,9 +73,10 @@ class SalesReturn(Document):
         gl_doc.party = self.customer
         gl_doc.against_account = default_accounts.default_income_account
         gl_doc.insert()
+        idx +=1
 
-        # Income account - Credot
-        idx = 2
+        # Income account - Credit
+        
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Return"
         gl_doc.voucher_no = self.name
@@ -86,22 +87,23 @@ class SalesReturn(Document):
         gl_doc.debit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
+        idx +=1
 
         # Tax - Credit
-        idx = 3
-        gl_doc = frappe.new_doc('GL Posting')
-        gl_doc.voucher_type = "Sales Return"
-        gl_doc.voucher_no = self.name
-        gl_doc.idx = idx
-        gl_doc.posting_date = self.posting_date
-        gl_doc.posting_time = self.posting_time
-        gl_doc.account = default_accounts.tax_account
-        gl_doc.debit_amount = self.tax_total
-        gl_doc.against_account = default_accounts.default_receivable_account
-        gl_doc.insert()
+        if self.tax_total>0:
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Return"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.tax_account
+            gl_doc.debit_amount = self.tax_total
+            gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.insert()
+            idx +=1
 
-        # Inventory Account
-        idx = 4
+        # Inventory Account        
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Return"
         gl_doc.voucher_no = self.name
@@ -112,9 +114,9 @@ class SalesReturn(Document):
         gl_doc.debit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.cost_of_goods_sold_account
         gl_doc.insert()
+        idx +=1
 
-        # COGS
-        idx = 5
+        # COGS        
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Return"
         gl_doc.voucher_no = self.name
@@ -125,10 +127,10 @@ class SalesReturn(Document):
         gl_doc.credit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
+        idx +=1
 
         # Round Off
-        if self.round_off != 0.00:
-            idx = 6
+        if self.round_off != 0.00:            
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Return"
             gl_doc.voucher_no = self.name
@@ -141,6 +143,7 @@ class SalesReturn(Document):
             else:
                 gl_doc.credit_amount = self.round_off
             gl_doc.insert()
+            idx +=1
 
 
 

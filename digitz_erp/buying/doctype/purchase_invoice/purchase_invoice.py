@@ -514,9 +514,10 @@ class PurchaseInvoice(Document):
 		gl_doc.against_account = default_accounts.default_inventory_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
+		idx +=1
 
 		# Stock Received But Not Billed - Debit - Against Trade Payable A/c
-		idx =2
+		
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Invoice"
 		gl_doc.voucher_no = self.name
@@ -528,24 +529,25 @@ class PurchaseInvoice(Document):
 		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
+		idx +=1
 
-		# Tax - Debit - Against Trade Payable A/c
-		idx =3
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Purchase Invoice"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.tax_account
-		gl_doc.debit_amount = self.tax_total
-		gl_doc.against_account = default_accounts.default_payable_account
-		gl_doc.remarks = remarks
-		gl_doc.insert()
+		# Tax - Debit - Against Trade Payable A/c	
+		if self.tax_total>0:
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Purchase Invoice"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = default_accounts.tax_account
+			gl_doc.debit_amount = self.tax_total
+			gl_doc.against_account = default_accounts.default_payable_account
+			gl_doc.remarks = remarks
+			gl_doc.insert()
+			idx +=1
 
 		# Round Off
-		if self.round_off!=0.00:
-			idx = idx + 1
+		if self.round_off!=0.00:			
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.voucher_type = "Purchase Invoice"
 			gl_doc.voucher_no = self.name
@@ -564,6 +566,7 @@ class PurchaseInvoice(Document):
 			gl_doc.remarks = remarks
 
 			gl_doc.insert()
+			idx +=1
 
 		update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
 

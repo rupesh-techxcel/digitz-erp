@@ -328,9 +328,9 @@ class SalesInvoice(Document):
         gl_doc.party = self.customer
         gl_doc.against_account = default_accounts.default_income_account
         gl_doc.insert()
+        idx +=1
 
-        # Income account - Credit
-        idx = 2
+        # Income account - Credit        
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Invoice"
         gl_doc.voucher_no = self.name
@@ -341,11 +341,13 @@ class SalesInvoice(Document):
         gl_doc.credit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.insert()
+        idx +=1
 
 
         if self.tax_total >0:
+            
             # Tax - Credit
-            idx = 3
+            
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Invoice"
             gl_doc.voucher_no = self.name
@@ -356,11 +358,11 @@ class SalesInvoice(Document):
             gl_doc.credit_amount = self.tax_total
             gl_doc.against_account = default_accounts.default_receivable_account
             gl_doc.insert()
+            idx +=1
 
         # Round Off
 
-        if self.round_off != 0.00:
-            idx = 4
+        if self.round_off != 0.00:            
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Invoice"
             gl_doc.voucher_no = self.name
@@ -375,6 +377,7 @@ class SalesInvoice(Document):
                 gl_doc.debit_amount = abs(self.round_off)
 
             gl_doc.insert()
+            idx +=1
 
         if self.tab_sales:
 
@@ -385,8 +388,7 @@ class SalesInvoice(Document):
 
 
 
-            # Cost Of Goods Sold
-            idx = idx + 1
+            # Cost Of Goods Sold            
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Invoice"
             gl_doc.voucher_no = self.name
@@ -397,9 +399,7 @@ class SalesInvoice(Document):
             gl_doc.debit_amount = cost_of_goods_sold
             gl_doc.against_account = default_accounts.default_inventory_account
             gl_doc.insert()
-
-
-            idx = idx + 1
+            idx +=1
 
             # Inventory account Eg: Stock In Hand
             gl_doc = frappe.new_doc('GL Posting')
@@ -412,6 +412,7 @@ class SalesInvoice(Document):
             gl_doc.credit_amount = cost_of_goods_sold
             gl_doc.against_account = default_accounts.cost_of_goods_sold_account
             gl_doc.insert()
+            idx +=1
 
         update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
 

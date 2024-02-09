@@ -60,17 +60,18 @@ class DebitNote(Document):
      
 		for tax_account,tax_amount in tax_ledgers.items():
       
-			idx = idx + 1
-			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.idx = idx
-			gl_doc.voucher_type = 'Debit Note'
-			gl_doc.voucher_no = self.name
-			gl_doc.posting_date = self.date
-			gl_doc.account = tax_account
-			gl_doc.credit_amount = tax_amount
-			gl_doc.against_account = self.payable_account
-			gl_doc.remarks = ""
-			gl_doc.insert()
+			if tax_amount >0:      
+				idx = idx + 1
+				gl_doc = frappe.new_doc('GL Posting')
+				gl_doc.idx = idx
+				gl_doc.voucher_type = 'Debit Note'
+				gl_doc.voucher_no = self.name
+				gl_doc.posting_date = self.date
+				gl_doc.account = tax_account
+				gl_doc.credit_amount = tax_amount
+				gl_doc.against_account = self.payable_account
+				gl_doc.remarks = ""
+				gl_doc.insert()
    
 		# For payments
 		if not self.on_credit:
