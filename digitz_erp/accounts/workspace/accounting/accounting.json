@@ -156,7 +156,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-07 11:59:38.081880",
+ "modified": "2024-02-09 21:17:01.223720",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
@@ -173,14 +173,6 @@
    "doc_view": "List",
    "label": "Payment Mode",
    "link_to": "Payment Mode",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Expense Head",
-   "link_to": "Expense Head",
    "stats_filter": "[]",
    "type": "DocType"
   },
@@ -205,14 +197,6 @@
    "doc_view": "List",
    "label": "Company",
    "link_to": "Company",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Expense Group",
-   "link_to": "Expense Group",
    "stats_filter": "[]",
    "type": "DocType"
   }
