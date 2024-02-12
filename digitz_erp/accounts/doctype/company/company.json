@@ -22,6 +22,7 @@
   "default_currency",
   "default_bank_account",
   "bank_ac_print_details",
+  "perdiod_closing_mode",
   "inventory_settings_tab",
   "inventory_settings",
   "use_customer_last_price",
@@ -378,11 +379,17 @@
    "fieldname": "default_credit_purchase",
    "fieldtype": "Check",
    "label": "Default Credit Purchase"
+  },
+  {
+   "fieldname": "perdiod_closing_mode",
+   "fieldtype": "Select",
+   "label": "Perdiod Closing Mode",
+   "options": "\nMonthly\nQuarterly\nHalf Yearly\nYearly"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-08 14:56:59.846893",
+ "modified": "2024-02-11 13:46:10.033824",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

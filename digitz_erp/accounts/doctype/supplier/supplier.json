@@ -105,8 +105,8 @@
   },
   {
    "fieldname": "credit_amount",
-   "fieldtype": "Float",
-   "label": "Credit Amount"
+   "fieldtype": "Currency",
+   "label": "Credit Amount Limit"
   },
   {
    "fieldname": "supplier_name",
@@ -189,7 +189,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-11 09:29:09.811255",
+ "modified": "2024-02-11 13:51:12.886527",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

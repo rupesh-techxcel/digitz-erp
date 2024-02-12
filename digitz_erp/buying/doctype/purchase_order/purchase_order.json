@@ -24,6 +24,7 @@
   "order_status",
   "due_date",
   "rate_includes_tax",
+  "supplier_inv_no",
   "accounts_section",
   "credit_purchase",
   "credit_days",
@@ -327,12 +328,19 @@
    "fieldname": "due_date",
    "fieldtype": "Date",
    "label": "Due Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "description": "Fill this field before creating purchase invoice from this order(since invoice number is mandatory In Purchase Invoice)",
+   "fieldname": "supplier_inv_no",
+   "fieldtype": "Data",
+   "label": "Supplier Inv No"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-08 10:12:30.791393",
+ "modified": "2024-02-11 14:40:02.788349",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

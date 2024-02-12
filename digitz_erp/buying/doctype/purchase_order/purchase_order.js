@@ -30,6 +30,12 @@ frappe.ui.form.on('Purchase Order', {
 					if (po_exists.message == false)
 					{
 						frm.add_custom_button('Create Purchase Invoice', () => {
+
+							if (frm.is_dirty()) 
+							{
+									frappe.throw("Unsaved changes exist in this purchase order. Kindly ensure to save the purchase order.")
+							}
+
 							frm.call("generate_purchase_invoice")
 						},
 						);
@@ -38,6 +44,12 @@ frappe.ui.form.on('Purchase Order', {
 					{
 
 						frm.add_custom_button('Create Purchase Invoice', () => {
+
+							if (frm.is_dirty()) 
+							{
+									frappe.throw("Unsaved changes exist in this purchase order. Kindly ensure to save the purchase order.")
+							}
+							
 							frm.call("generate_purchase_invoice")
 						},
 						);
