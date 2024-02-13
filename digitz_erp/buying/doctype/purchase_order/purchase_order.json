@@ -30,9 +30,12 @@
   "credit_days",
   "payment_terms",
   "payment_mode",
+  "mode",
   "payment_account",
   "column_break_24",
   "remarks",
+  "reference_no",
+  "reference_date",
   "section_break_19",
   "items",
   "section_break_29",
@@ -335,12 +338,32 @@
    "fieldname": "supplier_inv_no",
    "fieldtype": "Data",
    "label": "Supplier Inv No"
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-11 14:40:02.788349",
+ "modified": "2024-02-12 10:51:30.849475",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

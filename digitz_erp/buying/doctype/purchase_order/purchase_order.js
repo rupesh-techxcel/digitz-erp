@@ -30,13 +30,26 @@ frappe.ui.form.on('Purchase Order', {
 					if (po_exists.message == false)
 					{
 						frm.add_custom_button('Create Purchase Invoice', () => {
+							frappe.call({
+								method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.generate_purchase_invoice',
+								args: {
+									purchase_order: frm.doc.name
+								},
+								callback: function(r) {
+									frappe.show_alert({
+										message: __('Purchase Invoice Created and Saved in Draft Mode.'),
+										indicator: 'green'
+									},3);
+									frm.reload_doc();
+								}
+							});
 
-							if (frm.is_dirty()) 
-							{
-									frappe.throw("Unsaved changes exist in this purchase order. Kindly ensure to save the purchase order.")
-							}
-
-							frm.call("generate_purchase_invoice")
+							// if (frm.is_dirty())
+							// {
+							// 		frappe.throw("Unsaved changes exist in this purchase order. Kindly ensure to save the purchase order.")
+							// }
+							//
+							// frm.call("generate_purchase_invoice")
 						},
 						);
 					}
@@ -44,13 +57,26 @@ frappe.ui.form.on('Purchase Order', {
 					{
 
 						frm.add_custom_button('Create Purchase Invoice', () => {
+							frappe.call({
+								method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.generate_purchase_invoice',
+								args: {
+									purchase_order: frm.doc.name
+								},
+								callback: function(r) {
+									frappe.show_alert({
+										message: __('Purchase Invoice Created and Saved in Draft Mode.'),
+										indicator: 'green'
+									},3);
+									frm.reload_doc();
+								}
+							});
 
-							if (frm.is_dirty()) 
-							{
-									frappe.throw("Unsaved changes exist in this purchase order. Kindly ensure to save the purchase order.")
-							}
-							
-							frm.call("generate_purchase_invoice")
+							// if (frm.is_dirty())
+							// {
+							// 		frappe.throw("Unsaved changes exist in this purchase order. Kindly ensure to save the purchase order.")
+							// }
+							//
+							// frm.call("generate_purchase_invoice")
 						},
 						);
 					}

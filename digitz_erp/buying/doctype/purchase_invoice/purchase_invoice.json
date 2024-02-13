@@ -402,13 +402,13 @@
    "fieldname": "reference_no",
    "fieldtype": "Data",
    "label": "Reference No",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date",
-   "mandatory_depends_on": "eval:doc.payment_mode == 'Bank'"
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
    "fetch_from": "payment_mode.mode",
@@ -422,7 +422,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-08 09:55:00.456317",
+ "modified": "2024-02-12 10:49:56.980938",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",
