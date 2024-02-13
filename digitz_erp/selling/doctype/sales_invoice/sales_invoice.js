@@ -355,14 +355,21 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.doc.tax_total = tax_total;
 		frm.doc.total_discount_in_line_items = discount_total;
 
-
-		if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
-			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-			frm.doc.rounded_total = Math.round(frm.doc.net_total);
-		}
-		else {
-			frm.doc.rounded_total = frm.doc.net_total;
-		}
+		frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
+			console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
+			if (data && data.do_not_apply_round_off_in_si == 1) {
+				frm.doc.rounded_total = frm.doc.net_total;
+				refresh_field('rounded_total');
+			}
+			else {
+			 if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
+				 frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
+				 frm.doc.rounded_total = Math.round(frm.doc.net_total);
+				 refresh_field('round_off');
+				 refresh_field('rounded_total');
+			 }
+		 }
+		});
 
 		fill_receipt_schedule(frm);
 
