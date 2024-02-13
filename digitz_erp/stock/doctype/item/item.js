@@ -2,6 +2,13 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Item', {
+	refresh: function(frm) {
+		frappe.db.get_value('Company', frm.doc.company, 'tax_excluded', function(r) {
+       if (r && r.tax_excluded === 1) {
+           frm.set_value('tax_excluded', 1);
+       }
+   });
+ },
 	 setup: function(frm) {
 		if(frm.is_new() == 1)
 		{
@@ -11,17 +18,17 @@ frappe.ui.form.on('Item', {
 	tax_excluded(frm)
 	{
 		frm.set_df_property("tax","read_only",frm.doc.tax_excluded);
-		
+
 	   if(frm.doc.tax_excluded)
 	   {
 		   console.log("Tax excluded?");
 		   console.log(frm.doc.tax_excluded);
-		   frm.doc.tax ="";		
-		   frm.refresh_field("tax");   	
+		   frm.doc.tax ="";
+		   frm.refresh_field("tax");
 	   }
 	},
 	assign_default_tax(frm)
-	{		
+	{
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -30,7 +37,7 @@ frappe.ui.form.on('Item', {
 				'fieldname':'default_company'
 			},
 			callback: (r)=>{
-				
+
 					frappe.call(
 					{
 						method: 'frappe.client.get_value',
@@ -43,16 +50,16 @@ frappe.ui.form.on('Item', {
 						{
 							console.log('Tax')
 							console.log(r2.message.tax)
-							frm.doc.tax = r2.message.tax;	
+							frm.doc.tax = r2.message.tax;
 							frm.refresh_field("tax");
 						}
 					}
-				)	
+				)
 			}
 		})
 	},
 	validate: function(frm)
-	{	
+	{
 		console.log("validate event");
 		console.log("Base Unit");
 		console.log(frm.doc.base_unit);
@@ -61,7 +68,7 @@ frappe.ui.form.on('Item', {
 
 		try
 		{
-		frm.doc.units.forEach(function(entry) { 
+		frm.doc.units.forEach(function(entry) {
 			if(frm.doc.base_unit == entry.unit)
 			{
 				baseUnitFound= true;
@@ -83,16 +90,16 @@ frappe.ui.form.on('Item', {
 			baseuom.parent = frm.doc.item;
 			console.log("Base UOM")
 			console.log(baseuom);
-		}		
+		}
 	},
 	before_save: function(frm)
 	{
 		if(!frm.doc.tax_excluded)
 		{
 			if(!frm.doc.tax)
-			{	
-				frm.trigger("assign_default_tax");			
-			}						
+			{
+				frm.trigger("assign_default_tax");
+			}
 		}
 		else
 		{
@@ -104,7 +111,7 @@ frappe.ui.form.on('Item', {
 frappe.ui.form.on("Item", "onload", function(frm) {
 
 	var default_company = ""
-	
+
 	console.log("New Document %s" ,frm.is_new())
 
 	if(frm.is_new())
@@ -118,7 +125,7 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 					'fieldname':'default_company'
 				},
 				callback: (r)=>{
-					
+
 						frappe.call(
 						{
 							method: 'frappe.client.get_value',
@@ -131,15 +138,15 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 							{
 								console.log('Tax')
 								console.log(r2.message.tax)
-								frm.doc.tax = r2.message.tax;		
-								frm.refresh_field("tax");  
-																					
+								frm.doc.tax = r2.message.tax;
+								frm.refresh_field("tax");
+
 							}
 						}
 
-					)	
+					)
 				}
-			});		
+			});
 		}
 		else
 		{
@@ -151,21 +158,21 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 			// 		'item':frm.doc.item_name,
 			// 		'price_list':'Standard Buying'
 			// 		},
-			// 		callback(r)	
-			// 		{	console.log("Price");				
+			// 		callback(r)
+			// 		{	console.log("Price");
 			// 			console.log(r.message)
 			// 		if(r.message.length == 1)
-			// 			{						
-			// 				console.log(r.message[0].price);				
+			// 			{
+			// 				console.log(r.message[0].price);
 			// 				frm.doc.standard_buying_price = r.message[0].price;
-			// 			}				
-				
+			// 			}
+
 			// 		}
 
 			// 	}
-		
+
 			// );
-		
+
 
 			// frappe.call(
 			// 	{
@@ -175,20 +182,19 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 			// 			'item':frm.doc.item_name,
 			// 			'price_list':'Standard Selling'
 			// 			},
-			// 			callback(r)	
-			// 			{	console.log("Price");				
+			// 			callback(r)
+			// 			{	console.log("Price");
 			// 				console.log(r.message)
 			// 			if(r.message.length == 1)
-			// 			{						
-			// 				console.log(r.message[0].price);				
+			// 			{
+			// 				console.log(r.message[0].price);
 			// 				frm.doc.standard_selling_price = r.message[0].price;
-			// 			}				
+			// 			}
 			// 		}
 
 			// 	}
 			// );
 		}
-	
-	}	
-);
 
+	}
+);
