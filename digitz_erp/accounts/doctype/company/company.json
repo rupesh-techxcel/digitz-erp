@@ -166,6 +166,7 @@
    "fieldname": "tax",
    "fieldtype": "Link",
    "label": "Tax",
+   "mandatory_depends_on": "eval:doc.tax_excluded == 0",
    "options": "Tax"
   },
   {
@@ -389,7 +390,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-11 13:46:10.033824",
+ "modified": "2024-02-13 10:00:05.943273",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
