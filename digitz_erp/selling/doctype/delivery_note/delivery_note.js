@@ -156,7 +156,7 @@ frappe.ui.form.on('Delivery Note', {
 				// tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 				// entry.rate_excluded_tax = entry.rate - tax_in_rate;
 				// entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
-				
+
 				// entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				// entry.gross_amount = entry.net_amount - entry.tax_amount;
 
@@ -164,7 +164,7 @@ frappe.ui.form.on('Delivery Note', {
 
 					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 					entry.rate_excluded_tax = entry.rate - tax_in_rate;
-					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))					
+					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
 				}
 				else
 				{

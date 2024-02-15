@@ -156,51 +156,55 @@ class PurchaseReturn(Document):
 
 				change_in_stock_value = new_balance_value - last_stock_ledger.balance_value
 
-			new_stock_ledger = frappe.new_doc("Stock Ledger")
-			new_stock_ledger.item = docitem.item
-			new_stock_ledger.warehouse = docitem.warehouse
-			new_stock_ledger.posting_date = posting_date_time
-			new_stock_ledger.qty_out = docitem.qty_in_base_unit
-			new_stock_ledger.outgoing_rate = docitem.rate_in_base_unit
-			new_stock_ledger.unit = docitem.base_unit
-			new_stock_ledger.valuation_rate = valuation_rate
-			new_stock_ledger.balance_qty = new_balance_qty
-			new_stock_ledger.balance_value = new_balance_value
-			new_stock_ledger.change_in_stock_value = change_in_stock_value
-			new_stock_ledger.voucher = "Purchase Return"
-			new_stock_ledger.voucher_no = self.name
-			new_stock_ledger.source = "Purchase Return Item"
-			new_stock_ledger.source_document_id = docitem.name
-			new_stock_ledger.insert()
+			default_company = frappe.db.get_single_value("Global Settings", "default_company")
+			maintain_stock = frappe.db.get_value("Company", default_company,['maintain_stock'])
+			print("Maintain Stock :",maintain_stock)
+			if(maintain_stock == 1):
+				new_stock_ledger = frappe.new_doc("Stock Ledger")
+				new_stock_ledger.item = docitem.item
+				new_stock_ledger.warehouse = docitem.warehouse
+				new_stock_ledger.posting_date = posting_date_time
+				new_stock_ledger.qty_out = docitem.qty_in_base_unit
+				new_stock_ledger.outgoing_rate = docitem.rate_in_base_unit
+				new_stock_ledger.unit = docitem.base_unit
+				new_stock_ledger.valuation_rate = valuation_rate
+				new_stock_ledger.balance_qty = new_balance_qty
+				new_stock_ledger.balance_value = new_balance_value
+				new_stock_ledger.change_in_stock_value = change_in_stock_value
+				new_stock_ledger.voucher = "Purchase Return"
+				new_stock_ledger.voucher_no = self.name
+				new_stock_ledger.source = "Purchase Return Item"
+				new_stock_ledger.source_document_id = docitem.name
+				new_stock_ledger.insert()
 
-			sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
-			# If no more records for the item, update balances. otherwise it updates in the flow
-			if more_records_count_for_item==0:
-				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
-					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
-				new_stock_balance = frappe.new_doc('Stock Balance')
-				new_stock_balance.item = docitem.item
-				new_stock_balance.item_name = docitem.item_name
-				new_stock_balance.unit = docitem.unit
-				new_stock_balance.warehouse = docitem.warehouse
-				new_stock_balance.stock_qty = new_balance_qty
-				new_stock_balance.stock_value = new_balance_value
-				new_stock_balance.valuation_rate = valuation_rate
-				new_stock_balance.insert()
-				# item_name = frappe.get_value("Item", docitem.item,['item_name'])
-				update_item_stock_balance(docitem.item)
+				sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
+				# If no more records for the item, update balances. otherwise it updates in the flow
+				if more_records_count_for_item==0:
+					if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+						frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
+					new_stock_balance = frappe.new_doc('Stock Balance')
+					new_stock_balance.item = docitem.item
+					new_stock_balance.item_name = docitem.item_name
+					new_stock_balance.unit = docitem.unit
+					new_stock_balance.warehouse = docitem.warehouse
+					new_stock_balance.stock_qty = new_balance_qty
+					new_stock_balance.stock_value = new_balance_value
+					new_stock_balance.valuation_rate = valuation_rate
+					new_stock_balance.insert()
+					# item_name = frappe.get_value("Item", docitem.item,['item_name'])
+					update_item_stock_balance(docitem.item)
 
-			else:
-				if previous_stock_ledger_name:
-					stock_recalc_voucher.append('records',{'item': docitem.item,
-															'warehouse': docitem.warehouse,
-															'base_stock_ledger': new_stock_ledger.name
-																})
 				else:
-					stock_recalc_voucher.append('records',{'item': docitem.item,
-                                                                'warehouse': docitem.warehouse,
-                                                                'base_stock_ledger': "No Previous Ledger"
-                                                                })
+					if previous_stock_ledger_name:
+						stock_recalc_voucher.append('records',{'item': docitem.item,
+																'warehouse': docitem.warehouse,
+																'base_stock_ledger': new_stock_ledger.name
+																	})
+					else:
+						stock_recalc_voucher.append('records',{'item': docitem.item,
+	                                                                'warehouse': docitem.warehouse,
+	                                                                'base_stock_ledger': "No Previous Ledger"
+	                                                                })
 		if(more_records>0):
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
@@ -326,7 +330,7 @@ class PurchaseReturn(Document):
 			idx +=1
 
 		# Rounded Total
-		if self.round_off!=0.00:			
+		if self.round_off!=0.00:
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.voucher_type = "Purchase Return"
 			gl_doc.voucher_no = self.name
@@ -347,7 +351,7 @@ class PurchaseReturn(Document):
 			idx +=1
 
 		# Credit Inventory A/c
-		
+
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Purchase Return"
 		gl_doc.voucher_no = self.name

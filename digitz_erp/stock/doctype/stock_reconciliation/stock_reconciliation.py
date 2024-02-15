@@ -11,7 +11,7 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class StockReconciliation(Document):
-    
+
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Stock Reconciliation', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
@@ -24,44 +24,44 @@ class StockReconciliation(Document):
 
         # Extract the new time as a string
         self.posting_time = new_datetime.strftime('%H:%M:%S')
-    
+
     def before_validate(self):
-        
+
         if(self.Voucher_In_The_Same_Time()):
-                        
+
             self.Set_Posting_Time_To_Next_Second()
 
             if(self.Voucher_In_The_Same_Time()):
-                self.Set_Posting_Time_To_Next_Second()				
-                
+                self.Set_Posting_Time_To_Next_Second()
+
                 if(self.Voucher_In_The_Same_Time()):
                     self.Set_Posting_Time_To_Next_Second()
-                    
+
                     if(self.Voucher_In_The_Same_Time()):
-                        frappe.throw("Voucher with same time already exists.")  
+                        frappe.throw("Voucher with same time already exists.")
 
 
     def on_submit(self):
-        
+
         init_document_posting_status(self.doctype, self.name)
-        
+
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
         if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.do_postings_on_submit()
         else:
-            # frappe.enqueue(self.do_postings_on_submit, queue="long") 
-              self.do_postings_on_submit()     
-        
+            # frappe.enqueue(self.do_postings_on_submit, queue="long")
+              self.do_postings_on_submit()
+
     def do_postings_on_submit(self):
-        
+
         stock_adjustment_value =  self.add_stock_reconciliation()
-       
+
         if(stock_adjustment_value !=0):
             self.insert_gl_records(stock_adjustment_value = stock_adjustment_value)
-            
+
         update_posting_status(self.doctype,self.name, 'posting_status','Completed')
-        
+
         update_accounts_for_doc_type('Stock Reconciliation', self.name)
 
     def add_stock_reconciliation(self):
@@ -130,89 +130,93 @@ class StockReconciliation(Document):
                 stock_adjustment_value = stock_adjustment_value + new_balance_value
                 change_in_stock_value_for_item = new_balance_value
 
-            new_stock_ledger = frappe.new_doc("Stock Ledger")
-            new_stock_ledger.item = docitem.item
-            new_stock_ledger.item_name = docitem.item_name
-            new_stock_ledger.warehouse = docitem.warehouse
-            new_stock_ledger.posting_date = posting_date_time
-            new_stock_ledger.change_in_stock_value = change_in_stock_value_for_item
+            default_company = frappe.db.get_single_value("Global Settings", "default_company")
+            maintain_stock = frappe.db.get_value("Company", default_company,['maintain_stock'])
+            print("Maintain Stock :",maintain_stock)
+            if(maintain_stock == 1):
+                new_stock_ledger = frappe.new_doc("Stock Ledger")
+                new_stock_ledger.item = docitem.item
+                new_stock_ledger.item_name = docitem.item_name
+                new_stock_ledger.warehouse = docitem.warehouse
+                new_stock_ledger.posting_date = posting_date_time
+                new_stock_ledger.change_in_stock_value = change_in_stock_value_for_item
 
-            new_stock_ledger.qty_in = qty_in
+                new_stock_ledger.qty_in = qty_in
 
-            print("qty_in")
-            print(qty_in)
+                print("qty_in")
+                print(qty_in)
 
-            new_stock_ledger.qty_out = qty_out
-            new_stock_ledger.unit = docitem.base_unit
+                new_stock_ledger.qty_out = qty_out
+                new_stock_ledger.unit = docitem.base_unit
 
-            if(qty_in >0):
-                new_stock_ledger.incoming_rate = valuation_rate
+                if(qty_in >0):
+                    new_stock_ledger.incoming_rate = valuation_rate
 
-            if(qty_out >0):
-                new_stock_ledger.outgoing_rate = valuation_rate
+                if(qty_out >0):
+                    new_stock_ledger.outgoing_rate = valuation_rate
 
-            new_stock_ledger.valuation_rate = valuation_rate
-            new_stock_ledger.balance_qty = new_balance_qty
-            new_stock_ledger.balance_value = new_balance_value
-            new_stock_ledger.voucher = "Stock Reconciliation"
-            new_stock_ledger.voucher_no = self.name
-            new_stock_ledger.source = "Stock Reconciliation Item"
-            new_stock_ledger.source_document_id = docitem.name
-            new_stock_ledger.insert()
+                new_stock_ledger.valuation_rate = valuation_rate
+                new_stock_ledger.balance_qty = new_balance_qty
+                new_stock_ledger.balance_value = new_balance_value
+                new_stock_ledger.voucher = "Stock Reconciliation"
+                new_stock_ledger.voucher_no = self.name
+                new_stock_ledger.source = "Stock Reconciliation Item"
+                new_stock_ledger.source_document_id = docitem.name
+                new_stock_ledger.insert()
 
-            more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
-				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
+                more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
+    				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
 
-            more_records = more_records + more_records_count_for_item
+                more_records = more_records + more_records_count_for_item
 
-            if(more_records_count_for_item>0):
+                if(more_records_count_for_item>0):
 
-                stock_recalc_voucher.append('records',{'item': docitem.item,
-                                                            'warehouse': docitem.warehouse,
-                                                            'base_stock_ledger': new_stock_ledger.name
-                                                            })
+                    stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                                'warehouse': docitem.warehouse,
+                                                                'base_stock_ledger': new_stock_ledger.name
+                                                                })
 
-            else:
-                if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
-                    frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+                else:
+                    if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+                        frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
-                new_stock_balance = frappe.new_doc('Stock Balance')
-                new_stock_balance.item = docitem.item
-                new_stock_balance.unit = docitem.base_unit
-                new_stock_balance.warehouse = docitem.warehouse
-                new_stock_balance.stock_qty = new_balance_qty
-                new_stock_balance.stock_value = new_balance_value
-                new_stock_balance.valuation_rate = valuation_rate
+                    new_stock_balance = frappe.new_doc('Stock Balance')
+                    new_stock_balance.item = docitem.item
+                    new_stock_balance.unit = docitem.base_unit
+                    new_stock_balance.warehouse = docitem.warehouse
+                    new_stock_balance.stock_qty = new_balance_qty
+                    new_stock_balance.stock_value = new_balance_value
+                    new_stock_balance.valuation_rate = valuation_rate
 
-                new_stock_balance.insert()
+                    new_stock_balance.insert()
 
-                # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(docitem.item)
+                    # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                    update_item_stock_balance(docitem.item)
 
         update_posting_status(self.doctype,self.name,'stock_posted_time')
-        
+
         if(more_records>0):
-            
+
             update_posting_status(self.doctype,self.name,'stock_recalc_required', True)
-            
+
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
-            
+
             update_posting_status(self.doctype,self.name,'stock_recalc_time')
 
         print(stock_adjustment_value)
         return stock_adjustment_value
 
     def on_cancel(self):
-        
+
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-        if(frappe.session.user == "Administrator" and turn_off_background_job): 
+        if(frappe.session.user == "Administrator" and turn_off_background_job):
             self.cancel_stock_reconciliation()
         else:
-            # frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
+            # frappe.enqueue(self.cancel_stock_reconciliation, queue="long")
             self.cancel_stock_reconciliation()
-        
+
     def cancel_stock_reconciliation(self):
 
         # Insert record to 'Stock Recalculate Voucher' doc
@@ -266,7 +270,7 @@ class StockReconciliation(Document):
 															'base_stock_ledger': "No Previous Ledger"
 															})
             else:
-                
+
                 balance_qty =0
                 balance_value =0
                 valuation_rate  = 0
@@ -280,7 +284,7 @@ class StockReconciliation(Document):
                 if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
                     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
-                unit = frappe.get_value("Item", docitem.item,['base_unit'])     
+                unit = frappe.get_value("Item", docitem.item,['base_unit'])
                 stock_balance_for_item = frappe.new_doc("Stock Balance")
                 stock_balance_for_item.item = docitem.item
                 stock_balance_for_item.unit = unit
@@ -294,13 +298,13 @@ class StockReconciliation(Document):
                 update_item_stock_balance(docitem.item)
 
         update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')
-        
+
         if(more_records>0):
             update_posting_status(self.doctype, self.name, 'stock_recalc_required_on_cancel', True)
-            
+
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
-            
+
             update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time')
 
         frappe.db.delete("Stock Ledger",
@@ -309,11 +313,11 @@ class StockReconciliation(Document):
                 })
 
         delete_gl_postings_for_cancel_doc_type('Stock Reconciliation', self.name)
-        
+
         update_posting_status(self.doctype,self.name, 'posting_status','Completed')
 
     def insert_gl_records(self, stock_adjustment_value):
-        
+
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")
 
@@ -354,5 +358,5 @@ class StockReconciliation(Document):
 
         gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
-        
+
         update_posting_status(self.doctype,self.name,'gl_posted')
