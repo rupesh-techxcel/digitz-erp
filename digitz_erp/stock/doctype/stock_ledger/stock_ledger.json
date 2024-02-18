@@ -26,7 +26,9 @@
   "source",
   "source_document_id",
   "recalculated",
-  "log"
+  "log",
+  "corrected_on_repost",
+  "balance_qty_before_repost"
  ],
  "fields": [
   {
@@ -164,12 +166,23 @@
    "fieldname": "additional_allocation",
    "fieldtype": "Currency",
    "label": "Additional Allocation"
+  },
+  {
+   "default": "0",
+   "fieldname": "corrected_on_repost",
+   "fieldtype": "Check",
+   "label": "Corrected On Repost"
+  },
+  {
+   "fieldname": "balance_qty_before_repost",
+   "fieldtype": "Float",
+   "label": "Balance Qty Before Repost"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-04 17:34:42.322610",
+ "modified": "2024-02-16 20:27:56.041196",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

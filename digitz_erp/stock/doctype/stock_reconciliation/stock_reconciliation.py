@@ -6,7 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
 from datetime import datetime,timedelta
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
@@ -47,11 +47,11 @@ class StockReconciliation(Document):
         
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-        if(frappe.session.user == "Administrator" and turn_off_background_job):
-            self.do_postings_on_submit()
-        else:
+        # if(frappe.session.user == "Administrator" and turn_off_background_job):
+        #     self.do_postings_on_submit()
+        # else:
             # frappe.enqueue(self.do_postings_on_submit, queue="long") 
-              self.do_postings_on_submit()     
+        self.do_postings_on_submit()     
         
     def do_postings_on_submit(self):
         
@@ -187,7 +187,7 @@ class StockReconciliation(Document):
                 new_stock_balance.insert()
 
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(docitem.item)
+                update_stock_balance_in_item(docitem.item)
 
         update_posting_status(self.doctype,self.name,'stock_posted_time')
         
@@ -207,11 +207,11 @@ class StockReconciliation(Document):
         
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-        if(frappe.session.user == "Administrator" and turn_off_background_job): 
-            self.cancel_stock_reconciliation()
-        else:
+        # if(frappe.session.user == "Administrator" and turn_off_background_job): 
+        #     self.cancel_stock_reconciliation()
+        # else:
             # frappe.enqueue(self.cancel_stock_reconciliation, queue="long") 
-            self.cancel_stock_reconciliation()
+        self.cancel_stock_reconciliation()
         
     def cancel_stock_reconciliation(self):
 
@@ -291,7 +291,7 @@ class StockReconciliation(Document):
                 stock_balance_for_item.insert()
 
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(docitem.item)
+                update_stock_balance_in_item(docitem.item)
 
         update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')
         

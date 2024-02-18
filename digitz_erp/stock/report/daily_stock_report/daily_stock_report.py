@@ -55,7 +55,7 @@ def get_data(filters):
 
     opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
     
-    print(opening_balance_data)
+    print("opening_balance_data")
     print(opening_balance_data)
 
     stock_recon_qty_query = f"""

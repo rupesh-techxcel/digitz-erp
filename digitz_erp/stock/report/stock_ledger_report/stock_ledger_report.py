@@ -72,7 +72,7 @@ def get_data(filters):
 
 	for dl in data:
 		
-		if not (dl.item == last_item and dl.warehouse == last_warehouse):
+		if not (dl.item_code == last_item and dl.warehouse == last_warehouse):
 			sql ="""
 				SELECT balance_qty
 				FROM `tabStock Ledger`
@@ -96,7 +96,7 @@ def get_data(filters):
 		else:
 			dl.update({"opening_qty": round(last_qty, 2)})
 
-		last_item = dl.item
+		last_item = dl.item_code
 		last_qty = dl.balance_qty
 		last_warehouse = dl.warehouse
 
@@ -105,10 +105,16 @@ def get_data(filters):
 def get_columns():
 	return [
 		{
-			"fieldname": "item",
+			"fieldname": "item_code",
 			"fieldtype": "Link",
-			"label": "Item",
-			"options": "Item",
+			"label": "Item Code",	
+			"options" : "Item",
+			"width": 200,
+		},
+		{
+			"fieldname": "item",
+			"fieldtype": "Data",
+			"label": "Item",			
 			"width": 200,
 		},
   		{

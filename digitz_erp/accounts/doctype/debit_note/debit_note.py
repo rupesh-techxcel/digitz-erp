@@ -7,7 +7,8 @@ from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_g
 
 class DebitNote(Document):
 	def on_submit(self):
-		frappe.enqueue(self.do_postings_on_submit, queue="long")
+		# frappe.enqueue(self.do_postings_on_submit, queue="long")
+		self.do_postings_on_submit()
   
 	def on_cancel(self):
 		self.do_cancel_debit_note()

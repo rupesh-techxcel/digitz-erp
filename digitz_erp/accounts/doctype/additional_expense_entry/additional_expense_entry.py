@@ -6,7 +6,7 @@ from frappe.model.document import Document
 from datetime import datetime, timedelta
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 
 class AdditionalExpenseEntry(Document):
 
@@ -258,7 +258,7 @@ class AdditionalExpenseEntry(Document):
 
 						new_stock_balance.insert()
 
-						update_item_stock_balance(sl.item)
+						update_stock_balance_in_item(sl.item)
 
 		if mroe_records>0:
 			stock_recalc_voucher.insert()
@@ -324,7 +324,7 @@ class AdditionalExpenseEntry(Document):
 
 						new_stock_balance.insert()
 
-						update_item_stock_balance(sl.item)
+						update_stock_balance_in_item(sl.item)
 
 		if mroe_records>0:
 			stock_recalc_voucher.insert()

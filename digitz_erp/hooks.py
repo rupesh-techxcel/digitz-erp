@@ -113,11 +113,12 @@ fixtures = ["Custom Field", "Custom DocPerm"]
 # ---------------
 
 # scheduler_events = {
-# 	"all": [
-# 		"digitz_erp.api.scheduler_api.do_dolphin_postings_job"
-# 	],
+	# "all": [
+	# 	"digitz_erp.api.stock_update.re_post_stock_ledgers"
+	# ],
 	# "daily": [
 	# 	"digitz_erp.tasks.daily"
+		# "digitz_erp.api.stock_update.re_post_stock_ledgers"
 	# ],
 	# "hourly": [
 	# 	"digitz_erp.tasks.hourly"

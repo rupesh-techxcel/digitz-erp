@@ -5,7 +5,7 @@ import frappe
 from frappe.utils import get_datetime
 from frappe.utils import now
 from frappe.model.document import Document
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from frappe.www.printview import get_html_and_style
 from digitz_erp.utils import *
 from frappe.model.mapper import *
@@ -80,12 +80,12 @@ class SalesInvoice(Document):
 
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-        if(frappe.session.user == "Administrator" and turn_off_background_job):
-            self.do_postings_on_submit()
-        else:
+        # if(frappe.session.user == "Administrator" and turn_off_background_job):
+        #     self.do_postings_on_submit()
+        # else:
             # frappe.enqueue(self.do_postings_on_submit, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
-            self.do_postings_on_submit()
+        self.do_postings_on_submit()
 
         if(self.auto_generate_delivery_note):
             print("submitting DO from sales_invoice")
@@ -273,7 +273,7 @@ class SalesInvoice(Document):
                 # stock_balance_for_item.valuation_rate = valuation_rate
                 # stock_balance_for_item.save()
 
-                update_item_stock_balance(docitem.item)
+                update_stock_balance_in_item(docitem.item)
 
         # posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
         # posting_status_doc.stock_posted_on_cancel_time = datetime.now()
@@ -848,7 +848,7 @@ class SalesInvoice(Document):
                 new_stock_balance.insert()
 
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(docitem.item)
+                update_stock_balance_in_item(docitem.item)
             else:
                 stock_recalc_voucher.append('records',{'item': docitem.item,
                                                             'warehouse': docitem.warehouse,

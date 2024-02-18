@@ -5,7 +5,7 @@ import frappe
 from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 
 class PurchaseOrder(Document):
 

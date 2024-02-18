@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-14 18:40:14.289678",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "last_processed_posting_date",
+  "last_processed_stock_ledger",
+  "posting_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "last_processed_stock_ledger",
+   "fieldtype": "Link",
+   "label": "Last Processed Stock Ledger",
+   "options": "Stock Ledger"
+  },
+  {
+   "fieldname": "posting_status",
+   "fieldtype": "Select",
+   "label": "Posting Status",
+   "options": "Not Started\nIn Process"
+  },
+  {
+   "fieldname": "last_processed_posting_date",
+   "fieldtype": "Datetime",
+   "label": "Last Processed Posting Date"
+  }  
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-02-14 21:26:20.356778",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Stock Repost",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -31,6 +31,13 @@ frappe.query_reports["Stock Movement Report"] = {
 			"label": "W/H",
 			"options": "Warehouse",
 			"width": 150,	
+		},
+		{		
+			"fieldname": "show_current_balance_qty",
+			"fieldtype": "Check",
+			"label": "Show Current Balance",			
+			"width": 150,	
 		}
+		
 	]
 };

@@ -7,7 +7,7 @@ from frappe.utils import now
 from frappe.model.document import Document
 from digitz_erp.utils import *
 from frappe.model.mapper import *
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 class SalesReturn(Document):
@@ -192,11 +192,11 @@ class SalesReturn(Document):
         cancel_bank_reconciliation("Sales Return", self.name)
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-        if(frappe.session.user == "Administrator" and turn_off_background_job):
-            self.cancel_sales_return()
-        else:
+        # if(frappe.session.user == "Administrator" and turn_off_background_job):
+        #     self.cancel_sales_return()
+        # else:
             # frappe.enqueue(self.cancel_sales_return, queue="long")
-            self.cancel_sales_return()
+        self.cancel_sales_return()
 
     def on_trash(self):
         # On cancel the quantities are already deleted.
@@ -370,7 +370,7 @@ class SalesReturn(Document):
                 new_stock_balance.valuation_rate = valuation_rate
                 new_stock_balance.insert()
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(docitem.item)
+                update_stock_balance_in_item(docitem.item)
 
             else:
                 if previous_stock_ledger_name:
@@ -465,7 +465,7 @@ class SalesReturn(Document):
 
                 # print(item_name)
 
-                update_item_stock_balance(docitem.item)
+                update_stock_balance_in_item(docitem.item)
 
 
         print("before delete stock ledger")

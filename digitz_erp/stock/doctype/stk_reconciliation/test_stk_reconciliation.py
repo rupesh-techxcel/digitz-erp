@@ -5,7 +5,7 @@ import frappe
 from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
-from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_item_stock_balance
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 
 class StkReconciliation(Document):
     def before_submit(self):
@@ -137,7 +137,7 @@ class StkReconciliation(Document):
                 new_stock_balance.insert()
 
                 item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(item_name)					
+                update_stock_balance_in_item(item_name)					
 
         if(more_records>0):
             stock_recalc_voucher.insert()
@@ -223,7 +223,7 @@ class StkReconciliation(Document):
                 stock_balance_for_item.save()                    
 
                 item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                update_item_stock_balance(item_name)	
+                update_stock_balance_in_item(item_name)	
         
         if(more_records>0):
             stock_recalc_voucher.insert()

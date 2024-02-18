@@ -233,10 +233,12 @@ class ReceiptEntry(Document):
 
 		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
 
-		if(frappe.session.user == "Administrator" and turn_off_background_job):
-			self.do_postings_on_submit()
-		else:
-			frappe.enqueue(self.do_postings_on_submit,queue="long")
+		# if(frappe.session.user == "Administrator" and turn_off_background_job):
+		# 	self.do_postings_on_submit()
+		# else:
+		# 	frappe.enqueue(self.do_postings_on_submit,queue="long")
+   
+		self.do_postings_on_submit()
 
 	def do_postings_on_submit(self):
 
