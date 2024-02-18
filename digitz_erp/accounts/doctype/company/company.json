@@ -40,6 +40,7 @@
   "tax",
   "tax_account",
   "rate_includes_tax",
+  "do_not_apply_round_off_in_si",
   "column_break_23",
   "accounts_settings",
   "default_payable_account",
@@ -61,8 +62,7 @@
   "customer_terms",
   "system_tab",
   "material_receipt_integrated_with_purchase",
-  "delivery_note_integrated_with_sales_invoice",
-  "do_not_apply_round_off_in_si"
+  "delivery_note_integrated_with_sales_invoice"
  ],
  "fields": [
   {
@@ -390,7 +390,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-13 10:00:05.943273",
+ "modified": "2024-02-18 17:08:40.260656",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
