@@ -282,14 +282,34 @@ frappe.ui.form.on('Delivery Note', {
 		frm.doc.total_discount_in_line_items = discount_total;
 		console.log("Net Total Before Round Off")
 		console.log(frm.doc.net_total)
+		frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data){ 
+			console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
+			if (data && data.do_not_apply_round_off_in_si == 1) {
 
-		if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
-			frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-			frm.doc.rounded_total = Math.round(frm.doc.net_total);
-		}
-		else {
-			frm.doc.rounded_total = frm.doc.net_total;
-		}
+				frm.doc.rounded_total = frm.doc.net_total;
+				refresh_field('rounded_total');
+				console.log("here1")
+			}
+			else {
+				if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
+					frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
+					frm.doc.rounded_total = Math.round(frm.doc.net_total);
+					
+					console.log("here2")
+
+					console.log(frm.doc.net_total);
+					console.log(frm.doc.rounded_total);
+					frm.refresh_field("net_total");
+					frm.refresh_field("rounded_total");
+				}
+				else {
+					frm.doc.rounded_total = frm.doc.net_total;
+					console.log("here3")
+					console.log(frm.doc.net_total)
+					console.log(frm.doc.rounded_total)
+				}
+			}
+		});
 
 		console.log("Totals");
 
@@ -457,7 +477,20 @@ frappe.ui.form.on('Delivery Note Item', {
 		row.warehouse = frm.doc.warehouse;
 		frm.item = row.item;
 		frm.trigger("get_item_units");
-		frm.trigger("make_taxes_and_totals");
+		// frm.trigger("make_taxes_and_totals");
+
+		let tax_excluded_for_company = false
+		frappe.call(
+			{
+				method:'digitz_erp.api.settings_api.get_company_settings',
+				async:false,
+				callback(r){
+					console.log("digitz_erp.api.settings_api.get_company_settings")
+					console.log(r)
+					tax_excluded_for_company = r.message[0].tax_excluded					
+				}
+			}
+		);
 
 		frappe.call(
 			{
@@ -472,7 +505,16 @@ frappe.ui.form.on('Delivery Note Item', {
 					row.item_name = r.message.item_name;
 					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
-					row.tax_excluded = r.message.tax_excluded;
+
+					if(tax_excluded_for_company)
+					{
+						row.tax_excluded = true;
+					}
+					else
+					{
+						row.tax_excluded = r.message.tax_excluded;
+					}
+					
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
@@ -480,7 +522,9 @@ frappe.ui.form.on('Delivery Note Item', {
 					frm.warehouse = row.warehouse
 					frm.trigger("get_item_stock_balance");
 
-					if (!r.message.tax_excluded) {
+					frm.refresh_field("items")
+
+					if (!row.tax_excluded) {
 						frappe.call(
 							{
 								method: 'frappe.client.get_value',
@@ -593,7 +637,7 @@ frappe.ui.form.on('Delivery Note Item', {
 							});
 					}
 
-
+					frm.trigger("make_taxes_and_totals");
 					frm.refresh_field("items");
 				}
 			});
