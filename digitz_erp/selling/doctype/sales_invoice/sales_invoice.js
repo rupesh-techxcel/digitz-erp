@@ -571,8 +571,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
 					tax_excluded_for_company = r.message[0].tax_excluded
-					console.log("use_customer_last_price")
-					console.log(use_customer_last_price)
+					
 				}
 			}
 		);

@@ -37,7 +37,7 @@ frappe.ui.form.on('Purchase Order', {
 								},
 								callback: function(r) {
 									frappe.show_alert({
-										message: __('Purchase Invoice Created and Saved in Draft Mode.'),
+										message: __('The purchase invoice has been successfully generated and saved in draft mode.'),
 										indicator: 'green'
 									},3);
 									frm.reload_doc();
@@ -513,6 +513,9 @@ frappe.ui.form.on('Purchase Order Item', {
 					frm.warehouse = row.warehouse
 					console.log("before trigger")
 					frm.trigger("get_item_stock_balance");
+
+					console.log("r.message.tax_excluded")
+					console.log(r.message.tax_excluded)
 
 					if (!r.message.tax_excluded) {
 						frappe.call(

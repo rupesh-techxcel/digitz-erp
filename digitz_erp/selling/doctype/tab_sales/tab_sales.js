@@ -509,9 +509,7 @@ frappe.ui.form.on('Tab Sales Item', {
 				callback(r){
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
-					tax_excluded_for_company = r.message[0].tax_excluded
-					console.log("use_customer_last_price")
-					console.log(use_customer_last_price)
+					tax_excluded_for_company = r.message[0].tax_excluded					
 				}
 			}
 		);
@@ -592,6 +590,9 @@ frappe.ui.form.on('Tab Sales Item', {
 						}
 					);
 
+					console.log("frm.doc.price_list")
+					console.log(frm.doc.price_list)
+					
 					frappe.call(
 						{
 							method: 'digitz_erp.api.item_price_api.get_item_price',
