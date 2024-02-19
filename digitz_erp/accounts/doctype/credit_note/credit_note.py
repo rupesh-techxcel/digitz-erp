@@ -12,10 +12,10 @@ class CreditNote(Document):
 
 	def on_cancel(self):
 		self.do_cancel_credit_note()
-  
+
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
-		update_accounts_for_doc_type('Credit Note',self.name)		
+		update_accounts_for_doc_type('Credit Note',self.name)
 
 	def insert_gl_records(self):
 
@@ -61,7 +61,7 @@ class CreditNote(Document):
 					tax_ledgers[credit_note_detail.tax_account] += credit_note_detail.tax_amount
 
 		for tax_account,tax_amount in tax_ledgers.items():
-      
+
 			if tax_amount>0:
 				idx = idx + 1
 				gl_doc = frappe.new_doc('GL Posting')
@@ -119,10 +119,16 @@ class CreditNote(Document):
 		return account
 
 	def do_cancel_credit_note(self):
-     
+
 		delete_gl_postings_for_cancel_doc_type('Credit Note',self.name)
 
 		# frappe.db.delete("GL Posting",
         #                  {"Voucher_type": "Credit Note",
         #                   "voucher_no": self.name
         #                   })
+
+@frappe.whitelist()
+def get_default_payment_mode():
+    default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
+    print(default_payment_mode)
+    return default_payment_mode

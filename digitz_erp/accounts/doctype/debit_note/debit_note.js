@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("Debit Note", {
 	onload(frm) {
-		frm.trigger("assign_defaults");		
+		frm.trigger("assign_defaults");
 	},
 	refresh(frm){
 		frm.set_query('account', 'debit_note_details', () => {
@@ -23,6 +23,25 @@ frappe.ui.form.on("Debit Note", {
 				}
 			}
 			});
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+					if (r && r.default_credit_purchase === 1) {
+							frm.set_value('on_credit', 1);
+					}
+			});
+
+			if(frm.doc.on_credit == 0){
+		        frappe.call({
+		                method: 'digitz_erp.accounts.doctype.debit_note.debit_note.get_default_payment_mode',
+		                callback: function(response) {
+		                        if (response && response.message) {
+		                                frm.set_value('payment_mode', response.message);
+		                        } else {
+		                                frappe.msgprint('Default payment mode for purchase not found.');
+		                        }
+		                }
+		        });
+		    }
 	},
 	rate_includes_tax: function(frm) {
 		frappe.confirm("Updating this will modify the 'rate includes tax' information in the details section and related calculations. Are you sure you want to proceed?", () => {
@@ -36,9 +55,9 @@ frappe.ui.form.on("Debit Note", {
 		})
 	},
 	assign_defaults: function(frm){
-	
+
 		default_company = "";
-	
+
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
@@ -46,12 +65,12 @@ frappe.ui.form.on("Debit Note", {
 				'fieldname': 'default_company'
 			},
 			callback: (r) => {
-	
+
 				default_company = r.message.default_company
 				frm.set_value('company',default_company);
 			}
 		});
-	
+
 		frappe.call(
 			{
 				method:'digitz_erp.api.settings_api.get_default_payable_account',
@@ -61,7 +80,7 @@ frappe.ui.form.on("Debit Note", {
 				}
 			}
 		);
-	},	
+	},
 	make_taxes_and_totals: function(frm) {
 		var total_amount = 0;
 		var tax_total = 0;
@@ -69,14 +88,14 @@ frappe.ui.form.on("Debit Note", {
 		frm.doc.total_amount = 0;
 		frm.doc.tax_total = 0;
 		frm.doc.grand_total = 0;
-		
+
 		frm.doc.debit_note_details.forEach(function (entry) {
-			
+
 			var tax_in_rate = 0;
 			var amount_excluded_tax = entry.amount;
 			var tax_amount = 0;
 			var total = 0;
-			
+
 			if(!entry.tax_excluded && entry.tax_rate>0)
 			{
 				entry.rate_includes_tax = frm.doc.rate_includes_tax;
@@ -91,7 +110,7 @@ frappe.ui.form.on("Debit Note", {
 					tax_amount = (entry.amount * (entry.tax_rate / 100))
 				}
 			}
-			
+
 			total = amount_excluded_tax + tax_amount;
 			frappe.model.set_value(entry.doctype, entry.name, "amount_excluded_tax", amount_excluded_tax);
 			frappe.model.set_value(entry.doctype, entry.name, "tax_amount", tax_amount);
@@ -140,10 +159,10 @@ frappe.ui.form.on("Debit Note", {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
 		frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
 
-		if (frm.doc.on_credit) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		// if (frm.doc.on_credit) {
+		// 	frm.doc.payment_mode = "";
+		// 	frm.doc.payment_account = "";
+		// }
 	},
 	validate: function (frm) {
 
@@ -164,7 +183,7 @@ frappe.ui.form.on('Debit Note Detail',{
 
 	tax_excluded: function(frm, cdt, cdn) {
         frm.trigger("make_taxes_and_totals");
-    },	
+    },
 	rate_includes_tax:function(frm,cdt,cdn){
 		frm.trigger("make_taxes_and_totals");
 	},
@@ -183,8 +202,8 @@ frappe.ui.form.on('Debit Note Detail',{
 				method:'digitz_erp.api.settings_api.get_default_tax',
 				async:false,
 				callback(r){
-					row.tax = r.message					
-					
+					row.tax = r.message
+
 					frappe.call(
 						{
 						  method: 'frappe.client.get_value',
@@ -194,16 +213,16 @@ frappe.ui.form.on('Debit Note Detail',{
 							'fieldname': ['tax_name', 'tax_rate']
 						  },
 						  callback: (r2) => {
-							row.tax_rate = r2.message.tax_rate;                
+							row.tax_rate = r2.message.tax_rate;
 							frm.trigger("make_taxes_and_totals");
 						  }
 						});
 
 						frm.refresh_field("debit_note_details");
-								
+
 				}
-				
-				
+
+
 			}
 		);
 
@@ -212,4 +231,3 @@ frappe.ui.form.on('Debit Note Detail',{
 		frm.trigger("make_taxes_and_totals");
 	}
 });
-
