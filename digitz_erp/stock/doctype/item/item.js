@@ -8,6 +8,11 @@ frappe.ui.form.on('Item', {
            frm.set_value('tax_excluded', 1);
        }
    });
+	 frappe.db.get_value('Company', frm.doc.company, 'maintain_stock', function(r) {
+		 if (r && r.maintain_stock === 1) {
+				 frm.set_value('maintain_stock', 1);
+		 }
+ });
  },
 	 setup: function(frm) {
 		if(frm.is_new() == 1)
