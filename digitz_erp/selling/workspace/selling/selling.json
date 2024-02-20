@@ -9,7 +9,7 @@
    "label": "Top Customers"
   }
  ],
- "content": "[{\"id\":\"wuZpQSlRT6\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":12}},{\"id\":\"r8G2KrYoVs\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Sales Trends\",\"col\":12}},{\"id\":\"wvc__ptX0n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"9dB0JdsKyv\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"tzCU3Rv8EL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"jAs2mp2HTC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Group\",\"col\":3}},{\"id\":\"BEEHIJaYB9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Area\",\"col\":3}},{\"id\":\"Km6n8GADPG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer List   Area Wise\",\"col\":3}},{\"id\":\"JEltu7TKmr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oKGdnQzqrM\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"6IH-OA7xgY\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"RpBClxo7Vk\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
+ "content": "[{\"id\":\"wuZpQSlRT6\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":12}},{\"id\":\"r8G2KrYoVs\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Sales Trends\",\"col\":12}},{\"id\":\"wvc__ptX0n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"9dB0JdsKyv\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"tzCU3Rv8EL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"jAs2mp2HTC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Group\",\"col\":3}},{\"id\":\"BEEHIJaYB9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Area\",\"col\":3}},{\"id\":\"JEltu7TKmr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oKGdnQzqrM\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"6IH-OA7xgY\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"RpBClxo7Vk\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
  "creation": "2024-02-06 11:37:44.222236",
  "custom_blocks": [],
  "docstatus": 0,
@@ -230,7 +230,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-06 15:33:52.194451",
+ "modified": "2024-02-19 13:19:21.060617",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",

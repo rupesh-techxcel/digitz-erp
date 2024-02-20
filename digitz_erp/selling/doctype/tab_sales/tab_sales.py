@@ -221,7 +221,8 @@ class TabSales (Document):
             
             frappe.msgprint("Sales Invoice for the Tab Sales updated successfully.", alert=True)
             
-        else:    
+        else:  
+            print("creating sales invoice")  
             tabSalesDocName =  self.name
             sales_invoice = self.__dict__
             sales_invoice['doctype'] = 'Sales Invoice'
@@ -230,6 +231,9 @@ class TabSales (Document):
             sales_invoice['posting_date'] = self.posting_date
             sales_invoice['posting_time'] = self.posting_time
             sales_invoice['tab_sales'] =tabSalesDocName
+            sales_invoice['warehouse'] = 'Vehicle 1'
+            sales_invoice['company'] = 'Dolphin Chemicals'
+            
             # Change the document status to draft to avoid error while submitting child table
             sales_invoice['docstatus'] = 0
             for item in sales_invoice['items']:            

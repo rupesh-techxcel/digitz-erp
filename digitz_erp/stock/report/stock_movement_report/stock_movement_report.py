@@ -16,16 +16,50 @@ def execute(filters=None):
 def get_data(filters):
 	# Start with the SELECT and FROM clauses, which are fixed
  
-	sql_query ="""
+	conditions = []
+
+	# Check if item filter is provided and add to conditions
+	item_filter = filters.get('item')
+	if item_filter:
+		conditions.append(f"i.name = '{item_filter}'")
+
+	# Check if warehouse filter is provided and add to conditions
+	warehouse_filter = filters.get('warehouse')
+	if warehouse_filter:
+		conditions.append(f"w.name = '{warehouse_filter}'")
+
+	# Combine conditions with 'AND' or use '1=1' if no conditions to ensure valid SQL
+	conditions_sql = " AND ".join(conditions) if conditions else "1=1"
+
+	query = f"""
 	SELECT
 		i.name AS item,
 		i.item_name,
 		w.name AS warehouse,
-		COALESCE(i.base_unit) AS unit		
+		COALESCE(i.base_unit) AS unit
 	FROM
 		`tabItem` i
-	CROSS JOIN `tabWarehouse` w ORDER BY i.item_name,w.warehouse
+	CROSS JOIN `tabWarehouse` w
+	WHERE
+		{conditions_sql}
+	ORDER BY
+		i.item_name, w.name
 	"""
+
+
+	# Execute the query using Frappe's database API
+	data = frappe.db.sql(query, as_dict=1)
+ 
+	# sql_query ="""
+	# SELECT
+	# 	i.name AS item,
+	# 	i.item_name,
+	# 	w.name AS warehouse,
+	# 	COALESCE(i.base_unit) AS unit		
+	# FROM
+	# 	`tabItem` i
+	# CROSS JOIN `tabWarehouse` w ORDER BY i.item_name,w.warehouse
+	# """
 	# sql_query = """
 	# SELECT
 	# 	i.name AS item,
@@ -77,27 +111,33 @@ def get_data(filters):
 	# Execute the query
 	# data = frappe.db.sql(sql_query, parameters, as_dict=True)
  
-	data = frappe.db.sql(sql_query, as_dict=True)
+	# data = frappe.db.sql(sql_query, as_dict=True)
+ 
+	from_date = filters.get('from_date')
+	to_date = filters.get('to_date')
  
 	for dl in data:
-		
-		from_date = filters.get('from_date')
-		to_date = filters.get('to_date')
    
 		result = frappe.db.sql("""
-		SELECT SUM(COALESCE(sl.qty_in, 0)) AS qty_in,
-		SUM(COALESCE(sl.qty_out, 0)) AS qty_out,
-  		SUM(COALESCE(sl.qty_in, 0))- SUM(COALESCE(sl.qty_out, 0)) AS balance_qty FROM `tabStock Ledger` sl WHERE sl.item = %s AND sl.warehouse = %s AND sl.posting_date >= %s AND sl.posting_date <=%s
-		ORDER BY sl.posting_date DESC
-		LIMIT 1
-	""", (dl['item'], dl['warehouse'], from_date,to_date), as_dict=True)
+            SELECT
+                SUM(COALESCE(sl.qty_in, 0)) AS qty_in,
+                SUM(COALESCE(sl.qty_out, 0)) AS qty_out,
+                SUM(COALESCE(sl.qty_in, 0)) - SUM(COALESCE(sl.qty_out, 0)) AS balance_qty
+            FROM
+                `tabStock Ledger` sl
+            WHERE
+                sl.item = %s AND
+                sl.warehouse = %s AND
+                sl.posting_date >= %s AND
+                sl.posting_date <= %s
+        """, (dl['item'], dl['warehouse'], from_date, to_date), as_dict=True)
   
 		qty_in = result[0]['qty_in'] if result else 0
 		qty_out = result[0]['qty_out'] if result else 0
 		balance_qty = result[0]['balance_qty'] if result else 0
   
 		qty_in = qty_in if qty_in else 0
-		qty_out = qty_out if qty_in else 0
+		qty_out = qty_out if qty_out else 0
 		balance_qty = balance_qty if balance_qty else 0
   
 		result = frappe.db.sql("""SELECT stock_qty from `tabStock Balance` where item=%s and warehouse=%s """, (dl["item"], dl["warehouse"]), as_dict = True)
@@ -116,15 +156,14 @@ def get_data(filters):
 		if filters.get('from_date'):
 			from_date = filters.get('from_date')
    
-			print(dl['item'])
-			print(dl['warehouse'])
+			
    
-			result = frappe.db.sql("""
-            SELECT balance_qty FROM `tabStock Ledger` sl
-            WHERE sl.item = %s AND sl.warehouse = %s AND sl.posting_date < %s
-            ORDER BY sl.posting_date DESC
-            LIMIT 1
-        """, (dl['item'], dl['warehouse'], from_date), as_dict=True)
+		# 	result = frappe.db.sql("""
+        #     SELECT balance_qty FROM `tabStock Ledger` sl
+        #     WHERE sl.item = %s AND sl.warehouse = %s AND sl.posting_date < %s
+        #     ORDER BY sl.posting_date DESC
+        #     LIMIT 1
+        # """, (dl['item'], dl['warehouse'], from_date), as_dict=True)
    
    
 			# When the record do not have any value in stock_ledger dl[warehouse] is none so handling it here
@@ -141,8 +180,6 @@ def get_data(filters):
             ORDER BY sl.posting_date DESC
             LIMIT 1
         """, (dl['item'], dl['warehouse'], from_date), as_dict=True)
-
-			print(result)
    
 			# Extract balance_qty from the result if available, otherwise default to 0
 			opening_qty = result[0]['balance_qty'] if result else 0
