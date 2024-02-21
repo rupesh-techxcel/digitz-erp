@@ -134,7 +134,7 @@
    "label": "Tax Not Applicable"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "maintain_stock",
    "fieldtype": "Check",
    "label": "Maintain Stock"
@@ -186,7 +186,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-31 15:11:38.214721",
+ "modified": "2024-02-19 08:06:41.584902",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

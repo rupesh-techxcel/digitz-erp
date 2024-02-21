@@ -33,6 +33,7 @@
   "default_warehouse",
   "column_break_18",
   "rules_for_prices",
+  "maintain_stock",
   "accounts_settings_tab",
   "tax_details",
   "tax_excluded",
@@ -386,11 +387,17 @@
    "fieldtype": "Select",
    "label": "Perdiod Closing Mode",
    "options": "\nMonthly\nQuarterly\nHalf Yearly\nYearly"
+  },
+  {
+   "default": "0",
+   "fieldname": "maintain_stock",
+   "fieldtype": "Check",
+   "label": "Maintain Stock"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-18 17:08:40.260656",
+ "modified": "2024-02-19 08:05:00.042818",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
