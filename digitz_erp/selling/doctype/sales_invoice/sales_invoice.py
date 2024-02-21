@@ -65,8 +65,8 @@ class SalesInvoice(Document):
             # Issue - First save the invoie not as credit sale, it will fill up the paid_amount
             # equal to rounded_total. Make it as credit sale in the draft mode and then save.
             # In this case its required to make the paid_amount zero
-            self.paid_amount = 0
-        self.in_words = money_in_words(self.rounded_total,"AED")
+        #     self.paid_amount = 0
+        # self.in_words = money_in_words(self.rounded_total,"AED")
 
     def validate(self):
         self.validate_item()
@@ -330,7 +330,7 @@ class SalesInvoice(Document):
         gl_doc.insert()
         idx +=1
 
-        # Income account - Credit        
+        # Income account - Credit
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Invoice"
         gl_doc.voucher_no = self.name
@@ -345,9 +345,9 @@ class SalesInvoice(Document):
 
 
         if self.tax_total >0:
-            
+
             # Tax - Credit
-            
+
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Invoice"
             gl_doc.voucher_no = self.name
@@ -362,7 +362,7 @@ class SalesInvoice(Document):
 
         # Round Off
 
-        if self.round_off != 0.00:            
+        if self.round_off != 0.00:
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Invoice"
             gl_doc.voucher_no = self.name
@@ -388,7 +388,7 @@ class SalesInvoice(Document):
 
 
 
-            # Cost Of Goods Sold            
+            # Cost Of Goods Sold
             gl_doc = frappe.new_doc('GL Posting')
             gl_doc.voucher_type = "Sales Invoice"
             gl_doc.voucher_no = self.name
@@ -868,3 +868,21 @@ def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
     print(default_payment_mode)
     return default_payment_mode
+
+@frappe.whitelist()
+def get_delivery_note_items(delivery_notes):
+    if isinstance(delivery_notes, str):
+        delivery_notes = frappe.parse_json(delivery_notes)
+    items = []
+    for delivery_note in delivery_notes:
+        delivery_note_items = frappe.get_all('Delivery Note Item',
+                                           filters={'parent': delivery_note},
+                                           fields=['name', 'item', 'qty', 'warehouse', 'item_name', 'display_name', 'unit', 'rate', 'base_unit',
+                                           'qty_in_base_unit', 'rate_in_base_unit', 'conversion_factor', 'rate_includes_tax', 'gross_amount',
+                                           'tax_excluded', 'tax_rate', 'tax_amount', 'discount_percentage', 'discount_amount', 'net_amount'
+                                           ])
+        for dn_item in delivery_note_items:
+            dn_item['delivery_note_item_reference_no'] = dn_item['name']
+            items.append(dn_item)
+
+    return items

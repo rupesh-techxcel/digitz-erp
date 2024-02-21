@@ -2,9 +2,11 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Delivery Note', {
-	// refresh: function(frm) {
-
-	// }
+	refresh: function(frm) {
+		frm.add_custom_button(__('Get Items From Sales Order'), function () {
+                    sales_order_dialog(frm)
+                })
+	}
 });
 // Copyright (c) 2023, Rupesh P and contributors
 // For license information, please see license.txt
@@ -156,7 +158,7 @@ frappe.ui.form.on('Delivery Note', {
 				// tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 				// entry.rate_excluded_tax = entry.rate - tax_in_rate;
 				// entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
-				
+
 				// entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount);
 				// entry.gross_amount = entry.net_amount - entry.tax_amount;
 
@@ -164,7 +166,7 @@ frappe.ui.form.on('Delivery Note', {
 
 					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 					entry.rate_excluded_tax = entry.rate - tax_in_rate;
-					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))					
+					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
 				}
 				else
 				{
@@ -282,7 +284,7 @@ frappe.ui.form.on('Delivery Note', {
 		frm.doc.total_discount_in_line_items = discount_total;
 		console.log("Net Total Before Round Off")
 		console.log(frm.doc.net_total)
-		frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data){ 
+		frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data){
 			console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
 			if (data && data.do_not_apply_round_off_in_si == 1) {
 
@@ -294,7 +296,7 @@ frappe.ui.form.on('Delivery Note', {
 				if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
 					frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
 					frm.doc.rounded_total = Math.round(frm.doc.net_total);
-					
+
 					console.log("here2")
 
 					console.log(frm.doc.net_total);
@@ -487,7 +489,7 @@ frappe.ui.form.on('Delivery Note Item', {
 				callback(r){
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
-					tax_excluded_for_company = r.message[0].tax_excluded					
+					tax_excluded_for_company = r.message[0].tax_excluded
 				}
 			}
 		);
@@ -514,7 +516,7 @@ frappe.ui.form.on('Delivery Note Item', {
 					{
 						row.tax_excluded = r.message.tax_excluded;
 					}
-					
+
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
@@ -798,3 +800,73 @@ frappe.ui.form.on('Delivery Note Item', {
 		frm.trigger("make_taxes_and_totals");
 	}
 });
+
+let sales_order_dialog = function (frm) {
+    let d = new frappe.ui.Dialog({
+        title: 'Select Sales Orders',
+        fields: [{
+            label: 'Sales Order Details',
+            fieldname: 'sales_order_details',
+            fieldtype: 'Table',
+            fields: [{
+                label: 'Sales Order',
+                fieldtype: 'Link',
+                options: 'Sales Order',
+                fieldname: 'sales_order',
+                in_list_view: 1,
+                get_query: function(doc) {
+                    const customer = frm.doc.customer;
+                    if (customer) {
+                        return {
+                            filters: {
+                                "customer": customer
+                            }
+                        };
+                    }
+                }
+            }]
+        }],
+        size: 'large',
+        primary_action_label: 'Submit',
+        primary_action(values) {
+            console.log(values);
+            const selectedSalesOrders = values.sales_order_details.map(row => row.sales_order);
+            frappe.call({
+                method: 'digitz_erp.selling.doctype.delivery_note.delivery_note.get_sales_order_items',
+                args: { sales_orders: selectedSalesOrders },
+                callback: function(response) {
+                    const items = response.message;
+                    items.forEach(item => {
+                        frm.add_child('items', {
+                            item: item.item,
+                            item_name: item.item_name,
+                            qty: item.qty,
+                            warehouse: item.warehouse,
+                            display_name: item.display_name,
+                            unit: item.unit,
+                            rate: item.rate,
+                            base_unit: item.base_unit,
+                            qty_in_base_unit: item.qty_in_base_unit,
+                            rate_in_base_unit: item.rate_in_base_unit,
+                            conversion_factor: item.conversion_factor,
+                            rate_includes_tax: item.rate_includes_tax,
+                            rate_excluded_tax: item.rate_excluded_tax,
+                            gross_amount: item.gross_amount,
+                            tax_excluded: item.tax_excluded,
+                            tax_rate: item.tax_rate,
+                            tax_amount: item.tax_amount,
+                            discount_percentage: item.discount_percentage,
+                            discount_amount: item.discount_amount,
+                            net_amount: item.net_amount,
+                            sales_order_item_reference_no: item.sales_order_item_reference_no // Include sales order item reference number
+                        });
+                    });
+                    frm.refresh_field('items');
+                }
+            });
+            d.hide();
+        }
+    });
+
+    d.show();
+}
