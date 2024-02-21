@@ -9,6 +9,10 @@ frappe.ui.form.on('Sales Invoice', {
  						frm.set_value('credit_sale', 1);
  				}
  		});
+		frm.add_custom_button(__('Get Items From Delivery Note'), function () {
+                    delivery_note_dialog(frm)
+                })
+
 
 		// if(!frm.is_new()){
 		// 	frm.add_custom_button('Sales Return', () =>{
@@ -374,10 +378,10 @@ frappe.ui.form.on('Sales Invoice', {
 
 				console.log("here 3-----")
 				frm.doc.rounded_total = frm.doc.net_total;
-				frm.refresh_field("rounded_total");				
-					
+				frm.refresh_field("rounded_total");
+
 				console.log(frm.doc.net_total)
-				console.log(frm.doc.rounded_total)		
+				console.log(frm.doc.rounded_total)
 			 }
 		 }
 		});
@@ -571,7 +575,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
 					tax_excluded_for_company = r.message[0].tax_excluded
-					
+
 				}
 			}
 		);
@@ -606,7 +610,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					
+
 					frm.item = row.item;
 					frm.warehouse = row.warehouse
 
@@ -957,4 +961,70 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 		frm.doc.receipt_schedule = [];
 		refresh_field("receipt_schedule");
 	}
+}
+
+let delivery_note_dialog = function (frm) {
+    let d = new frappe.ui.Dialog({
+        title: 'Select Delivery Notes',
+        fields: [{
+            label: 'Delivery Note Details',
+            fieldname: 'delivery_note_details',
+            fieldtype: 'Table',
+            fields: [{
+                label: 'Delivery Note',
+                fieldtype: 'Link',
+                options: 'Delivery Note',
+                fieldname: 'delivery_note',
+                in_list_view: 1,
+                get_query: function(doc) {
+                    const customer = frm.doc.customer;
+                    if (customer) {
+                        return {
+                            filters: {
+                                "customer": customer
+                            }
+                        };
+                    }
+                }
+            }]
+        }],
+        primary_action_label: 'Submit',
+        primary_action(values) {
+            const selectedDeliveryNotes = values.delivery_note_details.map(row => row.delivery_note);
+            frappe.call({
+                method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.get_delivery_note_items',
+                args: { delivery_notes: selectedDeliveryNotes },
+                callback: function(response) {
+                    const items = response.message;
+                    items.forEach(item => {
+                        frm.add_child('items', {
+                            item: item.item,
+                            item_name: item.item_name,
+                            qty: item.qty,
+                            warehouse: item.warehouse,
+                            display_name: item.display_name,
+                            unit: item.unit,
+                            rate: item.rate,
+                            base_unit: item.base_unit,
+                            qty_in_base_unit: item.qty_in_base_unit,
+                            rate_in_base_unit: item.rate_in_base_unit,
+                            conversion_factor: item.conversion_factor,
+                            rate_includes_tax: item.rate_includes_tax,
+                            tax_excluded: item.tax_excluded,
+                            tax_rate: item.tax_rate,
+                            tax_amount: item.tax_amount,
+                            discount_percentage: item.discount_percentage,
+                            discount_amount: item.discount_amount,
+                            net_amount: item.net_amount,
+                            delivery_note_item_reference_no: item.delivery_note_item_reference_no
+                        });
+                    });
+                    frm.refresh_field('items');
+                }
+            });
+            d.hide();
+        }
+    });
+
+    d.show();
 }

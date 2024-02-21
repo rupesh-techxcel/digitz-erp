@@ -11,7 +11,7 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class DeliveryNote(Document):
-    
+
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Delivery Note', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
         return possible_invalid
@@ -26,63 +26,63 @@ class DeliveryNote(Document):
         self.posting_time = new_datetime.strftime('%H:%M:%S')
 
     def before_validate(self):
-        
+
         if(self.Voucher_In_The_Same_Time()):
-                        
+
             self.Set_Posting_Time_To_Next_Second()
 
             if(self.Voucher_In_The_Same_Time()):
-                self.Set_Posting_Time_To_Next_Second()				
-                
+                self.Set_Posting_Time_To_Next_Second()
+
                 if(self.Voucher_In_The_Same_Time()):
                     self.Set_Posting_Time_To_Next_Second()
-                    
+
                     if(self.Voucher_In_The_Same_Time()):
-                        frappe.throw("Voucher with same time already exists.")  
-       
-       
-        
+                        frappe.throw("Voucher with same time already exists.")
+
+
+
 
     def validate(self):
         self.validate_item()
-  
+
     def on_cancel(self):
-        
+
         update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
-        
+
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-        
+
         # if(frappe.session.user == "Administrator" and turn_off_background_job):
         #     self.cancel_delivery_note()
         # else:
-            # frappe.enqueue(self.cancel_delivery_note, queue="long")    
+            # frappe.enqueue(self.cancel_delivery_note, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
         self.cancel_delivery_note()
 
     def on_submit(self):
-        
+
         init_document_posting_status(self.doctype,self.name)
         turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-        
+
         # if(frappe.session.user == "Administrator" and turn_off_background_job):
         #     self.do_postings_on_submit()
-        # else:        
-            # frappe.enqueue(self.do_postings_on_submit, queue="long")        
+        # else:
+            # frappe.enqueue(self.do_postings_on_submit, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
         self.do_postings_on_submit()
-        
-   
+
+
     def do_postings_on_submit(self):
-   
+
         cost_of_goods_sold = self.do_stock_posting()
         self.insert_gl_records(cost_of_goods_sold = cost_of_goods_sold)
-        
+
         update_accounts_for_doc_type('Delivery Note',self.name)
-        
+
         update_posting_status(self.doctype, self.name,'posting_status', 'Completed')
 
     def validate_item(self):
-        
+
         print("DN validate item")
 
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
@@ -114,7 +114,7 @@ class DeliveryNote(Document):
     @frappe.whitelist()
     def generate_sale_invoice(self):
         sales_invoice_name = ""
-        
+
         deliveryNoteName =  self.name
         sales_invoice = self.__dict__
         sales_invoice['doctype'] = 'Sales Invoice'
@@ -148,20 +148,20 @@ class DeliveryNote(Document):
         si.save()
 
         frappe.msgprint("Sales Invoice created successfully, in draft mode.", alert=True)
-        
+
     @frappe.whitelist()
     def do_test_do_script(self):
         frappe.msgprint("hello")
 
     @frappe.whitelist()
     def do_stock_re_posting(self):
-    
-        if(self.docstatus==1):  
-            # frappe.enqueue(self.do_stock_posting,recalculate_after_submit=True, queue="long") 
-            self.do_stock_posting(recalculate_after_submit=True) 
+
+        if(self.docstatus==1):
+            # frappe.enqueue(self.do_stock_posting,recalculate_after_submit=True, queue="long")
+            self.do_stock_posting(recalculate_after_submit=True)
         elif(self.docstatus == 2):
             self.do_stock_posting_on_cancel(recalculate_after_cancel=True)
-        
+
     def cancel_delivery_note(self):
         self.do_cancel_delivery_note()
         update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
@@ -174,19 +174,19 @@ class DeliveryNote(Document):
             {"voucher": "Delivery Note",
                 "voucher_no":self.name
             })
-        
+
         delete_gl_postings_for_cancel_doc_type('Delivery Note', self.name)
 
         # frappe.db.delete("GL Posting",
 		# 		{"Voucher_type": "Delivery Note",
 		# 		 "voucher_no":self.name
 		# 		})
-        
+
     def do_stock_posting(self, recalculate_after_submit=False):
 
         if(recalculate_after_submit):
             reset_document_posting_status_for_recalc_after_submit(self.doctype,self.name)
-            
+
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
         stock_recalc_voucher.voucher = 'Delivery Note'
         stock_recalc_voucher.voucher_no = self.name
@@ -214,14 +214,14 @@ class DeliveryNote(Document):
             previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
             , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
             order_by='posting_date desc', as_dict=True)
-            
+
             previous_stock_balance_value = 0
             if previous_stock_balance:
-                
+
                 new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
                 valuation_rate = previous_stock_balance.valuation_rate
                 previous_stock_balance_value = previous_stock_balance.balance_value
-                
+
             else:
 
                 new_balance_qty = 0 - docitem.qty_in_base_unit
@@ -232,11 +232,11 @@ class DeliveryNote(Document):
 
             # if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
             #     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
-            
+
             change_in_stock_value = new_balance_value - previous_stock_balance_value
-            
+
             new_stock_ledger = None
-                        
+
             if not recalculate_after_submit:
                 new_stock_ledger = frappe.new_doc("Stock Ledger")
                 new_stock_ledger.item = docitem.item
@@ -261,10 +261,10 @@ class DeliveryNote(Document):
                 new_stock_ledger = frappe.get_doc("Stock Ledger",{"item":docitem.item, "source_document_id":docitem.name})
                 new_stock_ledger.balance_qty = new_balance_qty
                 new_stock_ledger.save()
-            
+
             # If no more records for the item, update balances. otherwise it updates in the flow
             if more_records_count_for_item==0:
-                
+
                 if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
                     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
@@ -283,34 +283,34 @@ class DeliveryNote(Document):
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
                 # print("item_name")
                 # print(item_name)
-                update_stock_balance_in_item(docitem.item)        
-            else:                
+                update_stock_balance_in_item(docitem.item)
+            else:
                 stock_recalc_voucher.append('records',{'item': docitem.item,
                                                         'item_name': docitem.item_name,
                                                             'warehouse': docitem.warehouse,
                                                             'base_stock_ledger': new_stock_ledger.name
                                                             })
-        
+
         if(not recalculate_after_submit):
             update_posting_status(self.doctype,self.name, 'stock_posted_time')
-        
-        if(more_records>0):   
+
+        if(more_records>0):
             if(not recalculate_after_submit):
-                update_posting_status(self.doctype,self.name, 'stock_recalc_required', True)            
-                    
+                update_posting_status(self.doctype,self.name, 'stock_recalc_required', True)
+
             stock_recalc_voucher.insert()
-            recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)  
-            
-            if(not recalculate_after_submit):    
-                update_posting_status(self.doctype, self.name, 'stock_recalc_time')       
+            recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+
+            if(not recalculate_after_submit):
+                update_posting_status(self.doctype, self.name, 'stock_recalc_time')
             else:
-                update_posting_status(self.doctype, self.name, 'stock_recalc_after_submit_time')  
-                
+                update_posting_status(self.doctype, self.name, 'stock_recalc_after_submit_time')
+
         if(recalculate_after_submit):
-            update_posting_status(self.doctype, self.name,'posting_status', 'Completed')                
-                
+            update_posting_status(self.doctype, self.name,'posting_status', 'Completed')
+
         return cost_of_goods_sold
-    
+
     def insert_gl_records(self, cost_of_goods_sold):
 
         print("From insert gl records")
@@ -329,7 +329,7 @@ class DeliveryNote(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_inventory_account
-        gl_doc.credit_amount = cost_of_goods_sold       
+        gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.cost_of_goods_sold_account
         gl_doc.insert()
 
@@ -345,17 +345,17 @@ class DeliveryNote(Document):
         gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
-        
+
         update_posting_status(self.doctype,self.name, 'gl_posted_time')
-    
+
     def do_stock_posting_on_cancel(self, recalculate_after_cancel=False):
-        
+
         if(recalculate_after_cancel):
             reset_document_posting_status_for_recalc_after_cancel(self.doctype,self.name)
-        
+
         # Insert record to 'Stock Recalculate Voucher' doc
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
-        
+
         stock_recalc_voucher.voucher = 'Delivery Note'
         stock_recalc_voucher.voucher_no = self.name
         stock_recalc_voucher.voucher_date = self.posting_date
@@ -378,19 +378,19 @@ class DeliveryNote(Document):
             previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
                 , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
 
-            if(more_record_for_item == 0):        
-                
+            if(more_record_for_item == 0):
+
                 if(previous_stock_ledger_name):
                     previous_stock_ledger = frappe.get_doc('Stock Ledger',previous_stock_ledger_name)
                     balance_qty = previous_stock_ledger.balance_qty
                     balance_value = previous_stock_ledger.balance_value
                     valuation_rate = previous_stock_ledger.valuation_rate
-                
+
                 if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
                     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
                 unit = frappe.get_value("Item", docitem.item,['base_unit'])
-                
+
                 new_stock_balance = frappe.new_doc('Stock Balance')
                 new_stock_balance.item = docitem.item
                 new_stock_balance.item_name = docitem.item_name
@@ -402,8 +402,8 @@ class DeliveryNote(Document):
 
                 new_stock_balance.insert()
                 update_stock_balance_in_item(docitem.item)
-                
-                
+
+
             else:
                 if previous_stock_ledger_name:
                 # Previous stock ledger assigned to base stock ledger
@@ -416,11 +416,11 @@ class DeliveryNote(Document):
                                                             'warehouse': docitem.warehouse,
                                                             'base_stock_ledger': "No Previous Ledger"
                                                             })
-        
+
         if(not recalculate_after_cancel):
             update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')
-        
-        
+
+
         if more_records:
             if(not recalculate_after_cancel):
                 update_posting_status(self.doctype,self.name, 'stock_recalc_required_on_cancel', True)
@@ -432,3 +432,20 @@ class DeliveryNote(Document):
                 update_posting_status(self.doctype,self.name, 'stock_recalc_after_cancel_time')
                 update_posting_status(self.doctype, self.name,'posting_status', 'Completed')
 
+@frappe.whitelist()
+def get_sales_order_items(sales_orders):
+    if isinstance(sales_orders, str):
+        sales_orders = frappe.parse_json(sales_orders)
+    items = []
+    for sales_order in sales_orders:
+        sales_order_items = frappe.get_all('Sales Order Item',
+                                           filters={'parent': sales_order},
+                                           fields=['name', 'item', 'qty', 'warehouse', 'item_name', 'display_name', 'unit', 'rate', 'base_unit',
+                                           'qty_in_base_unit', 'rate_in_base_unit', 'conversion_factor', 'rate_includes_tax', 'gross_amount',
+                                           'tax_excluded', 'tax_rate', 'tax_amount', 'discount_percentage', 'discount_amount', 'net_amount'
+                                           ])
+        for so_item in sales_order_items:
+            so_item['sales_order_item_reference_no'] = so_item['name']
+            items.append(so_item)
+
+    return items
