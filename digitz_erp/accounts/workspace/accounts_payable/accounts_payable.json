@@ -33,7 +33,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-06 15:24:43.592699",
+ "modified": "2024-02-20 16:49:34.577835",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Payable",
@@ -48,7 +48,11 @@
    "quick_list_filter": "[]"
   }
  ],
- "roles": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
  "sequence_id": 6.0,
  "shortcuts": [
   {

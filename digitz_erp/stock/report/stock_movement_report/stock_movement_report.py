@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from datetime import datetime, timedelta
 
 def execute(filters=None):
 
@@ -116,8 +117,27 @@ def get_data(filters):
 	from_date = filters.get('from_date')
 	to_date = filters.get('to_date')
  
+	from_date_str = filters.get('from_date')
+	to_date_str = filters.get('to_date')
+
+	# Convert string dates to datetime objects
+	from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
+	to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
+
+	# Set from_date to the first minute of the day
+	from_date = from_date.replace(hour=0, minute=0)
+
+	# Set to_date to the last minute of the day
+	to_date = to_date.replace(hour=23, minute=59)
+
+	# If you need to use them as strings later in your code:
+	from_date_str = from_date.strftime('%Y-%m-%d %H:%M:%S')
+	to_date_str = to_date.strftime('%Y-%m-%d %H:%M:%S')
+ 
 	for dl in data:
    
+		print(dl['item'])
+		print(dl['warehouse'])
 		result = frappe.db.sql("""
             SELECT
                 SUM(COALESCE(sl.qty_in, 0)) AS qty_in,
@@ -130,7 +150,10 @@ def get_data(filters):
                 sl.warehouse = %s AND
                 sl.posting_date >= %s AND
                 sl.posting_date <= %s
-        """, (dl['item'], dl['warehouse'], from_date, to_date), as_dict=True)
+        """, (dl['item'], dl['warehouse'], from_date_str, to_date_str), as_dict=True)
+  
+		print("result")
+		print(result)
   
 		qty_in = result[0]['qty_in'] if result else 0
 		qty_out = result[0]['qty_out'] if result else 0
@@ -153,8 +176,8 @@ def get_data(filters):
 	
 	for dl in data:
 		
-		if filters.get('from_date'):
-			from_date = filters.get('from_date')
+		# if filters.get('from_date'):
+		# 	from_date = filters.get('from_date')
    
 			
    
@@ -179,7 +202,7 @@ def get_data(filters):
             WHERE sl.item = %s AND sl.warehouse = %s AND sl.posting_date < %s
             ORDER BY sl.posting_date DESC
             LIMIT 1
-        """, (dl['item'], dl['warehouse'], from_date), as_dict=True)
+        """, (dl['item'], dl['warehouse'], from_date_str), as_dict=True)
    
 			# Extract balance_qty from the result if available, otherwise default to 0
 			opening_qty = result[0]['balance_qty'] if result else 0

@@ -156,16 +156,20 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-09 21:17:01.223720",
+ "modified": "2024-02-20 16:41:50.458298",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
  "number_cards": [],
  "owner": "Administrator",
- "parent_page": "",
- "public": 1,
- "quick_lists": [],
- "roles": [],
+ "parent_page": "My Workspace",
+ "public": 0,
+ "quick_lists": [], 
+ "roles": [
+    {
+     "role": "Administrator"
+    }
+   ],
  "sequence_id": 3.0,
  "shortcuts": [
   {

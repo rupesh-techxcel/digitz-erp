@@ -3,11 +3,32 @@
 
 import frappe
 from frappe import _
+from datetime import datetime, timedelta
 
 def execute(filters=None):
 	columns = get_columns()
 	data= None
 	show_datewise = filters.get("show_datewise")
+ 
+	from_date_str = filters.get('from_date')
+	to_date_str = filters.get('to_date')
+
+	# Convert string dates to datetime objects
+	from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
+	to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
+
+	# Set from_date to the first minute of the day
+	from_date = from_date.replace(hour=0, minute=0)
+
+	# Set to_date to the last minute of the day
+	to_date = to_date.replace(hour=23, minute=59)
+
+	# If you need to use them as strings later in your code:
+	from_date_str = from_date.strftime('%Y-%m-%d %H:%M:%S')
+	to_date_str = to_date.strftime('%Y-%m-%d %H:%M:%S')
+	
+	filters['from_date'] = from_date_str
+	filters['to_date'] = to_date_str 
  
 	if show_datewise:
 		data = get_data_datewise(filters)
@@ -42,8 +63,16 @@ def get_columns_date_wise():
     ]
 
 def get_data(filters):
+    
 	from_date = filters.get("from_date")
 	to_date = filters.get("to_date")
+ 
+	print("from_date")
+	print(from_date)
+ 
+	print("to_date")
+	print(to_date)
+ 
 	item = filters.get("item")
 	warehouse = filters.get("warehouse")
 	show_all = filters.get("show_all")
@@ -53,27 +82,118 @@ def get_data(filters):
 	warehouse_condition = f" AND warehouse = '{warehouse}'" if warehouse else ""
 
 	# Fetch the opening quantity for all items based on the last record's balance quantity
-	opening_balance_query = f"""
-	SELECT
-		sl.item as item_code,
-		i.item_name,
-		balance_qty as opening_qty
-	FROM `tabStock Ledger` sl
-	INNER JOIN 	`tabItem` i on i.name = sl.item
-	WHERE (item, posting_date) IN (
-		SELECT
-			item,
-			MAX(posting_date) as max_posting_date
-		FROM `tabStock Ledger`
-		WHERE posting_date < '{from_date}'
-			{item_condition}
-			{warehouse_condition}
-		GROUP BY item
-	)
-	order by item_name
-	"""
+	# opening_balance_query = f"""
+	# SELECT
+	# 	sl.item as item_code,
+	# 	i.item_name,
+	# 	balance_qty as opening_qty
+	# FROM `tabStock Ledger` sl
+	# INNER JOIN 	`tabItem` i on i.name = sl.item
+	# WHERE (item, posting_date) IN (
+	# 	SELECT
+	# 		item,
+	# 		MAX(posting_date) as max_posting_date
+	# 	FROM `tabStock Ledger`
+	# 	WHERE posting_date < '{from_date}'
+	# 		{item_condition}
+	# 		{warehouse_condition}
+	# 	GROUP BY item
+	# )
+	# order by item_name
+	# """
+ # Define the subquery as a derived table
+	# subquery = f"""
+	# 	SELECT
+	# 		item,
+	# 		MAX(posting_date) AS max_posting_date
+	# 	FROM
+	# 		`tabStock Ledger`
+	# 	WHERE
+	# 		posting_date < '{from_date}'
+	# 		{item_condition}
+	# 		{warehouse_condition}
+	# 	GROUP BY
+	# 		item
+	# """
+	
+	# subquery_result = frappe.db.sql(subquery, as_dict= True)
+	# print("subquery_result")
+	# print(subquery_result)
 
-	opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
+	# # Join the main table with the derived table (subquery)
+	# opening_balance_query = f"""
+	# SELECT
+	# 	sl.item AS item_code,
+	# 	i.item_name,
+	# 	sl.balance_qty AS opening_qty
+	# FROM
+	# 	`tabStock Ledger` sl
+	# INNER JOIN
+	# 	({subquery}) AS derived ON sl.item = derived.item AND sl.posting_date = derived.max_posting_date
+	# INNER JOIN
+	# 	`tabItem` i ON i.name = sl.item
+	# ORDER BY
+	# 	i.item_name
+	# """
+	max_dates_query = f"""
+				SELECT
+				item,
+				MAX(posting_date) AS max_posting_date
+				FROM
+				`tabStock Ledger`
+				WHERE
+				posting_date < '{from_date}'
+				{item_condition}
+				{warehouse_condition}
+				GROUP BY
+				item
+				"""
+	max_dates_data = frappe.db.sql(max_dates_query, as_dict=True)
+	
+	print("max_dates_data")
+	print(max_dates_data)
+    
+	opening_balance_data = []
+
+	for data in max_dates_data:
+		item_code = data['item']
+		max_posting_date = data['max_posting_date']
+  
+		print("max_posting_date")
+		print(max_posting_date)
+
+		balance_query = f"""
+		SELECT
+			sl.item AS item_code,
+			i.item_name,
+			sl.balance_qty AS opening_qty
+		FROM
+			`tabStock Ledger` sl
+		INNER JOIN
+			`tabItem` i ON i.name = sl.item
+		WHERE
+			sl.item = '{item_code}' AND
+			sl.posting_date = '{max_posting_date}'
+		"""
+		balance_data = frappe.db.sql(balance_query, as_dict=True)
+  
+		print("balance_data")
+		print(balance_data)
+		if balance_data:
+			opening_balance_data.extend(balance_data)
+   
+	opening_balance_data.sort(key=lambda x: x['item_name'])
+
+	# balance_data = frappe.db.sql(balance_query, as_dict=True)
+	# if balance_data:
+	# 	opening_balance_data.extend(balance_data)
+
+	# max_dates_data = frappe.db.sql(max_dates_query, as_dict=True)
+
+	# opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)	
+ 
+	print("opening_balance_data 101")
+	print(opening_balance_data)
 
 	stock_recon_qty_query = f"""
 		SELECT item as item_code, SUM(balance_qty) as balance_qty,
@@ -81,8 +201,8 @@ def get_data(filters):
         SUM(qty_out) as qty_out
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Stock Reconciliation'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date <='{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item
@@ -94,8 +214,8 @@ def get_data(filters):
 		SELECT item as item_code, SUM(qty_in) as purchase_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Purchase Invoice'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date <= '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item
@@ -108,8 +228,8 @@ def get_data(filters):
 		SELECT item as item_code, SUM(qty_out) as purchase_return_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Purchase Return'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date <= '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item
@@ -121,8 +241,8 @@ def get_data(filters):
 		SELECT item as item_code, SUM(qty_out) as sales_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Sales Invoice'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date <= '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item
@@ -135,8 +255,8 @@ def get_data(filters):
 		SELECT item as item_code, SUM(qty_in) as sales_return_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Sales Return'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date <= '{to_date}'
 
 			{item_condition}
 			{warehouse_condition}
@@ -150,8 +270,8 @@ def get_data(filters):
 	FROM `tabStock Ledger`
 	WHERE voucher = 'Stock Transfer'
 		AND (qty_in > 0)
-		AND posting_date >= '{from_date} 00:00:00'
-		AND posting_date < '{to_date} 23:59:59'
+		AND posting_date >= '{from_date}'
+		AND posting_date <= '{to_date}'
 		{item_condition}
 		{warehouse_condition}
 	GROUP BY item
@@ -168,8 +288,8 @@ def get_data(filters):
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Stock Transfer'
 			AND qty_out > 0
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date <= '{to_date}'
 
 			{item_condition}
 			{warehouse_condition}
@@ -179,10 +299,17 @@ def get_data(filters):
 	transfer_out_qty_data = frappe.db.sql(transfer_out_qty_query, as_dict=True)
 	opening_value_exists = False
 	transaction_value_exists = False
+ 
+ 
+	print("opening_balance_data")
+	print(opening_balance_data)
 
 	data = []
 	for opening_balance_row in opening_balance_data:
 
+		print("opening_balance_row")
+		print(opening_balance_row)
+  
 		item_row = {"item_name": opening_balance_row.item_name, "opening_qty": opening_balance_row.opening_qty, "closing_qty": 0, "purchase_qty": 0, "purchase_return_qty":0, "sales_qty":0, "sales_return_qty":0, "transfer_in_qty":0, "transfer_out_qty":0, "balance_qty":0}
   
 		print("item_row")
@@ -303,6 +430,9 @@ def get_data(filters):
 		elif show_all and (transaction_value_exists or opening_value_exists):
 			data.append(item_row)
 
+	print("data")
+	print(data)
+
 	return data
 
 def set_dates_for_items(data, transaction_item_dates):
@@ -389,8 +519,8 @@ def get_data_datewise(filters):
         SUM(qty_out) as qty_out
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Stock Reconciliation'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date < '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item, posting_date order by item,posting_date
@@ -407,14 +537,13 @@ def get_data_datewise(filters):
   
 	print("transaction_item_dates")
 	print(transaction_item_dates)
-			
-
+	
 	purchase_qty_query = f"""
 		SELECT item as item_code,posting_date, SUM(qty_in) as purchase_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Purchase Invoice'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date < '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item, posting_date order by item,posting_date
@@ -433,8 +562,8 @@ def get_data_datewise(filters):
 		SELECT item as item_code,posting_date, SUM(qty_out) as purchase_return_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Purchase Return'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date < '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item, posting_date order by item,posting_date
@@ -450,8 +579,8 @@ def get_data_datewise(filters):
 		SELECT item as item_code,posting_date, SUM(qty_out) as sales_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Sales Invoice'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date < '{to_date}'
 			{item_condition}
 			{warehouse_condition}
 		GROUP BY item, posting_date order by item,posting_date
@@ -466,8 +595,8 @@ def get_data_datewise(filters):
 		SELECT item as item_code,posting_date, SUM(qty_in) as sales_return_qty
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Sales Return'
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date < '{to_date}'
 
 			{item_condition}
 			{warehouse_condition}
@@ -483,8 +612,8 @@ def get_data_datewise(filters):
 	FROM `tabStock Ledger`
 	WHERE voucher = 'Stock Transfer'
 		AND (qty_in > 0)
-		AND posting_date >= '{from_date} 00:00:00'
-		AND posting_date < '{to_date} 23:59:59'
+		AND posting_date >= '{from_date}'
+		AND posting_date < '{to_date}'
 		{item_condition}
 		{warehouse_condition}
 	GROUP BY item, posting_date order by item,posting_date
@@ -503,8 +632,8 @@ def get_data_datewise(filters):
 		FROM `tabStock Ledger`
 		WHERE voucher = 'Stock Transfer'
 			AND qty_out > 0
-			AND posting_date >= '{from_date} 00:00:00'
-			AND posting_date < '{to_date} 23:59:59'
+			AND posting_date >= '{from_date}'
+			AND posting_date < '{to_date}'
 
 			{item_condition}
 			{warehouse_condition}
