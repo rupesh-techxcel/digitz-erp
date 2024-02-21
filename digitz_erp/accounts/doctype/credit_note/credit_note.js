@@ -23,6 +23,25 @@ frappe.ui.form.on("Credit Note", {
 				}
 			}
 			});
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+  				if (r && r.default_credit_sale === 1) {
+  						frm.set_value('on_credit', 1);
+  				}
+  		});
+
+			if(frm.doc.on_credit == 0){
+		        frappe.call({
+		                method: 'digitz_erp.accounts.doctype.credit_note.credit_note.get_default_payment_mode',
+		                callback: function(response) {
+		                        if (response && response.message) {
+		                                frm.set_value('payment_mode', response.message);
+		                        } else {
+		                                frappe.msgprint('Default payment mode for sales not found.');
+		                        }
+		                }
+		        });
+		    }
 	},
   edit_posting_date_and_time(frm) {
     if (frm.doc.edit_posting_date_and_time == 1) {
@@ -45,10 +64,10 @@ frappe.ui.form.on("Credit Note", {
 		frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
 		frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
 
-		if (frm.doc.on_credit) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		// if (frm.doc.on_credit) {
+		// 	frm.doc.payment_mode = "";
+		// 	frm.doc.payment_account = "";
+		// }
 	},
   customer(frm){
 
@@ -89,7 +108,7 @@ frappe.ui.form.on("Credit Note", {
 			if(!entry.tax_excluded && entry.tax_rate >0)
 			{
 				entry.rate_includes_tax = frm.doc.rate_includes_tax;
-        
+
 				if (entry.rate_includes_tax)
 				{
           			tax_in_rate = entry.amount * (entry.tax_rate / (100 + entry.tax_rate));
@@ -98,7 +117,7 @@ frappe.ui.form.on("Credit Note", {
 				}
 				else {
 					amount_excluded_tax = entry.amount;
-					tax_amount = (entry.amount * (entry.tax_rate / 100))          
+					tax_amount = (entry.amount * (entry.tax_rate / 100))
 				}
 			}
 
@@ -177,7 +196,7 @@ frappe.ui.form.on('Credit Note Detail',{
 				async:false,
 				callback(r){
           			row.tax = r.message
-				
+
 				frappe.call(
 					{
 					method: 'frappe.client.get_value',
