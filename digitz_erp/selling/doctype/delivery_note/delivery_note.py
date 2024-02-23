@@ -200,96 +200,98 @@ class DeliveryNote(Document):
         more_records = 0
 
         for docitem in self.items:
+            maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
+            print('MAINTAIN STOCK :', maintain_stock)
+            if(maintain_stock == 1):
+                posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
-            posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+                # Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
+                # in this flow itself. If more records, exists stock balance will be udpated lateer
+                more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
+                    'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
 
-            # Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
-            # in this flow itself. If more records, exists stock balance will be udpated lateer
-            more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
-                'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
+                more_records = more_records + more_records_count_for_item
 
-            more_records = more_records + more_records_count_for_item
+                # Check available qty
+                previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+                , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+                order_by='posting_date desc', as_dict=True)
 
-            # Check available qty
-            previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
-            , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
-            order_by='posting_date desc', as_dict=True)
+                previous_stock_balance_value = 0
+                if previous_stock_balance:
 
-            previous_stock_balance_value = 0
-            if previous_stock_balance:
+                    new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
+                    valuation_rate = previous_stock_balance.valuation_rate
+                    previous_stock_balance_value = previous_stock_balance.balance_value
 
-                new_balance_qty = previous_stock_balance.balance_qty - docitem.qty_in_base_unit
-                valuation_rate = previous_stock_balance.valuation_rate
-                previous_stock_balance_value = previous_stock_balance.balance_value
+                else:
 
-            else:
+                    new_balance_qty = 0 - docitem.qty_in_base_unit
+                    valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
 
-                new_balance_qty = 0 - docitem.qty_in_base_unit
-                valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
+                new_balance_value = previous_stock_balance_value - (docitem.qty_in_base_unit * valuation_rate)
+                cost_of_goods_sold = cost_of_goods_sold + (docitem.qty_in_base_unit * valuation_rate)
 
-            new_balance_value = previous_stock_balance_value - (docitem.qty_in_base_unit * valuation_rate)
-            cost_of_goods_sold = cost_of_goods_sold + (docitem.qty_in_base_unit * valuation_rate)
+                # if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+                #     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
 
-            # if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
-            #     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
+                change_in_stock_value = new_balance_value - previous_stock_balance_value
 
-            change_in_stock_value = new_balance_value - previous_stock_balance_value
+                new_stock_ledger = None
 
-            new_stock_ledger = None
+                if not recalculate_after_submit:
+                    new_stock_ledger = frappe.new_doc("Stock Ledger")
+                    new_stock_ledger.item = docitem.item
+                    new_stock_ledger.item_name = docitem.item_name
+                    new_stock_ledger.warehouse = docitem.warehouse
+                    new_stock_ledger.posting_date = posting_date_time
 
-            if not recalculate_after_submit:
-                new_stock_ledger = frappe.new_doc("Stock Ledger")
-                new_stock_ledger.item = docitem.item
-                new_stock_ledger.item_name = docitem.item_name
-                new_stock_ledger.warehouse = docitem.warehouse
-                new_stock_ledger.posting_date = posting_date_time
+                    new_stock_ledger.qty_out = docitem.qty_in_base_unit
+                    new_stock_ledger.outgoing_rate = docitem.rate_in_base_unit
+                    new_stock_ledger.unit = docitem.base_unit
+                    new_stock_ledger.valuation_rate = valuation_rate
+                    new_stock_ledger.balance_qty = new_balance_qty
+                    new_stock_ledger.balance_value = new_balance_value
+                    new_stock_ledger.change_in_stock_value = change_in_stock_value
+                    new_stock_ledger.voucher = "Delivery Note"
+                    new_stock_ledger.voucher_no = self.name
+                    new_stock_ledger.source = "Delivery Note Item"
+                    new_stock_ledger.source_document_id = docitem.name
+                    new_stock_ledger.insert()
+                else:
+                    # Only balance qty is supposed to be not correct because of wrong opening balance aquisition.So correct only balance_qty with the recalculation
+                    new_stock_ledger = frappe.get_doc("Stock Ledger",{"item":docitem.item, "source_document_id":docitem.name})
+                    new_stock_ledger.balance_qty = new_balance_qty
+                    new_stock_ledger.save()
 
-                new_stock_ledger.qty_out = docitem.qty_in_base_unit
-                new_stock_ledger.outgoing_rate = docitem.rate_in_base_unit
-                new_stock_ledger.unit = docitem.base_unit
-                new_stock_ledger.valuation_rate = valuation_rate
-                new_stock_ledger.balance_qty = new_balance_qty
-                new_stock_ledger.balance_value = new_balance_value
-                new_stock_ledger.change_in_stock_value = change_in_stock_value
-                new_stock_ledger.voucher = "Delivery Note"
-                new_stock_ledger.voucher_no = self.name
-                new_stock_ledger.source = "Delivery Note Item"
-                new_stock_ledger.source_document_id = docitem.name
-                new_stock_ledger.insert()
-            else:
-                # Only balance qty is supposed to be not correct because of wrong opening balance aquisition.So correct only balance_qty with the recalculation
-                new_stock_ledger = frappe.get_doc("Stock Ledger",{"item":docitem.item, "source_document_id":docitem.name})
-                new_stock_ledger.balance_qty = new_balance_qty
-                new_stock_ledger.save()
+                # If no more records for the item, update balances. otherwise it updates in the flow
+                if more_records_count_for_item==0:
 
-            # If no more records for the item, update balances. otherwise it updates in the flow
-            if more_records_count_for_item==0:
+                    if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+                        frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
-                if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
-                    frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+                    unit = frappe.get_value("Item", docitem.item,['base_unit'])
 
-                unit = frappe.get_value("Item", docitem.item,['base_unit'])
+                    new_stock_balance = frappe.new_doc('Stock Balance')
+                    new_stock_balance.item = docitem.item
+                    new_stock_balance.unit = unit
+                    new_stock_balance.warehouse = docitem.warehouse
+                    new_stock_balance.stock_qty = new_balance_qty
+                    new_stock_balance.stock_value = new_balance_value
+                    new_stock_balance.valuation_rate = valuation_rate
 
-                new_stock_balance = frappe.new_doc('Stock Balance')
-                new_stock_balance.item = docitem.item
-                new_stock_balance.unit = unit
-                new_stock_balance.warehouse = docitem.warehouse
-                new_stock_balance.stock_qty = new_balance_qty
-                new_stock_balance.stock_value = new_balance_value
-                new_stock_balance.valuation_rate = valuation_rate
+                    new_stock_balance.insert()
 
-                new_stock_balance.insert()
-
-                # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                # print("item_name")
-                # print(item_name)
-                update_stock_balance_in_item(docitem.item)
-            else:
-                stock_recalc_voucher.append('records',{'item': docitem.item,
-                                                        'item_name': docitem.item_name,
-                                                            'warehouse': docitem.warehouse,
-                                                            'base_stock_ledger': new_stock_ledger.name
-                                                            })
+                    # item_name = frappe.get_value("Item", docitem.item,['item_name'])
+                    # print("item_name")
+                    # print(item_name)
+                    update_stock_balance_in_item(docitem.item)
+                else:
+                    stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                            'item_name': docitem.item_name,
+                                                                'warehouse': docitem.warehouse,
+                                                                'base_stock_ledger': new_stock_ledger.name
+                                                                })
 
         if(not recalculate_after_submit):
             update_posting_status(self.doctype,self.name, 'stock_posted_time')
