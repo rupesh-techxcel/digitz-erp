@@ -110,7 +110,38 @@ frappe.ui.form.on('Item', {
 		{
 			frm.doc.tax ="";
 		}
+	},
+	standard_buying_price:function(frm)
+	{
+		frm.trigger("get_margin_from_rates");
+	},
+	standard_selling_price:function(frm)
+	{
+		frm.trigger("get_margin_from_rates");		
+	},
+	margin_:function(frm)
+	{
+		if(!isNaN(frm.doc.standard_buying_price) && !isNaN(frm.doc.margin_))
+		{
+			selling_price = parseFloat(frm.doc.standard_buying_price) + (parseFloat(frm.doc.standard_buying_price) * parseFloat(frm.doc.margin_) / 100)
+
+			frm.doc.standard_selling_price = selling_price
+
+			frm.refresh_field("standard_selling_price")
+
+
+		}
+	},
+	get_margin_from_rates(frm)
+	{
+		if(!isNaN(frm.doc.standard_buying_price) && !isNaN(frm.doc.standard_selling_price))
+		{
+			margin = (parseFloat(frm.doc.standard_selling_price) / parseFloat(frm.doc.standard_buying_price) *100) - 100			
+			frm.doc.margin_ = margin
+			frm.refresh_field("margin_")
+		}
 	}
+
 });
 
 frappe.ui.form.on("Item", "onload", function(frm) {
@@ -203,3 +234,4 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 
 	}
 );
+

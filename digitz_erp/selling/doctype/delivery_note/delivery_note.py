@@ -74,8 +74,8 @@ class DeliveryNote(Document):
 
     def do_postings_on_submit(self):
 
-        cost_of_goods_sold = self.do_stock_posting()
-        self.insert_gl_records(cost_of_goods_sold = cost_of_goods_sold)
+        self.do_stock_posting()
+        self.insert_gl_records()
 
         update_accounts_for_doc_type('Delivery Note',self.name)
 
@@ -158,9 +158,9 @@ class DeliveryNote(Document):
 
         if(self.docstatus==1):
             # frappe.enqueue(self.do_stock_posting,recalculate_after_submit=True, queue="long")
-            self.do_stock_posting(recalculate_after_submit=True)
+            self.do_stock_posting()
         elif(self.docstatus == 2):
-            self.do_stock_posting_on_cancel(recalculate_after_cancel=True)
+            self.do_stock_posting_on_cancel()
 
     def cancel_delivery_note(self):
         self.do_cancel_delivery_note()
@@ -182,10 +182,7 @@ class DeliveryNote(Document):
 		# 		 "voucher_no":self.name
 		# 		})
 
-    def do_stock_posting(self, recalculate_after_submit=False):
-
-        if(recalculate_after_submit):
-            reset_document_posting_status_for_recalc_after_submit(self.doctype,self.name)
+    def do_stock_posting(self):
 
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
         stock_recalc_voucher.voucher = 'Delivery Note'
@@ -198,6 +195,9 @@ class DeliveryNote(Document):
         cost_of_goods_sold = 0
 
         more_records = 0
+        
+        # Create a dictionary for handling duplicate items. In stock ledger posting it is expected to have only one stock ledger per item per voucher.
+        item_stock_ledger = {}
 
         for docitem in self.items:
 
@@ -228,8 +228,7 @@ class DeliveryNote(Document):
                 valuation_rate = frappe.get_value("Item", docitem.item, ['standard_buying_price'])
 
             new_balance_value = previous_stock_balance_value - (docitem.qty_in_base_unit * valuation_rate)
-            cost_of_goods_sold = cost_of_goods_sold + (docitem.qty_in_base_unit * valuation_rate)
-
+            
             # if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
             #     frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
 
@@ -237,7 +236,9 @@ class DeliveryNote(Document):
 
             new_stock_ledger = None
 
-            if not recalculate_after_submit:
+            # Allows to post the item only once to the stock ledger.
+            if docitem.item not in item_stock_ledger:
+                
                 new_stock_ledger = frappe.new_doc("Stock Ledger")
                 new_stock_ledger.item = docitem.item
                 new_stock_ledger.item_name = docitem.item_name
@@ -256,12 +257,22 @@ class DeliveryNote(Document):
                 new_stock_ledger.source = "Delivery Note Item"
                 new_stock_ledger.source_document_id = docitem.name
                 new_stock_ledger.insert()
-            else:
-                # Only balance qty is supposed to be not correct because of wrong opening balance aquisition.So correct only balance_qty with the recalculation
-                new_stock_ledger = frappe.get_doc("Stock Ledger",{"item":docitem.item, "source_document_id":docitem.name})
-                new_stock_ledger.balance_qty = new_balance_qty
-                new_stock_ledger.save()
+                
+                sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
 
+                item_stock_ledger[docitem.item] = sl.name
+                
+            else:
+                stock_ledger_name = item_stock_ledger.get(docitem.item)
+                stock_ledger = frappe.get_doc('Stock Ledger', stock_ledger_name)
+
+                stock_ledger.qty_out = stock_ledger.qty_out + docitem.qty_in_base_unit
+                stock_ledger.balance_qty = stock_ledger.balance_qty - docitem.qty_in_base_unit
+                stock_ledger.balance_value = stock_ledger.balance_qty * stock_ledger.valuation_rate
+                stock_ledger.change_in_stock_value = stock_ledger.change_in_stock_value - (stock_ledger.balance_qty * stock_ledger.valuation_rate)
+                new_balance_qty = stock_ledger.balance_qty
+                stock_ledger.save()
+            
             # If no more records for the item, update balances. otherwise it updates in the flow
             if more_records_count_for_item==0:
 
@@ -291,27 +302,33 @@ class DeliveryNote(Document):
                                                             'base_stock_ledger': new_stock_ledger.name
                                                             })
 
-        if(not recalculate_after_submit):
-            update_posting_status(self.doctype,self.name, 'stock_posted_time')
+        
+        update_posting_status(self.doctype,self.name, 'stock_posted_time')
 
         if(more_records>0):
-            if(not recalculate_after_submit):
-                update_posting_status(self.doctype,self.name, 'stock_recalc_required', True)
+            
+            update_posting_status(self.doctype,self.name, 'stock_recalc_required', True)
 
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-            if(not recalculate_after_submit):
-                update_posting_status(self.doctype, self.name, 'stock_recalc_time')
-            else:
-                update_posting_status(self.doctype, self.name, 'stock_recalc_after_submit_time')
+            
+            update_posting_status(self.doctype, self.name, 'stock_recalc_time')
+    
+    def get_cost_of_goods_sold(self):
+        
+        cost_of_goods_sold_in_stock_ledgers_query = """select sum(qty_out*valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher='Delivery Note' and voucher_no=%s"""
 
-        if(recalculate_after_submit):
-            update_posting_status(self.doctype, self.name,'posting_status', 'Completed')
+        cog_data = frappe.db.sql(cost_of_goods_sold_in_stock_ledgers_query,(self.name), as_dict = True)
+
+        cost_of_goods_sold = 0
+
+        if(cog_data):
+            cost_of_goods_sold = cog_data[0].cost_of_goods_sold        
 
         return cost_of_goods_sold
 
-    def insert_gl_records(self, cost_of_goods_sold):
+    def insert_gl_records(self):
 
         print("From insert gl records")
 
@@ -320,6 +337,8 @@ class DeliveryNote(Document):
         default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account', 'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 
         idx = 1
+        
+        cost_of_goods_sold = self.get_cost_of_goods_sold()
 
         # Inventory account - Credit - Against Cost Of Goods Sold
         gl_doc = frappe.new_doc('GL Posting')
@@ -348,10 +367,7 @@ class DeliveryNote(Document):
 
         update_posting_status(self.doctype,self.name, 'gl_posted_time')
 
-    def do_stock_posting_on_cancel(self, recalculate_after_cancel=False):
-
-        if(recalculate_after_cancel):
-            reset_document_posting_status_for_recalc_after_cancel(self.doctype,self.name)
+    def do_stock_posting_on_cancel(self):
 
         # Insert record to 'Stock Recalculate Voucher' doc
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
@@ -417,20 +433,16 @@ class DeliveryNote(Document):
                                                             'base_stock_ledger': "No Previous Ledger"
                                                             })
 
-        if(not recalculate_after_cancel):
-            update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')
+        
+        update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time')
 
 
-        if more_records:
-            if(not recalculate_after_cancel):
-                update_posting_status(self.doctype,self.name, 'stock_recalc_required_on_cancel', True)
+        if more_records:            
+            update_posting_status(self.doctype,self.name, 'stock_recalc_required_on_cancel', True)
             stock_recalc_voucher.insert()
-            recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
-            if(not recalculate_after_cancel):
-                update_posting_status(self.doctype,self.name, 'stock_recalc_on_cancel_time')
-            else:
-                update_posting_status(self.doctype,self.name, 'stock_recalc_after_cancel_time')
-                update_posting_status(self.doctype, self.name,'posting_status', 'Completed')
+            recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)            
+            update_posting_status(self.doctype,self.name, 'stock_recalc_on_cancel_time')
+            
 
 @frappe.whitelist()
 def get_sales_order_items(sales_orders):

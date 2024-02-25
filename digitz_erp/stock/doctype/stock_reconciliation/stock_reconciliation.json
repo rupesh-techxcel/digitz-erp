@@ -17,8 +17,8 @@
   "column_break_24",
   "company",
   "remarks",
-  "section_break_19",
   "section_break_13",
+  "column_break_kabu",
   "items",
   "section_break_12",
   "selected_item_stock_qty_in_the_warehouse",
@@ -85,10 +85,6 @@
    "label": "Remarks"
   },
   {
-   "fieldname": "section_break_19",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -140,12 +136,17 @@
    "options": "Stock Reconciliation",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "description": "Anticipate that each item will not appear in more than one row. Employ the base unit for fractional quantities.",
+   "fieldname": "column_break_kabu",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-03-12 19:14:32.375812",
+ "modified": "2024-02-23 15:16:55.393776",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Reconciliation",

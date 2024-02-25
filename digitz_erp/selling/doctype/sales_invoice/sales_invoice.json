@@ -32,6 +32,7 @@
   "rate_includes_tax",
   "warehouse",
   "payment_status",
+  "update_stock",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -44,7 +45,6 @@
   "reference_date",
   "remarks",
   "column_break_yacz",
-  "ignore_posting",
   "section_break_19",
   "items",
   "section_break_29",
@@ -381,6 +381,7 @@
    "label": "References"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "delivery_notes",
    "fieldtype": "Table",
    "label": "Delivery Notes",
@@ -429,6 +430,7 @@
    "label": "Tax Id"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "delivery_notes_to_print",
    "fieldtype": "Data",
    "label": "Delivery Notes To Print"
@@ -509,12 +511,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "fieldname": "ignore_posting",
-   "fieldtype": "Check",
-   "label": "Ignore Posting"
-  },
-  {
    "fieldname": "payment_status",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -538,12 +534,18 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In words"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_stock",
+   "fieldtype": "Check",
+   "label": "Update Stock"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-07 11:28:39.618357",
+ "modified": "2024-02-24 18:51:15.591550",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

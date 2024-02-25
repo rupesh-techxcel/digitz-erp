@@ -48,7 +48,7 @@ class SalesReturn(Document):
 
     def do_postings_on_submit(self):
         # Cost of goods sold need not include for Sales Return because it is not an expense but its only a reduction of sales revenue.
-        self.add_stock_for_sales_return()
+        self.do_stock_posting()
         self.insert_gl_records()
         self.insert_payment_postings()
         update_accounts_for_doc_type('Sales Return', self.name)
@@ -103,6 +103,8 @@ class SalesReturn(Document):
             gl_doc.insert()
             idx +=1
 
+        cost_of_goods_sold = self.get_cost_of_goods_sold()
+        
         # Inventory Account        
         gl_doc = frappe.new_doc('GL Posting')
         gl_doc.voucher_type = "Sales Return"
@@ -111,7 +113,7 @@ class SalesReturn(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.default_inventory_account
-        gl_doc.debit_amount = self.net_total - self.tax_total
+        gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.cost_of_goods_sold_account
         gl_doc.insert()
         idx +=1
@@ -124,7 +126,7 @@ class SalesReturn(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.cost_of_goods_sold_account
-        gl_doc.credit_amount = self.net_total - self.tax_total
+        gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.insert()
         idx +=1
@@ -284,7 +286,7 @@ class SalesReturn(Document):
         #             "voucher_no":self.name
         #         })
 
-    def add_stock_for_sales_return(self):
+    def do_stock_posting(self):
         cost_of_goods_sold =0
         # Note that negative stock checking is handled in the validate method
         stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
@@ -297,6 +299,9 @@ class SalesReturn(Document):
         more_records = 0
 
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+        
+        # Create a dictionary for handling duplicate items. In stock ledger posting it is expected to have only one stock ledger per item per voucher.
+        item_stock_ledger = {}
 
         for docitem in self.items:
 
@@ -335,26 +340,42 @@ class SalesReturn(Document):
                     valuation_rate = abs(new_balance_value)/abs(new_balance_qty)
 
                 change_in_stock_value = new_balance_value - last_stock_ledger.balance_value
+                
+            if docitem.item not in item_stock_ledger:
 
-            new_stock_ledger = frappe.new_doc("Stock Ledger")
-            new_stock_ledger.item = docitem.item
-            new_stock_ledger.item_name = docitem.item_name
-            new_stock_ledger.warehouse = docitem.warehouse
-            new_stock_ledger.posting_date = posting_date_time
-            new_stock_ledger.qty_in = docitem.qty_in_base_unit
-            new_stock_ledger.incoming_rate = docitem.rate_in_base_unit
-            new_stock_ledger.unit = docitem.base_unit
-            new_stock_ledger.valuation_rate = valuation_rate
-            new_stock_ledger.balance_qty = new_balance_qty
-            new_stock_ledger.balance_value = new_balance_value
-            new_stock_ledger.change_in_stock_value = change_in_stock_value
-            new_stock_ledger.voucher = "Sales Return"
-            new_stock_ledger.voucher_no = self.name
-            new_stock_ledger.source = "Sales Return Item"
-            new_stock_ledger.source_document_id = docitem.name
-            new_stock_ledger.insert()
+                new_stock_ledger = frappe.new_doc("Stock Ledger")
+                new_stock_ledger.item = docitem.item
+                new_stock_ledger.item_name = docitem.item_name
+                new_stock_ledger.warehouse = docitem.warehouse
+                new_stock_ledger.posting_date = posting_date_time
+                new_stock_ledger.qty_in = docitem.qty_in_base_unit
+                new_stock_ledger.incoming_rate = docitem.rate_in_base_unit
+                new_stock_ledger.unit = docitem.base_unit
+                new_stock_ledger.valuation_rate = valuation_rate
+                new_stock_ledger.balance_qty = new_balance_qty
+                new_stock_ledger.balance_value = new_balance_value
+                new_stock_ledger.change_in_stock_value = change_in_stock_value
+                new_stock_ledger.voucher = "Sales Return"
+                new_stock_ledger.voucher_no = self.name
+                new_stock_ledger.source = "Sales Return Item"
+                new_stock_ledger.source_document_id = docitem.name
+                new_stock_ledger.insert()
+                
+                sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
 
-            cost_of_goods_sold = cost_of_goods_sold + change_in_stock_value
+                item_stock_ledger[docitem.item] = sl.name
+                
+            else:
+                stock_ledger_name = item_stock_ledger.get(docitem.item)
+                stock_ledger = frappe.get_doc('Stock Ledger', stock_ledger_name)
+
+                stock_ledger.qty_in = stock_ledger.qty_in + docitem.qty_in_base_unit
+                stock_ledger.balance_qty = stock_ledger.balance_qty + docitem.qty_in_base_unit
+                stock_ledger.balance_value = stock_ledger.balance_qty * stock_ledger.valuation_rate
+                stock_ledger.change_in_stock_value = stock_ledger.change_in_stock_value + (stock_ledger.balance_qty * stock_ledger.valuation_rate)
+                change_in_stock_value = stock_ledger.change_in_stock_value
+                new_balance_qty = stock_ledger.balance_qty
+                stock_ledger.save()
 
             sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
             # If no more records for the item, update balances. otherwise it updates in the flow
@@ -386,8 +407,8 @@ class SalesReturn(Document):
         if(more_records>0):
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
-
-        return cost_of_goods_sold
+            
+        
 
     def do_cancel_stock_posting(self):
 
@@ -479,6 +500,19 @@ class SalesReturn(Document):
             stock_recalc_voucher.insert()
             print("going to recalculate")
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+
+def get_cost_of_goods_sold(self):
+        
+        cost_of_goods_sold_in_stock_ledgers_query = """select sum(qty_in*valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher='Sales Return' and voucher_no=%s"""
+
+        cog_data = frappe.db.sql(cost_of_goods_sold_in_stock_ledgers_query,(self.name), as_dict = True)
+
+        cost_of_goods_sold = 0
+
+        if(cog_data):
+            cost_of_goods_sold = cog_data[0].cost_of_goods_sold        
+
+        return cost_of_goods_sold
 
 @frappe.whitelist()
 def get_default_payment_mode():

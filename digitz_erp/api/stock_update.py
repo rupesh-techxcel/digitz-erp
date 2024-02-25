@@ -275,55 +275,94 @@ def re_post_stock_ledgers():
     
     udpate_ledgers = True
     
+    stock_ledgers_for_delivery_note = []
+    stock_ledgers_for_sales_invoice = []
+    stock_ledgers_for_sales_return = []
+    
+    
     while udpate_ledgers==True:
-        
-        # [17-02-2023 - Rupesh]
-        # Checking the count for the stock ledgers to fetch records with the same posting date and time since in the next query it cannot give >= with the posting_date and checking a value(eg: recalculated) which already updated in the stock ledger table to avoid the records already processed, because of the database locking. So using the approach to fetch all records with the same date and time and procecss it
-        
+               
         # Get stock ledgers with the last assigned posting_date (there can be multiple records)
         count = frappe.db.count('Stock Ledger', filters={'posting_date': posting_date})
         
         if(count>0):
             stock_ledgers_with_same_date_and_time = frappe.get_all('Stock Ledger', 
                                 filters={'posting_date': posting_date},
-                                fields=['name', 'posting_date'])          
+                                fields=['name', 'posting_date','voucher','voucher_no'])          
 
             # Loop through each 'Stock Ledger' record
             for ledger in stock_ledgers_with_same_date_and_time:                
                 update_stock_ledger(ledger['name'], for_reposting=True)                
                 doc.last_processed_stock_ledger = ledger['name']
                 doc.last_processed_posting_date = posting_date
+                
+                if ledger['voucher'] == "Sales Invoice" and ledger['voucher_no'] not in stock_ledgers_for_sales_invoice:
+                    stock_ledgers_for_sales_invoice.append(ledger['voucher_no'])
+                    
+                if ledger['voucher'] == "Delivery Note" and ledger['voucher_no'] not in stock_ledgers_for_delivery_note:
+                    stock_ledgers_for_delivery_note.append(ledger['voucher_no'])
+                
+                if ledger['voucher'] == "Sales Return" and ledger['voucher_no'] not in stock_ledgers_for_sales_return:
+                    stock_ledgers_for_sales_return.append(ledger['voucher_no'])
+                
+                
         
         next_stock_ledger = frappe.db.sql("""
-            SELECT sl.name, sl.posting_date FROM `tabStock Ledger` sl
+            SELECT sl.name, sl.posting_date,voucher,voucher_no FROM `tabStock Ledger` sl
             WHERE posting_date > %s ORDER BY posting_date ASC
             LIMIT 1
         """, (posting_date,), as_dict=True)
         
         if(next_stock_ledger and next_stock_ledger[0]): 
-        
+            
+            
             if post_only_for_a_date == True and (  
                     next_stock_ledger[0].posting_date.date() != posting_date.date()):                
                     udpate_ledgers = False    
                     break  
                     
             update_stock_ledger(next_stock_ledger[0].name, for_reposting=True)
+                                
             udpate_ledgers = True
             posting_date = next_stock_ledger[0].posting_date
             doc.last_processed_stock_ledger = next_stock_ledger[0].name
             doc.last_processed_posting_date = posting_date
             
+            if next_stock_ledger[0].voucher == "Sales Invoice" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_sales_invoice:
+                    stock_ledgers_for_sales_invoice.append(next_stock_ledger[0].voucher_no)
+                    
+            if next_stock_ledger[0].voucher == "Delivery Note" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_delivery_note:
+                    stock_ledgers_for_delivery_note.append(next_stock_ledger[0].voucher_no)
+                    
+            if next_stock_ledger[0].voucher == "Sales Return" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_sales_return:
+                    stock_ledgers_for_sales_return.append(next_stock_ledger[0].voucher_no)
+            
         else:
             udpate_ledgers = False
             
     update_all_item_stock_balances()
+    
+    update_all_cost_of_goods_solds(stock_ledgers_for_delivery_note,stock_ledgers_for_sales_invoice, stock_ledgers_for_sales_return)
        
     doc.posting_status = "Not Started"
     doc.save()
     frappe.db.commit()
     
     frappe.msgprint("Stock update completed")
+
+def update_all_cost_of_goods_solds(delivery_note_list, sales_invoice_list,sales_return_list):
     
+    if delivery_note_list:
+        for delivery_note in delivery_note_list:
+            update_cost_of_goods_sold("Delivery Note", delivery_note)        
+    
+    if sales_invoice_list:
+        for sales_invocie in sales_invoice_list:
+            update_cost_of_goods_sold("Sales Invoice", sales_invocie)
+        
+    if sales_return_list:
+        for sales_return in sales_return_list:
+            update_cost_of_goods_sold("Sales Return", sales_return)
                 
 def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, balance_value, for_reposting):
         
@@ -336,6 +375,34 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
         qty_in = 0
         qty_out = 0
         
+        # Treatment for multiple items with same item code in the same voucher
+        # [Start]
+        if for_reposting:
+            other_stock_ledgers_for_item_in_the_voucher_query = """select name,item,qty_in,qty_out,valuation_rate from `tabStock Ledger` where name !=%s and voucher=%s and voucher_no=%s and item=%s """
+            other_stock_ledgers_for_item_in_the_voucher_data = frappe.db.sql(other_stock_ledgers_for_item_in_the_voucher_query,(sl.name,sl.voucher,sl.voucher_no,sl.item), as_dict=True)
+            qty_in_for_item_in_voucher = sl.qty_in
+            qty_out_for_item_in_voucher = sl.qty_out
+            
+            for data in other_stock_ledgers_for_item_in_the_voucher_data:
+                qty_in_for_item_in_voucher += data.qty_in
+                qty_out_for_item_in_voucher += data.qty_out    
+            
+            if(qty_in_for_item_in_voucher != sl.qty_in or qty_out_for_item_in_voucher != sl.qty_out):
+                sl.qty_in = qty_in_for_item_in_voucher
+                sl.qty_out = qty_out_for_item_in_voucher
+                sl.save()
+                
+            for data in other_stock_ledgers_for_item_in_the_voucher_data:
+                # Use frappe.delete_doc to delete each record that matches the condition
+                frappe.delete_doc('Stock Ledger', data.name, force=1)  # force=1 is used to bypass the trash and delete permanently, use with caution
+
+                # Optionally, you can commit after each deletion to ensure data consistency.
+                frappe.db.commit()
+        
+        # [End]
+            
+        
+        # System does not allow same item to be repeated in multiple rows in Stock Reconciliation so need not consider the case. (sl.balance_qty is not a calculated column in Stock Reconciliation, but its directly usihg to find out qty_in and qty_out). For other cases balance_qty is a calculated column from qty_in or qty_out. 
         if(sl.voucher == "Stock Reconciliation") :
             
             if(sl.balance_qty > balance_qty):
@@ -457,5 +524,79 @@ def update_stock_ledger(stock_ledger_name, for_reposting):
         balance_value = previous_stock_ledger[0].balance_value   
    
     update_stock_ledger_values(stock_ledger_name, balance_qty,valuation_rate,balance_value,for_reposting)
+    
+def update_cost_of_goods_sold(voucher,voucher_no):
+    
+    script = ""
+    
+    if voucher == "Delivery Note" or voucher == "Sales Invoice":
+        script ="""Select sum(qty_out* valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher=%s and voucher_no=%s"""
+    else: # for sales return
+        script ="""Select sum(qty_in* valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher=%s and voucher_no=%s"""
+    
+    
+    cog_data = frappe.db.sql(script,(voucher,voucher_no))
+    
+    cost_of_goods_sold = 0
+    
+    if(cog_data):
+        cost_of_goods_sold = cog_data[0].cost_of_goods_sold
         
+    
+    default_company = frappe.db.get_single_value("Global Settings", "default_company")
+
+    default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+                                                                    'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+    
+    document  = frappe.get_doc(voucher, voucher_no)
+    
+    posting_date = document.posting_date
+    posting_time = document.posting_time
         
+    gl_posts_for_cogs =frappe.db.sql("select name from `tabGL Posting` where voucher_type=%s and voucher_no=%s and (account=%s or account=%s)",(voucher,voucher_no,default_accounts.cost_of_goods_sold_account,default_accounts.default_inventory_account),as_dict = True)
+    
+    for gl_post in gl_posts_for_cogs:
+        frappe.delete_doc('GL Posting', gl_post.name, ignore_permissions=True)
+    
+    gl_count = frappe.db.count(
+                'GL Posting', {'voucher_type': voucher, 'voucher_no': voucher_no})
+    idx = gl_count + 1
+    
+    # Insert recrods again with the updated cogs
+    
+    # Cost Of Goods Sold
+    gl_doc = frappe.new_doc('GL Posting')
+    gl_doc.voucher_type = voucher
+    gl_doc.voucher_no = voucher_no
+    gl_doc.idx = idx
+    gl_doc.posting_date = posting_date
+    gl_doc.posting_time = posting_time
+    gl_doc.account = default_accounts.cost_of_goods_sold_account
+    
+    if(voucher == "Delivery Note" or voucher == "Sales Invoice"):
+        gl_doc.debit_amount = cost_of_goods_sold
+    else:
+        # For Sales Return
+        gl_doc.credit_amount = cost_of_goods_sold
+        
+    gl_doc.against_account = default_accounts.default_inventory_account
+    gl_doc.insert()
+    idx +=1
+
+    # Inventory account Eg: Stock In Hand
+    gl_doc = frappe.new_doc('GL Posting')
+    gl_doc.voucher_type = voucher
+    gl_doc.voucher_no = voucher_no
+    gl_doc.idx = idx
+    gl_doc.posting_date = posting_date
+    gl_doc.posting_time = posting_time
+    gl_doc.account = default_accounts.default_inventory_account
+    if(voucher == "Delivery Note" or voucher == "Sales Invoice"):
+        gl_doc.credit_amount = cost_of_goods_sold
+    else:
+        # For Sales Return
+        gl_doc.debit_amount = cost_of_goods_sold
+        
+    gl_doc.against_account = default_accounts.cost_of_goods_sold_account
+    gl_doc.insert()
+    
