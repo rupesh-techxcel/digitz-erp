@@ -501,21 +501,21 @@ class SalesReturn(Document):
             print("going to recalculate")
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-def get_cost_of_goods_sold(self):
-        
-        cost_of_goods_sold_in_stock_ledgers_query = """select sum(qty_in*valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher='Sales Return' and voucher_no=%s"""
+    def get_cost_of_goods_sold(self):
+            
+            cost_of_goods_sold_in_stock_ledgers_query = """select sum(qty_in*valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher='Sales Return' and voucher_no=%s"""
 
-        cog_data = frappe.db.sql(cost_of_goods_sold_in_stock_ledgers_query,(self.name), as_dict = True)
+            cog_data = frappe.db.sql(cost_of_goods_sold_in_stock_ledgers_query,(self.name), as_dict = True)
 
-        cost_of_goods_sold = 0
+            cost_of_goods_sold = 0
 
-        if(cog_data):
-            cost_of_goods_sold = cog_data[0].cost_of_goods_sold        
+            if(cog_data):
+                cost_of_goods_sold = cog_data[0].cost_of_goods_sold        
 
-        return cost_of_goods_sold
+            return cost_of_goods_sold
 
-@frappe.whitelist()
-def get_default_payment_mode():
-    default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
-    print(default_payment_mode)
-    return default_payment_mode
+    @frappe.whitelist()
+    def get_default_payment_mode():
+        default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
+        print(default_payment_mode)
+        return default_payment_mode
