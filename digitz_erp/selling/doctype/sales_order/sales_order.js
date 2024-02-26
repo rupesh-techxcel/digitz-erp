@@ -446,7 +446,8 @@ frappe.ui.form.on('Sales Order', {
 					}
 				}
 
-				frm.doc.item_units = units
+				frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
+				
 				frm.refresh_field("item_units");
 			}
 		})
@@ -754,6 +755,7 @@ frappe.ui.form.on('Sales Order Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
+						row.rate = row.rate_in_base_unit * row.conversion_factor;
 						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {

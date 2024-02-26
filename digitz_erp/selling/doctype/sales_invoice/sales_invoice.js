@@ -9,9 +9,19 @@ frappe.ui.form.on('Sales Invoice', {
  						frm.set_value('credit_sale', 1);
  				}
  		});
-		frm.add_custom_button(__('Get Items From Delivery Note'), function () {
-                    delivery_note_dialog(frm)
-                })
+
+		 if (frm.doc.docstatus === 0) {
+			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
+						delivery_note_dialog(frm)
+					});
+			}
+		
+		if(frm.doc.docstatus == 1 && frm.doc.update_stock == false)
+		{
+			frm.add_custom_button('Create Delivery Note', () => {
+				frm.call("auto_generate_delivery_note")
+			})
+		}
 
 
 		// if(!frm.is_new()){
@@ -26,7 +36,7 @@ frappe.ui.form.on('Sales Invoice', {
 	after_save: function (frm) {
 
 		 if (frm.doc.auto_save_delivery_note) {
-			frm.call("auto_generate_delivery_note")
+			// frm.call("auto_generate_delivery_note")
 		 }
 	},
 	validate: function (frm) {
@@ -436,7 +446,7 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice']
 						},
 						callback: (r2) => {
 
@@ -444,25 +454,30 @@ frappe.ui.form.on('Sales Invoice', {
 
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 
-							frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
+							frm.doc.update_stock = r2.message.update_stock_in_sales_invoice
+
+							// frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
+							frm.doc.auto_save_delivery_note = false
 
 							if(r2.message.use_customer_last_price  == 0)
 							{
 								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_sales_invoice;
 							}
+							
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
 							frm.refresh_field("update_rates_in_price_list");
 
 							frm.refresh_field("auto_save_delivery_note");
+							frm.refresh_field("update_stock");
 
 							//Have a button to create delivery note in case delivery note is not integrated with SI
-							if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
-								frm.add_custom_button('Create/Update Delivery Note', () => {
-									frm.call("auto_generate_delivery_note")
-								},
-								)
-							}
+							// if (!frm.doc.__islocal && !r2.message.delivery_note_integrated_with_sales_invoice) {
+							// 	frm.add_custom_button('Create/Update Delivery Note', () => {
+							// 		frm.call("auto_generate_delivery_note")
+							// 	},
+							// 	)
+							// }
 
 							if(r2.message.customer_terms)
 							{
@@ -515,7 +530,7 @@ frappe.ui.form.on('Sales Invoice', {
 					}
 				}
 
-				frm.doc.item_units = units
+				frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
 				frm.refresh_field("item_units");
 			}
 		})
@@ -810,6 +825,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					else {
 
 						row.conversion_factor = r.message[0].conversion_factor;
+						row.rate = row.rate_in_base_unit * row.conversion_factor;
 						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {

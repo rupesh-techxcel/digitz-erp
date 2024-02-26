@@ -2,6 +2,8 @@ import frappe
 from frappe.utils import get_datetime
 from digitz_erp.api.settings_api import get_default_currency
 from datetime import datetime
+from frappe.utils import getdate
+
 
 @frappe.whitelist()
 def update_item_price(item, price_list, currency, rate, date):
@@ -103,7 +105,7 @@ def get_item_price(item, price_list, currency, date):
 @frappe.whitelist()
 def get_customer_last_price_for_item(item,customer):
 
-    rate = frappe.db.sql("""select tsi.rate_in_base_unit from `tabSales Invoice Item` tsi inner join `tabSales Invoice` ts on ts.name = tsi.parent where tsi.item='{item}' and ts.customer='{customer}' and ts.docstatus <2 order by ts.posting_date desc LIMIT 1""".format(item=item, customer=customer))
+    rate = frappe.db.sql("""select tsi.rate_in_base_unit from `tabSales Invoice Item` tsi inner join `tabSales Invoice` ts on ts.name = tsi.parent where tsi.item='{item}' and ts.customer='{customer}' and ts.docstatus = 1 order by ts.posting_date desc LIMIT 1""".format(item=item, customer=customer))
     
     if(rate):
         return rate
@@ -113,12 +115,123 @@ def get_customer_last_price_for_item(item,customer):
 @frappe.whitelist()
 def get_supplier_last_price_for_item(item,supplier):
 
-    rate = frappe.db.sql("""select tpi.rate_in_base_unit from `tabPurchase Invoice Item` tpi inner join `tabPurchase Invoice` tp on tp.name = tpi.parent where tpi.item='{item}' and tp.supplier='{supplier}' and tp.docstatus <2 order by tp.posting_date desc LIMIT 1""".format(item=item, supplier=supplier))
+    rate = frappe.db.sql("""select tpi.rate_in_base_unit from `tabPurchase Invoice Item` tpi inner join `tabPurchase Invoice` tp on tp.name = tpi.parent where tpi.item='{item}' and tp.supplier='{supplier}' and tp.docstatus = 1 order by tp.posting_date desc LIMIT 1""".format(item=item, supplier=supplier))
     
     if(rate):
         return rate
     else:
         return 0
+
+@frappe.whitelist()
+def update_customer_item_price(item_code, customer, price, price_date):
+    
+    print("from customer update item price")
+    
+    try:
+        # Fetch the parent Item document
+        item_doc = frappe.get_doc("Item", item_code)
+        if not item_doc:
+            return {"status": "Error", "message": "Item not found"}
+
+        # Initialize a flag to track whether an update is needed
+        update_needed = False
+
+        # Search for an existing entry for the specified customer
+        existing_entry = next((d for d in item_doc.get("customer_rates") if d.customer == customer), None)
+
+        # If an entry exists, compare the price dates
+        if existing_entry:
+            existing_date = getdate(existing_entry.price_date)
+            new_date = getdate(price_date)
+
+            # Only proceed if the new price_date is later than the existing one
+            if new_date > existing_date:
+                update_needed = True
+                # Remove the existing entry
+                item_doc.remove(existing_entry)
+        else:
+            # If no existing entry, proceed with the update
+            update_needed = True
+
+        # Append a new entry if update is needed
+        if update_needed:
+            item_doc.append("customer_rates", {
+                "customer": customer,
+                "price": price,
+                "price_date": price_date
+            })
+
+            print("before save customer price")
+            
+            # Save the changes to the Item document
+            item_doc.save()
+
+            # Commit the transaction to ensure changes are saved
+            frappe.db.commit()
+
+            return {"status": "Success", "message": "Customer Item updated successfully"}
+        else:
+            return {"status": "No Update", "message": "Existing data is newer or same; no update performed."}
+
+    except Exception as e:
+        # Log the error and return an error message
+        frappe.log_error(frappe.get_traceback(), "update_customer_item_if_newer API error")
+        return {"status": "Error", "message": str(e)}
+
+@frappe.whitelist()
+def update_supplier_item_price(item_code, supplier, price, price_date):
+    
+    print("from customer update item price")
+    
+    try:
+        # Fetch the parent Item document
+        item_doc = frappe.get_doc("Item", item_code)
+        if not item_doc:
+            return {"status": "Error", "message": "Item not found"}
+
+        # Initialize a flag to track whether an update is needed
+        update_needed = False
+
+        # Search for an existing entry for the specified customer
+        existing_entry = next((d for d in item_doc.get("supplier_rates") if d.supplier == supplier), None)
+
+        # If an entry exists, compare the price dates
+        if existing_entry:
+            existing_date = getdate(existing_entry.price_date)
+            new_date = getdate(price_date)
+
+            # Only proceed if the new price_date is later than the existing one
+            if new_date > existing_date:
+                update_needed = True
+                # Remove the existing entry
+                item_doc.remove(existing_entry)
+        else:
+            # If no existing entry, proceed with the update
+            update_needed = True
+
+        # Append a new entry if update is needed
+        if update_needed:
+            item_doc.append("supplier_rates", {
+                "supplier": supplier,
+                "price": price,
+                "price_date": price_date
+            })
+            
+            # Save the changes to the Item document
+            item_doc.save()
+
+            # Commit the transaction to ensure changes are saved
+            frappe.db.commit()
+
+            return {"status": "Success", "message": "Customer Item updated successfully"}
+        else:
+            return {"status": "No Update", "message": "Existing data is newer or same; no update performed."}
+
+    except Exception as e:
+        # Log the error and return an error message
+        frappe.log_error(frappe.get_traceback(), "update_customer_item_if_newer API error")
+        return {"status": "Error", "message": str(e)}
+
 
 
     

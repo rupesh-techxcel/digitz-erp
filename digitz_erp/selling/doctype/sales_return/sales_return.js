@@ -476,7 +476,7 @@ frappe.ui.form.on('Sales Return', {
           }
         }
 
-        frm.doc.item_units = units
+		frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
         frm.refresh_field("item_units");
       }
     })
@@ -719,6 +719,7 @@ frappe.ui.form.on('Sales Return Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
+						row.rate = row.rate_in_base_unit * row.conversion_factor;
 					}
 					frm.trigger("make_taxes_and_totals");
 

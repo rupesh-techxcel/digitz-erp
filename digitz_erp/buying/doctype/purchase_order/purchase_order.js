@@ -425,7 +425,7 @@ frappe.ui.form.on('Purchase Order', {
 					}
 				}
 
-				frm.doc.item_units = units
+				frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
 				frm.refresh_field("item_units");
 			}
 		})
@@ -485,8 +485,14 @@ frappe.ui.form.on('Purchase Order Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
 	item(frm, cdt, cdn) {
-		let row = frappe.get_doc(cdt, cdn);
+		
+		if (typeof (frm.doc.supplier) == "undefined") {
+			frappe.msgprint("Select Supplier.")
+			row.item = "";
+			return;
+		}
 
+		let row = frappe.get_doc(cdt, cdn);
 
 		let doc = frappe.model.get_value("", row.item);
 		row.warehouse = frm.doc.warehouse;
@@ -503,6 +509,10 @@ frappe.ui.form.on('Purchase Order Item', {
 					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
+
+					console.log("r.message")
+					console.log(r.message)
+
 					row.item_name = r.message.item_name;
 					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
@@ -537,6 +547,9 @@ frappe.ui.form.on('Purchase Order Item', {
 						row.tax = "";
 						row.tax_rate = 0;
 					}
+
+					console.log("row.tax_rate")
+					console.log(row.tax_rate)
 
 					console.log("Item:- %s", row.item);
 					console.log("Price List");
@@ -715,6 +728,7 @@ frappe.ui.form.on('Purchase Order Item', {
 					else {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
+						row.rate = row.rate_in_base_unit * row.conversion_factor;
 						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {

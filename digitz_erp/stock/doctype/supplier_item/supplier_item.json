@@ -7,25 +7,34 @@
  "engine": "InnoDB",
  "field_order": [
   "supplier",
+  "price_date",
   "price"
  ],
  "fields": [
   {
    "fieldname": "supplier",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Supplier",
    "options": "Supplier"
   },
   {
    "fieldname": "price",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Price "
+  },
+  {
+   "fieldname": "price_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Price Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-12-21 19:28:45.636555",
+ "modified": "2024-02-25 21:25:40.456367",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Supplier Item",

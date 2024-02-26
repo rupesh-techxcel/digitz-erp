@@ -19,8 +19,10 @@
   "section_break_ohog",
   "standard_buying_price",
   "standard_selling_price",
+  "margin_",
   "stock_balance",
   "stock_value",
+  "item_valuation_rate",
   "uoms_section",
   "base_unit",
   "column_break_19",
@@ -145,6 +147,7 @@
    "label": "Supplier Prices"
   },
   {
+   "description": "For multiple units, adjust the conversion factor based on the quantity of units corresponding to the base unit. For instance, if a box holds 10 pieces of an item, then the conversion factor listed in the row for the 'Box' unit ought to be 10.",
    "fieldname": "units",
    "fieldtype": "Table",
    "label": "Units",
@@ -182,11 +185,23 @@
   {
    "fieldname": "column_break_q9ow",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "margin_",
+   "fieldtype": "Float",
+   "label": "Margin %"
+  },
+  {
+   "description": "The valuation rate is applied to facilitate sales transactions for the item before the purchase entry is recorded.",
+   "fieldname": "item_valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Valuation Rate"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-19 08:06:41.584902",
+ "modified": "2024-02-25 15:33:33.462698",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

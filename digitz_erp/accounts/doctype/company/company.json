@@ -34,6 +34,7 @@
   "column_break_18",
   "rules_for_prices",
   "maintain_stock",
+  "update_stock_in_sales_invoice",
   "accounts_settings_tab",
   "tax_details",
   "tax_excluded",
@@ -289,6 +290,7 @@
    "description": "Automatically generate Delivery Note when saving Sales Invoice",
    "fieldname": "delivery_note_integrated_with_sales_invoice",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Delivery Note Integrated with Sales Invoice"
   },
   {
@@ -393,11 +395,18 @@
    "fieldname": "maintain_stock",
    "fieldtype": "Check",
    "label": "Maintain Stock"
+  },
+  {
+   "default": "0",
+   "description": "Based on this field system decides whether sales invoices are intend to update the stock while submitting",
+   "fieldname": "update_stock_in_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Default value for update stock in Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-19 08:05:00.042818",
+ "modified": "2024-02-24 18:34:49.108589",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
