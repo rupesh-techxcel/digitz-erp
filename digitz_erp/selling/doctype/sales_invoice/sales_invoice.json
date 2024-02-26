@@ -14,6 +14,7 @@
   "customer_display_name",
   "customer_balance",
   "customer_address",
+  "created_from_tab_sale",
   "column_break_6",
   "posting_date",
   "posting_time",
@@ -540,12 +541,19 @@
    "fieldname": "update_stock",
    "fieldtype": "Check",
    "label": "Update Stock"
+  },
+  {
+   "default": "0",
+   "fieldname": "created_from_tab_sale",
+   "fieldtype": "Check",
+   "label": "Invoice created from tab sale option",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-24 18:51:15.591550",
+ "modified": "2024-02-25 13:33:16.204330",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

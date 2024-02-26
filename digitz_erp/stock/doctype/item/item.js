@@ -147,9 +147,7 @@ frappe.ui.form.on('Item', {
 frappe.ui.form.on("Item", "onload", function(frm) {
 
 	var default_company = ""
-
-	console.log("New Document %s" ,frm.is_new())
-
+	
 	if(frm.is_new())
 	{
 			console.log("New doc");
@@ -231,6 +229,20 @@ frappe.ui.form.on("Item", "onload", function(frm) {
 			// 	}
 			// );
 		}
+
+		if (frappe.user.has_role('Management')) {
+			console.log("supplier prices visisble")
+            // Show the child table if the user is an Administrator            
+			frm.set_df_property('supplier_rates', 'hidden', false); // This will hide the 'supplier_rates' field
+
+        } else {
+            // Hide the child table if the user is not an Administrator
+            frm.set_df_property('supplier_rates', 'hidden', true); // This will hide the 'supplier_rates' field
+
+			frm.toggle_display('supplier_rates', false); // This will hide the 'supplier_rates' field
+
+			console.log("supplier prices hidden")
+        }
 
 	}
 );

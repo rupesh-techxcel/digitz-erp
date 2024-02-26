@@ -22,6 +22,7 @@
   "margin_",
   "stock_balance",
   "stock_value",
+  "item_valuation_rate",
   "uoms_section",
   "base_unit",
   "column_break_19",
@@ -190,11 +191,17 @@
    "fieldname": "margin_",
    "fieldtype": "Float",
    "label": "Margin %"
+  },
+  {
+   "description": "The valuation rate is applied to facilitate sales transactions for the item before the purchase entry is recorded.",
+   "fieldname": "item_valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Valuation Rate"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-25 11:32:30.961897",
+ "modified": "2024-02-25 15:33:33.462698",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

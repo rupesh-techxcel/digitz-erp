@@ -9,7 +9,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from frappe.www.printview import get_html_and_style
 from digitz_erp.utils import *
 from frappe.model.mapper import *
-from digitz_erp.api.item_price_api import update_item_price
+from digitz_erp.api.item_price_api import update_item_price,update_customer_item_price
 from digitz_erp.api.settings_api import get_default_currency
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
@@ -67,9 +67,14 @@ class SalesInvoice(Document):
             # In this case its required to make the paid_amount zero
         #     self.paid_amount = 0
         # self.in_words = money_in_words(self.rounded_total,"AED")
+        
+        if self.tab_sales:        
+            self.update_stock = True
+            self.created_from_tab_sale = True
 
     def validate(self):
         self.validate_item()
+        self.validate_item_valuation_rates()
 
     def on_update(self):
         self.update_item_prices()
@@ -99,6 +104,7 @@ class SalesInvoice(Document):
         create_bank_reconciliation("Sales Invoice", self.name)
 
         update_accounts_for_doc_type('Sales Invoice',self.name)
+        self.update_customer_prices()
 
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
 
@@ -113,6 +119,15 @@ class SalesInvoice(Document):
                 rate = docitem.rate_in_base_unit                
 
                 update_item_price(item, self.price_list,currency,rate, self.posting_date)
+    
+    def update_customer_prices(self):#
+        
+        print("from update_customer_prices")
+        
+        for docitem in self.items:                
+                item = docitem.item
+                rate = docitem.rate_in_base_unit  
+                update_customer_item_price(item, self.customer,rate,self.posting_date)
 
     def validate_item(self):
 
@@ -143,6 +158,26 @@ class SalesInvoice(Document):
             if(allow_negative_stock== False and previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
                 frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) +
                 " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
+    
+    def validate_item_valuation_rates(self):
+        
+        if not self.update_stock:
+            return
+        
+        posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+        
+        for docitem in self.items:
+                # previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
+
+                previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+                , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+                order_by='posting_date desc', as_dict=True)
+
+                if(not previous_stock_balance):                    
+                    valuation_rate = frappe.get_value("Item", docitem.item, ['item_valuation_rate'])
+                    if(valuation_rate == 0):
+                        frappe.throw("Please provide a valuation rate for the item, as there is no existing purchase invoice for it.")
+    
 
     def on_cancel(self):
         cancel_bank_reconciliation("Sales Invoice", self.name)

@@ -8,7 +8,7 @@ from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
 from frappe.model.mapper import *
-from digitz_erp.api.item_price_api import update_item_price
+from digitz_erp.api.item_price_api import update_item_price,update_supplier_item_price
 from digitz_erp.api.settings_api import get_default_currency
 from digitz_erp.api.purchase_invoice_api import check_balance_qty_to_return_for_purchase_invoice
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
@@ -106,6 +106,7 @@ class PurchaseInvoice(Document):
 		# posting_status_doc.save()
 
 		update_accounts_for_doc_type('Purchase Invoice',self.name)
+		self.update_supplier_prices()
 
 		update_posting_status(self.doctype, self.name, 'posting_status','Completed')
 		print("after status update")
@@ -171,6 +172,13 @@ class PurchaseInvoice(Document):
 
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
+
+	def update_supplier_prices(self):
+        
+		for docitem in self.items:                
+				item = docitem.item
+				rate = docitem.rate_in_base_unit  
+				update_supplier_item_price(item, self.supplier,rate,self.posting_date)
 
 	def add_stock_for_purchase_receipt(self):
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')

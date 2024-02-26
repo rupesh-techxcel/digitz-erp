@@ -446,7 +446,8 @@ frappe.ui.form.on('Sales Order', {
 					}
 				}
 
-				frm.doc.item_units = units
+				frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
+				
 				frm.refresh_field("item_units");
 			}
 		})

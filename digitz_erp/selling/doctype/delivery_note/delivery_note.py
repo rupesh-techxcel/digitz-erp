@@ -45,6 +45,7 @@ class DeliveryNote(Document):
 
     def validate(self):
         self.validate_item()
+        self.validate_item_valuation_rates()
 
     def on_cancel(self):
 
@@ -110,7 +111,22 @@ class DeliveryNote(Document):
                 if(previous_stock_balance.balance_qty< docitem.qty_in_base_unit):
                     frappe.throw("Sufficiant qty does not exists for the item " + docitem.item + " required Qty= " + str(docitem.qty_in_base_unit) +
                     " " + docitem.base_unit + " and available Qty=" + str(previous_stock_balance.balance_qty) + " " + docitem.base_unit )
+                    
+    def validate_item_valuation_rates(self):
+        
+        posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+        for docitem in self.items:
+                # previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
 
+                previous_stock_balance = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+                , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+                order_by='posting_date desc', as_dict=True)
+
+                if(not previous_stock_balance):                    
+                    valuation_rate = frappe.get_value("Item", docitem.item, ['item_valuation_rate'])
+                    if(valuation_rate == 0):
+                        frappe.throw("Please provide a valuation rate for the item, as there is no existing purchase invoice for it.")
+    
     @frappe.whitelist()
     def generate_sale_invoice(self):
         sales_invoice_name = ""
