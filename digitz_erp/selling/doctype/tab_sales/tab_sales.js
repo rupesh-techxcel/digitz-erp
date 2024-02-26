@@ -2,9 +2,20 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Tab Sales', {
-
 	refresh: function (frm) {
-
+		frappe.call({
+				method: 'digitz_erp.selling.doctype.tab_sales.tab_sales.get_user_warehouse',
+				callback: function(response) {
+						var userWarehouse = response.message;
+						frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+								if (userWarehouse) {
+										return { filters: [['name', '=', userWarehouse]] };
+								} else {
+										return {};
+								}
+						};
+				}
+		});
 	},
 	before_save: function (frm) {
 
@@ -500,7 +511,7 @@ frappe.ui.form.on('Tab Sales Item', {
 		console.log(doc);
 		row.warehouse = frm.doc.warehouse;
 		console.log(row.warehouse);
-		
+
 		let tax_excluded_for_company = false
 		frappe.call(
 			{
@@ -509,7 +520,7 @@ frappe.ui.form.on('Tab Sales Item', {
 				callback(r){
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
-					tax_excluded_for_company = r.message[0].tax_excluded					
+					tax_excluded_for_company = r.message[0].tax_excluded
 				}
 			}
 		);
@@ -592,7 +603,7 @@ frappe.ui.form.on('Tab Sales Item', {
 
 					console.log("frm.doc.price_list")
 					console.log(frm.doc.price_list)
-					
+
 					frappe.call(
 						{
 							method: 'digitz_erp.api.item_price_api.get_item_price',
