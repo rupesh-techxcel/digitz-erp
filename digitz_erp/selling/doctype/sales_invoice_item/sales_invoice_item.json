@@ -31,7 +31,8 @@
   "net_amount",
   "unit_conversion_details",
   "delivery_note_item_reference_no",
-  "qty_returned"
+  "qty_returned",
+  "cost_center"
  ],
  "fields": [
   {
@@ -196,12 +197,18 @@
    "fieldtype": "Float",
    "hidden": 1,
    "label": "Qty Returned"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-10 15:42:00.671629",
+ "modified": "2024-02-26 15:41:45.472355",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",

@@ -13,6 +13,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "column_break_iewy",
+  "default_cost_center",
   "column_break_xapi",
   "section_break_xczf",
   "contra_voucher_details",
@@ -117,12 +118,18 @@
   {
    "fieldname": "section_break_xczf",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-26 11:20:36.195003",
+ "modified": "2024-02-27 11:26:38.682803",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Contra Voucher",

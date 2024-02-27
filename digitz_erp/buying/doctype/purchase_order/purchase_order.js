@@ -485,7 +485,11 @@ frappe.ui.form.on('Purchase Order Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
 	item(frm, cdt, cdn) {
-		
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
+
 		if (typeof (frm.doc.supplier) == "undefined") {
 			frappe.msgprint("Select Supplier.")
 			row.item = "";

@@ -31,6 +31,7 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
+  "default_cost_center",
   "section_break_19",
   "items",
   "section_break_29",
@@ -380,12 +381,18 @@
   {
    "fieldname": "column_break_bwyw",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 18:19:32.034379",
+ "modified": "2024-02-26 15:46:01.838838",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

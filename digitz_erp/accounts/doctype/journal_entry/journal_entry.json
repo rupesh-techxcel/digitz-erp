@@ -13,6 +13,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "column_break_iewy",
+  "default_cost_center",
   "column_break_xapi",
   "section_break_hkdjm",
   "journal_entry_details",
@@ -117,12 +118,18 @@
   {
    "fieldname": "column_break_elys",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-22 11:10:43.165684",
+ "modified": "2024-02-27 10:14:57.656050",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry",

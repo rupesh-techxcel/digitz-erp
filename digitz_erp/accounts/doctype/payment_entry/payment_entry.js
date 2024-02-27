@@ -268,6 +268,11 @@ payment_entry_details_add:function(frm,cdt,cdn)
 		}
 	});
 
+	var child = locals[cdt][cdn];
+	if (frm.doc.default_cost_center) {
+		frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+	}
+
 	var row = locals[cdt][cdn];
 	row.payment_type = "Supplier"
 	row.reference_type = "Purchase Invoice"

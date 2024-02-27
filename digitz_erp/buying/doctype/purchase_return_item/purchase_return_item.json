@@ -20,6 +20,7 @@
   "rate_includes_tax",
   "rate_excluded_tax",
   "warehouse",
+  "cost_center",
   "column_break_11",
   "gross_amount",
   "tax_excluded",
@@ -173,12 +174,18 @@
    "fieldtype": "Link",
    "label": "PI Item Reference",
    "options": "Purchase Invoice Item"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-01-19 09:19:49.267146",
+ "modified": "2024-02-26 15:01:22.681711",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return Item",

@@ -467,6 +467,10 @@ frappe.ui.form.on("Delivery Note", "onload", function (frm) {
 
 frappe.ui.form.on('Delivery Note Item', {
 	item(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
 		let row = frappe.get_doc(cdt, cdn);
 		if (typeof (frm.doc.customer) == "undefined") {

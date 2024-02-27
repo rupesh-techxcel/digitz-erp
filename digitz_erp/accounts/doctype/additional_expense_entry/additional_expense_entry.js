@@ -34,7 +34,7 @@ frappe.ui.form.on("Additional Expense Entry", {
 		}
 
 		if(!frm.doc.credit_expense && !frm.doc.payment_account)
-		{			
+		{
 			frappe.throw("Select payment account.")
 		}
 
@@ -48,7 +48,7 @@ frappe.ui.form.on("Additional Expense Entry", {
 	get_purchase_items: function(frm){
 
 		console.log("from get_purchase_items")
-		
+
 		var selectedInvoices = frm.doc.additional_expense_purchases.map(row => row.purchase_invoice);
 
 		let total_purchases = frm.doc.total_purchases
@@ -71,12 +71,12 @@ frappe.ui.form.on("Additional Expense Entry", {
 					row.net_amount = item.net_amount
                     row.gross_amount = item.gross_amount;
 					row.reference_document_no = item.name
-					
+
 					item_share = (row.gross_amount / total_purchases) * 100
 
 					console.log("item_share")
 					console.log(item_share)
-					
+
 					allocation_amount = 0
 					console.log("frm.doc.total_expense_amount")
 					console.log(frm.doc.total_expense_amount)
@@ -87,15 +87,15 @@ frappe.ui.form.on("Additional Expense Entry", {
 						row.allocation_amount = allocation_amount
 						total_allocation_amount = total_allocation_amount + allocation_amount
 
-                });				
+                });
 
 				frm.doc.total_allocation_amount = total_allocation_amount;
 				frm.refresh_field("total_allocation_amount")
-                frm.refresh_field('purchase_items');				
+                frm.refresh_field('purchase_items');
             }
         }
     });
-	},	
+	},
 	update_purchases_total_and_items:function(frm){
 
 		console.log("frm.doc.additional_expense_purchases")
@@ -103,7 +103,7 @@ frappe.ui.form.on("Additional Expense Entry", {
 		total_purchases = 0
 		frm.doc.additional_expense_purchases.forEach(function(purchaseRow)
 		{
-			total_purchases = total_purchases + purchaseRow.gross_total 
+			total_purchases = total_purchases + purchaseRow.gross_total
 		});
 
 		frm.doc.total_purchases = total_purchases
@@ -120,7 +120,7 @@ frappe.ui.form.on("Additional Expense Entry", {
 			frm.doc.total_tax_amount = 0;
 			frm.doc.grand_total = 0;
 			frm.doc.expense_entry_details.forEach(function (entry) {
-	
+
 			if(entry.supplier && entry.expense_account)
 			{
 			  var tax_in_rate = 0;
@@ -146,36 +146,36 @@ frappe.ui.form.on("Additional Expense Entry", {
 			 {
 			  tax_amount = 0
 			 }
-	
+
 			  total = amount_excluded_tax + tax_amount;
-	
+
 			  frappe.model.set_value(entry.doctype, entry.name, "amount_excluded_tax", amount_excluded_tax);
 			  frappe.model.set_value(entry.doctype, entry.name, "tax_amount", tax_amount);
 			  frappe.model.set_value(entry.doctype, entry.name, "total", total);
-			  
+
 			  total_expense_amount  = total_expense_amount+ entry.amount;
-			  
+
 			  console.log("entry.amount")
 			  console.log(entry.amount)
 			  console.log("total_expense_amount")
 			  console.log(total_expense_amount)
-	
+
 			  total_tax_amount = total_tax_amount + entry.tax_amount;
 			  grand_total  = grand_total+ entry.total;
-			}       
+			}
 			});
-	
+
 		frm.refresh_field("expense_entry_details");
-	
+
 		frm.set_value('total_expense_amount', total_expense_amount);
 		frm.set_value('total_tax_amount', total_tax_amount);
 		frm.set_value('grand_total', grand_total);
 			frm.refresh_field("total_expense_amount");
 		frm.refresh_field("total_tax_amount");
 		frm.refresh_field("grand_total");
-	
+
 		fill_payment_schedule(frm);
-	
+
 		},
 		total_expense_amount:function(frm){
 
@@ -203,7 +203,7 @@ function assign_defaults(frm)
         {
           method:'digitz_erp.api.settings_api.get_default_payable_account',
           async:false,
-          callback(r){								
+          callback(r){
             frm.set_value('default_payable_account',r.message);
           }
         }
@@ -243,15 +243,15 @@ frappe.ui.form.on('Expense Entry Details',{
 
 		console.log("tax excluded = false")
 
-		let row = frappe.get_doc(cdt, cdn); 
-		
+		let row = frappe.get_doc(cdt, cdn);
+
 		frappe.call(
 			{
 			  method:'digitz_erp.api.settings_api.get_default_tax',
 			  async:false,
 			  callback(r){
 					  row.tax = r.message
-			  
+
 			  frappe.call(
 				{
 				method: 'frappe.client.get_value',
@@ -265,17 +265,23 @@ frappe.ui.form.on('Expense Entry Details',{
 				  frm.trigger("make_taxes_and_totals");
 				}
 				});
-	  
+
 				frm.refresh_field("credit_note_details");
 			  }
 			}
 		  );
 		}
-		
-	},	
+
+	},
+	expense_account(frm,cdt,cdn){
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
+	},
 	supplier(frm,cdt,cdn)
 	{
-		let row = frappe.get_doc(cdt, cdn);    
+		let row = frappe.get_doc(cdt, cdn);
 		frappe.call(
 				{
 					method: 'frappe.client.get_value',
@@ -293,18 +299,18 @@ frappe.ui.form.on('Expense Entry Details',{
 			frm.refresh_field("expense_entry_details");
 			}
 		});
-		
+
 		if (! row.payable_account)
 		{
 			row.payable_account = frm.doc.default_payable_account
 		}
 
 		frm.refresh_field("expense_entry_details");
-	},  
+	},
 	expense_entry_details_add: function(frm,cdt,cdn){
 		console.log("expense entry add")
 
-		let row = frappe.get_doc(cdt, cdn); 
+		let row = frappe.get_doc(cdt, cdn);
 		row.payable_account = frm.doc.default_payable_account
 
 		frappe.call(
@@ -313,7 +319,7 @@ frappe.ui.form.on('Expense Entry Details',{
 			  async:false,
 			  callback(r){
 					  row.tax = r.message
-			  
+
 			  frappe.call(
 				{
 				method: 'frappe.client.get_value',
@@ -327,12 +333,12 @@ frappe.ui.form.on('Expense Entry Details',{
 				  frm.trigger("make_taxes_and_totals");
 				}
 				});
-	  
+
 				frm.refresh_field("credit_note_details");
 			  }
 			}
 		  );
-		frm.refresh_field("expense_entry_details");		
+		frm.refresh_field("expense_entry_details");
 	},
 	expense_entry_details_remove:function(frm){
 		frm.trigger("update_purchases_total_and_items")
@@ -340,9 +346,9 @@ frappe.ui.form.on('Expense Entry Details',{
 	},
 	tax_amount: function(frm, cdt, cdn) {
 
-		frm.trigger("make_taxes_and_totals");    
+		frm.trigger("make_taxes_and_totals");
 	}
-  
+
 	});
 
   frappe.ui.form.on('Additional Expense Entry Purchase', {
@@ -352,13 +358,13 @@ frappe.ui.form.on('Expense Entry Details',{
       let row = frappe.get_doc(cdt, cdn);
       frm.supplier = row.supplier
 
-    },    
+    },
     purchase_invoice: function(frm,cdt,cdn)
     {
-      
+
       let row = frappe.get_doc(cdt, cdn);
 	  console.log(row)
-	 
+
 	  frappe.call({
 		method: "digitz_erp.api.additional_expense_entry_api.get_purchase_invoice",
 		args: {
@@ -370,19 +376,19 @@ frappe.ui.form.on('Expense Entry Details',{
 			console.log(response)
 			console.log(response.message.rounded_total)
 
-			if (response.message) {					
+			if (response.message) {
 				row.gross_total = response.message.gross_total
 				row.grand = response.message.rounded_total
-				
+
 				frm.refresh_fields('additional_expense_purchases')
 				frm.trigger("update_purchases_total_and_items")
 			}
-		}	
-		
-		
+		}
+
+
 		});
-      
-    },	
+
+    },
 	additional_expense_purchases_remove: function(frm,cdt,cdn){
 
 		frm.trigger("update_purchases_total_and_items");
@@ -399,13 +405,13 @@ frappe.ui.form.on('Expense Entry Details',{
       let row = frappe.get_doc(cdt, cdn);
       frm.customer = row.customer
 
-    },    
+    },
     sales_invoice: function(frm,cdt,cdn)
     {
-     
+
       let row = frappe.get_doc(cdt, cdn);
 	  console.log(row)
-	 
+
 	  frappe.call({
 		method: "digitz_erp.api.additional_expense_entry_api.get_sales_invoice",
 		args: {
@@ -418,19 +424,19 @@ frappe.ui.form.on('Expense Entry Details',{
 			console.log(response.message.rounded_total)
 
 			if (response.message) {
-					
+
 				row.grand_total = response.message.rounded_total
 				console.log("row.grand_total")
 				console.log(row.grand_total)
 				frm.refresh_fields('additional_expense_sales')
 			}
-		}	
-		
-		
+		}
+
+
 	});
 
-	
-      
+
+
     }
 
 
@@ -438,21 +444,21 @@ frappe.ui.form.on('Expense Entry Details',{
 
   function fill_payment_schedule(frm)
   {
-    
+
     frm.doc.payment_schedule = [];
 
-    refresh_field("payment_schedule");    
-  
+    refresh_field("payment_schedule");
+
     if(frm.doc.credit_expense && frm.doc.expense_entry_details)
     {
         frm.doc.expense_entry_details.forEach(function(expenseRow)
-        { 
+        {
             if(expenseRow)
-            {        
+            {
               console.log("expenseRow")
               console.log(expenseRow)
-              
-              var date = expenseRow.credit_days ? frappe.datetime.add_days(expenseRow.expense_date, expenseRow.credit_days) : expenseRow.expense_date;	
+
+              var date = expenseRow.credit_days ? frappe.datetime.add_days(expenseRow.expense_date, expenseRow.credit_days) : expenseRow.expense_date;
 
               var rowFound = false
               frm.doc.payment_schedule.forEach(function(row) {
@@ -462,22 +468,22 @@ frappe.ui.form.on('Expense Entry Details',{
                     rowFound = true
                     row.amount = row.amount + expenseRow.total
                   }
-                }        
+                }
               });
-              
+
               if(!rowFound)
-              {          
+              {
                 paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
                 paymentRow.supplier = expenseRow.supplier
                 paymentRow.date = date
                 paymentRow.payment_mode = "Cash"
                 paymentRow.amount = expenseRow.total
               }
-          }       
+          }
         });
 
         refresh_field("payment_schedule");
-    }      
+    }
     else
     {
       frm.doc.payment_schedule = [];

@@ -229,6 +229,12 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 );
 
  frappe.ui.form.on("Receipt Entry Detail", {
+	 reference_type(frm, cdt, cdn){
+		 var child = locals[cdt][cdn];
+		 if (frm.doc.default_cost_center) {
+			 frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
+	 },
 
   	receipt_type: function(frm, cdt, cdn) {
 

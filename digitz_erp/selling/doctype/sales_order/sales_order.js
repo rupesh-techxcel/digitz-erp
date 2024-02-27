@@ -217,7 +217,7 @@ frappe.ui.form.on('Sales Order', {
 					tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate));
 					entry.rate_excluded_tax = entry.rate - tax_in_rate;
 					entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
-					
+
 				}
 				else
 				{
@@ -447,7 +447,7 @@ frappe.ui.form.on('Sales Order', {
 				}
 
 				frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
-				
+
 				frm.refresh_field("item_units");
 			}
 		})
@@ -550,7 +550,7 @@ frappe.ui.form.on('Sales Order Item', {
 					{
 						row.tax_excluded = r.message.tax_excluded;
 					}
-					
+
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
@@ -816,6 +816,10 @@ frappe.ui.form.on('Sales Order Item', {
 		frm.refresh_field("items");
 	},
 	items_add(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
 		console.log("from item_add")
 		let row = frappe.get_doc(cdt, cdn);

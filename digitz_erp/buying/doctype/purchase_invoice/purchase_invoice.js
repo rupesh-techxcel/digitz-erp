@@ -2,7 +2,6 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Purchase Invoice', {
-
 	setup: function (frm) {
 
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
@@ -535,6 +534,10 @@ frappe.ui.form.on('Purchase Invoice Item', {
 	// cdn is the row name for e.g bbfcb8da6a
 
 	item(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
 		if (typeof (frm.doc.supplier) == "undefined") {
 			frappe.msgprint("Select Supplier.")
@@ -840,7 +843,6 @@ frappe.ui.form.on('Purchase Invoice Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
-
 		let row = frappe.get_doc(cdt, cdn);
 		row.warehouse = frm.doc.warehouse
 

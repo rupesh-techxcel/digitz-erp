@@ -40,7 +40,7 @@ frappe.ui.form.on('Expense Entry', {
 		}
 
 		if(!frm.doc.credit_expense && !frm.doc.payment_account)
-		{			
+		{
 			frappe.throw("Select payment account.")
 		}
 	},
@@ -86,9 +86,9 @@ frappe.ui.form.on('Expense Entry', {
           frappe.model.set_value(entry.doctype, entry.name, "amount_excluded_tax", amount_excluded_tax);
           frappe.model.set_value(entry.doctype, entry.name, "tax_amount", tax_amount);
           frappe.model.set_value(entry.doctype, entry.name, "total", total);
-          
+
           total_expense_amount  = total_expense_amount+ entry.amount;
-          
+
           console.log("entry.amount")
           console.log(entry.amount)
           console.log("total_expense_amount")
@@ -96,7 +96,7 @@ frappe.ui.form.on('Expense Entry', {
 
           total_tax_amount = total_tax_amount + entry.tax_amount;
           grand_total  = grand_total+ entry.total;
-        }       
+        }
 		});
 
     frm.refresh_field("expense_entry_details");
@@ -128,7 +128,7 @@ frappe.ui.form.on('Expense Entry', {
   credit_days(frm)
   {
     fill_payment_schedule(frm)
-  },  
+  },
 
 });
 
@@ -169,7 +169,7 @@ frappe.ui.form.on('Expense Entry Details',{
           async:false,
           callback(r){
                   row.tax = r.message
-          
+
           frappe.call(
             {
             method: 'frappe.client.get_value',
@@ -183,19 +183,19 @@ frappe.ui.form.on('Expense Entry Details',{
               frm.trigger("make_taxes_and_totals");
             }
             });
-  
+
             frm.refresh_field("credit_note_details");
           }
         }
       );
-      
-      
+
+
     }
-    
-  },  
+
+  },
   supplier(frm,cdt,cdn)
   {
-    let row = frappe.get_doc(cdt, cdn);    
+    let row = frappe.get_doc(cdt, cdn);
     frappe.call(
 			{
 				method: 'frappe.client.get_value',
@@ -213,10 +213,14 @@ frappe.ui.form.on('Expense Entry Details',{
           frm.refresh_field("expense_entry_details");
         }
       });
-  },  
+  },
   expense_entry_details_add: function(frm,cdt,cdn){
+    var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
-    let row = frappe.get_doc(cdt, cdn); 
+    let row = frappe.get_doc(cdt, cdn);
     row.payable_account = frm.doc.default_payable_account
     frappe.call(
 			{
@@ -224,7 +228,7 @@ frappe.ui.form.on('Expense Entry Details',{
 				async:false,
 				callback(r){
           			row.tax = r.message
-				
+
 				frappe.call(
 					{
 					method: 'frappe.client.get_value',
@@ -248,21 +252,21 @@ frappe.ui.form.on('Expense Entry Details',{
 
 
     frm.refresh_field("expense_entry_details");
-    
+
   },
   expense_entry_details_remove:function(frm){
-     
+
     frm.trigger("make_taxes_and_totals");
   },
   tax_amount: function(frm, cdt, cdn) {
 
-    frm.trigger("make_taxes_and_totals");    
+    frm.trigger("make_taxes_and_totals");
   }
 
 });
 
 function update_grand_total(frm) {
-  
+
   var grand_total = 0;
   if(frm.doc.rate_includes_tax){
     grand_total = frm.doc.total_expense_amount;
@@ -285,7 +289,7 @@ function assign_defaults(frm)
       },
       callback: (r) => {
 
-        default_company = r.message.default_company            
+        default_company = r.message.default_company
         frm.set_value('company',default_company);
       }
     });
@@ -294,7 +298,7 @@ function assign_defaults(frm)
       {
         method:'digitz_erp.api.settings_api.get_default_payable_account',
         async:false,
-        callback(r){								
+        callback(r){
           frm.set_value('default_payable_account',r.message);
         }
       }
@@ -308,21 +312,21 @@ function assign_defaults(frm)
 
   function fill_payment_schedule(frm)
   {
-    
+
     frm.doc.payment_schedule = [];
 
-    refresh_field("payment_schedule");    
-  
+    refresh_field("payment_schedule");
+
     if(frm.doc.credit_expense && frm.doc.expense_entry_details)
     {
         frm.doc.expense_entry_details.forEach(function(expenseRow)
-        { 
+        {
             if(expenseRow)
-            {        
+            {
               console.log("expenseRow")
               console.log(expenseRow)
-              
-              var date = expenseRow.credit_days ? frappe.datetime.add_days(expenseRow.expense_date, expenseRow.credit_days) : expenseRow.expense_date;	
+
+              var date = expenseRow.credit_days ? frappe.datetime.add_days(expenseRow.expense_date, expenseRow.credit_days) : expenseRow.expense_date;
 
               var rowFound = false
               frm.doc.payment_schedule.forEach(function(row) {
@@ -332,26 +336,25 @@ function assign_defaults(frm)
                     rowFound = true
                     row.amount = row.amount + expenseRow.total
                   }
-                }        
+                }
               });
-              
+
               if(!rowFound)
-              {          
+              {
                 paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
                 paymentRow.supplier = expenseRow.supplier
                 paymentRow.date = date
                 paymentRow.payment_mode = "Cash"
                 paymentRow.amount = expenseRow.total
               }
-          }       
+          }
         });
 
         refresh_field("payment_schedule");
-    }      
+    }
     else
     {
       frm.doc.payment_schedule = [];
       refresh_field("payment_schedule");
     }
   }
-

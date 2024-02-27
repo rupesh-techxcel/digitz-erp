@@ -532,6 +532,11 @@ frappe.ui.form.on('Purchase Return Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
 	item(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
+
 		let row = frappe.get_doc(cdt, cdn);
 		console.log("here from item")
 
@@ -748,6 +753,11 @@ frappe.ui.form.on('Purchase Return Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
+
 		let row = frappe.get_doc(cdt, cdn);
 		row.warehouse = frm.doc.warehouse
 		frm.trigger("make_taxes_and_totals");

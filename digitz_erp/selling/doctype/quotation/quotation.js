@@ -574,7 +574,7 @@ frappe.ui.form.on('Quotation Item', {
 		console.log(doc);
 		row.warehouse = frm.doc.warehouse;
 		console.log(row.warehouse);
-		
+
 
 		frappe.call(
 			{
@@ -597,7 +597,7 @@ frappe.ui.form.on('Quotation Item', {
 					{
 						row.tax_excluded = r.message.tax_excluded;
 					}
-					
+
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
@@ -807,6 +807,10 @@ frappe.ui.form.on('Quotation Item', {
 		frm.refresh_field("items");
 	},
 	items_add(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
 		let row = frappe.get_doc(cdt, cdn);
 		row.warehouse = frm.doc.warehouse

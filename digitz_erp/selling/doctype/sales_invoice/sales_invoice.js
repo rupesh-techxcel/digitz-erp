@@ -15,7 +15,7 @@ frappe.ui.form.on('Sales Invoice', {
 						delivery_note_dialog(frm)
 					});
 			}
-		
+
 		if(frm.doc.docstatus == 1 && frm.doc.update_stock == false)
 		{
 			frm.add_custom_button('Create Delivery Note', () => {
@@ -463,7 +463,7 @@ frappe.ui.form.on('Sales Invoice', {
 							{
 								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_sales_invoice;
 							}
-							
+
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
 							frm.refresh_field("update_rates_in_price_list");
@@ -885,6 +885,10 @@ frappe.ui.form.on('Sales Invoice Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
 		let row = frappe.get_doc(cdt, cdn);
 		row.warehouse = frm.doc.warehouse

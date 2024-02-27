@@ -42,6 +42,12 @@ frappe.ui.form.on('Journal Entry', {
 });
 
 frappe.ui.form.on('Journal Entry Detail', {
+  account(frm, cdt, cdn){
+    var child = locals[cdt][cdn];
+    if (frm.doc.default_cost_center) {
+      frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+    }
+  },
 
   debit: function(frm, cdt, cdn) {
     calculate_totals(frm);
@@ -49,11 +55,11 @@ frappe.ui.form.on('Journal Entry Detail', {
   credit: function(frm, cdt, cdn) {
     calculate_totals(frm);
   },
-  journal_entry_details_add: function(frm, cdt, cdn) {    
-    let row = frappe.get_doc(cdt, cdn);	
+  journal_entry_details_add: function(frm, cdt, cdn) {
+    let row = frappe.get_doc(cdt, cdn);
     calculate_totals(frm);
     if(frm.total_debit>frm.total_credit)
-        row.credit = frm.total_debit - frm.total_credit 
+        row.credit = frm.total_debit - frm.total_credit
         frm.refresh_fields()
 
     if(frm.total_credit > frm.total_debit)
@@ -67,7 +73,7 @@ frappe.ui.form.on('Journal Entry Detail', {
   journal_entry_details_remove: function(frm, cdt, cdn) {
     calculate_totals(frm);
   }
-  
+
 });
 
 let calculate_totals = function(frm){
