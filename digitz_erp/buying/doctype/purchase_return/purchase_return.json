@@ -20,6 +20,7 @@
   "edit_posting_date_and_time",
   "price_list",
   "rate_includes_tax",
+  "default_cost_center",
   "column_break_10",
   "section_break_11",
   "supplier_inv_no",
@@ -387,12 +388,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Mode"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-08 12:37:28.443621",
+ "modified": "2024-02-26 15:00:11.979413",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

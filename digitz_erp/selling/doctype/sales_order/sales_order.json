@@ -28,6 +28,7 @@
   "price_list",
   "rate_includes_tax",
   "warehouse",
+  "default_cost_center",
   "accounts_section",
   "payment_terms",
   "column_break_25",
@@ -349,12 +350,18 @@
   {
    "fieldname": "column_break_engq",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 18:18:36.052929",
+ "modified": "2024-02-26 16:00:34.431617",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

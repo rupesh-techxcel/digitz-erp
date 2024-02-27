@@ -172,6 +172,12 @@ frappe.ui.form.on("Credit Note", {
 	},
 });
 frappe.ui.form.on('Credit Note Detail',{
+	account(frm, cdt, cdn){
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
+	},
 
   tax_excluded: function(frm, cdt, cdn) {
     frm.trigger("make_taxes_and_totals");

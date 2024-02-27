@@ -17,6 +17,7 @@
   "column_break_bu9j0",
   "amount",
   "allocated_amount",
+  "default_cost_center",
   "section_break_ku1xy",
   "payment_mode",
   "account",
@@ -178,12 +179,18 @@
    "label": "Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 19:27:51.826261",
+ "modified": "2024-02-27 11:07:06.766234",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

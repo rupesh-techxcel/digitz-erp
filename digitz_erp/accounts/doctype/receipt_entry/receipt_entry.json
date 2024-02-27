@@ -19,6 +19,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "warehouse",
+  "default_cost_center",
   "column_break_dxaps",
   "amount",
   "allocated_amount",
@@ -166,12 +167,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Mode"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 09:33:20.080500",
+ "modified": "2024-02-27 11:13:14.778199",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

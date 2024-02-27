@@ -549,7 +549,7 @@ frappe.ui.form.on('Sales Return Item', {
 
 		frm.item = row.item;
 		frm.trigger("get_item_units");
-		
+
 		let tax_excluded_for_company = false
 		frappe.call(
 			{
@@ -586,7 +586,7 @@ frappe.ui.form.on('Sales Return Item', {
 					{
 						row.tax_excluded = r.message.tax_excluded;
 					}
-					
+
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
@@ -778,6 +778,10 @@ frappe.ui.form.on('Sales Return Item', {
 		frm.trigger("get_item_stock_balance");
 	},
 	items_add(frm, cdt, cdn) {
+    var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
 		console.log("from item_add")
 		let row = frappe.get_doc(cdt, cdn);

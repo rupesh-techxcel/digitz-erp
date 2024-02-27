@@ -31,7 +31,8 @@
   "net_amount",
   "unit_conversion_details",
   "delivery_note_item_reference_no",
-  "si_item_reference"
+  "si_item_reference",
+  "cost_center"
  ],
  "fields": [
   {
@@ -196,12 +197,18 @@
    "fieldtype": "Link",
    "label": "SI Item Reference",
    "options": "Sales Invoice Item"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-01-20 09:13:49.057963",
+ "modified": "2024-02-26 15:55:25.588494",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return Item",

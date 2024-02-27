@@ -18,6 +18,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "price_list",
+  "default_cost_center",
   "column_break_10",
   "do_no",
   "warehouse",
@@ -374,12 +375,18 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Update Rates in price list"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-25 21:02:52.770589",
+ "modified": "2024-02-26 15:04:39.831415",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

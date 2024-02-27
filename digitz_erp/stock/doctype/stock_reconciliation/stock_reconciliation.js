@@ -43,8 +43,8 @@ frappe.ui.form.on('Stock Reconciliation', {
 							'filters': { 'company_name': default_company },
 							'fieldname': ['default_warehouse', 'rate_includes_tax']
 						},
-						callback: (r2) => {							
-							frm.doc.warehouse = r2.message.default_warehouse;														
+						callback: (r2) => {
+							frm.doc.warehouse = r2.message.default_warehouse;
 							frm.refresh_field("warehouse");
 						}
 					}
@@ -86,30 +86,30 @@ frappe.ui.form.on('Stock Reconciliation', {
 		var discount_total = 0;
 
 		//Avoid Possible NaN
-		
+
 		frm.doc.net_total = 0;
 		net_total = 0
 
 		frm.doc.items.forEach(function (entry) {
-	
-				entry.net_amount = entry.qty * entry.rate				
+
+				entry.net_amount = entry.qty * entry.rate
 				net_total= net_total + entry.net_amount
-				
+
 				entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
-				entry.rate_in_base_unit = entry.rate / entry.conversion_factor;				
+				entry.rate_in_base_unit = entry.rate / entry.conversion_factor;
 			})
 
 			frm.doc.net_total = net_total
 			frm.refresh_field("items");
 			frm.refresh_field("net_total");
-		}		
+		}
 		,
 });
 
 frappe.ui.form.on("Stock Reconciliation", "onload", function (frm) {
 
 	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);	
+	//frm.set_df_property("date","read_only",1);
 	frm.set_query("warehouse", function () {
 		return {
 			"filters": {
@@ -123,8 +123,12 @@ frappe.ui.form.on("Stock Reconciliation", "onload", function (frm) {
 
 frappe.ui.form.on('Stock Reconciliation Item', {
 	item(frm, cdt, cdn) {
+		var child = locals[cdt][cdn];
+		if (frm.doc.default_cost_center) {
+			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
+		}
 
-		let row = frappe.get_doc(cdt, cdn);		
+		let row = frappe.get_doc(cdt, cdn);
 		frappe.call(
 			{
 			method: 'frappe.client.get_value',
@@ -136,19 +140,19 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 					callback: (r) => {
 
 						console.log(r.message)
-						
+
 						row.item_name = r.message.item_name;
 						row.base_unit = r.message.base_unit;
 						row.unit = r.message.base_unit;
-						
+
 						console.log("unit, baseunit, r.message.base_unit")
 						console.log(row.unit)
 						console.log(row.base_unit)
 						console.log(r.message.base_unit)
 
-						row.conversion_factor = 1;						
-						frm.warehouse = row.warehouse			
-						
+						row.conversion_factor = 1;
+						frm.warehouse = row.warehouse
+
 						row.warehouse = frm.doc.warehouse
 						row.display_name = row.item_name
 						frm.trigger("get_item_stock_balance");
@@ -166,9 +170,9 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 									'posting_time': frm.doc.posting_time
 								},
 								callback(r) {
-									console.log("Valuation rate in console")					
-									console.log(r.message)					
-				
+									console.log("Valuation rate in console")
+									console.log(r.message)
+
 									if(r.message == 0)
 									{
 										let currency = ""
@@ -177,7 +181,7 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 											{
 												method:'digitz_erp.api.settings_api.get_default_currency',
 												async:false,
-												callback(r){								
+												callback(r){
 													console.log(r)
 													currency = r.message
 													console.log("currency")
@@ -195,7 +199,7 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 													'item': row.item,
 													'price_list': 'Standard Buying',
 													'currency': currency,
-													'date': frm.doc.posting_date								
+													'date': frm.doc.posting_date
 												},
 												callback(r) {
 													console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -203,16 +207,16 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 													row.rate = parseFloat(r.message);
 													row.rate_in_base_unit = parseFloat(r.message);
 												}
-											});	
+											});
 
 									}
 									else
 									{
 										row.rate = r.message
 										row.rate_in_base_unit = r.message
-										
+
 									}
-								
+
 								}
 							});
 					}
@@ -220,7 +224,7 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 
 		frm.refresh_field("items");
 		console.log("Before get valuation rate for the item")
-		
+
 	},
 	warehouse(frm, cdt, cdn) {
 
@@ -229,17 +233,17 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 		frm.warehouse = row.warehouse
 		frm.trigger("get_item_stock_balance");
 	},
-	qty(frm, cdt, cdn) {	
-		
+	qty(frm, cdt, cdn) {
+
 		frm.trigger("make_totals")
 	},
-	rate(frm, cdt, cdn) {	
-		
+	rate(frm, cdt, cdn) {
+
 		frm.trigger("make_totals")
 	},
 	unit(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
-		
+
 		frappe.call(
 			{
 				method: 'digitz_erp.api.items_api.get_item_uom',
@@ -258,11 +262,11 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 						console.log(r.message[0].conversion_factor);
 						row.conversion_factor = r.message[0].conversion_factor;
 						row.rate = row.rate_in_base_unit * row.conversion_factor;
-						//row.rate = row.rate * row.conversion_factor;							
+						//row.rate = row.rate * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {
-						//row.qty = row.qty/ row.conversion_factor;								
-						//})	
+						//row.qty = row.qty/ row.conversion_factor;
+						//})
 					}
 					frm.trigger("make_totals");
 

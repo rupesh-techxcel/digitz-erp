@@ -17,6 +17,7 @@
   "company",
   "default_payable_account",
   "rate_includes_tax",
+  "default_cost_center",
   "column_break_3fo8",
   "accounts_section",
   "credit_expense",
@@ -234,12 +235,18 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 18:52:14.601764",
+ "modified": "2024-02-27 10:09:19.688315",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

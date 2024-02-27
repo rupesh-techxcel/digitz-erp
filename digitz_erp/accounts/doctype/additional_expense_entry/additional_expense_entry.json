@@ -17,6 +17,7 @@
   "column_break_wayy",
   "expense_against",
   "default_payable_account",
+  "default_cost_center",
   "additional_cost_purchase_section",
   "additional_expense_purchases",
   "total_purchases",
@@ -276,12 +277,18 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-06 19:19:53.539004",
+ "modified": "2024-02-27 09:49:11.551828",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Additional Expense Entry",

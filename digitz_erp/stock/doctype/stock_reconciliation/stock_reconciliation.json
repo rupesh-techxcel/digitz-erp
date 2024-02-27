@@ -10,6 +10,7 @@
  "field_order": [
   "naming_series",
   "warehouse",
+  "default_cost_center",
   "column_break_6",
   "posting_date",
   "posting_time",
@@ -141,12 +142,18 @@
    "description": "Anticipate that each item will not appear in more than one row. Employ the base unit for fractional quantities.",
    "fieldname": "column_break_kabu",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-23 15:16:55.393776",
+ "modified": "2024-02-27 11:21:52.320519",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Reconciliation",

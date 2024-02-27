@@ -20,6 +20,7 @@
   "conversion_factor",
   "rate_includes_tax",
   "rate_excluded_tax",
+  "cost_center",
   "column_break_11",
   "gross_amount",
   "tax_excluded",
@@ -183,12 +184,18 @@
    "fieldname": "sales_order_item_reference_no",
    "fieldtype": "Data",
    "label": "Sales Order Item Reference No"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-02-19 12:57:59.351563",
+ "modified": "2024-02-26 15:47:16.717327",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note Item",

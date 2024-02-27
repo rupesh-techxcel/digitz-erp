@@ -29,7 +29,8 @@
   "discount_percentage",
   "discount_amount",
   "net_amount",
-  "unit_conversion_details"
+  "unit_conversion_details",
+  "cost_center"
  ],
  "fields": [
   {
@@ -164,12 +165,18 @@
    "fieldname": "item_name",
    "fieldtype": "Data",
    "label": "Item Name"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-27 12:47:40.843027",
+ "modified": "2024-02-26 16:01:23.223668",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order Item",

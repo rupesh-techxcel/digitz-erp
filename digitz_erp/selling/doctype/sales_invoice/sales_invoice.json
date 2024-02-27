@@ -24,6 +24,7 @@
   "salesman_code",
   "tax_id",
   "update_rates_in_price_list",
+  "default_cost_center",
   "column_break_4",
   "company",
   "company_tax_id",
@@ -548,12 +549,18 @@
    "fieldtype": "Check",
    "label": "Invoice created from tab sale option",
    "read_only": 1
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-25 13:33:16.204330",
+ "modified": "2024-02-26 15:40:33.775324",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
