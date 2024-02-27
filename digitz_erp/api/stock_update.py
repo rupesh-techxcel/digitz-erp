@@ -88,12 +88,7 @@ def update_all_item_stock_balances():
     item_stock_balances = frappe.db.sql("""select item,warehouse,sum(qty_in)- sum(qty_out) as balance_qty from `tabStock Ledger` group by item,warehouse""",as_dict = True)
     
     for record in item_stock_balances:
-        
-        print("item")
-        print(record.item)
-        print("warehouse")
-        print(record.warehouse)
-        
+               
         if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):    
             frappe.db.delete('Stock Balance',{'item': record.item, 'warehouse': record.warehouse} )
 
@@ -170,79 +165,78 @@ def update_stock_balance_in_item(item):
     
     print("after udpate item stock balance")
 
-def update_purchase_usage_for_delivery_note(delivery_note_no):
+# def update_purchase_usage_for_delivery_note(delivery_note_no):
     
-    delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_no)    
-    do_posting_date = delivery_note_doc.posting_date
-    delivery_note_items = frappe.get_list('Delivery Note Item',{'parent': delivery_note_no },['name','item_code','qty','rate'])
+#     delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_no)    
+#     do_posting_date = delivery_note_doc.posting_date
+#     delivery_note_items = frappe.get_list('Delivery Note Item',{'parent': delivery_note_no },['name','item_code','qty','rate'])
     
-    frappe.db.delete("Purchase Stock Usage", {"delivery_note":delivery_note_no})
-    frappe.db.commit()
+#     frappe.db.delete("Purchase Stock Usage", {"delivery_note":delivery_note_no})
+#     frappe.db.commit()
     
-    for item in delivery_note_items:
+#     for item in delivery_note_items:
         
-        # query = """SELECT p.name as p_name, pi.name as pi_name,pi.item_code,pi_item,pi.qty- sum(su.sold_qty) as qty  from `tabPurchase Invoice Item` as pi left   outer join `tabPurchase Stock Usage` su on su.purchase_invoice_item = pi.name and su.item_code= pi.item_code inner join `tabPurchase Invoice` p on p.name= pi.parent  WHERE pi.posting_date<={do_date} and  pi.item_code={item} pi.qty > sum(su.sold_qty) group by pi.name,pi.item_code,pi.item,pi.qty. p.name order by pi.posting_date""".format(item=item.item_code, do_date=do_posting_date)
+#         # query = """SELECT p.name as p_name, pi.name as pi_name,pi.item_code,pi_item,pi.qty- sum(su.sold_qty) as qty  from `tabPurchase Invoice Item` as pi left   outer join `tabPurchase Stock Usage` su on su.purchase_invoice_item = pi.name and su.item_code= pi.item_code inner join `tabPurchase Invoice` p on p.name= pi.parent  WHERE pi.posting_date<={do_date} and  pi.item_code={item} pi.qty > sum(su.sold_qty) group by pi.name,pi.item_code,pi.item,pi.qty. p.name order by pi.posting_date""".format(item=item.item_code, do_date=do_posting_date)
         
-        # result = frappe.db.sql(query, as_dict = True)
+#         # result = frappe.db.sql(query, as_dict = True)        
         
-        
-        query = """
-        SELECT
-            p.name AS p_name,
-            pi.name AS pi_name,
-            pi.item_code,
-            pi.item,
-            pi.qty - COALESCE(SUM(su.sold_qty), 0) AS qty
-        FROM
-            `tabPurchase Invoice Item` AS pi
-        LEFT JOIN
-            `tabPurchase Stock Usage` AS su
-        ON
-            su.purchase_invoice_item = pi.name AND su.item_code = pi.item_code
-        INNER JOIN
-            `tabPurchase Invoice` AS p
-        ON
-            p.name = pi.parent
-        WHERE
-            p.posting_date <= '{do_date}'
-            AND pi.item_code = '{item_code}'
-            AND pi.qty > COALESCE((SELECT SUM(sold_qty) FROM `tabPurchase Stock Usage` WHERE purchase_invoice_item = pi.name AND item_code = pi.item_code), 0)
-        GROUP BY
-            pi.name, pi.item_code, pi.item, pi.qty, p.name
-        ORDER BY
-            p.posting_date
-        """.format(item_code=item.item, do_date=do_posting_date)
+#         query = """
+#         SELECT
+#             p.name AS p_name,
+#             pi.name AS pi_name,
+#             pi.item_code,
+#             pi.item,
+#             pi.qty - COALESCE(SUM(su.sold_qty), 0) AS qty
+#         FROM
+#             `tabPurchase Invoice Item` AS pi
+#         LEFT JOIN
+#             `tabPurchase Stock Usage` AS su
+#         ON
+#             su.purchase_invoice_item = pi.name AND su.item_code = pi.item_code
+#         INNER JOIN
+#             `tabPurchase Invoice` AS p
+#         ON
+#             p.name = pi.parent
+#         WHERE
+#             p.posting_date <= '{do_date}'
+#             AND pi.item_code = '{item_code}'
+#             AND pi.qty > COALESCE((SELECT SUM(sold_qty) FROM `tabPurchase Stock Usage` WHERE purchase_invoice_item = pi.name AND item_code = pi.item_code), 0)
+#         GROUP BY
+#             pi.name, pi.item_code, pi.item, pi.qty, p.name
+#         ORDER BY
+#             p.posting_date
+#         """.format(item_code=item.item, do_date=do_posting_date)
         
 
-        result = frappe.db.sql(query, as_dict=True)
-        qtyRequired = item.qty
+#         result = frappe.db.sql(query, as_dict=True)
+#         qtyRequired = item.qty
         
-        for result_item in result:
-            if(result_item.qty > 0):
-                # When purchase qty is less than qty required then need to iterate again.
-                if(result_item.qty < qtyRequired):
-                    # Insert a record in the tabPurchase Stock Usage table                    
-                    su_doc = frappe.new_doc("Purchase Stock Usage")
-                    su_doc.purchase_invoice = result_item.p_name
-                    su_doc.purchase_invoice_item = result_item.pi_name
-                    su_doc.item = result_item.item_code
-                    su_doc.item_name = result_item.item
-                    su_doc.delivery_note = delivery_note_no
-                    su_doc.delivery_note_item = item.name
-                    su_doc.sold_qty = result_item.qty
-                    su_doc.insert()
-                    qtyRequired = qtyRequired - result_item.qty
-                else:
-                    su_doc = frappe.new_doc("Purchase Stock Usage")
-                    su_doc.purchase_invoice = result_item.p_name
-                    su_doc.purchase_invoice_item = result_item.pi_name                    
-                    su_doc.item_name = result_item.item
-                    su_doc.item = result_item.item_code
-                    su_doc.delivery_note = delivery_note_no
-                    su_doc.delivery_note_item = item.name
-                    su_doc.sold_qty = qtyRequired
-                    su_doc.insert()
-                    continue
+#         for result_item in result:
+#             if(result_item.qty > 0):
+#                 # When purchase qty is less than qty required then need to iterate again.
+#                 if(result_item.qty < qtyRequired):
+#                     # Insert a record in the tabPurchase Stock Usage table                    
+#                     su_doc = frappe.new_doc("Purchase Stock Usage")
+#                     su_doc.purchase_invoice = result_item.p_name
+#                     su_doc.purchase_invoice_item = result_item.pi_name
+#                     su_doc.item = result_item.item_code
+#                     su_doc.item_name = result_item.item
+#                     su_doc.delivery_note = delivery_note_no
+#                     su_doc.delivery_note_item = item.name
+#                     su_doc.sold_qty = result_item.qty
+#                     su_doc.insert()
+#                     qtyRequired = qtyRequired - result_item.qty
+#                 else:
+#                     su_doc = frappe.new_doc("Purchase Stock Usage")
+#                     su_doc.purchase_invoice = result_item.p_name
+#                     su_doc.purchase_invoice_item = result_item.pi_name                    
+#                     su_doc.item_name = result_item.item
+#                     su_doc.item = result_item.item_code
+#                     su_doc.delivery_note = delivery_note_no
+#                     su_doc.delivery_note_item = item.name
+#                     su_doc.sold_qty = qtyRequired
+#                     su_doc.insert()
+#                     continue
 
 def re_post_stock_ledgers():
     
@@ -251,7 +245,7 @@ def re_post_stock_ledgers():
     
     if(not doc):
         return
-    
+        
     posting_date = doc.last_processed_posting_date
         
     if not posting_date:
@@ -262,6 +256,8 @@ def re_post_stock_ledgers():
     
     doc.posting_status = "In Process"
     doc.save()
+    
+    clean_stock_ledgers_duplicated()
     
     # If there is already a reposting happened, get the last_processed_stock_ledger and fetch its posting_date to process subsequent stock ledgers  
     last_processed_ledger = doc.last_processed_stock_ledger
@@ -279,7 +275,6 @@ def re_post_stock_ledgers():
     stock_ledgers_for_sales_invoice = []
     stock_ledgers_for_sales_return = []
     
-    
     while udpate_ledgers==True:
                
         # Get stock ledgers with the last assigned posting_date (there can be multiple records)
@@ -291,7 +286,8 @@ def re_post_stock_ledgers():
                                 fields=['name', 'posting_date','voucher','voucher_no'])          
 
             # Loop through each 'Stock Ledger' record
-            for ledger in stock_ledgers_with_same_date_and_time:                
+            for ledger in stock_ledgers_with_same_date_and_time: 
+                
                 update_stock_ledger(ledger['name'], for_reposting=True)                
                 doc.last_processed_stock_ledger = ledger['name']
                 doc.last_processed_posting_date = posting_date
@@ -304,7 +300,6 @@ def re_post_stock_ledgers():
                 
                 if ledger['voucher'] == "Sales Return" and ledger['voucher_no'] not in stock_ledgers_for_sales_return:
                     stock_ledgers_for_sales_return.append(ledger['voucher_no'])
-                
                 
         
         next_stock_ledger = frappe.db.sql("""
@@ -363,9 +358,120 @@ def update_all_cost_of_goods_solds(delivery_note_list, sales_invoice_list,sales_
     if sales_return_list:
         for sales_return in sales_return_list:
             update_cost_of_goods_sold("Sales Return", sales_return)
+            
+def clean_stock_ledgers_duplicated():
+    
+    udpate_ledgers = True
+    
+    doc = frappe.get_doc("Stock Repost")
+    
+    if(not doc):
+        return
+    
+    posting_date = doc.last_processed_posting_date
+       
+    deleted_stock_ledgers =[]
+        
+    while udpate_ledgers==True:
+                   
+    # Get stock ledgers with the last assigned posting_date (there can be multiple records)
+        count = frappe.db.count('Stock Ledger', filters={'posting_date': posting_date})
+        
+        if(count>0):
+            stock_ledgers_with_same_date_and_time = frappe.get_all('Stock Ledger', 
+                                filters={'posting_date': posting_date},
+                                fields=['name', 'posting_date','voucher','voucher_no'])   
+            
+            # Loop through each 'Stock Ledger' record
+            for ledger in stock_ledgers_with_same_date_and_time: 
+                                
+                if not deleted_stock_ledgers or ledger.name not in deleted_stock_ledgers:
+                    deleted_stock_ledgers = clean_stock_ledger(ledger.name, deleted_stock_ledgers)
+                
+                # Process fo the same date and time
+        
+        next_stock_ledger = frappe.db.sql("""
+        SELECT sl.name, sl.posting_date,voucher,voucher_no FROM `tabStock Ledger` sl
+        WHERE posting_date > %s ORDER BY posting_date ASC 
+        LIMIT 1
+    """, (posting_date,), as_dict=True)
+        
+        if(next_stock_ledger and next_stock_ledger[0]): 
+            
+            posting_date = next_stock_ledger[0].posting_date
+                      
+            if not deleted_stock_ledgers or next_stock_ledger[0].name not in deleted_stock_ledgers:
+                deleted_stock_ledgers = clean_stock_ledger(next_stock_ledger[0].name, deleted_stock_ledgers)
+            
+        else:
+            udpate_ledgers = False
+    
+    print("final deleted stock ledgers") 
+    print(deleted_stock_ledgers)    
+        # [End]
+                    
+def clean_stock_ledger(ledger_name, deleted_stock_ledgers):
+    
+    if ledger_name in deleted_stock_ledgers:        
+        return deleted_stock_ledgers
+    
+    sl =frappe.get_doc("Stock Ledger", ledger_name)    
+    
+    if(sl.qty_in>0):
+        sl.log = sl.qty_in
+    if(sl.qty_out >0):
+        sl.log = sl.qty_out
+                
+    sl.save()
+    
+    other_stock_ledgers_for_item_in_the_voucher_query = ""
+    # While In Stock Transfer, there are records with qty_in and qty_out for both the source and target warehoues, need to consider only the corresponding one for the stock ledger
+    if sl.qty_in>0:
+        other_stock_ledgers_for_item_in_the_voucher_query = """select name,item,qty_in,qty_out,valuation_rate from `tabStock Ledger` where name !=%s and voucher=%s and voucher_no=%s and item=%s  and qty_in>0"""
+    else:
+        other_stock_ledgers_for_item_in_the_voucher_query = """select name,item,qty_in,qty_out,valuation_rate from `tabStock Ledger` where name !=%s and voucher=%s and voucher_no=%s and item=%s and qty_out>0 """
+        
+    other_stock_ledgers_for_item_in_the_voucher_data = frappe.db.sql(other_stock_ledgers_for_item_in_the_voucher_query,(sl.name,sl.voucher,sl.voucher_no,sl.item), as_dict=True)
+    qty_in_for_item_in_voucher = sl.qty_in
+    qty_out_for_item_in_voucher = sl.qty_out    
+    
+    for data in other_stock_ledgers_for_item_in_the_voucher_data:        
+        qty_in_for_item_in_voucher += data.qty_in
+        qty_out_for_item_in_voucher += data.qty_out    
+    
+    
+    if(qty_in_for_item_in_voucher != sl.qty_in or qty_out_for_item_in_voucher != sl.qty_out):
+        sl.qty_in = qty_in_for_item_in_voucher
+        sl.qty_out = qty_out_for_item_in_voucher
+        sl.save()
+        
+        
+    for data in other_stock_ledgers_for_item_in_the_voucher_data:
+        
+        if frappe.db.exists('Stock Ledger', data['name']):           
+            frappe.delete_doc('Stock Ledger', data['name'], ignore_permissions=True)
+            frappe.db.commit()
+            deleted_stock_ledgers.append(data['name'])
+
+
+        # Optionally, you can commit after each deletion to ensure data consistency.
+        # frappe.db.commit()
+    
+                
+    return deleted_stock_ledgers   
+    
+
+def get_valuation_rate_for_item_when_missing(item):
+
+    # Get first purchase rate of the item. This method calls only when valuation_rate is missing. Logically it should happen only for the first sales without maing purchase invoice. So taking the oldest rate
+    query = """Select rate_in_base_unit from `tabPurchase Invoice Item` pi inner join `tabPurchase Invoice` p on p.name = pi.parent where item=%s order by posting_date Limit 1"""
+    data = frappe.db.sql(query,(item), as_dict = True)
+    if data:
+        return data[0].rate_in_base_unit
+    else:
+        return 0    
                 
 def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, balance_value, for_reposting):
-        
         
         valuation_rate = valuation_rate if valuation_rate else 0
         balance_qty = balance_qty if balance_qty else 0
@@ -375,33 +481,9 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
         qty_in = 0
         qty_out = 0
         
-        # Treatment for multiple items with same item code in the same voucher
-        # [Start]
-        if for_reposting:
-            other_stock_ledgers_for_item_in_the_voucher_query = """select name,item,qty_in,qty_out,valuation_rate from `tabStock Ledger` where name !=%s and voucher=%s and voucher_no=%s and item=%s """
-            other_stock_ledgers_for_item_in_the_voucher_data = frappe.db.sql(other_stock_ledgers_for_item_in_the_voucher_query,(sl.name,sl.voucher,sl.voucher_no,sl.item), as_dict=True)
-            qty_in_for_item_in_voucher = sl.qty_in
-            qty_out_for_item_in_voucher = sl.qty_out
+        if valuation_rate == 0:
+            valuation_rate = get_valuation_rate_for_item_when_missing(sl.item)
             
-            for data in other_stock_ledgers_for_item_in_the_voucher_data:
-                qty_in_for_item_in_voucher += data.qty_in
-                qty_out_for_item_in_voucher += data.qty_out    
-            
-            if(qty_in_for_item_in_voucher != sl.qty_in or qty_out_for_item_in_voucher != sl.qty_out):
-                sl.qty_in = qty_in_for_item_in_voucher
-                sl.qty_out = qty_out_for_item_in_voucher
-                sl.save()
-                
-            for data in other_stock_ledgers_for_item_in_the_voucher_data:
-                # Use frappe.delete_doc to delete each record that matches the condition
-                frappe.delete_doc('Stock Ledger', data.name, force=1)  # force=1 is used to bypass the trash and delete permanently, use with caution
-
-                # Optionally, you can commit after each deletion to ensure data consistency.
-                frappe.db.commit()
-        
-        # [End]
-            
-        
         # System does not allow same item to be repeated in multiple rows in Stock Reconciliation so need not consider the case. (sl.balance_qty is not a calculated column in Stock Reconciliation, but its directly usihg to find out qty_in and qty_out). For other cases balance_qty is a calculated column from qty_in or qty_out. 
         if(sl.voucher == "Stock Reconciliation") :
             
@@ -429,8 +511,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
             balance_value = balance_qty * (valuation_rate  if valuation_rate else 0)
             change_in_stock_value = balance_value - previous_balance_value
             sl.change_in_stock_value = change_in_stock_value
-            sl.log = f"previous stock balance {previous_balance_qty}"
-        
+            
         # Valuation rate adjusts based on purchase return
         if (sl.voucher == "Purchase Return"):            
             previous_balance_qty = balance_qty
@@ -442,8 +523,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
             
             if(balance_qty!=0): #Avoid divisible by zero               
                     valuation_rate = balance_value/ balance_qty
-                    
-            sl.log = f"previous stock balance {previous_balance_qty}"            
+                     
                                 
         if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
             previous_balance_value = balance_value #Assign before change 
@@ -471,7 +551,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
                 
             elif (sl.qty_out>0):    
                
-                print("stck trnsfr - qty_out")
+                
                 balance_qty = balance_qty if balance_qty else 0                
                 qty_out = sl.qty_out if sl.qty_out else 0
                 valuation_rate = valuation_rate if valuation_rate else 0
@@ -533,14 +613,17 @@ def update_cost_of_goods_sold(voucher,voucher_no):
         script ="""Select sum(qty_out* valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher=%s and voucher_no=%s"""
     else: # for sales return
         script ="""Select sum(qty_in* valuation_rate) as cost_of_goods_sold from `tabStock Ledger` where voucher=%s and voucher_no=%s"""
-    
-    
-    cog_data = frappe.db.sql(script,(voucher,voucher_no))
+        
+    cog_data = frappe.db.sql(script,(voucher,voucher_no), as_dict = True)
     
     cost_of_goods_sold = 0
     
+    print(cog_data)
+    
     if(cog_data):
         cost_of_goods_sold = cog_data[0].cost_of_goods_sold
+        
+    print(f"cost of goods sold for voucher {voucher_no} = {cost_of_goods_sold}" )
         
     
     default_company = frappe.db.get_single_value("Global Settings", "default_company")

@@ -45,7 +45,7 @@ class DeliveryNote(Document):
 
     def validate(self):
         self.validate_item()
-        self.validate_item_valuation_rates()
+        # self.validate_item_valuation_rates()
 
     def on_cancel(self):
 

@@ -74,7 +74,7 @@ class SalesInvoice(Document):
 
     def validate(self):
         self.validate_item()
-        self.validate_item_valuation_rates()
+        # self.validate_item_valuation_rates()
 
     def on_update(self):
         self.update_item_prices()

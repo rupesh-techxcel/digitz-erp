@@ -79,7 +79,7 @@ class TabSales (Document):
 
     def validate(self):
         self.validate_item()
-        self.validate_item_valuation_rates()
+        # self.validate_item_valuation_rates()
     
     def validate_item_valuation_rates(self):
         
