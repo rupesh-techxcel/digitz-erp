@@ -9,8 +9,20 @@ from datetime import datetime,timedelta
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from frappe import throw, _
+
 
 class StockReconciliation(Document):
+
+    def validate(self):
+        self.validate_items()
+
+    def validate_items(self):
+        items = set()
+        for item in self.items:
+            if item.item in items:
+                frappe.throw(_("Item {0} is already added in the list").format(item.item))
+            items.add(item.item)
 
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Stock Reconciliation', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
