@@ -11,6 +11,8 @@
   "naming_series",
   "warehouse",
   "default_cost_center",
+  "purpose",
+  "account",
   "column_break_6",
   "posting_date",
   "posting_time",
@@ -148,12 +150,27 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "\nStock Reconciliation\nOpening Stock",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.purpose == 'Opening Stock'",
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "label": "Stock Adjustment Account",
+   "mandatory_depends_on": "eval:doc.purpose == 'Opening Stock'",
+   "options": "Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-27 11:21:52.320519",
+ "modified": "2024-02-28 11:57:04.031558",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Reconciliation",
