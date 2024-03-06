@@ -8,6 +8,7 @@ frappe.ui.form.on("Period Closing Voucher", {
     assign_defaults(frm);
   },
 	refresh(frm) {
+    create_custom_buttons(frm)
     frm.set_query('account', 'closing_accounts', () => {
     return {
         filters: {
@@ -20,7 +21,7 @@ frappe.ui.form.on("Period Closing Voucher", {
   return {
       filters: {
           is_group :0,
-          root_type: 'Liability'          
+          root_type: 'Liability'
       }
   }
   })
@@ -28,7 +29,7 @@ frappe.ui.form.on("Period Closing Voucher", {
   get_accounts:function(frm){
 
     frm.clear_table('closing_accounts')
-    
+
     frappe.call({
       method: "digitz_erp.api.gl_posting_api.get_account_balances_for_period_closing",
       args: {
@@ -38,7 +39,7 @@ frappe.ui.form.on("Period Closing Voucher", {
 
         total_debit = 0
         total_credit = 0
-  
+
         response.message.forEach(function(account_data)
         {
           var period_closing_account = frappe.model.get_new_doc('Period Closing Voucher Account');
@@ -51,9 +52,9 @@ frappe.ui.form.on("Period Closing Voucher", {
           if(account_data.balance>0)
           {
             // For debit balance need to fill credit
-            period_closing_account.credit_amount = account_data.balance 
+            period_closing_account.credit_amount = account_data.balance
             total_credit = total_credit + account_data.balance
-           
+
           }
           else
           {
@@ -86,7 +87,7 @@ frappe.ui.form.on("Period Closing Voucher", {
         frm.refresh_field('amount')
         frm.refresh_field('amount_dr_cr')
         frm.refresh_field('closing_accounts')
-        
+
       }
   });
 }
@@ -174,4 +175,73 @@ let calculate_totals = function(frm){
   frm.set_value('amount', amount);
   frm.set_value('amount_dr_cr', amount_dr_cr);
   frm.refresh_fields();
+}
+
+let create_custom_buttons = function(frm){
+	if(!frm.is_new() && (frm.doc.docstatus == 1)){
+    frm.add_custom_button('General Ledgers',() =>{
+			general_ledgers(frm)
+    }, 'Postings');
+	}
+}
+
+let general_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.accounts.doctype.period_closing_voucher.period_closing_voucher.get_gl_postings",
+        args: {
+            period_closing_voucher: frm.doc.name
+        },
+        callback: function (response) {
+            let gl_postings = response.message;
+
+            let d = new frappe.ui.Dialog({
+                title: 'General Ledgers',
+                fields: [{
+                    label: 'General Ledgers List',
+                    fieldname: 'general_ledgers',
+                    fieldtype: 'Table',
+                    fields: [{
+                            label: 'General Ledger',
+                            fieldtype: 'Link',
+                            options: 'GL Posting',
+                            fieldname: 'gl_posting',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Debit Amount',
+                            fieldtype: 'Currency',
+                            fieldname: 'debit_amount',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Credit Amount',
+                            fieldtype: 'Currency',
+                            fieldname: 'credit_amount',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Against Account',
+                            fieldtype: 'Data',
+                            fieldname: 'against_account',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Remarks',
+                            fieldtype: 'Small Text',
+                            fieldname: 'remarks',
+                            in_list_view: 1,
+                        }
+                    ],
+                    data: gl_postings
+                }],
+								size: 'large',
+                primary_action_label: 'Submit',
+                primary_action: function (values) {
+                    d.hide();
+                }
+            });
+
+            d.show();
+        }
+    });
 }

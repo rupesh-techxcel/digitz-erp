@@ -222,11 +222,11 @@ class ReceiptEntry(Document):
 							frappe.throw("Excess allocation for the invoice numer " + allocation.reference_name )
 
 	def on_update(self):
-     
+
 		self.update_sales_invoices()
 		self.update_sales_return()
 		self.update_credit_note()
-  
+
 	def on_submit(self):
 		# self.do_posting()
 		init_document_posting_status(self.doctype,self.name)
@@ -237,7 +237,7 @@ class ReceiptEntry(Document):
 		# 	self.do_postings_on_submit()
 		# else:
 		# 	frappe.enqueue(self.do_postings_on_submit,queue="long")
-   
+
 		self.do_postings_on_submit()
 
 	def do_postings_on_submit(self):
@@ -254,10 +254,10 @@ class ReceiptEntry(Document):
 
 		if(allocations):
 			for allocation in allocations:
-				
+
 				if allocation.reference_type != "Sales Invoice":
-					continue        
-					
+					continue
+
 				if(allocation.paying_amount>0):
 
 					receipt_no = self.name
@@ -286,10 +286,10 @@ class ReceiptEntry(Document):
 
 		if(allocations):
 			for allocation in allocations:
-       
+
 				if allocation.reference_type != "Sales Return":
-					continue   
- 
+					continue
+
 				if(allocation.paying_amount>0):
 
 					receipt_no = self.name
@@ -305,16 +305,16 @@ class ReceiptEntry(Document):
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
 					frappe.db.set_value("Sales Return", allocation.reference_name, {'paid_amount': invoice_total})
-     
+
 	def update_credit_note(self):
 		allocations = self.receipt_allocation
 
 		if(allocations):
 			for allocation in allocations:
-       
+
 				if allocation.reference_type != "Credit Note":
-					continue   
- 
+					continue
+
 				if(allocation.paying_amount>0):
 
 					receipt_no = self.name
@@ -445,3 +445,20 @@ class ReceiptEntry(Document):
 
 						total_paid_Amount = previous_paid_amount
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
+
+@frappe.whitelist()
+def get_gl_postings(receipt_entry):
+    gl_postings = frappe.get_all("GL Posting",
+                                  filters={"voucher_no": receipt_entry},
+                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
+    formatted_gl_postings = []
+    for posting in gl_postings:
+        formatted_gl_postings.append({
+            "gl_posting": posting.name,
+            "debit_amount": posting.debit_amount,
+            "credit_amount": posting.credit_amount,
+            "against_account": posting.against_account,
+            "remarks": posting.remarks
+        })
+
+    return formatted_gl_postings
