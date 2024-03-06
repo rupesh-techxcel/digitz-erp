@@ -152,10 +152,11 @@
    "options": "Cost Center"
   },
   {
+   "description": "Choose 'Opening Stock' as the purpose for the opening stock transaction.",
    "fieldname": "purpose",
    "fieldtype": "Select",
    "label": "Purpose",
-   "options": "\nStock Reconciliation\nOpening Stock",
+   "options": "Stock Reconciliation\nOpening Stock",
    "reqd": 1
   },
   {
@@ -170,7 +171,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-28 11:57:04.031558",
+ "modified": "2024-03-06 11:43:25.801292",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Reconciliation",

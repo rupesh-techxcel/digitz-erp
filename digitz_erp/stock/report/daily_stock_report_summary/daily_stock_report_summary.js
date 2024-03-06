@@ -63,7 +63,7 @@ frappe.query_reports["Daily Stock Report Summary"] = {
 			"fieldtype": "Check",
 			"label": "Show Datewise",
 			"width": 150,
-			"default":0			
+			"default":1			
 		}
 	]
 };
