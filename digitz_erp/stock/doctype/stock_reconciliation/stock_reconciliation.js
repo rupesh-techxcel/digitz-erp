@@ -2,9 +2,16 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Stock Reconciliation', {
-	// refresh: function(frm) {
-
-	// }
+	refresh: function(frm) {
+		frm.set_query('account', () => {
+    return {
+        filters: {
+            root_type: 'Liability',
+						// is_group: 1
+        }
+    }
+})
+},
 
 	edit_posting_date_and_time(frm) {
 

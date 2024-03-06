@@ -336,38 +336,65 @@ class StockReconciliation(Document):
 
         idx = 1
 
-        # Inventory account Eg: Stock In Hand
-        gl_doc = frappe.new_doc('GL Posting')
-        gl_doc.voucher_type = "Stock Reconciliation"
-        gl_doc.voucher_no = self.name
-        gl_doc.idx = idx
-        gl_doc.posting_date = self.posting_date
-        gl_doc.posting_time = self.posting_time
-        gl_doc.account = default_accounts.default_inventory_account
-        if stock_adjustment_value > 0: #Value Raised
-            gl_doc.debit_amount = stock_adjustment_value
-        else:
-            gl_doc.credit_amount = stock_adjustment_value
+        if self.purpose == "Stock Reconciliation":
+            # Inventory account Eg: Stock In Hand
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Stock Reconciliation"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.default_inventory_account
+            if stock_adjustment_value > 0: # Value Raised
+                gl_doc.debit_amount = stock_adjustment_value
+            else:
+                gl_doc.credit_amount = stock_adjustment_value
 
-        gl_doc.against_account = default_accounts.stock_adjustment_account
-        gl_doc.insert()
+            gl_doc.against_account = default_accounts.stock_adjustment_account
+            gl_doc.insert()
 
-        # Cost Of Goods Sold
-        idx = 2
-        gl_doc = frappe.new_doc('GL Posting')
-        gl_doc.voucher_type = "Stock Reconciliation"
-        gl_doc.voucher_no = self.name
-        gl_doc.idx = idx
-        gl_doc.posting_date = self.posting_date
-        gl_doc.posting_time = self.posting_time
-        gl_doc.account = default_accounts.stock_adjustment_account
+            # Cost Of Goods Sold
+            idx = 2
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Stock Reconciliation"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.stock_adjustment_account
 
-        if stock_adjustment_value > 0: # Value diminished
-            gl_doc.credit_amount = stock_adjustment_value
-        else:
-            gl_doc.debit_amount = stock_adjustment_value
+            if stock_adjustment_value > 0: # Value diminished
+                gl_doc.credit_amount = stock_adjustment_value
+            else:
+                gl_doc.debit_amount = stock_adjustment_value
 
-        gl_doc.against_account = default_accounts.default_inventory_account
-        gl_doc.insert()
+            gl_doc.against_account = default_accounts.default_inventory_account
+            gl_doc.insert()
+            update_posting_status(self.doctype,self.name,'gl_posted')
 
-        update_posting_status(self.doctype,self.name,'gl_posted')
+        elif self.purpose == "Opening Stock":
+            
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Stock Reconciliation"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.default_inventory_account
+            gl_doc.debit_amount = self.net_total
+            gl_doc.against_account = default_accounts.stock_adjustment_account
+            gl_doc.insert()
+
+            # Cost Of Goods Sold
+            idx = 2
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Stock Reconciliation"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = self.account
+            gl_doc.credit_amount = self.net_total
+            gl_doc.against_account = default_accounts.default_inventory_account
+            gl_doc.insert()
+            update_posting_status(self.doctype,self.name,'gl_posted')
