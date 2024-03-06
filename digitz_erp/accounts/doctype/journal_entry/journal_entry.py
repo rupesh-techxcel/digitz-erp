@@ -13,7 +13,7 @@ class JournalEntry(Document):
 
 	def insert_gl_records(self):
 		idx = 1
-    
+
 		for journal_entry in self.journal_entry_details:
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.idx = idx
@@ -27,12 +27,28 @@ class JournalEntry(Document):
 			gl_doc.remarks = journal_entry.narration
 			gl_doc.insert()
 			idx += 1
-			
-    
+
+
 		# update_all_account_balances()
-        
+
 		# for account in accounts:
 		#   	update_account_balance(account)
-     
-			
-			
+
+
+
+@frappe.whitelist()
+def get_gl_postings(journal_entry):
+    gl_postings = frappe.get_all("GL Posting",
+                                  filters={"voucher_no": journal_entry},
+                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
+    formatted_gl_postings = []
+    for posting in gl_postings:
+        formatted_gl_postings.append({
+            "gl_posting": posting.name,
+            "debit_amount": posting.debit_amount,
+            "credit_amount": posting.credit_amount,
+            "against_account": posting.against_account,
+            "remarks": posting.remarks
+        })
+
+    return formatted_gl_postings

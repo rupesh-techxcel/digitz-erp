@@ -280,7 +280,7 @@ class PaymentEntry(Document):
 		# 	self.do_postings_on_submit()
 		# else:
 		# 	frappe.enqueue(self.do_postings_on_submit, queue ="long")
-   
+
 		self.do_postings_on_submit()
 
 	def on_trash(self):
@@ -299,7 +299,7 @@ class PaymentEntry(Document):
         #                   })
 
 	def do_postings_on_submit(self):
-		self.insert_gl_records()		
+		self.insert_gl_records()
 		update_posting_status(self.doctype,self.name, 'gl_posted_time')
 		update_accounts_for_doc_type('Payment Entry', self.name)
 		update_posting_status(self.doctype,self.name,'posting_status','Completed')
@@ -492,7 +492,7 @@ class PaymentEntry(Document):
 						gl_doc.party_type = "Supplier"
 						gl_doc.party = payment_entry.supplier
 					gl_doc.insert()
-	
+
 	def GetAccountForTheHighestAmountInPayments(self):
 
 		highestAmount = 0
@@ -508,3 +508,20 @@ class PaymentEntry(Document):
 					account = payment_entry.account
 
 		return account
+
+@frappe.whitelist()
+def get_gl_postings(payment_entry):
+    gl_postings = frappe.get_all("GL Posting",
+                                  filters={"voucher_no": payment_entry},
+                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
+    formatted_gl_postings = []
+    for posting in gl_postings:
+        formatted_gl_postings.append({
+            "gl_posting": posting.name,
+            "debit_amount": posting.debit_amount,
+            "credit_amount": posting.credit_amount,
+            "against_account": posting.against_account,
+            "remarks": posting.remarks
+        })
+
+    return formatted_gl_postings

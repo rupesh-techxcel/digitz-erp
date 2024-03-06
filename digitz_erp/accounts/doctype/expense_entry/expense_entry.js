@@ -9,6 +9,7 @@ frappe.ui.form.on('Expense Entry', {
   },
 
   refresh: function(frm) {
+    create_custom_buttons(frm)
     frm.set_query('expense_account', 'expense_entry_details', () => {
       return {
         filters: {
@@ -357,4 +358,74 @@ function assign_defaults(frm)
       frm.doc.payment_schedule = [];
       refresh_field("payment_schedule");
     }
+  }
+
+
+  let create_custom_buttons = function(frm){
+  	if(!frm.is_new() && (frm.doc.docstatus == 1)){
+      frm.add_custom_button('General Ledgers',() =>{
+  			general_ledgers(frm)
+      }, 'Postings');
+  	}
+  }
+
+  let general_ledgers = function (frm) {
+      frappe.call({
+          method: "digitz_erp.accounts.doctype.expense_entry.expense_entry.get_gl_postings",
+          args: {
+              expense_entry: frm.doc.name
+          },
+          callback: function (response) {
+              let gl_postings = response.message;
+
+              let d = new frappe.ui.Dialog({
+                  title: 'General Ledgers',
+                  fields: [{
+                      label: 'General Ledgers List',
+                      fieldname: 'general_ledgers',
+                      fieldtype: 'Table',
+                      fields: [{
+                              label: 'General Ledger',
+                              fieldtype: 'Link',
+                              options: 'GL Posting',
+                              fieldname: 'gl_posting',
+                              in_list_view: 1,
+                          },
+                          {
+                              label: 'Debit Amount',
+                              fieldtype: 'Currency',
+                              fieldname: 'debit_amount',
+                              in_list_view: 1,
+                          },
+                          {
+                              label: 'Credit Amount',
+                              fieldtype: 'Currency',
+                              fieldname: 'credit_amount',
+                              in_list_view: 1,
+                          },
+                          {
+                              label: 'Against Account',
+                              fieldtype: 'Data',
+                              fieldname: 'against_account',
+                              in_list_view: 1,
+                          },
+                          {
+                              label: 'Remarks',
+                              fieldtype: 'Small Text',
+                              fieldname: 'remarks',
+                              in_list_view: 1,
+                          }
+                      ],
+                      data: gl_postings
+                  }],
+  								size: 'large',
+                  primary_action_label: 'Submit',
+                  primary_action: function (values) {
+                      d.hide();
+                  }
+              });
+
+              d.show();
+          }
+      });
   }

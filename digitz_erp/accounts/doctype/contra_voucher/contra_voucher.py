@@ -15,8 +15,8 @@ class ContraVoucher(Document):
 
 	def insert_gl_records(self):
 		idx = 1
-    
-		for journal_entry in self.journal_entry_details:
+
+		for journal_entry in self.contra_voucher_details:
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.idx = idx
 			gl_doc.voucher_type = 'Contra Voucher'
@@ -29,3 +29,20 @@ class ContraVoucher(Document):
 			gl_doc.remarks = journal_entry.narration
 			gl_doc.insert()
 			idx += 1
+
+@frappe.whitelist()
+def get_gl_postings(contra_voucher):
+    gl_postings = frappe.get_all("GL Posting",
+                                  filters={"voucher_no": contra_voucher},
+                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
+    formatted_gl_postings = []
+    for posting in gl_postings:
+        formatted_gl_postings.append({
+            "gl_posting": posting.name,
+            "debit_amount": posting.debit_amount,
+            "credit_amount": posting.credit_amount,
+            "against_account": posting.against_account,
+            "remarks": posting.remarks
+        })
+
+    return formatted_gl_postings

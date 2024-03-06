@@ -3,6 +3,7 @@
 
 frappe.ui.form.on('Stock Reconciliation', {
 	refresh: function(frm) {
+		create_custom_buttons(frm)
 		frm.set_query('account', () => {
     return {
         filters: {
@@ -285,3 +286,156 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 	},
 }
 )
+
+let create_custom_buttons = function(frm){
+	if(!frm.is_new() && (frm.doc.docstatus == 1)){
+    frm.add_custom_button('General Ledgers',() =>{
+			general_ledgers(frm)
+    }, 'Postings');
+		frm.add_custom_button('Stock Ledgers',() =>{
+			stock_ledgers(frm)
+    }, 'Postings');
+	}
+}
+
+let general_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.stock.doctype.stock_reconciliation.stock_reconciliation.get_gl_postings",
+        args: {
+            stock_reconciliation: frm.doc.name
+        },
+        callback: function (response) {
+            let gl_postings = response.message;
+
+            let d = new frappe.ui.Dialog({
+                title: 'General Ledgers',
+                fields: [{
+                    label: 'General Ledgers List',
+                    fieldname: 'general_ledgers',
+                    fieldtype: 'Table',
+                    fields: [{
+                            label: 'General Ledger',
+                            fieldtype: 'Link',
+                            options: 'GL Posting',
+                            fieldname: 'gl_posting',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Debit Amount',
+                            fieldtype: 'Currency',
+                            fieldname: 'debit_amount',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Credit Amount',
+                            fieldtype: 'Currency',
+                            fieldname: 'credit_amount',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Against Account',
+                            fieldtype: 'Data',
+                            fieldname: 'against_account',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Remarks',
+                            fieldtype: 'Small Text',
+                            fieldname: 'remarks',
+                            in_list_view: 1,
+                        }
+                    ],
+                    data: gl_postings
+                }],
+								size: 'large',
+                primary_action_label: 'Submit',
+                primary_action: function (values) {
+                    d.hide();
+                }
+            });
+
+            d.show();
+        }
+    });
+}
+
+let stock_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.stock.doctype.stock_reconciliation.stock_reconciliation.get_stock_ledgers",
+        args: {
+            stock_reconciliation: frm.doc.name
+        },
+        callback: function (response) {
+            let stock_ledgers_data = response.message;
+
+            let d = new frappe.ui.Dialog({
+                title: 'Stock Ledgers',
+                fields: [{
+                    label: 'Stock Ledgers List',
+                    fieldname: 'stock_ledgers',
+                    fieldtype: 'Table',
+                    fields: [{
+                            label: 'Stock Ledger',
+                            fieldtype: 'Link',
+                            options: 'Stock Ledger',
+                            fieldname: 'stock_ledger',
+                            in_list_view: 1,
+                        },
+												{
+                            label: 'Item',
+                            fieldtype: 'Link',
+														options: 'Item',
+                            fieldname: 'item',
+                            in_list_view: 1,
+                        },
+												{
+                            label: 'Warehouse',
+                            fieldtype: 'Link',
+														options: 'Warehouse',
+                            fieldname: 'warehouse',
+                            in_list_view: 1,
+                        },
+												{
+                            label: 'Qty In',
+                            fieldtype: 'Float',
+                            fieldname: 'qty_in',
+                            in_list_view: 1,
+                        },
+												{
+                            label: 'Qty Out',
+                            fieldtype: 'Float',
+                            fieldname: 'qty_out',
+                            in_list_view: 1,
+                        },
+												{
+                            label: 'Valuation Rate',
+                            fieldtype: 'Float',
+                            fieldname: 'valuation_rate',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Balance Qty',
+                            fieldtype: 'Float',
+                            fieldname: 'balance_qty',
+                            in_list_view: 1,
+                        },
+                        {
+                            label: 'Balance Value',
+                            fieldtype: 'Float',
+                            fieldname: 'balance_value',
+                            in_list_view: 1,
+                        },
+                    ],
+                    data: stock_ledgers_data
+                }],
+                size: 'large',
+                primary_action_label: 'Submit',
+                primary_action: function (values) {
+                    d.hide();
+                }
+            });
+
+            d.show();
+        }
+    });
+}

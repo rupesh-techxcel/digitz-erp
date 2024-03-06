@@ -480,3 +480,40 @@ def get_sales_order_items(sales_orders):
             items.append(so_item)
 
     return items
+
+@frappe.whitelist()
+def get_gl_postings(delivery_note):
+    gl_postings = frappe.get_all("GL Posting",
+                                  filters={"voucher_no": delivery_note},
+                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
+    formatted_gl_postings = []
+    for posting in gl_postings:
+        formatted_gl_postings.append({
+            "gl_posting": posting.name,
+            "debit_amount": posting.debit_amount,
+            "credit_amount": posting.credit_amount,
+            "against_account": posting.against_account,
+            "remarks": posting.remarks
+        })
+
+    return formatted_gl_postings
+
+@frappe.whitelist()
+def get_stock_ledgers(delivery_note):
+    stock_ledgers = frappe.get_all("Stock Ledger",
+                                    filters={"voucher_no": delivery_note},
+                                    fields=["name", "item", "warehouse", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
+    formatted_stock_ledgers = []
+    for ledgers in stock_ledgers:
+        formatted_stock_ledgers.append({
+            "stock_ledger": ledgers.name,
+            "item": ledgers.item,
+            "warehouse": ledgers.warehouse,
+            "qty_in": ledgers.qty_in,
+            "qty_out": ledgers.qty_out,
+            "valuation_rate": ledgers.valuation_rate,
+            "balance_qty": ledgers.balance_qty,
+            "balance_value": ledgers.balance_value
+        })
+    print(formatted_stock_ledgers)
+    return formatted_stock_ledgers
