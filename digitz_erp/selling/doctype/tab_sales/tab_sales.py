@@ -6,6 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils import now
 from frappe.model.document import Document
 from datetime import datetime,timedelta
+from digitz_erp.api.settings_api import get_default_company
 
 
 class TabSales (Document):
@@ -45,6 +46,10 @@ class TabSales (Document):
 
                     if(self.Voucher_In_The_Same_Time()):
                         frappe.throw("Voucher with same time already exists.")
+        
+        if not self.company:
+            self.company = get_default_company()
+        
 
 
     def validate_item(self):

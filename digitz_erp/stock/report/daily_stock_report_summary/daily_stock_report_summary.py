@@ -633,6 +633,7 @@ def get_data_datewise(filters):
 	transfer_in_qty_data = frappe.db.sql(transfer_in_qty_query, as_dict=True)
 	for data in transfer_in_qty_data:
 		transaction_item_dates = set_dates_for_items(data, transaction_item_dates)
+  
  
 	# Fetch the transfer out quantity for all items within the specified date range
 	transfer_out_qty_query = f"""
