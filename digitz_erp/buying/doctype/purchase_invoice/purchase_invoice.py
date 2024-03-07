@@ -421,19 +421,6 @@ class PurchaseInvoice(Document):
 			# If any items in the collection has more records
 			if(more_records_for_item>0):
 
-				stock_ledger_items = frappe.get_list('Stock Ledger',{'item':docitem.item,
-				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]}, ['name','qty_in','qty_out','voucher','balance_qty','voucher_no'],order_by='posting_date')
-
-				# if(stock_ledger_items):
-
-				# 	qty_cancelled = docitem.qty_in_base_unit
-				# 	# Loop to verify the sufficiant quantity
-				# 	for sl in stock_ledger_items:
-						# On each line if outgoing qty + balance_qty (qty before outgonig) is more than the cancelling qty
-						# if(sl.qty_out>0 and qty_cancelled> sl.qty_out+ sl.balance_qty):
-						# 	frappe.throw("Cancelling the purchase is prevented due to sufficiant quantity not available for " + docitem.item +
-						# " to fulfil the voucher " + sl.voucher_no)
-
 				if(previous_stock_ledger_name):
 					stock_recalc_voucher.append('records',{'item': docitem.item,
                                                             'warehouse': docitem.warehouse,
@@ -446,8 +433,7 @@ class PurchaseInvoice(Document):
 															})
 
 			else:
-
-				stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
+				
 				balance_qty =0
 				balance_value =0
 				valuation_rate  = 0
@@ -458,8 +444,8 @@ class PurchaseInvoice(Document):
 					balance_value = previous_stock_ledger.balance_value
 					valuation_rate = previous_stock_ledger.valuation_rate
 
-					if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
-						frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
 
 				unit = frappe.get_value("Item", docitem.item,['base_unit'])
 
@@ -472,14 +458,7 @@ class PurchaseInvoice(Document):
 				new_stock_balance.stock_value = balance_value
 				new_stock_balance.valuation_rate = valuation_rate
 
-				new_stock_balance.insert()
-
-				stock_balance_for_item = frappe.get_doc('Stock Balance',stock_balance)
-				# Add qty because of balance increasing due to cancellation of delivery note
-				stock_balance_for_item.stock_qty = balance_qty
-				stock_balance_for_item.stock_value = balance_value
-				stock_balance_for_item.valuation_rate = valuation_rate
-				stock_balance_for_item.save()
+				new_stock_balance.insert()				
 
 				update_stock_balance_in_item(docitem.item)
 
