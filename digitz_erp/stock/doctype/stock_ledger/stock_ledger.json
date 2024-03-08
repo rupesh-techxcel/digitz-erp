@@ -28,7 +28,8 @@
   "recalculated",
   "log",
   "corrected_on_repost",
-  "balance_qty_before_repost"
+  "balance_qty_before_repost",
+  "more_records"
  ],
  "fields": [
   {
@@ -177,12 +178,18 @@
    "fieldname": "balance_qty_before_repost",
    "fieldtype": "Float",
    "label": "Balance Qty Before Repost"
+  },
+  {
+   "default": "0",
+   "fieldname": "more_records",
+   "fieldtype": "Check",
+   "label": "More Records"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-16 20:27:56.041196",
+ "modified": "2024-03-07 12:42:37.944258",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

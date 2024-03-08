@@ -113,6 +113,20 @@ def get_data(filters):
     """.format(from_date=from_date,to_date=to_date, item_condition=item_condition,warehouse_condition=warehouse_condition)
 
     sales_qty_data = frappe.db.sql(sales_qty_query, as_dict=True)
+    
+    
+    delivery_note_qty_query = f"""
+        SELECT item as item_code, SUM(qty_out) as delivery_note_qty
+        FROM `tabStock Ledger`
+        WHERE voucher = 'Delivery Note'
+            AND posting_date >= '{from_date} 00:00:00'
+            AND posting_date < '{to_date} 23:59:59'
+            {item_condition}
+            {warehouse_condition}
+        GROUP BY item
+    """.format(from_date=from_date,to_date=to_date, item_condition=item_condition,warehouse_condition=warehouse_condition)
+
+    delivery_note_qty_data = frappe.db.sql(delivery_note_qty_query, as_dict=True)
 
     # Fetch the sales return quantity for all items within the specified date range
     sales_return_qty_query = f"""
@@ -178,13 +192,15 @@ def get_data(filters):
             if stock_recon_qty_row.item_code == opening_balance_row.item_code:
                 # item_row["stock_recon_qty"] = stock_recon_qty_row.balance_qty
                 # Fill the recon column with the effective value 
-                if(stock_recon_qty_row.qty_in>0):
-                    item_row["stock_recon_qty"] = stock_recon_qty_row.qty_in
+                # if(stock_recon_qty_row.qty_in>0):                    
+                #     item_row["stock_recon_qty"] = stock_recon_qty_row.qty_in
                 
-                if(stock_recon_qty_row.qty_out>0):
-                    item_row["stock_recon_qty"] = stock_recon_qty_row.qty_out * -1
+                # if(stock_recon_qty_row.qty_out>0):
+                #     item_row["stock_recon_qty"] = stock_recon_qty_row.qty_out * -1
                 
                 balance_qty += stock_recon_qty_row.qty_in - stock_recon_qty_row.qty_out
+                
+                item_row["stock_recon_qty"] = balance_qty
 
                 (transaction_value_exists) = True
                 break
@@ -222,6 +238,17 @@ def get_data(filters):
 
                 break
 
+        # Find the matching delivery_note_qty_row for the item
+        for delivery_note_qty_row in delivery_note_qty_data:
+            if delivery_note_qty_row.item_code == opening_balance_row.item_code:
+                item_row["delivery_note_qty"] = delivery_note_qty_row.delivery_note_qty
+                balance_qty += (delivery_note_qty_row.delivery_note_qty * -1)
+
+                if not (transaction_value_exists):
+                    (transaction_value_exists) = delivery_note_qty_row.delivery_note_qty !=0
+
+                break
+            
         # Find the matching sales_return_qty_row for the item
         for sales_return_qty_row in sales_return_qty_data:
             if sales_return_qty_row.item_code == opening_balance_row.item_code:
