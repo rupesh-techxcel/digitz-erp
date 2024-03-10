@@ -228,72 +228,78 @@ frappe.ui.form.on('Credit Note Detail',{
 		frm.trigger("make_taxes_and_totals");
 	}
 })
-
 let create_custom_buttons = function(frm){
-	if(!frm.is_new() && (frm.doc.docstatus == 1)){
-    frm.add_custom_button('General Ledgers',() =>{
-			general_ledgers(frm)
-    }, 'Postings');
+	if (frappe.user.has_role('Management')) {
+		if(!frm.is_new() && (frm.doc.docstatus == 1)){
+		frm.add_custom_button('General Ledgers',() =>{
+				general_ledgers(frm)
+		}, 'Postings');			
+		}
 	}
 }
 
 let general_ledgers = function (frm) {
     frappe.call({
-        method: "digitz_erp.accounts.doctype.credit_note.credit_note.get_gl_postings",
+        method: "digitz_erp.api.accounts_api.get_gl_postings",
         args: {
-            credit_note: frm.doc.name
+			voucher:frm.doc.doctype,
+            voucher_no: frm.doc.name
         },
         callback: function (response) {
             let gl_postings = response.message;
 
+            // Generate HTML content for the popup
+            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+                              '<table class="table table-bordered" style="width: 100%;">' +
+                              '<thead>' +
+                              '<tr>' +
+                              '<th style="width: 20%;">Account</th>' +
+                              '<th style="width: 15%;">Debit Amount</th>' +
+                              '<th style="width: 15%;">Credit Amount</th>' +
+                              '<th style="width: 25%;">Against Account</th>' +
+                              '<th style="width: 25%;">Remarks</th>' +
+                              '</tr>' +
+                              '</thead>' +
+                              '<tbody>';
+
+							  gl_postings.forEach(function (gl_posting) {
+								// Handling null values for remarks
+								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+							
+								// Ensure debit_amount and credit_amount are treated as floats and format them
+								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+							
+								htmlContent += '<tr>' +
+											   `<td>${gl_posting.account}</td>` +
+											   `<td style="text-align: right;">${debitAmount}</td>` +
+											   `<td style="text-align: right;">${creditAmount}</td>` +
+											   `<td>${gl_posting.against_account}</td>` +
+											   `<td>${remarksText}</td>` +
+											   '</tr>';
+							});
+
+            htmlContent += '</tbody></table></div>';
+
+            // Create and show the dialog
             let d = new frappe.ui.Dialog({
                 title: 'General Ledgers',
                 fields: [{
-                    label: 'General Ledgers List',
-                    fieldname: 'general_ledgers',
-                    fieldtype: 'Table',
-                    fields: [{
-                            label: 'General Ledger',
-                            fieldtype: 'Link',
-                            options: 'GL Posting',
-                            fieldname: 'gl_posting',
-                            in_list_view: 1,
-                        },
-                        {
-                            label: 'Debit Amount',
-                            fieldtype: 'Currency',
-                            fieldname: 'debit_amount',
-                            in_list_view: 1,
-                        },
-                        {
-                            label: 'Credit Amount',
-                            fieldtype: 'Currency',
-                            fieldname: 'credit_amount',
-                            in_list_view: 1,
-                        },
-                        {
-                            label: 'Against Account',
-                            fieldtype: 'Data',
-                            fieldname: 'against_account',
-                            in_list_view: 1,
-                        },
-                        {
-                            label: 'Remarks',
-                            fieldtype: 'Small Text',
-                            fieldname: 'remarks',
-                            in_list_view: 1,
-                        }
-                    ],
-                    data: gl_postings
+                    fieldtype: 'HTML',
+                    fieldname: 'general_ledgers_html',
+                    options: htmlContent
                 }],
-								size: 'large',
-                primary_action_label: 'Submit',
-                primary_action: function (values) {
+                primary_action_label: 'Close',
+                primary_action: function () {
                     d.hide();
                 }
             });
 
+            // Set custom width for the dialog
+            d.$wrapper.find('.modal-dialog').css('max-width', '55%'); // or any specific width like 800px
+
             d.show();
         }
     });
-}
+};
+

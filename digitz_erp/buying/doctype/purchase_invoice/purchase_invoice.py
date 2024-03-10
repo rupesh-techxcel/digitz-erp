@@ -97,7 +97,7 @@ class PurchaseInvoice(Document):
 
 		self.insert_gl_records(self.remarks)
 		self.insert_payment_postings()
-		self.add_stock_for_purchase_receipt()
+		self.do_stock_posting()
 		create_bank_reconciliation("Purchase Invoice", self.name)
 
 		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
@@ -180,7 +180,7 @@ class PurchaseInvoice(Document):
 				rate = docitem.rate_in_base_unit
 				update_supplier_item_price(item, self.supplier,rate,self.posting_date)
 
-	def add_stock_for_purchase_receipt(self):
+	def do_stock_posting(self):
 		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
 		stock_recalc_voucher.voucher = 'Purchase Invoice'
 		stock_recalc_voucher.voucher_no = self.name
@@ -727,39 +727,5 @@ def create_purchase_return(source_name):
 	doc.items = filtered_items
 	return doc
 
-@frappe.whitelist()
-def get_gl_postings(purchase_invoice):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": purchase_invoice},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
 
-    return formatted_gl_postings
 
-@frappe.whitelist()
-def get_stock_ledgers(purchase_invoice):
-    stock_ledgers = frappe.get_all("Stock Ledger",
-                                    filters={"voucher_no": purchase_invoice},
-                                    fields=["name", "item", "warehouse", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
-    formatted_stock_ledgers = []
-    for ledgers in stock_ledgers:
-        formatted_stock_ledgers.append({
-            "stock_ledger": ledgers.name,
-            "item": ledgers.item,
-            "warehouse": ledgers.warehouse,
-            "qty_in": ledgers.qty_in,
-            "qty_out": ledgers.qty_out,
-            "valuation_rate": ledgers.valuation_rate,
-            "balance_qty": ledgers.balance_qty,
-            "balance_value": ledgers.balance_value
-        })
-    print(formatted_stock_ledgers)
-    return formatted_stock_ledgers

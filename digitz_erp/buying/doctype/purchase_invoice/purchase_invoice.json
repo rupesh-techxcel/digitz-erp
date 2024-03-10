@@ -288,7 +288,6 @@
    "label": "Rate includes tax"
   },
   {
-   "allow_on_submit": 1,
    "fieldname": "supplier_inv_no",
    "fieldtype": "Data",
    "label": "Supplier Inv No",
@@ -429,7 +428,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-26 14:20:32.748393",
+ "modified": "2024-03-10 07:45:36.071484",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

@@ -25,6 +25,8 @@
   "items",
   "section_break_12",
   "selected_item_stock_qty_in_the_warehouse",
+  "column_break_oivr",
+  "item_units",
   "column_break_33",
   "net_total",
   "section_break_17",
@@ -166,12 +168,21 @@
    "label": "Stock Adjustment Account",
    "mandatory_depends_on": "eval:doc.purpose == 'Opening Stock'",
    "options": "Account"
+  },
+  {
+   "fieldname": "column_break_oivr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_units",
+   "fieldtype": "Data",
+   "label": "Item Units"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-06 11:43:25.801292",
+ "modified": "2024-03-08 16:14:24.906704",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Reconciliation",

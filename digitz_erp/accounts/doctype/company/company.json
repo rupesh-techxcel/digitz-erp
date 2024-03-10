@@ -401,12 +401,12 @@
    "description": "Based on this field system decides whether sales invoices are intend to update the stock while submitting",
    "fieldname": "update_stock_in_sales_invoice",
    "fieldtype": "Check",
-   "label": "Default value for update stock in Sales Invoice"
+   "label": "Update stock in Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-24 18:34:49.108589",
+ "modified": "2024-03-09 19:09:13.348311",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

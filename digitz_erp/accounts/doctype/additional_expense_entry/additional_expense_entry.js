@@ -492,71 +492,146 @@ frappe.ui.form.on('Expense Entry Details',{
     }
   }
 
-	let create_custom_buttons = function(frm){
+  let create_custom_buttons = function(frm){
+	if (frappe.user.has_role('Management')) {
 		if(!frm.is_new() && (frm.doc.docstatus == 1)){
-	    frm.add_custom_button('General Ledgers',() =>{
+		frm.add_custom_button('General Ledgers',() =>{
 				general_ledgers(frm)
-	    }, 'Postings');
+		}, 'Postings');
+			frm.add_custom_button('Stock Ledgers',() =>{
+				stock_ledgers(frm)
+		}, 'Postings');
 		}
 	}
+}
 
-	let general_ledgers = function (frm) {
-	    frappe.call({
-	        method: "digitz_erp.accounts.doctype.additional_expense_entry.additional_expense_entry.get_gl_postings",
-	        args: {
-	            additional_expense_entry: frm.doc.name
-	        },
-	        callback: function (response) {
-	            let gl_postings = response.message;
+let general_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_gl_postings",
+        args: {
+			voucher:frm.doc.doctype,
+            voucher_no: frm.doc.name
+        },
+        callback: function (response) {
+            let gl_postings = response.message;
 
-	            let d = new frappe.ui.Dialog({
-	                title: 'General Ledgers',
-	                fields: [{
-	                    label: 'General Ledgers List',
-	                    fieldname: 'general_ledgers',
-	                    fieldtype: 'Table',
-	                    fields: [{
-	                            label: 'General Ledger',
-	                            fieldtype: 'Link',
-	                            options: 'GL Posting',
-	                            fieldname: 'gl_posting',
-	                            in_list_view: 1,
-	                        },
-	                        {
-	                            label: 'Debit Amount',
-	                            fieldtype: 'Currency',
-	                            fieldname: 'debit_amount',
-	                            in_list_view: 1,
-	                        },
-	                        {
-	                            label: 'Credit Amount',
-	                            fieldtype: 'Currency',
-	                            fieldname: 'credit_amount',
-	                            in_list_view: 1,
-	                        },
-	                        {
-	                            label: 'Against Account',
-	                            fieldtype: 'Data',
-	                            fieldname: 'against_account',
-	                            in_list_view: 1,
-	                        },
-	                        {
-	                            label: 'Remarks',
-	                            fieldtype: 'Small Text',
-	                            fieldname: 'remarks',
-	                            in_list_view: 1,
-	                        }
-	                    ],
-	                    data: gl_postings
-	                }],
-									size: 'large',
-	                primary_action_label: 'Submit',
-	                primary_action: function (values) {
-	                    d.hide();
-	                }
-	            });
+            // Generate HTML content for the popup
+            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+                              '<table class="table table-bordered" style="width: 100%;">' +
+                              '<thead>' +
+                              '<tr>' +
+                              '<th style="width: 20%;">Account</th>' +
+                              '<th style="width: 15%;">Debit Amount</th>' +
+                              '<th style="width: 15%;">Credit Amount</th>' +
+                              '<th style="width: 25%;">Against Account</th>' +
+                              '<th style="width: 25%;">Remarks</th>' +
+                              '</tr>' +
+                              '</thead>' +
+                              '<tbody>';
 
-	            d.show();
-	        }
-	    });
-	}
+							  gl_postings.forEach(function (gl_posting) {
+								// Handling null values for remarks
+								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+							
+								// Ensure debit_amount and credit_amount are treated as floats and format them
+								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+							
+								htmlContent += '<tr>' +
+											   `<td>${gl_posting.account}</td>` +
+											   `<td style="text-align: right;">${debitAmount}</td>` +
+											   `<td style="text-align: right;">${creditAmount}</td>` +
+											   `<td>${gl_posting.against_account}</td>` +
+											   `<td>${remarksText}</td>` +
+											   '</tr>';
+							});
+
+            htmlContent += '</tbody></table></div>';
+
+            // Create and show the dialog
+            let d = new frappe.ui.Dialog({
+                title: 'General Ledgers',
+                fields: [{
+                    fieldtype: 'HTML',
+                    fieldname: 'general_ledgers_html',
+                    options: htmlContent
+                }],
+                primary_action_label: 'Close',
+                primary_action: function () {
+                    d.hide();
+                }
+            });
+
+            // Set custom width for the dialog
+            d.$wrapper.find('.modal-dialog').css('max-width', '55%'); // or any specific width like 800px
+
+            d.show();
+        }
+    });
+};
+
+
+let stock_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_stock_ledgers",
+        args: {
+			voucher:frm.doc.doctype,
+            voucher_no: frm.doc.name
+        },
+        callback: function (response) {
+            let stock_ledgers_data = response.message;
+
+            // Generate HTML content for the popup
+            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+                              '<table class="table table-bordered" style="width: 100%;">' +
+                              '<thead>' +
+                              '<tr>' +                              
+                              '<th style="width: 10%;">Item Code</th>' +
+							  '<th style="width: 20%;">Item Name</th>' +
+                              '<th style="width: 15%;">Warehouse</th>' +
+                              '<th style="width: 10%;">Qty In</th>' +
+                              '<th style="width: 10%;">Qty Out</th>' +
+                              '<th style="width: 15%;">Valuation Rate</th>' +
+                              '<th style="width: 15%;">Balance Qty</th>' +
+                              '<th style="width: 15%;">Balance Value</th>' +
+                              '</tr>' +
+                              '</thead>' +
+                              '<tbody>';
+
+            // Loop through the data and create rows
+            stock_ledgers_data.forEach(function (ledger) {
+                htmlContent += '<tr>' +                               
+                               `<td><a href="/app/item/${ledger.item}" target="_blank">${ledger.item}</a></td>` +
+							   `<td>${ledger.item_name}</td>` +
+                               `<td>${ledger.warehouse}</td>` +
+                               `<td>${ledger.qty_in}</td>` +
+                               `<td>${ledger.qty_out}</td>` +
+                               `<td>${ledger.valuation_rate}</td>` +
+                               `<td>${ledger.balance_qty}</td>` +
+                               `<td>${ledger.balance_value}</td>` +
+                               '</tr>';
+            });
+
+            htmlContent += '</tbody></table></div>';
+
+            // Create and show the dialog
+            let d = new frappe.ui.Dialog({
+                title: 'Stock Ledgers',
+                fields: [{
+                    fieldtype: 'HTML',
+                    fieldname: 'stock_ledgers_html',
+                    options: htmlContent
+                }],
+                primary_action_label: 'Close',
+                primary_action: function () {
+                    d.hide();
+                }
+            });
+
+            // Set custom width for the dialog
+            d.$wrapper.find('.modal-dialog').css('max-width', '65%'); // or any specific width like 800px
+
+            d.show();
+        }
+    });
+};
