@@ -35,7 +35,7 @@ def check_balance_qty_to_return_for_purchase_invoice(purchase_invoice):
     result = frappe.db.sql("""
         SELECT name 
         FROM `tabPurchase Invoice Item` 
-        WHERE qty_returned < qty 
+        WHERE qty_returned_in_base_unit < qty_in_base_unit
         AND parent = %s AND docstatus=1
     """, (purchase_invoice,))
 
@@ -45,7 +45,7 @@ def check_balance_qty_to_return_for_purchase_invoice(purchase_invoice):
 def get_purchase_invoices_for_return(supplier):
     
     result = frappe.db.sql("""
-        SELECT distinct pi.name,pi.supplier,pi.posting_date,pi.rounded_total FROM `tabPurchase Invoice Item` pii inner join `tabPurchase Invoice` pi on pi.name=pii.parent where pii.qty_returned < pii.qty and  pi.supplier='{0}' and pi.docstatus=1 """.format(supplier), as_dict=1)
+        SELECT distinct pi.name,pi.supplier,pi.posting_date,pi.rounded_total FROM `tabPurchase Invoice Item` pii inner join `tabPurchase Invoice` pi on pi.name=pii.parent where pii.qty_returned_in_base_unit < pii.qty_in_base_unit and  pi.supplier='{0}' and pi.docstatus=1 """.format(supplier), as_dict=1)
     
     return result
 
@@ -53,7 +53,7 @@ def get_purchase_invoices_for_return(supplier):
 def get_purchase_line_items_for_return(purchase_invoice):
     
     result = frappe.db.sql("""
-                SELECT pi.name as pi_item_reference, pi.item, pi.item_name,pi.display_name, pi.unit,pi.base_unit, pi.rate, pi.qty-pi.qty_returned as qty, pi.rate_in_base_unit, pi.qty_in_base_unit,pi.conversion_factor, pi.tax, pi.tax_rate, rate_includes_tax from `tabPurchase Invoice Item` pi where pi.parent ='{0}' and pi.qty> pi.qty_returned""".format(purchase_invoice), as_dict =1
+                SELECT pi.name as pi_item_reference, pi.item, pi.item_name,pi.display_name, pi.unit,pi.base_unit, pi.rate * pi.conversion_factor as rate, (pi.qty_in_base_unit-pi.qty_returned_in_base_unit)/ pi.conversion_facor as qty, pi.rate_in_base_unit, pi.qty_in_base_unit,pi.conversion_factor, pi.tax, pi.tax_rate, rate_includes_tax from `tabPurchase Invoice Item` pi where pi.parent ='{0}' and pi.qty_in_base_unit> pi.qty_returned_in_base_unit""".format(purchase_invoice), as_dict =1
                 )
     
     return result

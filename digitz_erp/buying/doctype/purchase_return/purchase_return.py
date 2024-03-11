@@ -424,14 +424,14 @@ class PurchaseReturn(Document):
 			if not item.pi_item_reference:
 				continue
 			else:
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
 
 				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
 
 				if total_returned_qty_not_in_this_pr:
-					pi_item.qty_returned = total_returned_qty_not_in_this_pr + (item.qty if not for_delete_or_cancel else 0)
+					pi_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_pr + (item.qty if not for_delete_or_cancel else 0)
 				else:
-					pi_item.qty_returned = item.qty if not for_delete_or_cancel else 0
+					pi_item.qty_returned_in_base_unit = item.qty if not for_delete_or_cancel else 0
      
 				pi_item.save()
 				pi_reference_any = True
@@ -443,12 +443,12 @@ class PurchaseReturn(Document):
 
 		po_reference_any = False
 		for item in self.items:
-			if not item.po_item_reference:
+			if not item.pi_item_reference:
 				continue
 
 			else:
 				# Get the total returned quantity for the purchase invoie item which occured in other purchase returns
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
     
 				total_returned_qty = total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0 + (item.qty_in_base_unit if not for_delete_or_cancel else 0)
     
@@ -487,11 +487,11 @@ class PurchaseReturn(Document):
 			if not item.pi_item_reference:
 				continue
 			else:
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
 
 				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
 
-				pi_item.qty_returned = total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0
+				pi_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0
 				
 				pi_item.save()
 				pi_reference_any = True

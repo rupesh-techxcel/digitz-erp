@@ -1015,7 +1015,7 @@ let stock_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '65%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '85%'); // or any specific width like 800px
 
             d.show();
         }

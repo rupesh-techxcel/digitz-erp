@@ -118,7 +118,7 @@ class PurchaseInvoice(Document):
 	def on_update(self):
 		print("on_update from pi")
 		if self.purchase_order:
-			self.update_purchase_order_quantities_before_save()
+			self.update_purchase_order_quantities_on_update()
 			check_and_update_purchase_order_status(self.purchase_order)
 
 		self.update_item_prices()
@@ -156,7 +156,7 @@ class PurchaseInvoice(Document):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
 
 
-	def update_purchase_order_quantities_before_save(self):
+	def update_purchase_order_quantities_on_update(self):
 
 		po_reference_any = False
 		for item in self.items:
@@ -700,8 +700,8 @@ def create_purchase_return(source_name):
 
 	# Iterate through items
 	for item in pi_doc.items:
-		qty_returned = item.get('qty_returned', 0)
-		qty = item.get('qty', 0)
+		qty_returned = item.get('qty_returned_in_base_unit', 0)
+		qty = item.get('qty_in_base_unit', 0)
 
 		# Check condition: qty_returned < qty
 		if qty_returned < qty:
@@ -723,11 +723,13 @@ def create_purchase_return(source_name):
 						for pi_item in pi_doc.items:
 							if pi_item.name == item_name:
 								# Calculate the quantity difference
-								qty_difference = pi_item.qty - pi_item.qty_returned
+								qty_difference = pi_item.qty_in_base_unit - pi_item.qty_returned_in_base_unit
 
 								# Modify the item's qty with the new variable value
-								item.qty = qty_difference
+								item.qty = qty_difference / pi_item.conversion_factor
+								
 								item.parent = doc.name
+								# item.unit not changing to keep base unit
 								filtered_items.append(item)
 								break  # Break out of the inner loop once the item is found and appended
 

@@ -3,6 +3,10 @@
 
 frappe.ui.form.on('Stock Transfer', {
 
+	refresh: function(frm) {
+		create_custom_buttons(frm)		
+},
+
 	edit_posting_date_and_time(frm) {
 
 		//console.log(frm.doc.edit_posting_date_and_time);
@@ -337,4 +341,81 @@ frappe.ui.form.on('Stock Transfer Item', {
 		);
 	},
 }
-)
+);
+
+
+let create_custom_buttons = function(frm){
+	if (frappe.user.has_role('Management')) {
+		if(!frm.is_new() && (frm.doc.docstatus == 1)){
+		
+			frm.add_custom_button('Stock Ledgers',() =>{
+				stock_ledgers(frm)
+		}, 'Postings');
+		}
+	}
+}
+let stock_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_stock_ledgers",
+        args: {
+			voucher: frm.doc.doctype,
+            voucher_no: frm.doc.name
+        },
+        callback: function (response) {
+            let stock_ledgers_data = response.message;
+
+            // Generate HTML content for the popup
+            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+                              '<table class="table table-bordered" style="width: 100%;">' +
+                              '<thead>' +
+                              '<tr>' +                              
+                              '<th style="width: 10%;">Item Code</th>' +
+							  '<th style="width: 20%;">Item Name</th>' +
+                              '<th style="width: 15%;">Warehouse</th>' +
+                              '<th style="width: 10%;">Qty In</th>' +
+                              '<th style="width: 10%;">Qty Out</th>' +
+                              '<th style="width: 15%;">Valuation Rate</th>' +
+                              '<th style="width: 15%;">Balance Qty</th>' +
+                              '<th style="width: 15%;">Balance Value</th>' +
+                              '</tr>' +
+                              '</thead>' +
+                              '<tbody>';
+
+            // Loop through the data and create rows
+            stock_ledgers_data.forEach(function (ledger) {
+                htmlContent += '<tr>' +                               
+                               `<td><a href="/app/item/${ledger.item}" target="_blank">${ledger.item}</a></td>` +
+							   `<td>${ledger.item_name}</td>` +
+                               `<td>${ledger.warehouse}</td>` +
+                               `<td>${ledger.qty_in}</td>` +
+                               `<td>${ledger.qty_out}</td>` +
+                               `<td>${ledger.valuation_rate}</td>` +
+                               `<td>${ledger.balance_qty}</td>` +
+                               `<td>${ledger.balance_value}</td>` +
+                               '</tr>';
+            });
+
+            htmlContent += '</tbody></table></div>';
+
+            // Create and show the dialog
+            let d = new frappe.ui.Dialog({
+                title: 'Stock Ledgers',
+                fields: [{
+                    fieldtype: 'HTML',
+                    fieldname: 'stock_ledgers_html',
+                    options: htmlContent
+                }],
+                primary_action_label: 'Close',
+                primary_action: function () {
+                    d.hide();
+                }
+            });
+
+            // Set custom width for the dialog
+            d.$wrapper.find('.modal-dialog').css('max-width', '85%'); // or any specific width like 800px
+
+            d.show();
+        }
+    });
+};
+
