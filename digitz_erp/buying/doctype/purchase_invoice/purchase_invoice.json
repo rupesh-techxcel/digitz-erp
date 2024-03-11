@@ -427,8 +427,13 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-03-10 07:45:36.071484",
+ "links": [
+  {
+   "link_doctype": "Payment Entry",
+   "link_fieldname": "reference_name"
+  }
+ ],
+ "modified": "2024-03-11 10:33:50.611986",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

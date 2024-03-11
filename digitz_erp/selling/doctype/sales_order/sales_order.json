@@ -360,8 +360,17 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-02-26 16:00:34.431617",
+ "links": [
+  {
+   "link_doctype": "Delivery Note",
+   "link_fieldname": "sales_order"
+  },
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "sales_order"
+  }
+ ],
+ "modified": "2024-03-11 13:15:04.611363",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
