@@ -83,7 +83,9 @@ def get_data(filters):
             rate,
             gross_amount AS 'Amount',
             tax_amount AS 'Tax Amount',
-            net_amount AS 'Net Amount'
+            net_amount AS 'Net Amount',
+            qty_in_base_unit ,
+            qty_purchased_in_base_unit            
         FROM
             `tabPurchase Order Item` poi
         INNER JOIN
@@ -163,6 +165,19 @@ def get_columns():
             "fieldtype": "Float",
             "width": 80
         },
+        {
+            "label": _("Qty In Base Unit"),
+            "fieldname": "qty_in_base_unit",            
+            "fieldtype": "Float",
+            "width": 80
+        },
+        {
+            "label": _("Qty Purchased In Base Unit"),
+            "fieldname": "qty_purchcased_in_base_unit",            
+            "fieldtype": "Float",
+            "width": 80
+        },        
+        
         {
             "label": _("Rate"),
             "fieldname": "rate",

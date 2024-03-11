@@ -6,12 +6,20 @@ from frappe.utils import getdate
 @frappe.whitelist()
 def check_invoices_for_purchase_order(purchase_order):
     
-    pi_for_po = frappe.db.exists("Purchase Invoice",{"purchase_order":purchase_order})
-    
-    if(pi_for_po):        
-        return True    
+    pi_for_po = frappe.db.exists("Purchase Invoice", {"purchase_order": purchase_order})
+
+    if pi_for_po:
+        # Retrieve the Purchase Invoice document
+        purchase_invoice = frappe.get_doc("Purchase Invoice", pi_for_po)
+
+        # Check if the Purchase Invoice is not cancelled
+        if purchase_invoice.docstatus != 2:  # In Frappe, docstatus 2 means cancelled
+            return True
+        else:
+            print("Invoice is cancelled.")
+            return False
     else:
-        print("return False")
+        print("No Purchase Invoice found for this Purchase Order.")
         return False
 
 # Before calling the below method it is supposed that the purchase order qty_purchased fiel 
@@ -27,15 +35,20 @@ def check_and_update_purchase_order_status(purchase_order_name):
         
         purchased_any = False
         at_least_one_partial_purchase = False
+        excess_allocation = False
 
         for po_item_dict in purchase_order_items:
             po_item_name = po_item_dict['name']
             po_item = frappe.get_doc("Purchase Order Item", po_item_name)
             
-            if po_item.qty_purchased and po_item.qty_purchased > 0:
+            if po_item.qty_purchased_in_base_unit and po_item.qty_purchased_in_base_unit > 0:
                 purchased_any = True
-                if po_item.qty_purchased < po_item.qty:
+                if po_item.qty_purchased_in_base_unit < po_item.qty_in_base_unit:
                     at_least_one_partial_purchase = True
+                
+                # Check for excess allocation
+                if po_item.qty_purchased_in_base_unit > po_item.qty_in_base_unit:
+                    excess_allocation = True                
                     
         if not purchased_any:
             frappe.db.set_value("Purchase Order", purchase_order_name, "order_status", "Pending")
@@ -43,6 +56,10 @@ def check_and_update_purchase_order_status(purchase_order_name):
             frappe.db.set_value("Purchase Order", purchase_order_name, "order_status", "Partial")
         else:
             frappe.db.set_value("Purchase Order", purchase_order_name, "order_status", "Completed")
+            
+        if excess_allocation:
+            frappe.msgprint(f"Warning: Purchase Order {purchase_order_name} contains one or more items with excess allocation.")
+            print("message shown and continues...")
 
     except Exception:
         raise  # This will re-raise the last exception

@@ -6,21 +6,14 @@ from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
+from datetime import datetime,timedelta
+from frappe.utils import get_datetime
 
 class PurchaseOrder(Document):
-
-	def before_submit(self):
-
-		possible_invalid= frappe.db.count('Purchase Order', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time], 'docstatus':['=', 1]})
-		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
-		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
-		# Also in add_stock_for_purchase_receipt method only checking for < date_time in order avoid difficulty to get exact last record
-		# to get balance qty and balance value.
-
-		print(possible_invalid)
-
-		if(possible_invalid >0):
-			frappe.throw("There is another Order invoice exist with the same date and time. Please correct the date and time.")
+   
+	def Voucher_In_The_Same_Time(self):
+		possible_invalid= frappe.db.count('Purchase Order', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
+		return possible_invalid
 
 	def validate(self):
 
@@ -30,19 +23,40 @@ class PurchaseOrder(Document):
 		self.validate_items()
 
 	def before_validate(self):
+     
+		if(self.Voucher_In_The_Same_Time()):
+
+				self.Set_Posting_Time_To_Next_Second()
+
+				if(self.Voucher_In_The_Same_Time()):
+					self.Set_Posting_Time_To_Next_Second()
+
+					if(self.Voucher_In_The_Same_Time()):
+						self.Set_Posting_Time_To_Next_Second()
+
+						if(self.Voucher_In_The_Same_Time()):
+							frappe.throw("Voucher with same time already exists.")
+		
 		if not self.credit_purchase or self.credit_purchase  == False:
 			self.paid_amount = self.rounded_total
 		else:
 			if self.is_new():
+				print("is new true")
 				self.paid_amount = 0
-
-	def before_save(self):
-		print("before_save")
-	 	# While duplicating making sure the status is resetting
+    
 		if self.is_new():
-			self.order_status = "Pending"
 			for item in self.items:
-				item.purchased_qty = 0
+				item.qty_purchased_in_base_unit = 0
+			self.order_status = "Pending"
+	
+	def Set_Posting_Time_To_Next_Second(self):
+		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+
+		# Add one second to the datetime object
+		new_datetime = datetime_object + timedelta(seconds=1)
+
+		# Extract the new time as a string
+		self.posting_time = new_datetime.strftime('%H:%M:%S')
 
 	def validate_items(self):
 
@@ -55,49 +69,6 @@ class PurchaseOrder(Document):
 						frappe.throw("Same item canot use in multiple rows with the same display name.")
 				idx2= idx2 + 1
 			idx = idx + 1
-
-
-	@frappe.whitelist()
-	def check_and_update_purchase_order_status(self):
-
-		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
-
-		print("purchase order")
-		print(purchase_order)
-
-		purchase_order_items = frappe.get_list("Purchase Order Item", {'parent': purchase_order},['name'])
-
-		purchased_any = False
-		at_least_one_partial_purchase = False
-		purchased_full = False #Not using for conditions
-
-		for po in self.items:
-			print(po)
-			if po.qty_purchased and po.qty_purchased > 0:
-				purchased_any = True
-				if po.qty_purchased and po.qty_purchased == po.qty:
-					purchased_full = True
-				else:
-					at_least_one_partial_purchase = True
-
-		if not purchased_any == False:
-			print("1")
-			# self.status = "Pending"
-			frappe.db.set_value("Purchase Order", purchase_order.name, {'order_status': "Pending"})
-			print("1 set value")
-		elif at_least_one_partial_purchase:
-			print("2")
-			# self.status = "Partial"
-
-			frappe.db.set_value("Purchase Order", purchase_order.name, {'order_status': "Partial"})
-			print("2 set  value")
-		else:
-			print("3")
-		#    self.status = "Completed"
-			frappe.db.set_value("Purchase Order", purchase_order.name, {'order_status': "Completed"})
-		#    print("3 set value")
-
-		purchase_order.save()
 
 @frappe.whitelist()
 def get_default_payment_mode():
@@ -149,17 +120,17 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 	# Append items from Purchase Order to Purchase Invoice
 	for item in purchase_doc.items:
 		
-		if(item.qty_in_base_unit - item.qty_purchased>0):
+		if(item.qty_in_base_unit - item.qty_purchased_in_base_unit>0):
 			pending_item_exists = True
 			invoice_item = frappe.new_doc("Purchase Invoice Item")
 			invoice_item.item = item.item
 			invoice_item.item_name = item.item_name
 			invoice_item.display_name = item.display_name
-			invoice_item.qty = item.qty
+			invoice_item.qty = round((item.qty_in_base_unit - item.qty_purchased_in_base_unit)/ item.conversion_factor,2)
 			invoice_item.unit = item.unit
-			invoice_item.rate = item.rate
+			invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
 			invoice_item.base_unit = item.base_unit
-			invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_purchased
+			invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_purchased_in_base_unit
 			invoice_item.rate_in_base_unit = item.rate_in_base_unit
 			invoice_item.conversion_factor = item.conversion_factor
 			invoice_item.rate_includes_tax = item.rate_includes_tax
@@ -180,6 +151,8 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 		purchase_invoice.insert()
 		frappe.db.commit()
 		frappe.msgprint("Purchase Invoice generated in draft mode", alert=True)
+		return purchase_invoice.name
 	else:
 		frappe.msgprint("Purchase Invoice cannot be created because there are no pending items in the Purchase Order.")
+		return "No Pending Items"
      

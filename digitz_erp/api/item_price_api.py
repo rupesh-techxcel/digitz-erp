@@ -105,7 +105,7 @@ def get_item_price(item, price_list, currency, date):
 @frappe.whitelist()
 def get_customer_last_price_for_item(item,customer):
 
-    rate = frappe.db.sql("""select tsi.rate_in_base_unit from `tabSales Invoice Item` tsi inner join `tabSales Invoice` ts on ts.name = tsi.parent where tsi.item='{item}' and ts.customer='{customer}' and ts.docstatus = 1 order by ts.posting_date desc LIMIT 1""".format(item=item, customer=customer))
+    rate = frappe.db.sql("""select tsi.rate_in_base_unit from `tabSales Invoice Item` tsi inner join `tabSales Invoice` ts on ts.name = tsi.parent where tsi.item='{item}' and ts.customer='{customer}' and ts.docstatus = 1 order by ts.posting_date, posting_time desc LIMIT 1""".format(item=item, customer=customer))
     
     if(rate):
         return rate
@@ -115,7 +115,10 @@ def get_customer_last_price_for_item(item,customer):
 @frappe.whitelist()
 def get_supplier_last_price_for_item(item,supplier):
 
-    rate = frappe.db.sql("""select tpi.rate_in_base_unit from `tabPurchase Invoice Item` tpi inner join `tabPurchase Invoice` tp on tp.name = tpi.parent where tpi.item='{item}' and tp.supplier='{supplier}' and tp.docstatus = 1 order by tp.posting_date desc LIMIT 1""".format(item=item, supplier=supplier))
+    rate = frappe.db.sql("""select tpi.rate_in_base_unit from `tabPurchase Invoice Item` tpi inner join `tabPurchase Invoice` tp on tp.name = tpi.parent where tpi.item='{item}' and tp.supplier='{supplier}' and tp.docstatus = 1 order by tp.posting_date, posting_time desc LIMIT 1""".format(item=item, supplier=supplier))
+    
+    print("from get_supplier_last_price")
+    print(rate)
     
     if(rate):
         return rate

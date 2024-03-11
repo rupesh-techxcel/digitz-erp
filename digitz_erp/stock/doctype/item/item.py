@@ -22,6 +22,11 @@ class Item(Document):
 		for ledger in existing_stock_ledgers:
 			if ledger["unit"] != base_unit:
 				frappe.throw("Cannot change base unit as it's being used in stock ledgers.")
+    
+	def before_validate(self):
+		
+		if not self.description:
+			self.description = self.item_name
 
 
 	def update_standard_selling_price(self):

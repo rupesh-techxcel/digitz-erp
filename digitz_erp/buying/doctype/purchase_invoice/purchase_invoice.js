@@ -433,11 +433,11 @@ frappe.ui.form.on('Purchase Invoice', {
 
 							console.log(r2.message.update_price_list_price_with_purchase_invoice)
 
-							if(r2.message.use_supplier_last_price  == 0)
-							{
-								frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_purchase_invoice;
-								frm.refresh_field("update_rates_in_price_list");
-							}
+							// if(r2.message.use_supplier_last_price  == 0)
+							// {
+							frm.doc.update_rates_in_price_list = r2.message.update_price_list_price_with_purchase_invoice;
+							frm.refresh_field("update_rates_in_price_list");
+							// }
 
 							if(r2.message.supplier_terms)
 							{
@@ -1076,7 +1076,7 @@ let stock_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '65%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '85%'); // or any specific width like 800px
 
             d.show();
         }

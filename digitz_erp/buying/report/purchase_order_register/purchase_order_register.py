@@ -88,6 +88,7 @@ def get_data(filters):
             SELECT
                 po.name AS purchase_order_name,
                 po.supplier,
+                po.order_status,
                 po.posting_date AS posting_date,
                 CASE
                     WHEN po.docstatus = 1 THEN 'Submitted'
@@ -126,8 +127,9 @@ def get_data(filters):
     elif filters.get('from_date') and filters.get('to_date'):
         query = """
             SELECT
-                po.supplier,
+                po.supplier,                
                 po.name AS purchase_order_name,
+                po.order_status,
                 po.posting_date,
                 CASE
                     WHEN po.docstatus = 1 THEN 'Submitted'
@@ -254,14 +256,22 @@ def get_columns():
             "fieldtype": "Link",
             "label": "Purchase Order No",
             "options": "Purchase Order",
-            "width": 250
+            "width": 150
         },
-        {
+          {
             "fieldname": "posting_date",
             "fieldtype": "Date",
             "label": "Date",
             "width": 170
         },
+         {
+            "fieldname": "order_status",
+            "fieldtype": "Data",
+            "label": "Order Status",
+            "width": 200
+        },
+        
+      
         {
             "fieldname": "docstatus",
             "fieldtype": "Data",
@@ -274,4 +284,5 @@ def get_columns():
             "label": "Invoice Amount",
             "width": 200
         }
+       
     ]

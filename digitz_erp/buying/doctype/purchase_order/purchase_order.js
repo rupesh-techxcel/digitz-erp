@@ -54,6 +54,8 @@ frappe.ui.form.on('Purchase Order', {
 										indicator: 'green'
 									},3);
 									frm.reload_doc();
+									if(r.message !="No Pending Items")
+										frappe.set_route('Form', 'Purchase Invoice', r.message);
 								}
 							});
 						},

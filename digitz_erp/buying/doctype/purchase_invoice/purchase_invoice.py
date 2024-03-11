@@ -76,7 +76,11 @@ class PurchaseInvoice(Document):
 	def validate_supplier_inv_no(self):
 		existing_invoice = frappe.db.get_value("Purchase Invoice",{"supplier": self.supplier, "supplier_inv_no": self.supplier_inv_no,"name": ("!=", self.name) if self.name else None})
 		if existing_invoice:
-			throw(_("Duplicate Supplier Inv No: Supplier {0}, Invoice No {1}, Existing Invoice: {2}").format(self.supplier, self.supplier_inv_no, existing_invoice))
+			
+			invoice= frappe.get_doc("Purchase Invoice", existing_invoice)
+   
+			if(invoice.docstatus != 2):
+				throw(_("Duplicate Supplier Inv No: Supplier {0}, Invoice No {1}, Existing Invoice: {2}").format(self.supplier, self.supplier_inv_no, existing_invoice))
 
 	def on_submit(self):
 
@@ -112,19 +116,13 @@ class PurchaseInvoice(Document):
 		print("after status update")
 
 	def on_update(self):
-		print("on_update")
+		print("on_update from pi")
 		if self.purchase_order:
 			self.update_purchase_order_quantities_before_save()
 			check_and_update_purchase_order_status(self.purchase_order)
 
 		self.update_item_prices()
 		self.update_payment_schedules()
-
-	def before_cancel(self):
-		print("before_cancel")
-		if self.purchase_order:
-			self.update_purchase_order_quantities_before_cancel_or_delete()
-			check_and_update_purchase_order_status(self.purchase_order)
 
 	def update_purchase_order_quantities_before_cancel_or_delete(self):
 
@@ -133,16 +131,20 @@ class PurchaseInvoice(Document):
 			if not item.po_item_reference:
 				continue
 			else:
-				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
+       
+				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
 
 				print("po_item")
 				print(po_item)
 
+				print("total_used_qty_not_in_this_pi")
+				print(total_used_qty_not_in_this_pi)
+    
 				if total_used_qty_not_in_this_pi:
-					po_item.qty_purchased = total_used_qty_not_in_this_pi
+					po_item.qty_purchased_in_base_unit = total_used_qty_not_in_this_pi
 				else:
-					po_item.qty_purchased = 0
+					po_item.qty_purchased_in_base_unit = 0
 
 				po_item.save()
 				po_reference_any = True
@@ -161,12 +163,12 @@ class PurchaseInvoice(Document):
 			if not item.po_item_reference:
 				continue
 			else:
-				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
+				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
 				if(total_used_qty_not_in_this_pi):
-					po_item.qty_purchased = total_used_qty_not_in_this_pi + item.qty
+					po_item.qty_purchased_in_base_unit = total_used_qty_not_in_this_pi + item.qty_in_base_unit
 				else:
-					po_item.qty_purchased = item.qty
+					po_item.qty_purchased_in_base_unit = item.qty_in_base_unit
 				po_item.save()
 				po_reference_any = True
 
@@ -494,6 +496,12 @@ class PurchaseInvoice(Document):
 		# 		{"voucher_type": "Purchase Invoice",
 		# 			"voucher_no":self.name
 		# 		})
+  
+  
+		if self.purchase_order:
+			print("Calling update po qties b4 cancel or delete")
+			self.update_purchase_order_quantities_before_cancel_or_delete()
+			check_and_update_purchase_order_status(self.purchase_order)
 
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
