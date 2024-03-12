@@ -162,6 +162,7 @@ class PurchaseReturn(Document):
 				if docitem.item not in item_stock_ledger:
 					new_stock_ledger = frappe.new_doc("Stock Ledger")
 					new_stock_ledger.item = docitem.item
+					new_stock_ledger.item_name = docitem.item_name     
 					new_stock_ledger.warehouse = docitem.warehouse
 					new_stock_ledger.posting_date = posting_date_time
 					new_stock_ledger.qty_out = docitem.qty_in_base_unit
@@ -429,10 +430,10 @@ class PurchaseReturn(Document):
 				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
 
 				if total_returned_qty_not_in_this_pr:
-					pi_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_pr + (item.qty if not for_delete_or_cancel else 0)
+					pi_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_pr + (item.qty_in_base_unit if not for_delete_or_cancel else 0)
 				else:
-					pi_item.qty_returned_in_base_unit = item.qty if not for_delete_or_cancel else 0
-     
+					pi_item.qty_returned_in_base_unit = item.qty_in_base_unit if not for_delete_or_cancel else 0
+          
 				pi_item.save()
 				pi_reference_any = True
 
@@ -445,28 +446,52 @@ class PurchaseReturn(Document):
 		for item in self.items:
 			if not item.pi_item_reference:
 				continue
-
 			else:
-				# Get the total returned quantity for the purchase invoie item which occured in other purchase returns
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
+       
+				print("item.pi_item_reference")
+				print(item.pi_item_reference)
+				print("self.name")
+				print(self.name)
     
-				total_returned_qty = total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0 + (item.qty_in_base_unit if not for_delete_or_cancel else 0)
-    
-				total_returned_qty = total_returned_qty if total_returned_qty else 0
-
 				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)   
     
 				po_item_reference = pi_item.po_item_reference
+        				
+				print("po_item_reference")
+				print(po_item_reference)
     
 				if po_item_reference:
+        
+					# Get the total returned quantity for the purchase invoie item which occured for all purchase invoices with the po item reference, excluded the current purchase return qty
+					total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference in (select name from `tabPurchase Invoice Item` pit where pit.po_item_reference=%s) AND pret.name !=%s and pret.docstatus<2""",(po_item_reference, self.name))[0][0]
+     
+					print("total_returned_qty_not_in_this_pr")
+					print(total_returned_qty_not_in_this_pr)
+     
+					current_qty = item.qty_in_base_unit 
+					if for_delete_or_cancel:
+						print("zero")
+						current_qty = 0
 
-					# Get all purchase invoices qty for the po item reference
+					print("current_qty")
+					print(current_qty)
+		
+					total_returned_qty = (total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0 )+ current_qty
+     
+					print("total_returned_qty")
+					print(total_returned_qty)
 					
 					total_used_qty_in_pi_for_the_po_item = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s and pinv.docstatus<2""",(po_item_reference))[0][0]
 		
 					total_used_qty_in_pi_for_the_po_item = total_used_qty_in_pi_for_the_po_item if total_used_qty_in_pi_for_the_po_item else 0
+     
+					print("total_used_qty_in_pi_for_the_po_item")
+					print(total_used_qty_in_pi_for_the_po_item)     
 
 					total_qty_purchased = total_used_qty_in_pi_for_the_po_item - total_returned_qty
+     
+					print("total_qty_purchased")
+					print(total_qty_purchased)
 		
 					po_item = frappe.get_doc("Purchase Order Item", po_item_reference)
 		

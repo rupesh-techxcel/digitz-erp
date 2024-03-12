@@ -53,7 +53,7 @@ def get_purchase_invoices_for_return(supplier):
 def get_purchase_line_items_for_return(purchase_invoice):
     
     result = frappe.db.sql("""
-                SELECT pi.name as pi_item_reference, pi.item, pi.item_name,pi.display_name, pi.unit,pi.base_unit, pi.rate * pi.conversion_factor as rate, (pi.qty_in_base_unit-pi.qty_returned_in_base_unit)/ pi.conversion_facor as qty, pi.rate_in_base_unit, pi.qty_in_base_unit,pi.conversion_factor, pi.tax, pi.tax_rate, rate_includes_tax from `tabPurchase Invoice Item` pi where pi.parent ='{0}' and pi.qty_in_base_unit> pi.qty_returned_in_base_unit""".format(purchase_invoice), as_dict =1
+                SELECT pi.name as pi_item_reference, pi.item, pi.item_name,pi.display_name, pi.unit,pi.base_unit, pi.rate * pi.conversion_factor as rate, (pi.qty_in_base_unit-pi.qty_returned_in_base_unit)/ pi.conversion_factor as qty, pi.rate_in_base_unit, pi.qty_in_base_unit,pi.conversion_factor, pi.tax, pi.tax_rate, rate_includes_tax from `tabPurchase Invoice Item` pi where pi.parent ='{0}' and pi.qty_in_base_unit> pi.qty_returned_in_base_unit order by idx""".format(purchase_invoice), as_dict =1
                 )
     
     return result
