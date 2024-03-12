@@ -391,8 +391,13 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-02-26 15:46:01.838838",
+ "links": [
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "delivery_notes_to_print"
+  }
+ ],
+ "modified": "2024-03-11 13:08:23.157065",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

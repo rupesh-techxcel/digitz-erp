@@ -401,8 +401,21 @@
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-02-26 15:51:36.025841",
+ "links": [
+  {
+   "link_doctype": "Sales Order",
+   "link_fieldname": "quotation"
+  },
+  {
+   "link_doctype": "Delivery Note",
+   "link_fieldname": "quotation"
+  },
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "quotation"
+  }
+ ],
+ "modified": "2024-03-11 13:23:09.209758",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
