@@ -4,9 +4,16 @@
 frappe.ui.form.on('Delivery Note', {
 	refresh: function(frm) {
 		create_custom_buttons(frm)
-		frm.add_custom_button(__('Get Items From Sales Order'), function () {
-                    sales_order_dialog(frm)
-                })
+
+		frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+			if (r && r.default_credit_sale === 1) {
+					frm.set_value('credit_sale', 1);
+			}
+	});
+
+	frm.add_custom_button(__('Get Items From Sales Order'), function () {
+				sales_order_dialog(frm)
+			})
 	}
 });
 // Copyright (c) 2023, Rupesh P and contributors
@@ -949,7 +956,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '55%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
 
             d.show();
         }

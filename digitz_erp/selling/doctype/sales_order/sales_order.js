@@ -4,6 +4,12 @@
 frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
 
+		frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+			if (r && r.default_credit_sale === 1) {
+					frm.set_value('credit_sale', 1);
+			}
+		});
+
 		var salesInvoiceCreated = false
 		var deliveryNoteCreated = false
 		var alreadyUsed = false
@@ -81,18 +87,11 @@ frappe.ui.form.on('Sales Order', {
 										frm.call("generate_delivery_note")
 									});
 
-									if(r2.message.delivery_note_integrated_with_sales_invoice)
-									{
-										frm.add_custom_button('Create Sales Invoice & Delivery Note', () => {
-											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
-										});
-									}
-									else
-									{
-										frm.add_custom_button('Create Sales Invoice', () => {
-											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
-										});
-									}
+								
+									frm.add_custom_button('Create Sales Invoice', () => {
+										frm.call("generate_sale_invoice")
+									});
+									
 
 								}
 							}
@@ -108,6 +107,7 @@ frappe.ui.form.on('Sales Order', {
 		frm.add_fetch('customer', 'salesman', 'salesman')
 		frm.add_fetch('customer', 'tax_id', 'tax_id')
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
 
 		frm.set_query("ship_to_location", function () {
 			return {
@@ -141,6 +141,22 @@ frappe.ui.form.on('Sales Order', {
 
 		frm.doc.customer_display_name = frm.doc.customer_name
 	},
+	set_default_payment_mode(frm)
+	{
+		if(frm.doc.credit_sale == 0){
+			frappe.call({
+					method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.get_default_payment_mode',
+					callback: function(response) {
+							if (response && response.message) {
+									frm.set_value('payment_mode', response.message);
+							} else {
+									frappe.msgprint('Default payment mode for sales not found.');
+							}
+					}
+			});
+		}
+
+	},
 	edit_posting_date_and_time(frm) {
 
 		//console.log(frm.doc.edit_posting_date_and_time);
@@ -160,11 +176,15 @@ frappe.ui.form.on('Sales Order', {
 		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
 
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
+
+		frm.trigger("set_default_payment_mode");
+		
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -492,8 +512,6 @@ frappe.ui.form.on('Sales Order Item', {
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
-		console.log(frm.doc.customer);
-		console.log(typeof (frm.doc.customer));
 
 		if (typeof (frm.doc.customer) == "undefined") {
 			frappe.msgprint("Select customer.")
@@ -501,18 +519,13 @@ frappe.ui.form.on('Sales Order Item', {
 			return;
 		}
 
-
-
-		console.log(row.item);
-		console.log(row.qty);
 		let doc = frappe.model.get_value("", row.item);
-		console.log(doc);
+
 		row.warehouse = frm.doc.warehouse;
-		console.log(row.warehouse);
 
 		frm.item = row.item
-
 		frm.trigger("get_item_units");
+		// frm.trigger("make_taxes_and_totals");
 
 		let tax_excluded_for_company = false
 		frappe.call(
@@ -523,11 +536,13 @@ frappe.ui.form.on('Sales Order Item', {
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
 					tax_excluded_for_company = r.message[0].tax_excluded
-					console.log("use_customer_last_price")
-					console.log(use_customer_last_price)
+
 				}
 			}
 		);
+
+		console.log("tax_excluded_for_company")
+		console.log(tax_excluded_for_company)
 
 		frappe.call(
 			{
@@ -538,13 +553,15 @@ frappe.ui.form.on('Sales Order Item', {
 					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-
+					console.log("item")
+					console.log(r)
 					row.item_name = r.message.item_name;
+					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
-
 					if(tax_excluded_for_company)
 					{
 						row.tax_excluded = true;
+						console.log("tax excluded assinged in")
 					}
 					else
 					{
@@ -554,10 +571,14 @@ frappe.ui.form.on('Sales Order Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					row.display_name = row.item_name
+
+					frm.item = row.item;
+					frm.warehouse = row.warehouse
+
+					frm.trigger("get_item_stock_balance");
+
 
 					if (!row.tax_excluded) {
-
 						frappe.call(
 							{
 								method: 'frappe.client.get_value',
@@ -610,6 +631,9 @@ frappe.ui.form.on('Sales Order Item', {
 						}
 					);
 
+					console.log("use customer last price")
+					console.log(use_customer_last_price)
+
 					var use_price_list_price = 1
 					if(use_customer_last_price == 1)
 					{
@@ -629,8 +653,12 @@ frappe.ui.form.on('Sales Order Item', {
 
 									if (r.message !== undefined && r.message.length > 0) {
 										// Assuming r.message is an array, you might want to handle this differently based on your actual response
-										row.rate = r.message[0];
-										row.rate_in_base_unit = r.message[0];
+										row.rate = parseFloat(r.message[0]);
+										row.rate_in_base_unit = parseFloat(r.message[0]);
+									}
+									else if (r.message!= undefined) {
+										row.rate = parseFloat(r.message)
+										row.rate_in_base_unit = parseFloat(r.message)
 									}
 
 									console.log("customer last price")
@@ -660,17 +688,23 @@ frappe.ui.form.on('Sales Order Item', {
 									'date': frm.doc.posting_date
 								},
 								callback(r) {
+									console.log("digitz_erp.api.item_price_api.get_item_price")
+									console.log(r)
+									// row.rate = r.message;
+									// row.rate_in_base_unit = r.message;
 
 									if (r.message !== undefined && r.message.length > 0) {
 										// Assuming r.message is an array, you might want to handle this differently based on your actual response
 										row.rate = r.message[0];
 										row.rate_in_base_unit = r.message[0];
 									}
-
+									else if (r.message!= undefined) {
+										row.rate = parseFloat(r.message)
+										row.rate_in_base_unit = parseFloat(r.message)
+									}
 								}
 							});
 					}
-
 					frm.trigger("make_taxes_and_totals");
 					frm.refresh_field("items");
 				}

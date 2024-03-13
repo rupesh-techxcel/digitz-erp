@@ -417,6 +417,7 @@ class SalesInvoice(Document):
                 gl_doc.account = default_accounts.cost_of_goods_sold_account
                 gl_doc.debit_amount = cost_of_goods_sold
                 gl_doc.against_account = default_accounts.default_inventory_account
+                gl_doc.is_for_cogs = True
                 gl_doc.insert()
                 idx +=1
 
@@ -430,6 +431,7 @@ class SalesInvoice(Document):
                 gl_doc.account = default_accounts.default_inventory_account
                 gl_doc.credit_amount = cost_of_goods_sold
                 gl_doc.against_account = default_accounts.cost_of_goods_sold_account
+                gl_doc.is_for_cogs = True
                 gl_doc.insert()
                 idx +=1
 
@@ -506,7 +508,7 @@ class SalesInvoice(Document):
             print("logic_test-101")
 
     @frappe.whitelist()
-    def auto_generate_delivery_note(self):
+    def generate_delivery_note(self):
 
         # if self.docstatus == 1:
         #     # Submission happening in the submit_delivery_note method
@@ -542,8 +544,6 @@ class SalesInvoice(Document):
                 # frappe.db.delete('Sales Invoice Delivery Notes',{'parent':self.name})
                 delivery_note_doc = frappe.get_doc('Delivery Note', delivery_note_name)
                 doNo = delivery_note_doc.name
-                # delivery_note_doc.delete()
-                # print("delivery note deleted")
 
                 delivery_note_doc.customer = self.customer
                 delivery_note_doc.customer_name = self.customer_name

@@ -32,7 +32,8 @@
   "unit_conversion_details",
   "delivery_note_item_reference_no",
   "qty_returned_in_base_unit",
-  "cost_center"
+  "cost_center",
+  "sales_order_item_reference_no"
  ],
  "fields": [
   {
@@ -203,12 +204,18 @@
    "fieldtype": "Float",
    "hidden": 1,
    "label": "Qty Returned"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_order_item_reference_no",
+   "fieldtype": "Data",
+   "label": "Sales Order Item Reference No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-11 14:20:52.232575",
+ "modified": "2024-03-13 11:51:38.188970",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice Item",

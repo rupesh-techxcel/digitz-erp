@@ -20,6 +20,7 @@
   "edit_posting_date_and_time",
   "ship_to_location",
   "salesman",
+  "salesman_code",
   "tax_id",
   "column_break_4",
   "company",
@@ -30,7 +31,12 @@
   "warehouse",
   "default_cost_center",
   "accounts_section",
+  "credit_sale",
+  "credit_days",
   "payment_terms",
+  "payment_mode",
+  "mode",
+  "payment_account",
   "column_break_25",
   "remarks",
   "column_break_rkkd",
@@ -94,6 +100,34 @@
    "label": "Address"
   },
   {
+    "fetch_from": "customer.address_line_1",
+    "fieldname": "address_line_1",
+    "fieldtype": "Data",
+    "hidden": 1,
+    "label": "Address Line 1"
+   },
+   {
+    "fetch_from": "customer.address_line_2",
+    "fieldname": "address_line_2",
+    "fieldtype": "Data",
+    "hidden": 1,
+    "label": "Address Line 2"
+   },
+   {
+    "fetch_from": "customer.area_name",
+    "fieldname": "area_name",
+    "fieldtype": "Data",
+    "hidden": 1,
+    "label": "Area Name"
+   },
+   {
+    "fetch_from": "customer.country",
+    "fieldname": "country",
+    "fieldtype": "Data",
+    "hidden": 1,
+    "label": "Country"
+   },
+  {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
   },
@@ -130,6 +164,13 @@
    "label": "Salesman",
    "options": "Employee"
   },
+  {
+    "fetch_from": "salesman.employee_code",
+    "fieldname": "salesman_code",
+    "fieldtype": "Data",
+    "hidden": 1,
+    "label": "Salesman Code"
+   },
   {
    "fieldname": "tax_id",
    "fieldtype": "Data",
@@ -182,9 +223,46 @@
    "label": "Accounts"
   },
   {
+    "default": "0",
+    "fieldname": "credit_sale",
+    "fieldtype": "Check",
+    "in_standard_filter": 1,
+    "label": "Credit Sale"
+   },
+   {
+    "fieldname": "credit_days",
+    "fieldtype": "Int",
+    "hidden": 1,
+    "label": "Credit Days"
+   },
+  {
    "fieldname": "payment_terms",
    "fieldtype": "Data",
    "label": "Payment Terms "
+  },
+   {
+   "default": "Cash",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+    "fetch_from": "payment_mode.mode",
+    "fetch_if_empty": 1,
+    "fieldname": "mode",
+    "fieldtype": "Data",
+    "hidden": 1,
+    "label": "Mode"
+   },
+  {
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_25",

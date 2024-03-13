@@ -20,7 +20,7 @@
   "party_type",
   "party",
   "remarks",
-  "is_debit"
+  "is_for_cogs"
  ],
  "fields": [
   {
@@ -85,12 +85,6 @@
    "label": "Party"
   },
   {
-   "default": "0",
-   "fieldname": "is_debit",
-   "fieldtype": "Check",
-   "label": "Is Debit"
-  },
-  {
    "fieldname": "idx",
    "fieldtype": "Int",
    "label": "Idx"
@@ -105,12 +99,18 @@
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_for_cogs",
+   "fieldtype": "Check",
+   "label": "Is For COGS"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-05 12:19:01.636258",
+ "modified": "2024-03-13 10:18:08.087217",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "GL Posting",

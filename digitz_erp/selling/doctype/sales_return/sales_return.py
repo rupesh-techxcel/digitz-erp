@@ -387,7 +387,7 @@ class SalesReturn(Document):
                         frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
                     new_stock_balance = frappe.new_doc('Stock Balance')
                     new_stock_balance.item = docitem.item
-                    new_stock_balance.unit = docitem.unit
+                    new_stock_balance.unit = docitem.base_unit
                     new_stock_balance.warehouse = docitem.warehouse
                     new_stock_balance.stock_qty = new_balance_qty
                     new_stock_balance.stock_value = new_balance_value

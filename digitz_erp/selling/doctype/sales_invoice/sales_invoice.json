@@ -163,18 +163,7 @@
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
-  },
-  {
-   "fieldname": "credit_days",
-   "fieldtype": "Int",
-   "hidden": 1,
-   "label": "Credit Days"
-  },
-  {
-   "fieldname": "payment_terms",
-   "fieldtype": "Data",
-   "label": "Payment Terms "
-  },
+  },  
   {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
@@ -323,6 +312,41 @@
    "label": "Credit Sale"
   },
   {
+    "fieldname": "credit_days",
+    "fieldtype": "Int",
+    "hidden": 1,
+    "label": "Credit Days"
+   },
+   {
+    "fieldname": "payment_terms",
+    "fieldtype": "Data",
+    "label": "Payment Terms "
+   },
+  {
+    "default": "Cash",
+    "fieldname": "payment_mode",
+    "fieldtype": "Link",
+    "in_standard_filter": 1,
+    "label": "Payment Mode",
+    "options": "Payment Mode"
+   },
+   {
+     "fetch_from": "payment_mode.mode",
+     "fetch_if_empty": 1,
+     "fieldname": "mode",
+     "fieldtype": "Data",
+     "hidden": 1,
+     "label": "Mode"
+    },
+   {
+    "fetch_from": "payment_mode.account",
+    "fieldname": "payment_account",
+    "fieldtype": "Link",
+    "label": "Payment Account",
+    "options": "Account",
+    "read_only": 1
+   },
+  {
    "fieldname": "ship_to_location",
    "fieldtype": "Link",
    "label": "Ship To Location",
@@ -361,22 +385,7 @@
    "hidden": 1,
    "label": "Salesman Code"
   },
-  {
-   "default": "Cash",
-   "fieldname": "payment_mode",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Payment Mode",
-   "options": "Payment Mode"
-  },
-  {
-   "fetch_from": "payment_mode.account",
-   "fieldname": "payment_account",
-   "fieldtype": "Link",
-   "label": "Payment Account",
-   "options": "Account",
-   "read_only": 1
-  },
+  
   {
    "fieldname": "references_tab",
    "fieldtype": "Tab Break",
@@ -523,15 +532,7 @@
    "fieldtype": "Date",
    "label": "Reference Date",
    "mandatory_depends_on": "eval:doc.mode == 'Bank'"
-  },
-  {
-   "fetch_from": "payment_mode.mode",
-   "fetch_if_empty": 1,
-   "fieldname": "mode",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Mode"
-  },
+  },  
   {
    "fieldname": "in_words",
    "fieldtype": "Data",

@@ -28,6 +28,8 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         new_valuation_rate = 0
         
         base_stock_ledger_name = ""
+        print("record.base_stock_ledger")
+        print(record.base_stock_ledger)
                 
         if record.base_stock_ledger != "No Previous Ledger":
         
@@ -49,7 +51,9 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
                 
         log = ""
 
-        for sl_name in next_stock_ledgers:            
+        for sl_name in next_stock_ledgers:   
+            print("new_valuation_rate") 
+            print(new_valuation_rate)        
             new_balance_qty,new_valuation_rate,new_balance_value= update_stock_ledger_values(sl_name, new_balance_qty,new_valuation_rate, new_balance_value,for_reposting=False)
 
         if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):    
@@ -526,6 +530,9 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
                      
                                 
         if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
+            
+            print(f"valuation rate before change {valuation_rate}")
+            print(f"incoming_rate in the stock_ledger", sl.incoming_rate)
             previous_balance_value = balance_value #Assign before change 
             balance_qty = balance_qty + sl.qty_in
             balance_value = balance_value  + (sl.qty_in * sl.incoming_rate)
@@ -533,8 +540,11 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
             sl.change_in_stock_value = change_in_stock_value
 
             if(balance_qty!=0): #Avoid divisible by zero
-                if sl.voucher == "Purchases Invoice":  #Avoid sales return to assign new_valuation_rate
+                if sl.voucher == "Purchase Invoice":  #Avoid sales return to assign new_valuation_rate
                     valuation_rate = balance_value/ balance_qty
+                    print("valuation_rate reassigned")
+            
+            print(f"new valuation rate {valuation_rate}")
                 
         if(sl.voucher == "Stock Transfer"):
             
