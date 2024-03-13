@@ -16,6 +16,14 @@ frappe.ui.form.on("Credit Note", {
       }
     });
 
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
     frm.set_query('receivable_account', () => {
 			return {
 				filters: {
@@ -233,7 +241,7 @@ let create_custom_buttons = function(frm){
 		if(!frm.is_new() && (frm.doc.docstatus == 1)){
 		frm.add_custom_button('General Ledgers',() =>{
 				general_ledgers(frm)
-		}, 'Postings');			
+		}, 'Postings');
 		}
 	}
 }
@@ -265,11 +273,11 @@ let general_ledgers = function (frm) {
 							  gl_postings.forEach(function (gl_posting) {
 								// Handling null values for remarks
 								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
-							
+
 								// Ensure debit_amount and credit_amount are treated as floats and format them
 								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
 								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
-							
+
 								htmlContent += '<tr>' +
 											   `<td>${gl_posting.account}</td>` +
 											   `<td style="text-align: right;">${debitAmount}</td>` +
@@ -302,4 +310,3 @@ let general_ledgers = function (frm) {
         }
     });
 };
-

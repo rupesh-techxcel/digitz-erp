@@ -17,5 +17,12 @@ frappe.ui.form.on('User Warehouse', {
                 }
             }
         });
+        frm.set_query("warehouse", function() {
+    			return {
+    				"filters": {
+    					"is_disabled": 0
+    				}
+    			};
+    		});
     }
 });

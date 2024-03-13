@@ -4,11 +4,30 @@
 frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
 
+
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+
+
 		frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
 			if (r && r.default_credit_sale === 1) {
 					frm.set_value('credit_sale', 1);
 			}
 		});
+
 
 		var salesInvoiceCreated = false
 		var deliveryNoteCreated = false

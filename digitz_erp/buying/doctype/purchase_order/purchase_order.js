@@ -9,6 +9,23 @@ frappe.ui.form.on('Purchase Order', {
 						frm.set_value('credit_purchase', 1);
 				}
 		});
+
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+		
 		if (frm.doc.docstatus == 1)
 
 			if (frm.doc.docstatus == 1) {
@@ -33,11 +50,11 @@ frappe.ui.form.on('Purchase Order', {
 					{
 						create_pi = true
 
-						
+
 					}
 					else if (frm.doc.order_status != "Completed")
 					{
-						create_pi = true						
+						create_pi = true
 					}
 
 					if(create_pi)

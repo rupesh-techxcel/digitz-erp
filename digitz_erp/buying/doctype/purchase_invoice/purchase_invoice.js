@@ -19,6 +19,22 @@ frappe.ui.form.on('Purchase Invoice', {
 				}
 		});
 
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0 
+                }
+            };
+		}
+
 		console.log("refresh")
 
 		if (frm.doc.docstatus == 4) //Hiding for now
@@ -992,11 +1008,11 @@ let general_ledgers = function (frm) {
 							  gl_postings.forEach(function (gl_posting) {
 								// Handling null values for remarks
 								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
-							
+
 								// Ensure debit_amount and credit_amount are treated as floats and format them
 								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
 								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
-							
+
 								htmlContent += '<tr>' +
 											   `<td>${gl_posting.account}</td>` +
 											   `<td style="text-align: right;">${debitAmount}</td>` +
@@ -1045,7 +1061,7 @@ let stock_ledgers = function (frm) {
             let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
                               '<table class="table table-bordered" style="width: 100%;">' +
                               '<thead>' +
-                              '<tr>' +                              
+                              '<tr>' +
                               '<th style="width: 10%;">Item Code</th>' +
 							  '<th style="width: 20%;">Item Name</th>' +
                               '<th style="width: 15%;">Warehouse</th>' +
@@ -1060,7 +1076,7 @@ let stock_ledgers = function (frm) {
 
             // Loop through the data and create rows
             stock_ledgers_data.forEach(function (ledger) {
-                htmlContent += '<tr>' +                               
+                htmlContent += '<tr>' +
                                `<td><a href="/app/item/${ledger.item}" target="_blank">${ledger.item}</a></td>` +
 							   `<td>${ledger.item_name}</td>` +
                                `<td>${ledger.warehouse}</td>` +
