@@ -253,7 +253,7 @@
   {
    "fieldname": "additional_discount",
    "fieldtype": "Currency",
-   "label": "Additional Discount"
+   "label": "Additional Discount Or Round Off Adjustment"
   },
   {
    "fieldname": "rounded_total",
@@ -433,7 +433,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2024-03-11 10:33:50.611986",
+ "modified": "2024-03-12 15:48:23.166277",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

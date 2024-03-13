@@ -201,8 +201,11 @@ frappe.ui.form.on('Purchase Invoice', {
 				},
 				callback: (r2) => {
 					console.log(r2)
-					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
-					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					if (r2 && r2.message && r2.message.stock_qty !== undefined)
+					{
+						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
+						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					}
 
 				}
 			});
@@ -524,7 +527,9 @@ frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 		frm.set_df_property("credit_days","hidden",1);
 	}
 
-	frm.trigger("get_default_company_and_warehouse");
+	if (frm.is_new()) {
+		frm.trigger("get_default_company_and_warehouse");
+	}
 
 	frm.set_query("price_list", function () {
 		return {
@@ -535,6 +540,14 @@ frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 	});
 
 	frm.set_query("supplier", function () {
+		return {
+			"filters": {
+				"is_disabled": 0
+			}
+		};
+	});
+
+	frm.set_query("warehouse", function () {
 		return {
 			"filters": {
 				"is_disabled": 0
@@ -1026,7 +1039,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '55%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
 
             d.show();
         }

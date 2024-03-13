@@ -32,6 +32,12 @@
   "rate_includes_tax",
   "warehouse",
   "default_cost_center",
+  "accounts_section",
+  "credit_sale",
+  "credit_days",
+  "payment_terms",
+  "payment_mode",
+  "mode",
   "section_break_19",
   "items",
   "section_break_29",
@@ -49,7 +55,7 @@
   "round_off",
   "rounded_total",
   "column_break_bwyw",
-  "section_break_33",
+  "column_break_wsco",
   "taxes",
   "terms_and_conditions_section",
   "terms",
@@ -182,6 +188,49 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_sale",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Credit Sale"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "payment_terms",
+   "fieldtype": "Data",
+   "label": "Payment Terms "
+  },
+  {
+   "default": "Cash",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -252,10 +301,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "taxes",
    "fieldtype": "Table",
    "hidden": 1,
@@ -297,15 +342,6 @@
    "fieldname": "auto_generated_from_sales_invoice",
    "fieldtype": "Check",
    "label": "Auto Generated From Sales Invoice"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Delivery Note",
-   "print_hide": 1,
-   "read_only": 1
   },
   {
    "fetch_from": "company.tax_id",
@@ -387,6 +423,10 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_wsco",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -397,7 +437,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
- "modified": "2024-03-11 13:08:23.157065",
+ "modified": "2024-03-13 15:42:15.630320",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

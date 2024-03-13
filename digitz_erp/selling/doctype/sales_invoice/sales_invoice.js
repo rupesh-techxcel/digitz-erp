@@ -36,7 +36,7 @@ frappe.ui.form.on('Sales Invoice', {
 		if(frm.doc.docstatus == 1 && frm.doc.update_stock == false)
 		{
 			frm.add_custom_button('Create Delivery Note', () => {
-				frm.call("auto_generate_delivery_note")
+				frm.call("generate_delivery_note")
 			})
 		}
 
@@ -1138,7 +1138,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '55%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
 
             d.show();
         }

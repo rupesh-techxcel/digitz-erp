@@ -19,7 +19,11 @@ def get_data(filters=None):
             sb.warehouse,
             sb.stock_qty,
             sb.unit,
-            sb.stock_value
+            sb.stock_value,
+            CASE
+                WHEN COALESCE(sb.stock_qty, 0) <> 0 THEN sb.stock_value / sb.stock_qty
+                ELSE NULL
+                END AS valuation_rate
         FROM
             `tabStock Balance` sb
         INNER JOIN `tabItem` i on i.name = sb.item
@@ -104,6 +108,12 @@ def get_columns():
             "fieldtype": "Link",
             "options": "Warehouse",
             "width": 200
+        },       
+		{
+            "label": _("Stock Qty"),
+            "fieldname": "stock_qty",
+            "fieldtype": "Float",
+            "width": 100
         },
         {
             "label": _("Unit"),
@@ -112,10 +122,11 @@ def get_columns():
 			"options": "Unit",
             "width": 100
         },
-		{
-            "label": _("Stock Qty"),
-            "fieldname": "stock_qty",
-            "fieldtype": "Float",
+        {
+            "label": _("Valuation Rate"),
+            "fieldname": "valuation_rate",
+            "fieldtype": "Data",
+			"options": "",
             "width": 100
         },
 		{

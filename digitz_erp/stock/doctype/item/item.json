@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "field:item_code",
  "creation": "2022-12-09 06:24:45.198426",
  "default_view": "List",
@@ -201,7 +202,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-25 15:33:33.462698",
+ "modified": "2024-03-13 10:29:13.730950",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

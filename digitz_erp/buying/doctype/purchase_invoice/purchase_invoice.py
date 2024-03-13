@@ -300,7 +300,7 @@ class PurchaseInvoice(Document):
 					new_stock_balance = frappe.new_doc('Stock Balance')
 					new_stock_balance.item = docitem.item
 					new_stock_balance.item_name = docitem.item_name
-					new_stock_balance.unit = docitem.unit
+					new_stock_balance.unit = docitem.base_unit
 					new_stock_balance.warehouse = docitem.warehouse
 					new_stock_balance.stock_qty = new_balance_qty
 					new_stock_balance.stock_value = new_balance_value
@@ -340,16 +340,14 @@ class PurchaseInvoice(Document):
 	def on_cancel(self):
 		cancel_bank_reconciliation("Purchase Invoice", self.name)
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Cancel Pending')
-		turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-
+		
 		# if(frappe.session.user == "Administrator" and turn_off_background_job):
 		# 	self.cancel_purchase()
 		# else:
 			# frappe.enqueue(self.cancel_purchase, queue="long")
 		self.cancel_purchase()
 
-		frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
-
+		
 	def update_item_prices(self):
 
 		if(self.update_rates_in_price_list):

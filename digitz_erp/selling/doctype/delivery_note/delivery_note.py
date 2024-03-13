@@ -369,6 +369,7 @@ class DeliveryNote(Document):
         gl_doc.account = default_accounts.default_inventory_account
         gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.cost_of_goods_sold_account
+        gl_doc.is_for_cogs = True
         gl_doc.insert()
 
         # Cost Of Goods Sold - Debit - Against Inventory
@@ -382,6 +383,7 @@ class DeliveryNote(Document):
         gl_doc.account = default_accounts.cost_of_goods_sold_account
         gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.default_inventory_account
+        gl_doc.is_for_cogs = True
         gl_doc.insert()
 
         update_posting_status(self.doctype,self.name, 'gl_posted_time')
