@@ -9,6 +9,22 @@ frappe.ui.form.on('Quotation', {
  				}
  		});
 
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
 

@@ -4,6 +4,22 @@
 frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
 
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+
 		var salesInvoiceCreated = false
 		var deliveryNoteCreated = false
 		var alreadyUsed = false

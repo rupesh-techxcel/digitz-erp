@@ -4,7 +4,37 @@
 frappe.ui.form.on('Stock Transfer', {
 
 	refresh: function(frm) {
-		create_custom_buttons(frm)		
+		create_custom_buttons(frm)
+
+		frm.set_query("source_warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+		frm.set_query("target_warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('source_warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+		frm.fields_dict['items'].grid.get_field('target_warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
 },
 
 	edit_posting_date_and_time(frm) {
@@ -44,9 +74,9 @@ frappe.ui.form.on('Stock Transfer', {
 							'filters': { 'company_name': default_company },
 							'fieldname': ['default_warehouse', 'rate_includes_tax']
 						},
-						callback: (r2) => {			
+						callback: (r2) => {
 							console.log(r2);
-							frm.doc.source_warehouse = r2.message.default_warehouse;														
+							frm.doc.source_warehouse = r2.message.default_warehouse;
 							frm.refresh_field("source_warehouse");
 						}
 					}
@@ -73,7 +103,7 @@ frappe.ui.form.on('Stock Transfer', {
 				callback(r) {
 					if(typeof(r.message.stock_qty) !='undefined')
 						frm.doc.selected_item_stock_qty_in_the_warehouse ="Stock in " + frm.source_warehouse + ": " +  r.message.stock_qty
-					
+
 					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
 				}
 			});
@@ -89,8 +119,8 @@ frappe.ui.form.on('Stock Transfer', {
 						'posting_time': frm.doc.posting_time
 					},
 					callback(r) {
-						if(typeof(r2.message.stock_qty) !='undefined')						
-							frm.doc.selected_item_stock_qty_in_the_warehouse = frm.doc.selected_item_stock_qty_in_the_warehouse + ", " + frm.target_warehouse + ": " +  r2.message.stock_qty					
+						if(typeof(r2.message.stock_qty) !='undefined')
+							frm.doc.selected_item_stock_qty_in_the_warehouse = frm.doc.selected_item_stock_qty_in_the_warehouse + ", " + frm.target_warehouse + ": " +  r2.message.stock_qty
 							frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
 						}
 				});
@@ -106,17 +136,17 @@ frappe.ui.form.on('Stock Transfer', {
 		var discount_total = 0;
 
 		//Avoid Possible NaN
-		
+
 		frm.doc.net_total = 0;
 		net_total = 0
 
 		frm.doc.items.forEach(function (entry) {
-	
-				entry.net_amount = entry.qty * entry.rate				
+
+				entry.net_amount = entry.qty * entry.rate
 				net_total= net_total + entry.net_amount
-				
+
 				entry.qty_in_base_unit = entry.qty * entry.conversion_factor;
-				entry.rate_in_base_unit = entry.rate / entry.conversion_factor;				
+				entry.rate_in_base_unit = entry.rate / entry.conversion_factor;
 			})
 
 			frm.doc.net_total = net_total
@@ -132,7 +162,7 @@ frappe.ui.form.on('Stock Transfer', {
 					item: frm.item
 				},
 				callback: (r) => {
-				
+
 					console.log(r)
 					var units = ""
 					for(var i = 0; i < r.message.length; i++)
@@ -146,18 +176,18 @@ frappe.ui.form.on('Stock Transfer', {
 							units = units + ", " + r.message[i].unit
 						}
 					}
-					
+
 					frm.doc.item_units = "Unit(s) for "+ frm.item +": " +units
 					frm.refresh_field("item_units");
 				}
 			})
-		}		
+		}
 });
 
 frappe.ui.form.on("Stock Transfer", "onload", function (frm) {
 
 	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);	
+	//frm.set_df_property("date","read_only",1);
 	// frm.set_query("source_warehouse", function () {
 	// 	return {
 	// 		"filters": {
@@ -181,7 +211,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 
 	item(frm, cdt, cdn) {
 
-		let row = frappe.get_doc(cdt, cdn);		
+		let row = frappe.get_doc(cdt, cdn);
 		frappe.call(
 			{
 			method: 'frappe.client.get_value',
@@ -191,7 +221,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 						'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 					},
 					callback: (r) => {
-						
+
 						row.item_name = r.message.item_name;
 						row.base_unit = r.message.base_unit;
 						row.unit = r.message.base_unit;
@@ -217,9 +247,9 @@ frappe.ui.form.on('Stock Transfer Item', {
 									'posting_time': frm.doc.posting_time
 								},
 								callback(r) {
-									console.log("Valuation rate in console")					
-									console.log(r.message)					
-				
+									console.log("Valuation rate in console")
+									console.log(r.message)
+
 									if(r.message == 0)
 									{
 										let currency = ""
@@ -228,7 +258,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 										{
 											method:'digitz_erp.api.settings_api.get_default_currency',
 											async:false,
-											callback(r){								
+											callback(r){
 												console.log(r)
 												currency = r.message
 												console.log("currency")
@@ -246,7 +276,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 											'item': row.item,
 											'price_list': 'Standard Buying',
 											'currency': currency,
-											'date': frm.doc.posting_date								
+											'date': frm.doc.posting_date
 										},
 										callback(r) {
 											console.log("digitz_erp.api.item_price_api.get_item_price")
@@ -254,7 +284,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 											row.rate = parseFloat(r.message);
 											row.rate_in_base_unit = parseFloat(r.message);
 										}
-										});	
+										});
 
 									}
 									else
@@ -262,14 +292,14 @@ frappe.ui.form.on('Stock Transfer Item', {
 										row.rate = r.message
 										row.rate_in_base_unit = r.message
 										frm.refresh_field("items");
-									}								
+									}
 								}
 							});
 					}
 				});
-		
+
 		console.log("Before get valuation rate for the item")
-				
+
 		frm.item = row.item
 		frm.trigger("get_item_units");
 	},
@@ -298,17 +328,17 @@ frappe.ui.form.on('Stock Transfer Item', {
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_totals")
 	},
-	qty(frm, cdt, cdn) {	
-		
+	qty(frm, cdt, cdn) {
+
 		frm.trigger("make_totals")
 	},
-	rate(frm, cdt, cdn) {	
-		
+	rate(frm, cdt, cdn) {
+
 		frm.trigger("make_totals")
 	},
 	unit(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
-		
+
 		frappe.call(
 			{
 				method: 'digitz_erp.api.items_api.get_item_uom',
@@ -329,8 +359,8 @@ frappe.ui.form.on('Stock Transfer Item', {
 						row.rate = row.rate_in_base_unit * row.conversion_factor;
 						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
 						//() => {
-						//row.qty = row.qty/ row.conversion_factor;								
-						//})	
+						//row.qty = row.qty/ row.conversion_factor;
+						//})
 					}
 					frm.trigger("make_totals");
 
@@ -347,7 +377,7 @@ frappe.ui.form.on('Stock Transfer Item', {
 let create_custom_buttons = function(frm){
 	if (frappe.user.has_role('Management')) {
 		if(!frm.is_new() && (frm.doc.docstatus == 1)){
-		
+
 			frm.add_custom_button('Stock Ledgers',() =>{
 				stock_ledgers(frm)
 		}, 'Postings');
@@ -368,7 +398,7 @@ let stock_ledgers = function (frm) {
             let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
                               '<table class="table table-bordered" style="width: 100%;">' +
                               '<thead>' +
-                              '<tr>' +                              
+                              '<tr>' +
                               '<th style="width: 10%;">Item Code</th>' +
 							  '<th style="width: 20%;">Item Name</th>' +
                               '<th style="width: 15%;">Warehouse</th>' +
@@ -383,7 +413,7 @@ let stock_ledgers = function (frm) {
 
             // Loop through the data and create rows
             stock_ledgers_data.forEach(function (ledger) {
-                htmlContent += '<tr>' +                               
+                htmlContent += '<tr>' +
                                `<td><a href="/app/item/${ledger.item}" target="_blank">${ledger.item}</a></td>` +
 							   `<td>${ledger.item_name}</td>` +
                                `<td>${ledger.warehouse}</td>` +
@@ -418,4 +448,3 @@ let stock_ledgers = function (frm) {
         }
     });
 };
-
