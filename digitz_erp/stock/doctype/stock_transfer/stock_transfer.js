@@ -204,7 +204,9 @@ frappe.ui.form.on("Stock Transfer", "onload", function (frm) {
 	// 	};
 	// });
 
-	frm.trigger("get_default_company_and_warehouse");
+	if (frm.is_new()) {
+		frm.trigger("get_default_company_and_warehouse");
+	}
 })
 
 frappe.ui.form.on('Stock Transfer Item', {

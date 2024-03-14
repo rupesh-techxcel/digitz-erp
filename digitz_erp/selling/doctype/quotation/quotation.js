@@ -532,7 +532,9 @@ frappe.ui.form.on("Quotation", "onload", function (frm) {
 	// 	};
 	// });
 
-	frm.trigger("get_default_company_and_warehouse");
+	if (frm.is_new()) {
+		frm.trigger("get_default_company_and_warehouse");
+	}
 
 	frm.set_query("price_list", function () {
 		return {

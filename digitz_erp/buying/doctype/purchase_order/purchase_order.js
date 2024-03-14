@@ -25,7 +25,7 @@ frappe.ui.form.on('Purchase Order', {
                 }
             };
 		}
-		
+
 		if (frm.doc.docstatus == 1)
 
 			if (frm.doc.docstatus == 1) {
@@ -455,7 +455,9 @@ frappe.ui.form.on("Purchase Order", "onload", function (frm) {
 	// 	};
 	// });
 
-	frm.trigger("get_default_company_and_warehouse");
+	if (frm.is_new()) {
+		frm.trigger("get_default_company_and_warehouse");
+	}
 
 	frm.set_query("price_list", function () {
 		return {

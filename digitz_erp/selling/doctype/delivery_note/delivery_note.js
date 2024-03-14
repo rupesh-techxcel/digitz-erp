@@ -132,7 +132,7 @@ frappe.ui.form.on('Delivery Note', {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
-		
+
 		frm.trigger("set_default_payment_mode");
 	},
 	set_default_payment_mode(frm)
@@ -486,7 +486,9 @@ frappe.ui.form.on("Delivery Note", "onload", function (frm) {
 	// 	};
 	// });
 
-	frm.trigger("get_default_company_and_warehouse");
+	if (frm.is_new()) {
+		frm.trigger("get_default_company_and_warehouse");
+	}
 
 	frm.set_query("price_list", function () {
 		return {
