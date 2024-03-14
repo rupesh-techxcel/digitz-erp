@@ -524,7 +524,9 @@ frappe.ui.form.on("Purchase Return", "onload", function (frm) {
 		return item.item && item.qty && item.rate;
 	});
 
-	frm.trigger("get_default_company_and_warehouse");
+	if (frm.is_new()) {
+		frm.trigger("get_default_company_and_warehouse");
+	}
 
 	frm.set_query("price_list", function () {
 		return {
