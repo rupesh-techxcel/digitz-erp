@@ -49,8 +49,6 @@ frappe.ui.form.on('Purchase Order', {
 					if (pi_for_po_exists.message == false)
 					{
 						create_pi = true
-
-
 					}
 					else if (frm.doc.order_status != "Completed")
 					{

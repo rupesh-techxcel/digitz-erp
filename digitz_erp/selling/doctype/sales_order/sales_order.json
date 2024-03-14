@@ -30,6 +30,7 @@
   "rate_includes_tax",
   "warehouse",
   "default_cost_center",
+  "order_status",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -65,7 +66,11 @@
   "tab_break_50",
   "data_53",
   "quotation",
-  "amended_from"
+  "amended_from",
+  "address_line_1",
+  "address_line_2",
+  "area_name",
+  "country"
  ],
  "fields": [
   {
@@ -100,33 +105,33 @@
    "label": "Address"
   },
   {
-    "fetch_from": "customer.address_line_1",
-    "fieldname": "address_line_1",
-    "fieldtype": "Data",
-    "hidden": 1,
-    "label": "Address Line 1"
-   },
-   {
-    "fetch_from": "customer.address_line_2",
-    "fieldname": "address_line_2",
-    "fieldtype": "Data",
-    "hidden": 1,
-    "label": "Address Line 2"
-   },
-   {
-    "fetch_from": "customer.area_name",
-    "fieldname": "area_name",
-    "fieldtype": "Data",
-    "hidden": 1,
-    "label": "Area Name"
-   },
-   {
-    "fetch_from": "customer.country",
-    "fieldname": "country",
-    "fieldtype": "Data",
-    "hidden": 1,
-    "label": "Country"
-   },
+   "fetch_from": "customer.address_line_1",
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Address Line 1"
+  },
+  {
+   "fetch_from": "customer.address_line_2",
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Address Line 2"
+  },
+  {
+   "fetch_from": "customer.area_name",
+   "fieldname": "area_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Area Name"
+  },
+  {
+   "fetch_from": "customer.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Country"
+  },
   {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
@@ -165,12 +170,12 @@
    "options": "Employee"
   },
   {
-    "fetch_from": "salesman.employee_code",
-    "fieldname": "salesman_code",
-    "fieldtype": "Data",
-    "hidden": 1,
-    "label": "Salesman Code"
-   },
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman Code"
+  },
   {
    "fieldname": "tax_id",
    "fieldtype": "Data",
@@ -223,24 +228,24 @@
    "label": "Accounts"
   },
   {
-    "default": "0",
-    "fieldname": "credit_sale",
-    "fieldtype": "Check",
-    "in_standard_filter": 1,
-    "label": "Credit Sale"
-   },
-   {
-    "fieldname": "credit_days",
-    "fieldtype": "Int",
-    "hidden": 1,
-    "label": "Credit Days"
-   },
+   "default": "0",
+   "fieldname": "credit_sale",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Credit Sale"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Credit Days"
+  },
   {
    "fieldname": "payment_terms",
    "fieldtype": "Data",
    "label": "Payment Terms "
   },
-   {
+  {
    "default": "Cash",
    "fieldname": "payment_mode",
    "fieldtype": "Link",
@@ -249,13 +254,13 @@
    "options": "Payment Mode"
   },
   {
-    "fetch_from": "payment_mode.mode",
-    "fetch_if_empty": 1,
-    "fieldname": "mode",
-    "fieldtype": "Data",
-    "hidden": 1,
-    "label": "Mode"
-   },
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
+  },
   {
    "fetch_from": "payment_mode.account",
    "fieldname": "payment_account",
@@ -393,15 +398,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Sales Order",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "quotation",
    "fieldtype": "Link",
    "label": "Quotation",
@@ -434,6 +430,12 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "order_status",
+   "fieldtype": "Select",
+   "label": "Order Status",
+   "options": "Pending\nPartial\nCompleted"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -448,7 +450,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-03-11 13:15:04.611363",
+ "modified": "2024-03-13 17:17:10.907423",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

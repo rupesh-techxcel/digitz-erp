@@ -75,15 +75,15 @@
   "references_tab",
   "data_53",
   "auto_save_delivery_note",
+  "tab_sales",
   "delivery_notes",
   "delivery_notes_to_print",
-  "tab_sales",
+  "sales_orders",
   "address_line_1",
   "address_line_2",
   "area_name",
   "country",
   "quotation",
-  "sales_order",
   "receipt_schedule_tab",
   "receipt_schedule"
  ],
@@ -163,7 +163,7 @@
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
-  },  
+  },
   {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
@@ -312,40 +312,40 @@
    "label": "Credit Sale"
   },
   {
-    "fieldname": "credit_days",
-    "fieldtype": "Int",
-    "hidden": 1,
-    "label": "Credit Days"
-   },
-   {
-    "fieldname": "payment_terms",
-    "fieldtype": "Data",
-    "label": "Payment Terms "
-   },
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Credit Days"
+  },
   {
-    "default": "Cash",
-    "fieldname": "payment_mode",
-    "fieldtype": "Link",
-    "in_standard_filter": 1,
-    "label": "Payment Mode",
-    "options": "Payment Mode"
-   },
-   {
-     "fetch_from": "payment_mode.mode",
-     "fetch_if_empty": 1,
-     "fieldname": "mode",
-     "fieldtype": "Data",
-     "hidden": 1,
-     "label": "Mode"
-    },
-   {
-    "fetch_from": "payment_mode.account",
-    "fieldname": "payment_account",
-    "fieldtype": "Link",
-    "label": "Payment Account",
-    "options": "Account",
-    "read_only": 1
-   },
+   "fieldname": "payment_terms",
+   "fieldtype": "Data",
+   "label": "Payment Terms "
+  },
+  {
+   "default": "Cash",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
+  },
+  {
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
+  },
   {
    "fieldname": "ship_to_location",
    "fieldtype": "Link",
@@ -385,7 +385,6 @@
    "hidden": 1,
    "label": "Salesman Code"
   },
-  
   {
    "fieldname": "references_tab",
    "fieldtype": "Tab Break",
@@ -459,12 +458,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "sales_order",
-   "fieldtype": "Link",
-   "label": "Sales Order",
-   "options": "Sales Order"
-  },
-  {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
    "label": "Paid Amount",
@@ -532,7 +525,7 @@
    "fieldtype": "Date",
    "label": "Reference Date",
    "mandatory_depends_on": "eval:doc.mode == 'Bank'"
-  },  
+  },
   {
    "fieldname": "in_words",
    "fieldtype": "Data",
@@ -556,6 +549,12 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "sales_orders",
+   "fieldtype": "Table",
+   "label": "Sales Orders",
+   "options": "Sales Invoice Sales Orders"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -566,7 +565,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2024-03-11 13:27:27.890608",
+ "modified": "2024-03-13 23:30:10.606669",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

@@ -203,13 +203,15 @@
    "allow_on_submit": 1,
    "fieldname": "qty_returned_in_base_unit",
    "fieldtype": "Float",
-   "label": "Qty Returned "
+   "hidden": 1,
+   "label": "Qty Returned ",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-11 14:20:31.636946",
+ "modified": "2024-03-13 16:50:30.449367",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice Item",

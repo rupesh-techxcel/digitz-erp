@@ -38,7 +38,9 @@
   "payment_terms",
   "payment_mode",
   "mode",
-  "section_break_19",
+  "payment_account",
+  "column_break_ntvq",
+  "section_break_19_1",
   "items",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
@@ -67,8 +69,8 @@
   "area_name",
   "country",
   "quotation",
-  "sales_order",
-  "amended_from"
+  "amended_from",
+  "section_break_19"
  ],
  "fields": [
   {
@@ -225,6 +227,14 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Mode"
+  },
+  {
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_19",
@@ -394,12 +404,6 @@
    "options": "Quotation"
   },
   {
-   "fieldname": "sales_order",
-   "fieldtype": "Link",
-   "label": "Sales Order",
-   "options": "Sales Order"
-  },
-  {
    "default": "0",
    "fieldname": "is_delivered",
    "fieldtype": "Check",
@@ -427,6 +431,14 @@
   {
    "fieldname": "column_break_wsco",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ntvq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_19_1",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -437,7 +449,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
- "modified": "2024-03-13 15:42:15.630320",
+ "modified": "2024-03-13 18:11:09.176101",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

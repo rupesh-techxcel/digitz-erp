@@ -126,11 +126,30 @@ frappe.ui.form.on('Delivery Note', {
 		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
 		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
 
 		if (frm.doc.credit_sale) {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
+		
+		frm.trigger("set_default_payment_mode");
+	},
+	set_default_payment_mode(frm)
+	{
+		if(frm.doc.credit_sale == 0){
+			frappe.call({
+					method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.get_default_payment_mode',
+					callback: function(response) {
+							if (response && response.message) {
+									frm.set_value('payment_mode', response.message);
+							} else {
+									frappe.msgprint('Default payment mode for sales not found.');
+							}
+					}
+			});
+		}
+
 	},
 	warehouse(frm) {
 		console.log("warehouse set")

@@ -155,20 +155,28 @@ class PurchaseInvoice(Document):
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
 
-
-	def update_purchase_order_quantities_on_update(self):
-
+	def update_purchase_order_quantities_on_update(self, forDeleteOrCancel=False):
+    
 		po_reference_any = False
+  
 		for item in self.items:
 			if not item.po_item_reference:
 				continue
 			else:
-				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
+				# Get total purchase invoice qty for the po_item_reference other than in the current purchase invoice.
+				total_purchased_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
-				if(total_used_qty_not_in_this_pi):
-					po_item.qty_purchased_in_base_unit = total_used_qty_not_in_this_pi + item.qty_in_base_unit
-				else:
-					po_item.qty_purchased_in_base_unit = item.qty_in_base_unit
+    
+				# Get Total returned quantity for the po_item, since there can be multiple purchase invoice line items for the same po_item_reference and which could be returned from the purchase invoices as well.
+    
+				# Note that there is no way purchase return exists for the current purchase invoice since it can be done only after submission of the purchase invoice.
+    
+				total_returned_qty_for_the_po_item = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference in (select name from `tabPurchase Invoice Item` pit where pit.po_item_reference=%s) and pret.docstatus<2""",(item.po_item_reference))[0][0]
+    
+				total_qty_purchased = (total_purchased_qty_not_in_this_pi if total_purchased_qty_not_in_this_pi else 0) - (total_returned_qty_for_the_po_item if total_returned_qty_for_the_po_item else 0)
+    
+				po_item.qty_purchased_in_base_unit = total_qty_purchased + (item.qty_in_base_unit if not forDeleteOrCancel else 0)
+				
 				po_item.save()
 				po_reference_any = True
 
@@ -390,7 +398,7 @@ class PurchaseInvoice(Document):
 	def on_trash(self):
 
 		if self.purchase_order:
-			self.update_purchase_order_quantities_before_cancel_or_delete()
+			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
 			check_and_update_purchase_order_status(self.purchase_order)
 
 	def cancel_purchase(self):
@@ -497,8 +505,8 @@ class PurchaseInvoice(Document):
   
   
 		if self.purchase_order:
-			print("Calling update po qties b4 cancel or delete")
-			self.update_purchase_order_quantities_before_cancel_or_delete()
+			print("Calling update po qties b4 cancel or delete")			
+			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
 			check_and_update_purchase_order_status(self.purchase_order)
 
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')

@@ -62,11 +62,11 @@ class SalesOrder(Document):
 			sales_invoice_item.item = item.item
 			sales_invoice_item.item_name = item.item_name
 			sales_invoice_item.display_name = item.display_name
-			sales_invoice_item.qty =item.qty
+			sales_invoice_item.qty =round((item.qty_in_base_unit - item.qty_sold_in_base_unit)/ item.conversion_factor,2)
 			sales_invoice_item.unit = item.unit
-			sales_invoice_item.rate = item.rate
+			sales_invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
 			sales_invoice_item.base_unit = item.base_unit
-			sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit
+			sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_sold_in_base_unit
 			sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit
 			sales_invoice_item.conversion_factor = item.conversion_factor
 			sales_invoice_item.rate_includes_tax = item.rate_includes_tax

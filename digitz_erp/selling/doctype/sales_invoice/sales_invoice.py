@@ -16,6 +16,7 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from frappe.utils import money_in_words
+from digitz_erp.api.sales_order_api import check_and_update_sales_order_status
 
 class SalesInvoice(Document):
 
@@ -78,6 +79,7 @@ class SalesInvoice(Document):
 
     def on_update(self):
         self.update_item_prices()
+        check_and_update_sales_order_status(self.sales_order)
 
     def on_submit(self):
 
