@@ -9,7 +9,7 @@ from frappe.utils.data import now
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, reset_document_posting_status_for_recalc_after_submit, update_posting_status, reset_document_posting_status_for_recalc_after_cancel
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
-
+from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_on_update
 class DeliveryNote(Document):
 
     def Voucher_In_The_Same_Time(self):
@@ -59,6 +59,12 @@ class DeliveryNote(Document):
             # frappe.enqueue(self.cancel_delivery_note, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
         self.cancel_delivery_note()
+        
+        
+    def on_update(self):
+        
+        update_sales_order_quantities_on_update(self)        
+        check_and_update_sales_order_status(self.name, "Sales Invoice")
 
     def on_submit(self):
 

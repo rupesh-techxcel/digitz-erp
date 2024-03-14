@@ -86,6 +86,8 @@ class SalesOrder(Document):
 			sales_invoice_doc.append('items', sales_invoice_item )
 			#  target_items.append(target_item)
 
+		sales_invoice_doc.append("sales_orders", self.name)
+  
 		sales_invoice_doc.save()
 		frappe.msgprint("Sales invoice generated successfully, in draft mode.", alert=True)
 
@@ -226,7 +228,7 @@ class SalesOrder(Document):
 	# 	frappe.msgprint("Delivery successfully created in draft mode")
 
 	def check_references_created(self):
-		
+			
 		sales_order_exists_for_invoice = frappe.db.exists("Sales Invoice", {"sales_order": self.name}) 
 
 		if sales_order_exists_for_invoice:

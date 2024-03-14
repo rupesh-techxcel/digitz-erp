@@ -64,3 +64,43 @@ def check_and_update_sales_order_status(document_name, doctype):
          except Exception:
             raise  # This will re-raise the last exception
 
+@frappe.whitelist()
+def update_sales_order_quantities_on_update(doc_si_or_do, forDeleteOrCancel=False):
+        for item in doc_si_or_do.items:
+            if not item.sales_order_item_reference_no:
+                continue
+            else:
+                              
+                total_quantity_sold_in_other_docs = 0
+                total_quantity_sold = 0
+                
+                if doc_si_or_do.doctype == "Sales Invoice":
+                   
+                  total_quantity_sold_in_other_docs = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabSales Invoice Item` sinvi inner join `tabSales Invoice` sinv on sinvi.parent= sinv.name WHERE sinvi.sales_order_item_reference_no=%s AND sinv.name !=%s and sinv.docstatus<2""",(item.sales_order_item_reference_no, doc_si_or_do.name))[0][0]
+                  
+                  total_quantity_sold_in_do = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabDelivery Note Item` dinvi inner join `tabDelivery Note` dinv on dinvi.parent= dinv.name WHERE dinvi.sales_order_item_reference_no=%s and sinv.docstatus<2""",(item.sales_order_item_reference_no))[0][0]
+                  
+                  total_quantity_sold = (total_quantity_sold_in_other_docs if total_quantity_sold_in_other_docs else 0) + (total_quantity_sold_in_do if total_quantity_sold_in_do else 0)
+                
+                if doc_si_or_do.doctype == "Delivery Note":
+                   
+                  total_quantity_sold_in_si= frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabSales Invoice Item` sinvi inner join `tabSales Invoice` sinv on sinvi.parent= sinv.name WHERE sinvi.sales_order_item_reference_no=%s and sinv.docstatus<2""",(item.sales_order_item_reference_no, doc_si_or_do.name))[0][0]
+
+                  total_quantity_sold_in_other_docs = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabDelivery Note Item` dinvi inner join `tabDelivery Note` dinv on dinvi.parent= dinv.name WHERE dinvi.sales_order_item_reference_no=%s and dinv.name!=%s and dinv.docstatus<2""",(item.sales_order_item_reference_no, doc_si_or_do.name))[0][0]
+                  
+                  total_quantity_sold = (total_quantity_sold_in_other_docs if total_quantity_sold_in_other_docs else 0) + (total_quantity_sold_in_si if total_quantity_sold_in_si else 0)
+               
+                total_returned_qty_for_the_si_item = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabSales Return Item` sreti inner join `tabSales Return` sret on sreti.parent= sret.name WHERE sreti.si_item_reference in (select name from `tabSales Invoice Item` sit where sit.sales_order_item_reference_no=%s) and sret.docstatus<2""",(item.po_item_reference))[0][0]
+                
+                total_quantity_sold = total_quantity_sold - (total_returned_qty_for_the_si_item if total_returned_qty_for_the_si_item else 0)   + (item.qty_in_base_unit if not forDeleteOrCancel else 0)
+                  
+                so_item = frappe.get_doc("Sales Order Item", item.sales_order_item_reference_no)
+
+                so_item.qty_sold_in_base_unit = total_quantity_sold 
+                
+                so_item.save()
+                po_reference_any = True
+
+        if(po_reference_any):
+            frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
+
