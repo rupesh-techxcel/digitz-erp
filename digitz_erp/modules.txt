@@ -2,7 +2,7 @@ Digitz ERP
 Stock
 Accounts
 Setup
-HR
 Buying
 Selling
 General
+HR Base
