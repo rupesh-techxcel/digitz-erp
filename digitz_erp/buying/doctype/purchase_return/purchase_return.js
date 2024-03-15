@@ -419,21 +419,24 @@ frappe.ui.form.on('Purchase Return', {
     console.log(frm.item)
     console.log(frm.warehouse)
 
-    frappe.call(
-      {
-        method: 'frappe.client.get_value',
-        args: {
-          'doctype': 'Stock Balance',
-          'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-          'fieldname': ['stock_qty']
-        },
-        callback: (r2) => {
-          console.log(r2)
-          frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
-          frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+		frappe.call(
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Stock Balance',
+					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+					'fieldname': ['stock_qty']
+				},
+				callback: (r2) => {
+					console.log(r2)
+					if (r2 && r2.message && r2.message.stock_qty !== undefined)
+					{
+						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
+						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					}
 
-        }
-      });
+				}
+			});
   },
   get_default_company_and_warehouse(frm) {
 		var default_company = ""
