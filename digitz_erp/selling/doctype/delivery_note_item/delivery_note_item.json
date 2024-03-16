@@ -37,6 +37,7 @@
  ],
  "fields": [
   {
+   "columns": 1,
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -44,6 +45,7 @@
    "options": "Warehouse"
   },
   {
+   "columns": 1,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -51,12 +53,14 @@
    "options": "Item"
   },
   {
+   "columns": 1,
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty"
   },
   {
+   "columns": 1,
    "fieldname": "unit",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -64,8 +68,10 @@
    "options": "Unit"
   },
   {
+   "columns": 1,
    "fieldname": "rate",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Rate"
   },
   {
@@ -99,6 +105,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "columns": 1,
    "description": "Qty * Rate Excluded Tax",
    "fieldname": "gross_amount",
    "fieldtype": "Float",
@@ -123,8 +130,10 @@
    "label": "Tax Rate"
   },
   {
+   "columns": 1,
    "fieldname": "tax_amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Tax Amount"
   },
   {
@@ -140,6 +149,7 @@
    "label": "Discount Amount"
   },
   {
+   "columns": 1,
    "fieldname": "net_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -152,6 +162,7 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "fieldname": "display_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -195,7 +206,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-02-26 15:47:16.717327",
+ "modified": "2024-03-16 13:09:52.013227",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note Item",
