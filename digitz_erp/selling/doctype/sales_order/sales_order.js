@@ -164,8 +164,8 @@ frappe.ui.form.on('Sales Order', {
 					frm.refresh_field("price_list");
 				}
 			});
-
-		frm.doc.customer_display_name = frm.doc.customer_name
+		
+		frm.set_value('customer_display_name', frm.doc.customer_name)
 	},
 	assign_defaults(frm)
 	{

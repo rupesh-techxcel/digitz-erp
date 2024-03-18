@@ -81,7 +81,8 @@ class SalesInvoice(Document):
         
         self.update_item_prices()
         
-        update_sales_order_quantities_on_update(self)        
+        update_sales_order_quantities_on_update(self)    
+            
         check_and_update_sales_order_status(self.name, "Sales Invoice")
 
     def on_submit(self):

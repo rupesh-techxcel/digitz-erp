@@ -85,8 +85,6 @@ class SalesOrder(Document):
 
 			sales_invoice_doc.append('items', sales_invoice_item )
 			#  target_items.append(target_item)
-
-		sales_invoice_doc.append("sales_orders", self.name)
   
 		sales_invoice_doc.save()
 		frappe.msgprint("Sales invoice generated successfully, in draft mode.", alert=True)

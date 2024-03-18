@@ -78,9 +78,9 @@
   "data_53",
   "auto_save_delivery_note",
   "tab_sales",
+  "sales_order",
   "delivery_notes",
   "delivery_notes_to_print",
-  "sales_orders",
   "address_line_1",
   "address_line_2",
   "area_name",
@@ -375,6 +375,7 @@
   },
   {
    "default": "0",
+   "description": "This field is no longer using",
    "fieldname": "auto_save_delivery_note",
    "fieldtype": "Check",
    "hidden": 1,
@@ -554,18 +555,19 @@
    "options": "Cost Center"
   },
   {
-   "fieldname": "sales_orders",
-   "fieldtype": "Table",
-   "label": "Sales Orders",
-   "options": "Sales Invoice Sales Orders"
-  },
-  {
    "fieldname": "column_break_bufh",
    "fieldtype": "Column Break"
   },
   {
    "fieldname": "column_break_bfep",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -576,7 +578,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2024-03-17 21:57:54.251803",
+ "modified": "2024-03-18 09:59:30.949553",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
