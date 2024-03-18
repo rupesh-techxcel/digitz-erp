@@ -6,6 +6,11 @@ frappe.ui.form.on('Stock Transfer', {
 	refresh: function(frm) {
 		create_custom_buttons(frm)
 
+		
+	},
+
+	setup:function(frm)
+	{
 		frm.set_query("source_warehouse", function() {
 			return {
 				"filters": {
@@ -35,7 +40,11 @@ frappe.ui.form.on('Stock Transfer', {
                 }
             };
 		}
-},
+	},
+	assign_defaults(frm)
+	{
+		frm.trigger("get_default_company_and_warehouse");
+	},
 
 	edit_posting_date_and_time(frm) {
 
@@ -186,27 +195,7 @@ frappe.ui.form.on('Stock Transfer', {
 
 frappe.ui.form.on("Stock Transfer", "onload", function (frm) {
 
-	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);
-	// frm.set_query("source_warehouse", function () {
-	// 	return {
-	// 		"filters": {
-	// 			"is_group": 0
-	// 		}
-	// 	};
-	// });
-
-	// frm.set_query("target_warehouse", function () {
-	// 	return {
-	// 		"filters": {
-	// 			"is_group": 0
-	// 		}
-	// 	};
-	// });
-
-	if (frm.is_new()) {
-		frm.trigger("get_default_company_and_warehouse");
-	}
+	frm.trigger('assign_defaults')
 })
 
 frappe.ui.form.on('Stock Transfer Item', {

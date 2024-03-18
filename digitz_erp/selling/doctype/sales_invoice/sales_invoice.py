@@ -81,8 +81,7 @@ class SalesInvoice(Document):
         
         self.update_item_prices()
         
-        update_sales_order_quantities_on_update(self)
-        
+        update_sales_order_quantities_on_update(self)        
         check_and_update_sales_order_status(self.name, "Sales Invoice")
 
     def on_submit(self):
@@ -188,7 +187,16 @@ class SalesInvoice(Document):
     def on_cancel(self):
         cancel_bank_reconciliation("Sales Invoice", self.name)
         # frappe.enqueue(self.cancel_sales_invoice, queue="long")
+        
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        check_and_update_sales_order_status(self.name, "Sales Invoice")
         self.cancel_sales_invoice()
+    
+    def on_trash(self):
+        cancel_bank_reconciliation("Sales Invoice", self.name)                
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        check_and_update_sales_order_status(self.name, "Sales Invoice")
+        
 
     def cancel_sales_invoice(self):
 

@@ -81,7 +81,10 @@
   "country",
   "quotation",
   "sales_order",
-  "amended_from"
+  "amended_from",
+  "receipt_schedule_tab",
+  "receipt_schedule_section",
+  "receipt_schedule"
  ],
  "fields": [
   {
@@ -516,12 +519,28 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "receipt_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Receipt Schedule"
+  },
+  {
+   "fieldname": "receipt_schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Receipt Schedule"
+  },
+  {
+   "fieldname": "receipt_schedule",
+   "fieldtype": "Table",
+   "label": "Receipt Schedule",
+   "options": "Sales Receipt Schedule"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-26 15:58:28.958360",
+ "modified": "2024-03-17 21:22:47.344012",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

@@ -237,7 +237,6 @@
   {
    "fieldname": "credit_days",
    "fieldtype": "Int",
-   "hidden": 1,
    "label": "Credit Days"
   },
   {
@@ -450,7 +449,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-03-13 17:17:10.907423",
+ "modified": "2024-03-17 20:33:14.678953",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

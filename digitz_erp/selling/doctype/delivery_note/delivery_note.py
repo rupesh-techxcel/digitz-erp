@@ -50,21 +50,20 @@ class DeliveryNote(Document):
     def on_cancel(self):
 
         update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
-
-        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-
-        # if(frappe.session.user == "Administrator" and turn_off_background_job):
-        #     self.cancel_delivery_note()
-        # else:
-            # frappe.enqueue(self.cancel_delivery_note, queue="long")
-            # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        check_and_update_sales_order_status(self.name, "Delivery Note")
         self.cancel_delivery_note()
+    
+    def on_trash(self):
+
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        check_and_update_sales_order_status(self.name, "Delivery Note")
         
         
     def on_update(self):
         
         update_sales_order_quantities_on_update(self)        
-        check_and_update_sales_order_status(self.name, "Sales Invoice")
+        check_and_update_sales_order_status(self.name, "Delivery Note")
 
     def on_submit(self):
 
@@ -186,6 +185,7 @@ class DeliveryNote(Document):
 
     def cancel_delivery_note(self):
         self.do_cancel_delivery_note()
+        
         update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
     def do_cancel_delivery_note(self):

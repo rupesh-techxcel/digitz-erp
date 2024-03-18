@@ -9,6 +9,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from frappe.model.mapper import *
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
+from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
 
 class PurchaseReturn(Document):
 
@@ -79,13 +80,15 @@ class PurchaseReturn(Document):
 	def on_update(self):
 		self.update_purchase_invoice_quantities_on_update()
 		self.update_purchase_order_quantities_on_update()
+		self.update_purchase_order_status()
 
 	def on_cancel(self):
 		
 		cancel_bank_reconciliation("Purchase Return", self.name)
 		self.update_purchase_invoice_quantities_on_update(for_delete_or_cancel=True)
 		self.update_purchase_order_quantities_on_update(for_delete_or_cancel=True)
-		self.cancel_purchase_return()
+		self.update_purchase_order_status()
+		self.do_postings_for_cancel()
 		
 
 	def on_trash(self):
@@ -93,6 +96,7 @@ class PurchaseReturn(Document):
 		if(self.docstatus < 2):
 			self.update_purchase_invoice_quantities_on_update(for_delete_or_cancel=True)
 			self.update_purchase_order_quantities_on_update(for_delete_or_cancel=True)
+			self.update_purchase_order_status()
 
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
@@ -288,7 +292,7 @@ class PurchaseReturn(Document):
 			stock_recalc_voucher.insert()
 			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
-	def cancel_purchase_return(self):
+	def do_postings_for_cancel(self):
 
 		self.do_cancel_stock_posting()
 
@@ -417,113 +421,120 @@ class PurchaseReturn(Document):
 			gl_doc.against_account = default_accounts.default_payable_account
 			gl_doc.insert()
 
-	def update_purchase_invoice_quantities_on_update(self, for_delete_or_cancel = False):
-
+	def update_purchase_invoice_quantities_on_update(self, for_delete_or_cancel=False):
+     
 		pi_reference_any = False
 
 		for item in self.items:
 			if not item.pi_item_reference:
 				continue
-			else:
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
 
-				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+			# Retrieve the total returned quantity for the purchase invoice item
+			result = frappe.db.sql(
+				"""SELECT SUM(qty_in_base_unit) as total_returned_qty 
+				FROM `tabPurchase Return Item` preti 
+				INNER JOIN `tabPurchase Return` pret ON preti.parent = pret.name 
+				WHERE preti.pi_item_reference=%s AND pret.name !=%s AND pret.docstatus < 2""",
+				(item.pi_item_reference, self.name)
+			)
+			total_returned_qty_not_in_this_pr = result[0][0] if result else 0
 
-				if total_returned_qty_not_in_this_pr:
-					pi_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_pr + (item.qty_in_base_unit if not for_delete_or_cancel else 0)
-				else:
-					pi_item.qty_returned_in_base_unit = item.qty_in_base_unit if not for_delete_or_cancel else 0
-          
-				pi_item.save()
-				pi_reference_any = True
+			# Update the quantity returned in base unit for the purchase invoice item
+			pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+			additional_qty = item.qty_in_base_unit if not for_delete_or_cancel else 0
+			pi_item.qty_returned_in_base_unit = (total_returned_qty_not_in_this_pr or 0) + additional_qty
+			pi_item.save()
+			pi_reference_any = True
 
 		if pi_reference_any:
-			frappe.msgprint("Returned qty of items in the corresponding purchase invoice updated successfully", indicator= "green", alert= True)
+			frappe.msgprint("Returned qty of items in the corresponding purchase invoice updated successfully", indicator="green", alert=True)
+
    
 	def update_purchase_order_quantities_on_update(self, for_delete_or_cancel=False):
-
 		po_reference_any = False
+		po_item_purchased_dict = {}
+		po_item_returned_dict_not_in_this_pr = {}
+
 		for item in self.items:
 			if not item.pi_item_reference:
 				continue
-			else:
-       
-				print("item.pi_item_reference")
-				print(item.pi_item_reference)
-				print("self.name")
-				print(self.name)
-    
-				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)   
-    
-				po_item_reference = pi_item.po_item_reference
-        				
-				print("po_item_reference")
-				print(po_item_reference)
-    
-				if po_item_reference:
-        
-					# Get the total returned quantity for the purchase invoie item which occured for all purchase invoices with the po item reference, excluded the current purchase return qty
-					total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference in (select name from `tabPurchase Invoice Item` pit where pit.po_item_reference=%s) AND pret.name !=%s and pret.docstatus<2""",(po_item_reference, self.name))[0][0]
-     
-					print("total_returned_qty_not_in_this_pr")
-					print(total_returned_qty_not_in_this_pr)
-     
-					current_qty = item.qty_in_base_unit 
-					if for_delete_or_cancel:
-						print("zero")
-						current_qty = 0
 
-					print("current_qty")
-					print(current_qty)
-		
-					total_returned_qty = (total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0 )+ current_qty
-     
-					print("total_returned_qty")
-					print(total_returned_qty)
-					
-					total_used_qty_in_pi_for_the_po_item = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s and pinv.docstatus<2""",(po_item_reference))[0][0]
-		
-					total_used_qty_in_pi_for_the_po_item = total_used_qty_in_pi_for_the_po_item if total_used_qty_in_pi_for_the_po_item else 0
-     
-					print("total_used_qty_in_pi_for_the_po_item")
-					print(total_used_qty_in_pi_for_the_po_item)     
+			print("item.pi_item_reference")
+			print(item.pi_item_reference)
+			print("self.name")
+			print(self.name)
 
-					total_qty_purchased = total_used_qty_in_pi_for_the_po_item - total_returned_qty
-     
-					print("total_qty_purchased")
-					print(total_qty_purchased)
-		
-					po_item = frappe.get_doc("Purchase Order Item", po_item_reference)
-		
-					po_item.qty_purchased_in_base_unit = total_qty_purchased
-					
-					po_item.save()
-		
-					po_reference_any = True
+			pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+			po_item_reference = pi_item.po_item_reference
 
-		if(po_reference_any):
-			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
+			print("po_item_reference")
+			print(po_item_reference)
+
+			if po_item_reference:
+				if po_item_reference not in po_item_returned_dict_not_in_this_pr:
+					total_returned_qty_not_in_this_pr = frappe.db.sql(
+						"""SELECT SUM(qty_in_base_unit) as total_returned_qty 
+						FROM `tabPurchase Return Item` preti 
+						INNER JOIN `tabPurchase Return` pret ON preti.parent = pret.name 
+						WHERE preti.pi_item_reference IN 
+						(SELECT name FROM `tabPurchase Invoice Item` pit WHERE pit.po_item_reference=%s) 
+						AND pret.name != %s AND pret.docstatus < 2""",
+						(po_item_reference, self.name)
+					)[0][0] or 0
+
+					po_item_returned_dict_not_in_this_pr[po_item_reference] = total_returned_qty_not_in_this_pr
+
+				current_qty = item.qty_in_base_unit if not for_delete_or_cancel else 0
+				po_item_returned_dict_not_in_this_pr[po_item_reference] += current_qty
+
+				if po_item_reference not in po_item_purchased_dict:
+					total_qty_purchased_for_the_po_item = frappe.db.sql(
+						"""SELECT SUM(qty_in_base_unit) as total_used_qty 
+						FROM `tabPurchase Invoice Item` pinvi 
+						INNER JOIN `tabPurchase Invoice` pinv ON pinvi.parent = pinv.name 
+						WHERE pinvi.po_item_reference=%s AND pinv.docstatus < 2""",
+						(po_item_reference,)
+					)[0][0] or 0
+
+					po_item_purchased_dict[po_item_reference] = total_qty_purchased_for_the_po_item
+
+				po_reference_any = True
+
+		if po_reference_any:
+			for po_item_reference, total_qty_purchased in po_item_purchased_dict.items():
+				po_item = frappe.get_doc("Purchase Order Item", po_item_reference)
+				qty_returned = po_item_returned_dict_not_in_this_pr.get(po_item_reference, 0)
+				po_item.qty_purchased_in_base_unit = total_qty_purchased - qty_returned
+				po_item.save()
+
+			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator="green", alert=True)
    
-	def update_purchase_invoice_quantities_before_delete_or_cancel(self):
-
-		pi_reference_any = False
+	def update_purchase_order_status(self):
+     
+		purchase_orders = []
 
 		for item in self.items:
 			if not item.pi_item_reference:
 				continue
-			else:
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(item.pi_item_reference, self.name))[0][0]
 
-				pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+			pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
+			if pi_item.po_item_reference and pi_item.po_item_reference not in purchase_orders:
+				purchase_order_data = frappe.db.sql("""
+					SELECT po.name
+					FROM `tabPurchase Order` po
+					INNER JOIN `tabPurchase Order Item` poi ON poi.parent = po.name
+					WHERE poi.name = %s
+				""", (pi_item.po_item_reference,), as_dict=True)
 
-				pi_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_pr if total_returned_qty_not_in_this_pr else 0
-				
-				pi_item.save()
-				pi_reference_any = True
+				if purchase_order_data:
+					purchase_order_name = purchase_order_data[0]['name']
+					if purchase_order_name not in purchase_orders:
+						purchase_orders.append(purchase_order_name)
 
-		if pi_reference_any:
-			frappe.msgprint("Returned qty of items in the corresponding purchase invoice reverted successfully", indicator= "green", alert= True)
+		for purchase_order_name in purchase_orders:
+			check_and_update_purchase_order_status(purchase_order_name)  # Ensure this function expects the PO name
 
+   
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')

@@ -275,6 +275,7 @@
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Paid Amount",
    "read_only": 1
   },
@@ -390,7 +391,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-03-10 08:22:13.795424",
+ "modified": "2024-03-15 08:43:50.496828",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

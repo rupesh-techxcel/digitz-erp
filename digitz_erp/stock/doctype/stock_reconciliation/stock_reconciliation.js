@@ -4,15 +4,37 @@
 frappe.ui.form.on('Stock Reconciliation', {
 	refresh: function(frm) {
 		create_custom_buttons(frm)
+		
+	},
+	setup:function(frm)
+	{
 		frm.set_query('account', () => {
-    return {
-        filters: {
-            root_type: 'Liability',
-						// is_group: 1
-        }
-    }
-})
-},
+			return {
+				filters: {
+					root_type: 'Liability',
+								// is_group: 1
+				}
+			}
+		});
+
+		frm.set_query("warehouse", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+		
+	},
+	assign_defaults(frm)
+	{
+
+		if(frm.is_new())
+		{
+			frm.trigger("get_default_company_and_warehouse");
+			
+		}
+	},
 
 	edit_posting_date_and_time(frm) {
 
@@ -77,8 +99,11 @@ frappe.ui.form.on('Stock Reconciliation', {
 				},
 				callback: (r2) => {
 					console.log(r2)
-					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
-					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					if (r2 && r2.message && r2.message.stock_qty !== undefined)
+					{
+						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
+						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					}
 
 				}
 			});
@@ -144,19 +169,7 @@ frappe.ui.form.on('Stock Reconciliation', {
 
 frappe.ui.form.on("Stock Reconciliation", "onload", function (frm) {
 
-	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);
-	frm.set_query("warehouse", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-
-	if (frm.is_new()) {
-		frm.trigger("get_default_company_and_warehouse");
-	}
+	frm.trigger("assign_defaults");	
 })
 
 frappe.ui.form.on('Stock Reconciliation Item', {

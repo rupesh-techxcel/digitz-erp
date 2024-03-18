@@ -3,56 +3,72 @@
 
 frappe.ui.form.on("Credit Note", {
 	onload(frm) {
-    frm.trigger("assign_defaults");
+    	frm.trigger("assign_defaults");
 	},
 	refresh(frm){
 		create_custom_buttons(frm)
+	},
+	setup:function(frm)
+	{
 		frm.set_query('account', 'credit_note_details', () => {
-      return {
-        filters: {
-          root_type: ['in', ['Expense','Income','Liability','Asset']],
-          is_group: 0
-        }
-      }
-    });
-
-		frm.set_query("warehouse", function() {
 			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
+			  filters: {
+				root_type: ['in', ['Expense','Income','Liability','Asset']],
+				is_group: 0
+			  }
+			}
+		  });
+	  
+			  frm.set_query("warehouse", function() {
+				  return {
+					  "filters": {
+						  "is_disabled": 0
+					  }
+				  };
+			  });
+	  
+		  frm.set_query('receivable_account', () => {
+				  return {
+					  filters: {
+					  root_type: ['in',  ['Liability','Asset']],
+					  is_group: 0
+					  }
+				  }
+				  });  
+
+		frm.add_fetch('customer', 'full_address', 'address')
+		frm.add_fetch('customer', 'tax_id', 'tax_id')
+		frm.add_fetch('customer', 'credit_days', 'credit_days')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
+				
+	},
+
+	assign_defaults: function(frm){
+
+		default_company = "";
+
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Global Settings',
+				'fieldname': 'default_company'
+			},
+			callback: (r) => {
+
+				default_company = r.message.default_company
+				frm.set_value('company',default_company);
+
+          frappe.db.get_value("Company", default_company, "default_receivable_account").then((r) => {
+
+          frm.set_value('receivable_account',r.message.default_receivable_account);
+          });
+			}
 		});
 
-    frm.set_query('receivable_account', () => {
-			return {
-				filters: {
-				root_type: ['in',  ['Liability','Asset']],
-				is_group: 0
-				}
-			}
-			});
-
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
-  				if (r && r.default_credit_sale === 1) {
-  						frm.set_value('on_credit', 1);
-  				}
-  		});
-
-			if(frm.doc.on_credit == 0){
-		        frappe.call({
-		                method: 'digitz_erp.accounts.doctype.credit_note.credit_note.get_default_payment_mode',
-		                callback: function(response) {
-		                        if (response && response.message) {
-		                                frm.set_value('payment_mode', response.message);
-		                        } else {
-		                                frappe.msgprint('Default payment mode for sales not found.');
-		                        }
-		                }
-		        });
-		    }
-	},
-  edit_posting_date_and_time(frm) {
+		set_default_payment_mode(frm);
+	},	
+	
+    edit_posting_date_and_time(frm) {
     if (frm.doc.edit_posting_date_and_time == 1) {
       frm.set_df_property("posting_date", "read_only", 0);
       frm.set_df_property("posting_time", "read_only", 0);
@@ -62,21 +78,10 @@ frappe.ui.form.on("Credit Note", {
       frm.set_df_property("posting_time", "read_only", 1);
     }
   },
-  setup(frm){
-    frm.add_fetch('customer', 'full_address', 'address')
-		frm.add_fetch('customer', 'tax_id', 'tax_id')
-		frm.add_fetch('customer', 'credit_days', 'credit_days')
-		frm.add_fetch('payment_mode', 'account', 'payment_account')
-  },
+  
   on_credit(frm) {
-		frm.set_df_property("credit_days", "hidden", !frm.doc.on_credit);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
-		frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
+		set_default_payment_mode(frm);
 
-		// if (frm.doc.on_credit) {
-		// 	frm.doc.payment_mode = "";
-		// 	frm.doc.payment_account = "";
-		// }
 	},
   customer(frm){
 
@@ -144,28 +149,7 @@ frappe.ui.form.on("Credit Note", {
 		frm.set_value('grand_total', grand_total);
 		frm.refresh_fields();
 	},
-  assign_defaults: function(frm){
-
-		default_company = "";
-
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
-
-				default_company = r.message.default_company
-				frm.set_value('company',default_company);
-
-        frappe.db.get_value("Company", default_company, "default_receivable_account").then((r) => {
-
-          frm.set_value('receivable_account',r.message.default_receivable_account);
-          });
-			}
-		});
-	},
+  
   validate: function (frm) {
 
 		if(!frm.doc.on_credit && !frm.doc.payment_mode)
@@ -180,6 +164,32 @@ frappe.ui.form.on("Credit Note", {
 		}
 	},
 });
+
+function set_default_payment_mode(frm)
+{
+	console.log("hi")
+	console.log(frm .doc.company)
+	if(!frm.doc.on_credit)
+	{
+		frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
+			
+			if (r && r.default_payment_mode_for_sales) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+	}
+	else
+	{
+		frm.set_value('payment_mode', "");
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.on_credit);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
+	frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
+	
+}
 frappe.ui.form.on('Credit Note Detail',{
 	account(frm, cdt, cdn){
 		var child = locals[cdt][cdn];

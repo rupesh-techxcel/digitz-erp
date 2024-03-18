@@ -2,67 +2,44 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Debit Note", {
+
 	onload(frm) {
 		frm.trigger("assign_defaults");
 	},
 	refresh(frm){
 		create_custom_buttons(frm)
+		
+	},
+	setup: function(frm)
+	{
+
 		frm.set_query('account', 'debit_note_details', () => {
-		return {
-			filters: {
-			root_type: ['in',  ['Expense','Income','Liability','Asset']],
-			is_group: 0
-			}
-		}
-		});
-
-		frm.set_query("warehouse", function() {
-			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
-		});
-
-		frm.set_query('payable_account', () => {
 			return {
 				filters: {
-				root_type: ['in',  ['Liability','Asset']],
+				root_type: ['in',  ['Expense','Income','Liability','Asset']],
 				is_group: 0
 				}
 			}
 			});
-
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
-					if (r && r.default_credit_purchase === 1) {
-							frm.set_value('on_credit', 1);
+	
+			frm.set_query("warehouse", function() {
+				return {
+					"filters": {
+						"is_disabled": 0
 					}
+				};
 			});
-
-			if(frm.doc.on_credit == 0){
-		        frappe.call({
-		                method: 'digitz_erp.accounts.doctype.debit_note.debit_note.get_default_payment_mode',
-		                callback: function(response) {
-		                        if (response && response.message) {
-		                                frm.set_value('payment_mode', response.message);
-		                        } else {
-		                                frappe.msgprint('Default payment mode for purchase not found.');
-		                        }
-		                }
-		        });
-		    }
-	},
-	rate_includes_tax: function(frm) {
-		frappe.confirm("Updating this will modify the 'rate includes tax' information in the details section and related calculations. Are you sure you want to proceed?", () => {
-
-			frm.doc.debit_note_details.forEach(function (entry) {
-				entry.rate_includes_tax = frm.doc.rate_includes_tax
-			})
-
-
-			frm.trigger("make_taxes_and_totals");
-		})
-	},
+	
+			frm.set_query('payable_account', () => {
+				return {
+					filters: {
+					root_type: ['in',  ['Liability','Asset']],
+					is_group: 0
+					}
+				}
+				});
+				
+	},	
 	assign_defaults: function(frm){
 
 		default_company = "";
@@ -80,6 +57,14 @@ frappe.ui.form.on("Debit Note", {
 			}
 		});
 
+		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+			if (r && r.default_credit_purchase === 1) {
+					frm.set_value('on_credit', 1);
+			}
+		});
+
+		set_default_payment_mode(frm);
+
 		frappe.call(
 			{
 				method:'digitz_erp.api.settings_api.get_default_payable_account',
@@ -89,6 +74,17 @@ frappe.ui.form.on("Debit Note", {
 				}
 			}
 		);
+	},
+	rate_includes_tax: function(frm) {
+		frappe.confirm("Updating this will modify the 'rate includes tax' information in the details section and related calculations. Are you sure you want to proceed?", () => {
+
+			frm.doc.debit_note_details.forEach(function (entry) {
+				entry.rate_includes_tax = frm.doc.rate_includes_tax
+			})
+
+
+			frm.trigger("make_taxes_and_totals");
+		})
 	},
 	make_taxes_and_totals: function(frm) {
 		var total_amount = 0;
@@ -164,14 +160,9 @@ frappe.ui.form.on("Debit Note", {
 		}
 	},
 	on_credit: function(frm) {
-		frm.set_df_property("credit_days", "hidden", !frm.doc.on_credit);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
-		frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
-
-		// if (frm.doc.on_credit) {
-		// 	frm.doc.payment_mode = "";
-		// 	frm.doc.payment_account = "";
-		// }
+		
+		set_default_payment_mode(frm);
+		
 	},
 	validate: function (frm) {
 
@@ -187,6 +178,33 @@ frappe.ui.form.on("Debit Note", {
 		}
 	},
 });
+
+function set_default_payment_mode(frm)
+{
+	console.log("hi")
+	console.log(frm .doc.company)
+	if(!frm.doc.on_credit)
+	{
+		frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_purchase', function(r){
+			console.log("default_payment_mode_for_purchase")
+			console.log(r)
+			if (r && r.default_payment_mode_for_purchase) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+	}
+	else
+	{
+		frm.set_value('payment_mode', "");
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.on_credit);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
+	frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
+	
+}
 
 frappe.ui.form.on('Debit Note Detail',{
 	account(frm,cdt, cdn){

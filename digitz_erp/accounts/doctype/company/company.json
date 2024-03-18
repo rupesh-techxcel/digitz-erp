@@ -64,7 +64,8 @@
   "customer_terms",
   "system_tab",
   "material_receipt_integrated_with_purchase",
-  "delivery_note_integrated_with_sales_invoice"
+  "delivery_note_integrated_with_sales_invoice",
+  "use_expense_heads"
  ],
  "fields": [
   {
@@ -119,6 +120,7 @@
   },
   {
    "default": "0",
+   "description": "\nWhen this field is selected, the system will use the customer's last price instead of the price list price.",
    "fieldname": "use_customer_last_price",
    "fieldtype": "Check",
    "label": "Use customer last price"
@@ -315,6 +317,7 @@
   },
   {
    "default": "0",
+   "description": "\nWhen this field is selected, the system will use the supplier's last price instead of the price list price.",
    "fieldname": "use_supplier_last_price",
    "fieldtype": "Check",
    "label": "Use Supplier Last Price"
@@ -374,12 +377,14 @@
   },
   {
    "default": "1",
+   "description": "Based on this field, the system defaults to setting the sales as a credit sale.",
    "fieldname": "default_credit_sale",
    "fieldtype": "Check",
    "label": "Default Credit Sale"
   },
   {
    "default": "1",
+   "description": "Based on this field, the system defaults to setting the purchase as a credit purchase.",
    "fieldname": "default_credit_purchase",
    "fieldtype": "Check",
    "label": "Default Credit Purchase"
@@ -392,21 +397,29 @@
   },
   {
    "default": "0",
+   "description": "\nSet this field to automatically select 'product' or 'service' when creating items, according to the specific requirement.",
    "fieldname": "maintain_stock",
    "fieldtype": "Check",
    "label": "Maintain Stock"
   },
   {
    "default": "0",
-   "description": "Based on this field system decides whether sales invoices are intend to update the stock while submitting",
+   "description": "This field determines, by default, whether submitting sales invoices will update the stock.",
    "fieldname": "update_stock_in_sales_invoice",
    "fieldtype": "Check",
    "label": "Update stock in Sales Invoice"
+  },
+  {
+   "default": "0",
+   "description": "This field determines whether to use Expense Heads instead of account ledgers directly in Expense Entries.",
+   "fieldname": "use_expense_heads",
+   "fieldtype": "Check",
+   "label": " Use separate Expense Heads instead of direct account ledgers in Expense Entries."
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-09 19:09:13.348311",
+ "modified": "2024-03-16 08:39:08.728416",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

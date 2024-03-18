@@ -5,28 +5,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
-		 frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
- 				if (r && r.default_credit_sale === 1) {
- 						frm.set_value('credit_sale', 1);
- 				}
- 		});
-
-		frm.set_query("warehouse", function() {
-			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
-		});
-
-		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_disabled: 0
-                }
-            };
-		}
-
+	
 		 if (frm.doc.docstatus === 0) {
 			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
 						delivery_note_dialog(frm)
@@ -50,6 +29,71 @@ frappe.ui.form.on('Sales Invoice', {
 		// 	})
 		// }
 	 },
+	 setup: function (frm) {
+
+		frm.add_fetch('customer', 'full_address', 'customer_address')
+		frm.add_fetch('customer', 'salesman', 'salesman')
+		frm.add_fetch('customer', 'tax_id', 'tax_id')
+		frm.add_fetch('customer', 'credit_days', 'credit_days')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
+
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.set_query("price_list", function () {
+			return {
+				"filters": {
+					"is_selling": 1
+				}
+			};
+		});
+	
+		frm.set_query("customer", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+
+		frm.set_query("ship_to_location", function () {
+			return {
+				"filters": {
+					"parent": frm.doc.customer
+				}
+			};
+		});
+	},
+	assign_defaults(frm)
+	{
+		if(frm.is_new())
+		{
+			frm.trigger("get_default_company_and_warehouse");
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+				if (r && r.default_credit_sale === 1) {
+						frm.set_value('credit_sale', 1);
+				}
+			});
+
+			set_default_payment_mode(frm);
+		}
+
+		
+	},
 	after_save: function (frm) {
 
 		 if (frm.doc.auto_save_delivery_note) {
@@ -100,23 +144,7 @@ frappe.ui.form.on('Sales Invoice', {
 			}
 		}
 	},
-	setup: function (frm) {
-
-		frm.add_fetch('customer', 'full_address', 'customer_address')
-		frm.add_fetch('customer', 'salesman', 'salesman')
-		frm.add_fetch('customer', 'tax_id', 'tax_id')
-		frm.add_fetch('customer', 'credit_days', 'credit_days')
-		frm.add_fetch('payment_mode', 'account', 'payment_account')
-
-
-		frm.set_query("ship_to_location", function () {
-			return {
-				"filters": {
-					"parent": frm.doc.customer
-				}
-			};
-		});
-	},
+	
 	customer(frm) {
 
 		frappe.call(
@@ -197,16 +225,7 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 	credit_sale(frm) {
 
-		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
-		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
-		frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
-
-
-		if (frm.doc.credit_sale) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		set_default_payment_mode(frm);
 
 		fill_receipt_schedule(frm,refresh= true)
 	},
@@ -558,27 +577,77 @@ frappe.ui.form.on('Sales Invoice', {
 	},
 });
 
+function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+
+	if(refresh)
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+
+	console.log("fill_receipt_schedule")
+
+	if (frm.doc.credit_sale) {
+
+
+		var postingDate = frm.doc.posting_date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.rounded_total;
+
+		if (!frm.doc.receipt_schedule) {
+			frm.doc.receipt_schedule = [];
+		}
+
+		var receiptRow = null;
+
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.receipt_schedule.forEach(function(row) {
+			if (row){
+				receiptRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
+
+				row_count++;
+			}
+		});
+
+		//If there is no row exits create one with the relevant values
+		if (!receiptRow) {
+			// Calculate receipt schedule and add a new row
+			receiptRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			receiptRow.payment_mode = "Cash"
+			receiptRow.amount = roundedTotal;
+			refresh_field("receipt_schedule");
+		}
+		else if (row_count==1)
+		{
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself
+			receiptRow.payment_mode = "Cash"
+			receiptRow.amount = roundedTotal;
+			refresh_field("receipt_schedule");
+		}
+
+		//Update date based on credit_days if there is a credit days change or change in the credit_sales checkbox
+		if(refresh || refresh_credit_days)
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			refresh_field("receipt_schedule");
+	}
+	else
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+}
+
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
-	if(frm.doc.__islocal)
-		frm.trigger("get_default_company_and_warehouse");
-
-	frm.set_query("price_list", function () {
-		return {
-			"filters": {
-				"is_selling": 1
-			}
-		};
-	});
-
-	frm.set_query("customer", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-
+	frm.trigger("assign_defaults")	
 	fill_receipt_schedule(frm);
 
 });
@@ -922,87 +991,30 @@ frappe.ui.form.on('Sales Invoice Item', {
 	}
 });
 
-
-function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
+function set_default_payment_mode(frm)
 {
-
-	if(refresh)
-	{
-		frm.doc.receipt_schedule = [];
-		refresh_field("receipt_schedule");
-	}
-
-	console.log("fill_receipt_schedule")
-
 	if(frm.doc.credit_sale == 0){
-        frappe.call({
-                method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.get_default_payment_mode',
-                callback: function(response) {
-                        if (response && response.message) {
-                                frm.set_value('payment_mode', response.message);
-                        } else {
-                                frappe.msgprint('Default payment mode for sales not found.');
-                        }
-                }
-        });
-    }
-
-	if (frm.doc.credit_sale) {
-
-
-		var postingDate = frm.doc.posting_date;
-		var creditDays = frm.doc.credit_days;
-		var roundedTotal = frm.doc.rounded_total;
-
-		if (!frm.doc.receipt_schedule) {
-			frm.doc.receipt_schedule = [];
-		}
-
-		var receiptRow = null;
-
-		row_count = 0;
-		// Check if a Payment Schedule row already exists
-		frm.doc.receipt_schedule.forEach(function(row) {
-			if (row){
-				receiptRow = row;
-				if(refresh || refresh_credit_days)
-				{
-					receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
-				}
-
-				row_count++;
+        frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
+			
+			if (r && r.default_payment_mode_for_sales) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
 			}
 		});
+    }
+	else{
 
-		//If there is no row exits create one with the relevant values
-		if (!receiptRow) {
-			// Calculate receipt schedule and add a new row
-			receiptRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
-			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
-			receiptRow.payment_mode = "Cash"
-			receiptRow.amount = roundedTotal;
-			refresh_field("receipt_schedule");
-		}
-		else if (row_count==1)
-		{
-			//If there is only one row update the amount. If there is more than one row that means there is manual
-			//entry and	user need to manage it by themself
-			receiptRow.payment_mode = "Cash"
-			receiptRow.amount = roundedTotal;
-			refresh_field("receipt_schedule");
-		}
+		frm.set_value('payment_mode', '');
+	}
 
-		//Update date based on credit_days if there is a credit days change or change in the credit_sales checkbox
-		if(refresh || refresh_credit_days)
-			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
-			refresh_field("receipt_schedule");
-	}
-	else
-	{
-		frm.doc.receipt_schedule = [];
-		refresh_field("receipt_schedule");
-	}
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
 }
+
+
 
 let delivery_note_dialog = function (frm) {
     let d = new frappe.ui.Dialog({

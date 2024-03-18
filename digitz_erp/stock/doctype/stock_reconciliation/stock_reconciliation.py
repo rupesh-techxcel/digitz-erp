@@ -10,6 +10,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from frappe import throw, _
+from collections import defaultdict
 
 
 class StockReconciliation(Document):
@@ -18,11 +19,11 @@ class StockReconciliation(Document):
         self.validate_items()
 
     def validate_items(self):
-        items = set()
+        item_units = defaultdict(set)
         for item in self.items:
-            if item.item in items:
-                frappe.throw(_("Item {0} is already added in the list").format(item.item))
-            items.add(item.item)
+            if item.unit in item_units[item.item]:
+                frappe.throw(_("Item {0} with unit {1} is already added in the list").format(item.item, item.unit))
+            item_units[item.item].add(item.unit)
 
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Stock Reconciliation', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
@@ -90,6 +91,8 @@ class StockReconciliation(Document):
 
         stock_adjustment_value = 0
 
+        item_stock_ledger = {}
+
         for docitem in self.items:
             maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
             print('MAINTAIN STOCK :', maintain_stock)
@@ -145,35 +148,50 @@ class StockReconciliation(Document):
                     stock_adjustment_value = stock_adjustment_value + new_balance_value
                     change_in_stock_value_for_item = new_balance_value
 
-                new_stock_ledger = frappe.new_doc("Stock Ledger")
-                new_stock_ledger.item = docitem.item
-                new_stock_ledger.item_name = docitem.item_name
-                new_stock_ledger.warehouse = docitem.warehouse
-                new_stock_ledger.posting_date = posting_date_time
-                new_stock_ledger.change_in_stock_value = change_in_stock_value_for_item
+                if docitem.item not in item_stock_ledger:
 
-                new_stock_ledger.qty_in = qty_in
+                    new_stock_ledger = frappe.new_doc("Stock Ledger")
+                    new_stock_ledger.item = docitem.item
+                    new_stock_ledger.item_name = docitem.item_name
+                    new_stock_ledger.warehouse = docitem.warehouse
+                    new_stock_ledger.posting_date = posting_date_time
+                    new_stock_ledger.change_in_stock_value = change_in_stock_value_for_item
 
-                print("qty_in")
-                print(qty_in)
+                    new_stock_ledger.qty_in = qty_in
 
-                new_stock_ledger.qty_out = qty_out
-                new_stock_ledger.unit = docitem.base_unit
+                    print("qty_in")
+                    print(qty_in)
 
-                if(qty_in >0):
-                    new_stock_ledger.incoming_rate = valuation_rate
+                    new_stock_ledger.qty_out = qty_out
+                    new_stock_ledger.unit = docitem.base_unit
 
-                if(qty_out >0):
-                    new_stock_ledger.outgoing_rate = valuation_rate
+                    if(qty_in >0):
+                        new_stock_ledger.incoming_rate = valuation_rate
 
-                new_stock_ledger.valuation_rate = valuation_rate
-                new_stock_ledger.balance_qty = new_balance_qty
-                new_stock_ledger.balance_value = new_balance_value
-                new_stock_ledger.voucher = "Stock Reconciliation"
-                new_stock_ledger.voucher_no = self.name
-                new_stock_ledger.source = "Stock Reconciliation Item"
-                new_stock_ledger.source_document_id = docitem.name
-                new_stock_ledger.insert()
+                    if(qty_out >0):
+                        new_stock_ledger.outgoing_rate = valuation_rate
+
+                    new_stock_ledger.valuation_rate = valuation_rate
+                    new_stock_ledger.balance_qty = new_balance_qty
+                    new_stock_ledger.balance_value = new_balance_value
+                    new_stock_ledger.voucher = "Stock Reconciliation"
+                    new_stock_ledger.voucher_no = self.name
+                    new_stock_ledger.source = "Stock Reconciliation Item"
+                    new_stock_ledger.source_document_id = docitem.name
+                    new_stock_ledger.insert()
+
+                    sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
+                    item_stock_ledger[docitem.item] = sl.name
+
+                else:
+                    stock_ledger_name = item_stock_ledger.get(docitem.item)
+                    stock_ledger = frappe.get_doc('Stock Ledger', stock_ledger_name)
+                    stock_ledger.qty_in = stock_ledger.qty_in + docitem.qty_in_base_unit
+                    stock_ledger.balance_qty = stock_ledger.balance_qty + docitem.qty_in_base_unit
+                    stock_ledger.balance_value = stock_ledger.balance_qty * stock_ledger.valuation_rate
+                    stock_ledger.change_in_stock_value = stock_ledger.change_in_stock_value + (stock_ledger.balance_qty * stock_ledger.valuation_rate)
+                    new_balance_qty = stock_ledger.balance_qty
+                    stock_ledger.save()
 
                 more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
     				'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})

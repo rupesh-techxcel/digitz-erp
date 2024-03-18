@@ -348,12 +348,13 @@ class PurchaseInvoice(Document):
 	def on_cancel(self):
 		cancel_bank_reconciliation("Purchase Invoice", self.name)
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Cancel Pending')
-		
-		# if(frappe.session.user == "Administrator" and turn_off_background_job):
-		# 	self.cancel_purchase()
-		# else:
-			# frappe.enqueue(self.cancel_purchase, queue="long")
+	
 		self.cancel_purchase()
+  
+		if self.purchase_order:
+			print("Calling update po qties b4 cancel or delete")			
+			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
+			check_and_update_purchase_order_status(self.purchase_order)
 
 		
 	def update_item_prices(self):
@@ -504,10 +505,7 @@ class PurchaseInvoice(Document):
 		# 		})
   
   
-		if self.purchase_order:
-			print("Calling update po qties b4 cancel or delete")			
-			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
-			check_and_update_purchase_order_status(self.purchase_order)
+	
 
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
