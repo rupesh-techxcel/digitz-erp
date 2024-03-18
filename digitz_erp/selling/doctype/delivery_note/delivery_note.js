@@ -165,7 +165,7 @@ frappe.ui.form.on('Delivery Note', {
 			frm.doc.payment_mode = "";
 			frm.doc.payment_account = "";
 		}
-		
+
 		frm.trigger("set_default_payment_mode");
 	},	
 	warehouse(frm) {
@@ -406,8 +406,12 @@ frappe.ui.form.on('Delivery Note', {
 				},
 				callback: (r2) => {
 					console.log(r2)
-					frm.doc.selected_item_stock_qty_in_the_warehouse = r2.message.stock_qty
-					frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					if (r2 && r2.message && r2.message.stock_qty !== undefined)
+					{
+						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
+						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					}
+
 				}
 			});
 	},

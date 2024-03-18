@@ -81,11 +81,11 @@ frappe.ui.form.on('Sales Order', {
 										frm.call("generate_delivery_note")
 									});
 
-								
+
 									frm.add_custom_button('Create Sales Invoice', () => {
 										frm.call("generate_sale_invoice")
 									});
-									
+
 
 								}
 							}
