@@ -23,6 +23,12 @@ frappe.ui.form.on('Supplier', {
             // You can use `frm.doc` to access the current document
             // For example, you can perform custom logic or open a dialog
         });
+		frm.add_custom_button(__('Show Statement Of Account'), function() {
+			
+            // Handle button click action here
+            // You can use `frm.doc` to access the current document
+            // For example, you can perform custom logic or open a dialog
+        });
 		
 		frm.set_df_property("default_terms","hidden", frm.doc.use_default_supplier_terms)
 		frm.set_df_property("terms","hidden", frm.doc.use_default_supplier_terms)

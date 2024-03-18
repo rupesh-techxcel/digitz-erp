@@ -4,13 +4,40 @@
 frappe.ui.form.on('Purchase Return', {
 	refresh: function (frm) {
 		create_custom_buttons(frm)
-		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
-				if (r && r.default_credit_purchase === 1) {
-						frm.set_value('credit_purchase', 1);
+		
+        if (frm.doc.docstatus < 1) {
+            frm.add_custom_button('Get Items From Purchase', function () {
+                // Call the custom method
+                frm.events.get_items_for_return(frm);
+            });
+        }
+    },	
+	setup: function (frm) {
+
+		frm.add_fetch('supplier', 'tax_id', 'tax_id')
+		frm.add_fetch('supplier', 'credit_days', 'credit_days')
+		frm.add_fetch('supplier', 'full_address', 'supplier_address')
+		frm.add_fetch('supplier', 'tax_id', 'tax_id')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
+		//frm.get_field('taxes').grid.cannot_add_rows = true;
+
+		frm.set_query("price_list", function () {
+			return {
+				"filters": {
+					"is_buying": 1
 				}
+			};
 		});
 
-		frm.set_query("warehouse", function() {
+		frm.set_query("supplier", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.set_query("warehouse", function () {
 			return {
 				"filters": {
 					"is_disabled": 0
@@ -19,20 +46,35 @@ frappe.ui.form.on('Purchase Return', {
 		});
 
 		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_disabled: 0
-                }
-            };
+			return {
+				filters: {
+					is_disabled: 0 
+				}
+			};
+		}
+	},
+	assign_defaults(frm)
+	{
+		if(frm.is_new())
+		{			
+			frm.trigger("get_default_company_and_warehouse");
+			
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+
+				console.log("r from assign defaults")
+				console.log(r)
+				if (r && r.default_credit_purchase === 1) {
+					console.log("credit purchase from  assign_defaults")
+					console.log(r.default_credit_purchase)
+						frm.set_value('credit_purchase', 1);
+				}			
+			
+			});
+
+			set_default_payment_mode(frm);
 		}
 
-        if (frm.doc.docstatus < 1) {
-            frm.add_custom_button('Get Items From Purchase', function () {
-                // Call the custom method
-                frm.events.get_items_for_return(frm);
-            });
-        }
-    },
+	},
 	supplier(frm){
 
 		frappe.call(
@@ -47,6 +89,20 @@ frappe.ui.form.on('Purchase Return', {
 					frm.refresh_field("supplier_balance");
 				}
 			});
+
+			frappe.call(
+				{
+					method: 'digitz_erp.api.accounts_api.get_supplier_balance',
+					args: {
+						'supplier': frm.doc.supplier
+					},
+					callback: (r) => {
+						frm.set_value('supplier_balance',r.message[0].supplier_balance)
+						frm.refresh_field("supplier_balance");
+					}
+				});
+
+			fill_payment_schedule(frm);
 
 	 },
 	get_items_for_return: function (frm) {
@@ -232,16 +288,15 @@ frappe.ui.form.on('Purchase Return', {
 	}
 	},
   credit_purchase(frm) {
-		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
-		frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
 
-		// if (frm.doc.credit_purchase) {
-		// 	frm.doc.payment_mode = "";
-		// 	frm.doc.payment_account = "";
-		// }
+		set_default_payment_mode(frm);
+		fill_payment_schedule(frm,refresh=true);
+
 	},
-  make_taxes_and_totals(frm) {
+	credit_days(frm){
+		fill_payment_schedule(frm,refresh_credit_days= true);
+	},
+    make_taxes_and_totals(frm) {
 		frm.clear_table("taxes");
 		frm.refresh_field("taxes");
 
@@ -395,6 +450,9 @@ frappe.ui.form.on('Purchase Return', {
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
+
+		fill_payment_schedule(frm);
+
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
 		frm.refresh_field("gross_total");
@@ -505,44 +563,107 @@ frappe.ui.form.on('Purchase Return', {
   }
 });
 
-frappe.ui.form.on("Purchase Return", "onload", function (frm) {
-	if(frm.doc.credit_purchase == 0){
-				frappe.call({
-								method: 'digitz_erp.buying.doctype.purchase_return.purchase_return.get_default_payment_mode',
-								callback: function(response) {
-												if (response && response.message) {
-																frm.set_value('payment_mode', response.message);
-												} else {
-																frappe.msgprint('Default payment mode for purchase not found.');
-												}
-								}
-				});
+
+function set_default_payment_mode(frm)
+{
+	if(!frm.doc.credit_purchase){
+
+        frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_purchase', function(r){
+			
+			if (r && r.default_payment_mode_for_purchase) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+    }
+	else
+	{
+		frm.set_value('payment_mode','');
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
+}
+
+function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+	console.log("from fill_payment_schedule")
+	console.log("refresh")
+	console.log(refresh)
+
+	if(refresh)
+	{
+		frm.doc.payment_schedule = [];
+		refresh_field("payment_schedule");
+	}
+
+	if (frm.doc.credit_purchase) {
+		
+		var postingDate = frm.doc.posting_date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.rounded_total;
+
+		if (!frm.doc.payment_schedule) {
+			frm.doc.payment_schedule = [];
 		}
 
-	// Remove the blank row shows initially
-	frm.doc.items = frm.doc.items.filter(function (item) {
-		return item.item && item.qty && item.rate;
-	});
+		var paymentRow = null;
 
-	frm.trigger("get_default_company_and_warehouse");
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.payment_schedule.forEach(function(row) {
+			if (row){
+				paymentRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
 
-	frm.set_query("price_list", function () {
-		return {
-			"filters": {
-				"is_buying": 1
+				row_count++;
 			}
-		};
-	});
+		});
+		console.log("row_count")
+		console.log(row_count)
+		console.log("paymentRow")
+		console.log(paymentRow)
+		console.log("refresh_credit_days")
+		console.log(refresh_credit_days)
 
-	frm.set_query("supplier", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
+		//If there is no row exits create one with the relevant values
+		if (!paymentRow) {
+			// Calculate payment schedule and add a new row
+			paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			paymentRow.payment_mode = "Cash"
+			paymentRow.amount = roundedTotal * -1;
+			refresh_field("payment_schedule");
+		}
+		else if (row_count==1)
+		{
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself
+			paymentRow.amount = roundedTotal * -1;
+			refresh_field("payment_schedule");
+		}
 
+		//Update date based on credit_days if there is a credit days change or change in the credit_purchase checkbox
+		if(refresh || refresh_credit_days)
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			refresh_field("payment_schedule");
+	}
+	else
+	{
+		frm.doc.payment_schedule = [];
+		refresh_field("payment_schedule");
+	}
+}
 
+frappe.ui.form.on("Purchase Return", "onload", function (frm) {
+
+	frm.trigger("assign_defaults")
+	fill_payment_schedule(frm);
 });
 
 frappe.ui.form.on('Purchase Return Item', {

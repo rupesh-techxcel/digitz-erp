@@ -2,42 +2,10 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Delivery Note', {
-	refresh: function(frm) {
-		frm.set_query("warehouse", function() {
-			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
-		});
-
-		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_disabled: 0
-                }
-            };
-		}
-		create_custom_buttons(frm)
-
-		frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
-			if (r && r.default_credit_sale === 1) {
-					frm.set_value('credit_sale', 1);
-			}
-	});
-
-	frm.add_custom_button(__('Get Items From Sales Order'), function () {
-				sales_order_dialog(frm)
-			})
-	}
-});
-// Copyright (c) 2023, Rupesh P and contributors
-// For license information, please see license.txt
-
-frappe.ui.form.on('Delivery Note', {
 	refresh: function (frm) {
 
 		if (frm.doc.docstatus == 1)
+		{
 
 			if (frm.doc.docstatus == 1 && !frm.doc.auto_generated_from_sales_invoice) {
 
@@ -62,6 +30,17 @@ frappe.ui.form.on('Delivery Note', {
 						}
 					});
 			}
+		}
+
+		if (frm.doc.docstatus == 0)
+		{
+			frm.add_custom_button(__('Get Items From Sales Order'), function () {
+				sales_order_dialog(frm)
+			})
+		}
+
+		create_custom_buttons(frm)
+
 	},
 	setup: function (frm) {
 
@@ -78,7 +57,61 @@ frappe.ui.form.on('Delivery Note', {
 				}
 			};
 		});
+
+		frm.set_query("price_list", function () {
+			return {
+				"filters": {
+					"is_selling": 1
+				}
+			};
+		});
+	
+		frm.set_query("customer", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+		frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+			if (r && r.default_credit_sale === 1) {
+					frm.set_value('credit_sale', 1);
+			}
+	});
+
+	
 	},
+	assign_defaults(frm)
+    {
+		if(frm.is_new())
+		{
+			frm.trigger("get_default_company_and_warehouse");
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+				if (r && r.default_credit_sale === 1) {
+						frm.set_value('credit_sale', 1);
+				}
+			});
+
+			set_default_payment_mode(frm);
+		}	
+    },
 	customer(frm) {
 		console.log("customer")
 		console.log(frm.doc.customer)
@@ -134,23 +167,7 @@ frappe.ui.form.on('Delivery Note', {
 		}
 		
 		frm.trigger("set_default_payment_mode");
-	},
-	set_default_payment_mode(frm)
-	{
-		if(frm.doc.credit_sale == 0){
-			frappe.call({
-					method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.get_default_payment_mode',
-					callback: function(response) {
-							if (response && response.message) {
-									frm.set_value('payment_mode', response.message);
-							} else {
-									frappe.msgprint('Default payment mode for sales not found.');
-							}
-					}
-			});
-		}
-
-	},
+	},	
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
@@ -474,36 +491,33 @@ frappe.ui.form.on('Delivery Note', {
 	}
 });
 
+
+function set_default_payment_mode(frm)
+{
+	if(frm.doc.credit_sale == 0){
+        frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
+			
+			if (r && r.default_payment_mode_for_sales) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+    }
+	else{
+
+		frm.set_value('payment_mode', '');
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
+}
+
 frappe.ui.form.on("Delivery Note", "onload", function (frm) {
 
-	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);
-	// frm.set_query("warehouse", function () {
-	// 	return {
-	// 		"filters": {
-	// 			"is_group": 0
-	// 		}
-	// 	};
-	// });
-
-	frm.trigger("get_default_company_and_warehouse");
-
-	frm.set_query("price_list", function () {
-		return {
-			"filters": {
-				"is_selling": 1
-			}
-		};
-	});
-
-	frm.set_query("customer", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-	console.log("Test loading..")
+	frm.trigger("assign_defaults");
 
 });
 

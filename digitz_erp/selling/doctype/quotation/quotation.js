@@ -3,28 +3,7 @@
 
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
-		 frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
- 				if (r && r.default_credit_sale === 1) {
- 						frm.set_value('credit_sale', 1);
- 				}
- 		});
-
-		frm.set_query("warehouse", function() {
-			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
-		});
-
-		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_disabled: 0
-                }
-            };
-		}
-
+		
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
 
@@ -155,13 +134,45 @@ frappe.ui.form.on('Quotation', {
 				}
 			});
 		}
-	},
+	},	
 	setup: function (frm) {
 
 		frm.add_fetch('customer', 'full_address', 'customer_address')
 		frm.add_fetch('customer', 'salesman', 'salesman')
 		frm.add_fetch('customer', 'tax_id', 'tax_id')
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
+
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
+
+		frm.set_query("price_list", function () {
+			return {
+				"filters": {
+					"is_selling": 1
+				}
+			};
+		});
+	
+		frm.set_query("customer", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
 
 		frm.set_query("ship_to_location", function () {
 			return {
@@ -170,6 +181,21 @@ frappe.ui.form.on('Quotation', {
 				}
 			};
 		});
+	},
+	assign_defaults(frm)
+	{
+		if(frm.is_new())
+		{
+			frm.trigger("get_default_company_and_warehouse");
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+				if (r && r.default_credit_sale === 1) {
+						frm.set_value('credit_sale', 1);
+				}
+			});	
+			
+			set_default_payment_mode(frm);
+		}
 	},
 	customer(frm) {
 		console.log("customer")
@@ -210,15 +236,9 @@ frappe.ui.form.on('Quotation', {
 		}
 	},
 	credit_sale(frm) {
-		console.log("Credit Sale");
-		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
-		frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 
-		// if (frm.doc.credit_sale) {
-		// 	frm.doc.payment_mode = "";
-		// 	frm.doc.payment_account = "";
-		// }
+		set_default_payment_mode(frm);
+		
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -508,49 +528,35 @@ frappe.ui.form.on('Quotation', {
 	}
 });
 
-frappe.ui.form.on("Quotation", "onload", function (frm) {
+function set_default_payment_mode(frm)
+{
+
 	if(frm.doc.credit_sale == 0){
-        frappe.call({
-                method: 'digitz_erp.selling.doctype.quotation.quotation.get_default_payment_mode',
-                callback: function(response) {
-                        if (response && response.message) {
-                                frm.set_value('payment_mode', response.message);
-                        } else {
-                                frappe.msgprint('Default payment mode for sales not found.');
-                        }
-                }
-        });
-    }
-
-	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);
-	// frm.set_query("warehouse", function () {
-	// 	return {
-	// 		"filters": {
-	// 			"is_group": 0
-	// 		}
-	// 	};
-	// });
-
-	frm.trigger("get_default_company_and_warehouse");
-
-	frm.set_query("price_list", function () {
-		return {
-			"filters": {
-				"is_selling": 1
+		
+		frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
+			
+			if (r && r.default_payment_mode_for_sales) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
 			}
-		};
-	});
+		});
+		
+	}
+	else
+	{
+		frm.set_value('payment_mode', "");
+	}
 
-	frm.set_query("customer", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-	console.log("Test loading..")
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);	
+}
 
+frappe.ui.form.on("Quotation", "onload", function (frm) {
+	
+	frm.trigger("assign_defaults")
+	
 });
 
 

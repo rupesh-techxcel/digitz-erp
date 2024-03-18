@@ -4,27 +4,6 @@
 frappe.ui.form.on('Purchase Order', {
 
 	refresh:function(frm){
-		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
-				if (r && r.default_credit_purchase === 1) {
-						frm.set_value('credit_purchase', 1);
-				}
-		});
-
-		frm.set_query("warehouse", function() {
-			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
-		});
-
-		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_disabled: 0
-                }
-            };
-		}
 		
 		if (frm.doc.docstatus == 1)
 
@@ -87,9 +66,61 @@ frappe.ui.form.on('Purchase Order', {
 		frm.add_fetch('supplier', 'full_address', 'supplier_address')
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
+		
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
 
+		frm.set_query("price_list", function () {
+			return {
+				"filters": {
+					"is_buying": 1
+				}
+			};
+		});
+	
+		frm.set_query("supplier", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.set_query("warehouse", function() {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    is_disabled: 0
+                }
+            };
+		}
 	},
+	assign_defaults(frm)
+	{
+		if(frm.is_new())
+		{			
+			frm.trigger("get_default_company_and_warehouse");
+			
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+
+				console.log("assign defualts")
+				console.log(r)
+
+				if (r && r.default_credit_purchase === 1) {
+						frm.set_value('credit_purchase', 1);
+				}		
+			
+			});
+
+			set_default_payment_mode(frm);
+		}
+	},		
 	validate:function(frm){
 
 		if(!frm.doc.credit_purchase)
@@ -136,19 +167,11 @@ frappe.ui.form.on('Purchase Order', {
 		}
 	},
 	credit_purchase(frm) {
-		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
-		frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
-
-		// if (frm.doc.credit_purchase) {
-		// 	frm.doc.payment_mode = "";
-		// 	frm.doc.payment_account = "";
-		// }
+		set_default_payment_mode(frm)
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
-
 	},
 	additional_discount(frm) {
 		frm.trigger("make_taxes_and_totals");
@@ -357,46 +380,7 @@ frappe.ui.form.on('Purchase Order', {
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
 
-	},
-	get_default_company_and_warehouse(frm) {
-		var default_company = ""
-		console.log("From Get Default Warehouse Method in the parent form")
-
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
-
-				default_company = r.message.default_company
-				frm.doc.company = r.message.default_company
-				frm.refresh_field("company");
-				frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
-						},
-						callback: (r2) => {
-							console.log("Before assign default warehouse");
-							console.log(r2.message.default_warehouse);
-							frm.doc.warehouse = r2.message.default_warehouse;
-							console.log(frm.doc.warehouse);
-							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-							frm.refresh_field("warehouse");
-							frm.refresh_field("rate_includes_tax");
-						}
-					}
-
-				)
-			}
-		})
-
-	},
+	},	
 	get_item_units(frm) {
 
 		frappe.call({
@@ -429,53 +413,79 @@ frappe.ui.form.on('Purchase Order', {
 
 });
 
+function set_default_payment_mode(frm)
+{
+	console.log("hi")
+	console.log(frm .doc.company)
+	if(!frm.doc.credit_purchase)
+	{
+		frappe.db.get_value('Company', frm.doc.company, 'default_payment_mode_for_purchase', function(r) {
+
+			if (r && r.default_payment_mode_for_purchase) {
+				frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
+
+			}
+			else {
+				frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+	}
+	else
+	{
+		frm.set_value('payment_mode', "");
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
+	
+}
+
+function get_default_company_and_warehouse(frm) {
+	var default_company = ""
+	console.log("From Get Default Warehouse Method in the parent form")
+
+	frappe.call({
+		method: 'frappe.client.get_value',
+		args: {
+			'doctype': 'Global Settings',
+			'fieldname': 'default_company'
+		},
+		callback: (r) => {
+
+			default_company = r.message.default_company
+			frm.doc.company = r.message.default_company
+			frm.refresh_field("company");
+			frappe.call(
+				{
+					method: 'frappe.client.get_value',
+					args: {
+						'doctype': 'Company',
+						'filters': { 'company_name': default_company },
+						'fieldname': ['default_warehouse', 'rate_includes_tax']
+					},
+					callback: (r2) => {
+						console.log("Before assign default warehouse");
+						console.log(r2.message.default_warehouse);
+						frm.doc.warehouse = r2.message.default_warehouse;
+						console.log(frm.doc.warehouse);
+						//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+						frm.refresh_field("warehouse");
+						frm.refresh_field("rate_includes_tax");
+					}
+				}
+
+			)
+		}
+	})
+
+}
 
 frappe.ui.form.on("Purchase Order", "onload", function (frm) {
-	if(frm.doc.credit_purchase == 0){
-				frappe.call({
-								method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.get_default_payment_mode',
-								callback: function(response) {
-												if (response && response.message) {
-																frm.set_value('payment_mode', response.message);
-												} else {
-																frappe.msgprint('Default payment mode for purchase not found.');
-												}
-								}
-				});
-		}
-
-
-	//Since the default selectionis cash
-	//frm.set_df_property("date","read_only",1);
-	// frm.set_query("warehouse", function () {
-	// 	return {
-	// 		"filters": {
-	// 			"is_group": 0
-	// 		}
-	// 	};
-	// });
-
-	frm.trigger("get_default_company_and_warehouse");
-
-	frm.set_query("price_list", function () {
-		return {
-			"filters": {
-				"is_buying": 1
-			}
-		};
-	});
-
-	frm.set_query("supplier", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-
+	
+	frm.trigger("assign_defaults")
 
 });
-
 
 frappe.ui.form.on('Purchase Order Item', {
 	// cdt is Child DocType name i.e Quotation Item
@@ -804,3 +814,5 @@ frappe.ui.form.on('Purchase Order Item', {
 		frm.trigger("make_taxes_and_totals");
 	}
 });
+
+

@@ -2,39 +2,11 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Purchase Invoice', {
-	setup: function (frm) {
 
-		frm.add_fetch('supplier', 'tax_id', 'tax_id')
-		frm.add_fetch('supplier', 'credit_days', 'credit_days')
-		frm.add_fetch('supplier', 'full_address', 'supplier_address')
-		frm.add_fetch('supplier', 'tax_id', 'tax_id')
-		frm.add_fetch('payment_mode', 'account', 'payment_account')
-		//frm.get_field('taxes').grid.cannot_add_rows = true;
-	},
 	refresh:function (frm) {
+
 		create_custom_buttons(frm)
-		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
-				if (r && r.default_credit_purchase === 1) {
-						frm.set_value('credit_purchase', 1);
-				}
-		});
-
-		frm.set_query("warehouse", function() {
-			return {
-				"filters": {
-					"is_disabled": 0
-				}
-			};
-		});
-
-		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_disabled: 0 
-                }
-            };
-		}
-
+	
 		console.log("refresh")
 
 		if (frm.doc.docstatus == 4) //Hiding for now
@@ -66,6 +38,70 @@ frappe.ui.form.on('Purchase Invoice', {
 			});
 		}
 	},
+	setup: function (frm) {
+
+		frm.add_fetch('supplier', 'tax_id', 'tax_id')
+		frm.add_fetch('supplier', 'credit_days', 'credit_days')
+		frm.add_fetch('supplier', 'full_address', 'supplier_address')
+		frm.add_fetch('supplier', 'tax_id', 'tax_id')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
+		//frm.get_field('taxes').grid.cannot_add_rows = true;
+
+		frm.set_query("price_list", function () {
+			return {
+				"filters": {
+					"is_buying": 1
+				}
+			};
+		});
+
+		frm.set_query("supplier", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.set_query("warehouse", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+
+		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
+			return {
+				filters: {
+					is_disabled: 0 
+				}
+			};
+		}
+	},
+	assign_defaults(frm)
+	{
+		if(frm.is_new())
+		{			
+			frm.trigger("get_default_company_and_warehouse");
+			
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+
+				console.log("r from assign defaults")
+				console.log(r)
+				if (r && r.default_credit_purchase === 1) {
+					console.log("credit purchase from  assign_defaults")
+					console.log(r.default_credit_purchase)
+						frm.set_value('credit_purchase', 1);
+				}			
+			
+			});
+
+			set_default_payment_mode(frm);
+		}
+
+	},
+	
 	validate:function(frm){
 
 		if(!frm.doc.credit_purchase)
@@ -94,9 +130,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		}
 	},
 	supplier(frm) {
-		console.log("supplier")
-		console.log(frm.doc.supplier)
-
+	
 		console.log("supplier default price list")
 		frappe.call(
 			{
@@ -157,14 +191,8 @@ frappe.ui.form.on('Purchase Invoice', {
 		}
 	},
 	credit_purchase(frm) {
-		frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
-		frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
-		frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
-
-		if (frm.doc.credit_purchase) {
-			frm.doc.payment_mode = "";
-			frm.doc.payment_account = "";
-		}
+		
+		set_default_payment_mode(frm);
 
 		fill_payment_schedule(frm,refresh=true);
 	},
@@ -516,45 +544,9 @@ frappe.ui.form.on('Purchase Invoice', {
 
 });
 
-
 frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 
-	// Code to fix the visibility issue in case PI is created from PO
-	if(!frm.doc.credit_purchase)
-	{
-		frm.set_df_property("payment_mode","hidden",0);
-		frm.set_df_property("payment_account","hidden",0);
-		frm.set_df_property("credit_days","hidden",1);
-	}
-
-	if (frm.is_new()) {
-		frm.trigger("get_default_company_and_warehouse");
-	}
-
-	frm.set_query("price_list", function () {
-		return {
-			"filters": {
-				"is_buying": 1
-			}
-		};
-	});
-
-	frm.set_query("supplier", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-
-	frm.set_query("warehouse", function () {
-		return {
-			"filters": {
-				"is_disabled": 0
-			}
-		};
-	});
-
+	frm.trigger("assign_defaults")
 	fill_payment_schedule(frm);
 });
 
@@ -884,6 +876,31 @@ frappe.ui.form.on('Purchase Invoice Item', {
 	}
 });
 
+function set_default_payment_mode(frm)
+{
+	if(!frm.doc.credit_purchase){
+
+		frappe.db.get_value('Company', frm.doc.company, 'default_payment_mode_for_purchase', function(r) {
+
+			if (r && r.default_payment_mode_for_purchase) {
+				frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
+
+			}
+			else {
+				frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+    }
+	else
+	{
+		frm.set_value('payment_mode','');
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
+}
+
 function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 {
 	console.log("from fill_payment_schedule")
@@ -894,19 +911,6 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 		frm.doc.payment_schedule = [];
 		refresh_field("payment_schedule");
 	}
-
-	if(frm.doc.credit_purchase == 0){
-        frappe.call({
-                method: 'digitz_erp.buying.doctype.purchase_invoice.purchase_invoice.get_default_payment_mode',
-                callback: function(response) {
-                        if (response && response.message) {
-                                frm.set_value('payment_mode', response.message);
-                        } else {
-                                frappe.msgprint('Default payment mode for purchase not found.');
-                        }
-                }
-        });
-    }
 
 	if (frm.doc.credit_purchase) {
 		var postingDate = frm.doc.posting_date;
@@ -969,6 +973,7 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 }
 
 let create_custom_buttons = function(frm){
+
 	if (frappe.user.has_role('Management')) {
 		if(!frm.is_new() && (frm.doc.docstatus == 1)){
 		frm.add_custom_button('General Ledgers',() =>{

@@ -64,7 +64,9 @@
   "terms",
   "terms_and_conditions",
   "section_break_27",
-  "amended_from"
+  "amended_from",
+  "payment_schedule_tab",
+  "payment_schedule"
  ],
  "fields": [
   {
@@ -394,12 +396,23 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "payment_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Purchase Payment Schedule"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-12 14:55:03.126377",
+ "modified": "2024-03-17 12:01:55.545959",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",
