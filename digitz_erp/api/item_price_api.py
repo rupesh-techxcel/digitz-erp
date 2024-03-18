@@ -103,27 +103,20 @@ def get_item_price(item, price_list, currency, date):
         return 0
         
 @frappe.whitelist()
-def get_customer_last_price_for_item(item,customer):
+def get_customer_last_price_for_item(item, customer):
+    # Assuming "Customer Item" is a child table and you have a field named 'price' in it.
+    # Also assuming that 'parent' in the filter refers to the item's ID in the main table where "Customer Item" is linked.
+    customer_item_price = frappe.get_value("Customer Item", {'parent': item, 'customer': customer}, 'price')
 
-    rate = frappe.db.sql("""select tsi.rate_in_base_unit from `tabSales Invoice Item` tsi inner join `tabSales Invoice` ts on ts.name = tsi.parent where tsi.item='{item}' and ts.customer='{customer}' and ts.docstatus = 1 order by ts.posting_date, posting_time desc LIMIT 1""".format(item=item, customer=customer))
-    
-    if(rate):
-        return rate
-    else:
-        return 0
+    return customer_item_price if customer_item_price is not None else 0
 
 @frappe.whitelist()
-def get_supplier_last_price_for_item(item,supplier):
+def get_supplier_last_price_for_item(item, supplier):
+    # Assuming "Customer Item" is a child table and you have a field named 'price' in it.
+    # Also assuming that 'parent' in the filter refers to the item's ID in the main table where "Customer Item" is linked.
+    supplier_item_price = frappe.get_value("Supplier Item", {'parent': item, 'supplier': supplier}, 'price')
 
-    rate = frappe.db.sql("""select tpi.rate_in_base_unit from `tabPurchase Invoice Item` tpi inner join `tabPurchase Invoice` tp on tp.name = tpi.parent where tpi.item='{item}' and tp.supplier='{supplier}' and tp.docstatus = 1 order by tp.posting_date, posting_time desc LIMIT 1""".format(item=item, supplier=supplier))
-    
-    print("from get_supplier_last_price")
-    print(rate)
-    
-    if(rate):
-        return rate
-    else:
-        return 0
+    return supplier_item_price if supplier_item_price is not None else 0
 
 @frappe.whitelist()
 def update_customer_item_price(item_code, customer, price, price_date):

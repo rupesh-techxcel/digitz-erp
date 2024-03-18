@@ -3,96 +3,84 @@
 
 import frappe
 from frappe.model.document import Document
+from digitz_erp.api.sales_order_api import check_pending_items_exists
+from digitz_erp.api.item_price_api import update_customer_item_price
 
 class SalesOrder(Document):
 	
+ 
+	def before_validate(self):
+     
+		if self.is_new():
+			for item in self.items:
+				item.qty_sold_in_base_unit = 0
+			self.order_status = "Pending"
+     
+	def on_submit(self):
+		self.update_customer_prices()
+     
+	def update_customer_prices(self):
+
+		for docitem in self.items:
+				item = docitem.item
+				rate = docitem.rate_in_base_unit
+				update_customer_item_price(item, self.customer,rate,self.posting_date)
+	
+ 
 	@frappe.whitelist()
 	def generate_sale_invoice(self):
-     
-		self.check_references_created()    
+		
   
+		pending_items= check_pending_items_exists(self.name)
+  
+		if not pending_items:
+			frappe.throw("No pending items in the Sales Order to generate a Sales Invoice.")
+
 		sales_invoice_doc = frappe.new_doc('Sales Invoice')
-  
-		sales_invoice_doc.company = self.company		
-		sales_invoice_doc.customer = self.customer
-		sales_invoice_doc.customer_name = self.customer_name
-		sales_invoice_doc.customer_display_name = self.customer_display_name
-		sales_invoice_doc.customer_address = self.customer_address
-		sales_invoice_doc.reference_no = self.reference_no
-		sales_invoice_doc.posting_date = self.posting_date
-		sales_invoice_doc.posting_time = self.posting_time
-		sales_invoice_doc.ship_to_location = self.ship_to_location
-		sales_invoice_doc.salesman = self.salesman
-		sales_invoice_doc.salesman_code = self.salesman_code
-		sales_invoice_doc.tax_id = self.tax_id
-		sales_invoice_doc.lpo_no = self.lpo_no
-		sales_invoice_doc.lpo_date = self.lpo_date
-		sales_invoice_doc.price_list = self.price_list
-		sales_invoice_doc.rate_includes_tax = self.rate_includes_tax
-		sales_invoice_doc.warehouse = self.warehouse
-		sales_invoice_doc.credit_sale = self.credit_sale
-		sales_invoice_doc.credit_days = self.credit_days
-		sales_invoice_doc.payment_terms = self.payment_terms
-		sales_invoice_doc.payment_mode = self.payment_mode
-		sales_invoice_doc.payment_account = self.payment_account
-		sales_invoice_doc.remarks = self.remarks
-		sales_invoice_doc.gross_total = self.gross_total
-		sales_invoice_doc.total_discount_in_line_items = self.total_discount_in_line_items
-		sales_invoice_doc.tax_total = self.tax_total
-		sales_invoice_doc.net_total = self.net_total
-		sales_invoice_doc.round_off = self.round_off
-		sales_invoice_doc.rounded_total = self.rounded_total
-		sales_invoice_doc.terms = self.terms
-		sales_invoice_doc.terms_and_conditions = self.terms_and_conditions		
-		sales_invoice_doc.address_line_1 = self.address_line_1
-		sales_invoice_doc.address_line_2 = self.address_line_2
-		sales_invoice_doc.area_name = self.area_name
-		sales_invoice_doc.country = self.country
-		sales_invoice_doc.quotation = self.quotation
+
+		# Set fields directly from the object's attributes
+		fields_to_copy = [
+			'company', 'customer', 'customer_name', 'customer_display_name', 'customer_address', 'reference_no',
+			'posting_date', 'posting_time', 'ship_to_location', 'salesman', 'salesman_code', 'tax_id', 'lpo_no',
+			'lpo_date', 'price_list', 'rate_includes_tax', 'warehouse', 'credit_sale', 'credit_days', 'payment_terms',
+			'payment_mode', 'payment_account', 'remarks', 'gross_total', 'total_discount_in_line_items', 'tax_total',
+			'net_total', 'round_off', 'rounded_total', 'terms', 'terms_and_conditions', 'address_line_1', 'address_line_2',
+			'area_name', 'country', 'quotation'
+		]
+		for field in fields_to_copy:
+			setattr(sales_invoice_doc, field, getattr(self, field, None))
+
 		sales_invoice_doc.sales_order = self.name
 
 		sales_invoice_doc.save()
-		
-		idx = 0
 
 		for item in self.items:
-			idx = idx + 1
 			sales_invoice_item = frappe.new_doc("Sales Invoice Item")
-			sales_invoice_item.warehouse = item.warehouse
-			sales_invoice_item.item = item.item
-			sales_invoice_item.item_name = item.item_name
-			sales_invoice_item.display_name = item.display_name
-			sales_invoice_item.qty =round((item.qty_in_base_unit - item.qty_sold_in_base_unit)/ item.conversion_factor,2)
-			sales_invoice_item.unit = item.unit
+			# Directly map the necessary fields
+			for field in ['warehouse', 'item', 'item_name', 'display_name', 'unit', 'base_unit', 'rate_includes_tax',
+						'rate_excluded_tax', 'gross_amount', 'tax_excluded', 'tax', 'tax_rate', 'tax_amount',
+						'discount_percentage', 'discount_amount', 'net_amount', 'unit_conversion_details']:
+				setattr(sales_invoice_item, field, getattr(item, field, None))
+
+			sales_invoice_item.qty = round((item.qty_in_base_unit - item.qty_sold_in_base_unit) / item.conversion_factor, 2)
 			sales_invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
-			sales_invoice_item.base_unit = item.base_unit
 			sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_sold_in_base_unit
 			sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit
 			sales_invoice_item.conversion_factor = item.conversion_factor
-			sales_invoice_item.rate_includes_tax = item.rate_includes_tax
-			sales_invoice_item.rate_excluded_tax = item.rate_excluded_tax
-			sales_invoice_item.gross_amount = item.gross_amount
-			sales_invoice_item.tax_excluded = item.tax_excluded
-			sales_invoice_item.tax = item.tax
-			sales_invoice_item.tax_rate = item.tax_rate
-			sales_invoice_item.tax_amount = item.tax_amount
-			sales_invoice_item.discount_percentage = item.discount_percentage
-			sales_invoice_item.discount_amount = item.discount_amount
-			sales_invoice_item.net_amount = item.net_amount
-			sales_invoice_item.unit_conversion_details = item.unit_conversion_details
-			sales_invoice_item.idx = idx
 			sales_invoice_item.sales_order_item_reference_no = item.name
 
-			sales_invoice_doc.append('items', sales_invoice_item )
-			#  target_items.append(target_item)
-  
+			sales_invoice_doc.append('items', sales_invoice_item)
+
 		sales_invoice_doc.save()
-		frappe.msgprint("Sales invoice generated successfully, in draft mode.", alert=True)
+		frappe.msgprint("Sales Invoice generated successfully, in draft mode.", alert=True)
 
 	@frappe.whitelist()
 	def generate_delivery_note(self):
      
-		self.check_references_created()    
+		pending_items= check_pending_items_exists(self.name)
+  
+		if not pending_items:
+			frappe.throw("No pending items in the Sales Order to generate a Delivery Note.")  
   
 		delivery_note_doc = frappe.new_doc('Delivery Note')
 		delivery_note_doc.compay = self.company		
@@ -169,72 +157,7 @@ class SalesOrder(Document):
 			#  target_items.append(target_item)
 
 		delivery_note_doc.save()
-    
-	# @frappe.whitelist()
-	# def generate_sale_invoice(self):
-		
-	# 	self.check_references_created()    
-
-	# 	sales_invoice_name = ""  		
-	# 	sales_order_name =  self.name
-	# 	sales_invoice = self.__dict__
-	# 	sales_invoice['doctype'] = 'Sales Invoice'
-	# 	sales_invoice['name'] = sales_invoice_name
-	# 	sales_invoice['naming_series'] = ""
-	# 	sales_invoice['posting_date'] = self.posting_date
-	# 	sales_invoice['posting_time'] = self.posting_time
-	# 	sales_invoice['sales_order'] = sales_order_name
-		
-	# 	# Change the document status to draft to avoid error while submitting child table
-	# 	sales_invoice['docstatus'] = 0
-
-	# 	for item in sales_invoice['items']:            
-	# 		item.doctype = "Sales Invoice Item"		
-	# 		item.sales_order_item_reference_no = item.name  
-	# 		item._meta = ""  
-
-	# 		print(item)
-			
-	# 	frappe.get_doc(sales_invoice).insert(ignore_permissions=True)  
-		
-	# 	frappe.db.commit()
-
-	# 	frappe.msgprint("Sales Invoice created successfully with draft mode.", alert=1)
-		
-	# @frappe.whitelist()
-	# def generate_delivery_note(self):
-		
-	# 	self.check_references_created()
   
-	# 	delivery_note = self.__dict__
-	# 	delivery_note['doctype'] = 'Delivery Note'
-	# 	# delivery_note['against_sales_invoice'] = delivery_note['name']
-	# 	# delivery_note['name'] = delivery_note_name        
-	# 	delivery_note['naming_series'] = ""
-	# 	delivery_note['posting_date'] = self.posting_date
-	# 	delivery_note['posting_time'] = self.posting_time
-	# 	delivery_note["sales_order"] = self.name		
-	# 	delivery_note['docstatus'] = 0
-
-	# 	for item in delivery_note['items']:
-	# 		item.doctype = "Delivery Note Item"
-	# 		item.sales_order_item_reference_no = item.name
-	# 		item._meta = "" 
-
-	# 	doNo = frappe.get_doc(delivery_note).insert()
-	# 	frappe.db.commit()
-	# 	frappe.msgprint("Delivery successfully created in draft mode")
-
-	def check_references_created(self):
-			
-		sales_order_exists_for_invoice = frappe.db.exists("Sales Invoice", {"sales_order": self.name}) 
-
-		if sales_order_exists_for_invoice:
-			frappe.throw("Sales Invoice exists for the sales order and cannot create additional references.")
-  
-		sales_order_exists_for_delivery_note = frappe.db.exists("Delivery Note", {"sales_order": self.name}) 
-  
-		if sales_order_exists_for_delivery_note:
-			frappe.throw("Delivery Note exists for the sales order and canoot create additional references.")
+	
 
 		

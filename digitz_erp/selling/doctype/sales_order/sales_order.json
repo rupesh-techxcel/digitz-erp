@@ -12,35 +12,37 @@
   "customer",
   "customer_name",
   "customer_display_name",
-  "reference_no",
   "customer_address",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
+  "reference_no",
   "ship_to_location",
-  "salesman",
-  "salesman_code",
   "tax_id",
   "column_break_4",
-  "company",
-  "lpo_no",
-  "lpo_date",
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "default_cost_center",
+  "salesman",
+  "salesman_code",
+  "column_break_kscq",
+  "company",
+  "lpo_date",
+  "lpo_no",
   "order_status",
+  "default_cost_center",
   "accounts_section",
   "credit_sale",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "mode",
   "payment_account",
   "column_break_25",
-  "remarks",
+  "payment_terms",
   "column_break_rkkd",
+  "remarks",
+  "column_break_kjrk",
   "section_break_19",
   "items",
   "section_break_29",
@@ -58,6 +60,7 @@
   "round_off",
   "rounded_total",
   "column_break_engq",
+  "total_big",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -223,6 +226,7 @@
    "reqd": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -414,7 +418,8 @@
   },
   {
    "fieldname": "column_break_rkkd",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "width": "150"
   },
   {
    "fieldname": "column_break_ywbh",
@@ -435,6 +440,18 @@
    "fieldtype": "Select",
    "label": "Order Status",
    "options": "Pending\nPartial\nCompleted"
+  },
+  {
+   "fieldname": "column_break_kscq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kjrk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -449,7 +466,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-03-17 20:33:14.678953",
+ "modified": "2024-03-18 21:32:17.662061",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

@@ -3,16 +3,14 @@
 
 frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
+		
+		var pending_items_exists = false
 
-		var salesInvoiceCreated = false
-		var deliveryNoteCreated = false
-		var alreadyUsed = false
-
-		if(!frm.doc.__islocal)
+		if(frm.doc.docstatus == 1)
 		{
 			frappe.call(
 			{
-				method: 'digitz_erp.api.sales_order_api.get_sales_invoice_exists',
+				method: 'digitz_erp.api.sales_order_api.check_pending_items_exists',
 				async: false,
 				args: {
 					'sales_order': frm.doc.name
@@ -21,79 +19,25 @@ frappe.ui.form.on('Sales Order', {
 
 					if (r.message)
 					{
-						salesInvoiceCreated = true
+						pending_items_exists = true
 					}
 				}
 			});
-
-			frappe.call(
-				{
-					method: 'digitz_erp.api.quotation_api.get_delivery_note_exists',
-					async: false,
-					args: {
-						'qtn_no': frm.doc.name
-					},
-					callback(r) {
-
-						if (r.message)
-						{
-							deliveryNoteCreated = true
-						}
-					}
+		
+			if(pending_items_exists)
+			{
+				
+				frm.add_custom_button('Create Delivery Note', () => {
+					frm.call("generate_delivery_note")
 				});
 
-				if(deliveryNoteCreated  || salesInvoiceCreated)
-				{
-					alreadyUsed = true
-				}
-				else
-				{
-					alreadyUsed = false
-				}
-
-				console.log("alreadyused")
-				console.log(alreadyUsed)
-
-			frappe.call({
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Global Settings',
-					'fieldname': 'default_company'
-				},
-				callback: (r) => {
-
-					frm.doc.company = r.message.default_company
-					frm.refresh_field("company");
-					frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-								'doctype': 'Company',
-								'filters': { 'company_name': r.message.default_company },
-								'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
-							},
-							callback: (r2) => {
-
-								//Have a button to create delivery note in case delivery note is not integrated with SI
-								if (frm.doc.docstatus==1 && !alreadyUsed) {
-
-									frm.add_custom_button('Create Delivery Note', () => {
-										frm.call("generate_delivery_note")
-									});
-
-
-									frm.add_custom_button('Create Sales Invoice', () => {
-										frm.call("generate_sale_invoice")
-									});
-
-
-								}
-							}
-						}
-					)
-				}
-			});
+				frm.add_custom_button('Create Sales Invoice', () => {
+					frm.call("generate_sale_invoice")
+				});								
+			}			
 		}
+
+		update_total_big_display(frm);
 	},
 	setup: function (frm) {
 
@@ -232,8 +176,8 @@ frappe.ui.form.on('Sales Order', {
 		frm.doc.rounded_total = 0;
 
 		frm.doc.items.forEach(function (entry) {
-			console.log("Item in Row")
-			console.log(entry.item);
+			console.log("entry")
+			console.log(entry);
 			var tax_in_rate = 0;
 
 			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column
@@ -365,6 +309,7 @@ frappe.ui.form.on('Sales Order', {
 		frm.doc.net_total = gross_total + tax_total - frm.doc.additional_discount;
 		frm.doc.tax_total = tax_total;
 		frm.doc.total_discount_in_line_items = discount_total;
+
 		console.log("Net Total Before Round Off")
 		console.log(frm.doc.net_total)
 
@@ -375,6 +320,8 @@ frappe.ui.form.on('Sales Order', {
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
+
+		
 
 		console.log("Totals");
 
@@ -392,6 +339,8 @@ frappe.ui.form.on('Sales Order', {
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
+
+		update_total_big_display(frm);
 
 	},
 	get_default_company_and_warehouse(frm) {
@@ -485,6 +434,19 @@ frappe.ui.form.on('Sales Order', {
 	}
 });
 
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+    
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
+}
 
 function set_default_payment_mode(frm)
 {
@@ -544,7 +506,6 @@ frappe.ui.form.on('Sales Order Item', {
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
 					tax_excluded_for_company = r.message[0].tax_excluded
-
 				}
 			}
 		);
@@ -676,8 +637,7 @@ frappe.ui.form.on('Sales Order Item', {
 
 									if(r.message != undefined && r.message > 0 )
 									{
-										use_price_list_price = 0
-										frappe.msgprint("Customer last price applied", alert=false);
+										use_price_list_price = 0										
 									}
 								}
 							}

@@ -19,19 +19,20 @@
   "posting_time",
   "edit_posting_date_and_time",
   "ship_to_location",
-  "salesman",
-  "salesman_code",
   "tax_id",
-  "is_delivered",
   "column_break_4",
-  "company",
-  "company_tax_id",
-  "lpo_no",
-  "lpo_date",
   "price_list",
   "rate_includes_tax",
   "warehouse",
   "default_cost_center",
+  "is_delivered",
+  "salesman",
+  "salesman_code",
+  "column_break_xvlk",
+  "company",
+  "company_tax_id",
+  "lpo_no",
+  "lpo_date",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -69,8 +70,7 @@
   "area_name",
   "country",
   "quotation",
-  "amended_from",
-  "section_break_19"
+  "amended_from"
  ],
  "fields": [
   {
@@ -186,10 +186,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_19",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -235,10 +231,6 @@
    "label": "Payment Account",
    "options": "Account",
    "read_only": 1
-  },
-  {
-   "fieldname": "section_break_19",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "items",
@@ -439,6 +431,10 @@
   {
    "fieldname": "section_break_19_1",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_xvlk",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -449,7 +445,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
- "modified": "2024-03-13 18:11:09.176101",
+ "modified": "2024-03-18 21:40:03.808257",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

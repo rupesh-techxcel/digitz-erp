@@ -183,7 +183,7 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			});
 
-			frm.doc.customer_display_name = frm.doc.customer_name
+			frm.set_value('customer_display_name', frm.doc.customer_name)
 			frm.refresh_field("customer_display_name");
 
 		frappe.call(
@@ -422,7 +422,6 @@ frappe.ui.form.on('Sales Invoice', {
 			 }
 			 else{
 
-				console.log("here 3-----")
 				frm.doc.rounded_total = frm.doc.net_total;
 				frm.refresh_field("rounded_total");
 
