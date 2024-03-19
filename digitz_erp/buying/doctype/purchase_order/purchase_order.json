@@ -10,6 +10,7 @@
  "field_order": [
   "naming_series",
   "supplier",
+  "supplier_balance",
   "supplier_address",
   "tax_id",
   "column_break_6",
@@ -382,6 +383,12 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "supplier_balance",
+   "fieldtype": "Currency",
+   "label": "Supplier Balance",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
@@ -391,7 +398,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-03-15 08:43:50.496828",
+ "modified": "2024-03-18 11:58:49.306201",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

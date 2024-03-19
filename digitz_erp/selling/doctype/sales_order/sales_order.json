@@ -12,6 +12,7 @@
   "customer",
   "customer_name",
   "customer_display_name",
+  "customer_balance",
   "customer_address",
   "column_break_6",
   "posting_date",
@@ -69,11 +70,11 @@
   "tab_break_50",
   "data_53",
   "quotation",
-  "amended_from",
   "address_line_1",
   "address_line_2",
   "area_name",
-  "country"
+  "country",
+  "amended_from"
  ],
  "fields": [
   {
@@ -452,6 +453,12 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "customer_balance",
+   "fieldtype": "Currency",
+   "label": "Customer Balance",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -466,7 +473,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-03-18 21:32:17.662061",
+ "modified": "2024-03-19 11:02:14.877531",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

@@ -5,7 +5,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
-	
+
 		 if (frm.doc.docstatus === 0) {
 			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
 						delivery_note_dialog(frm)
@@ -52,7 +52,7 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			};
 		});
-	
+
 		frm.set_query("customer", function () {
 			return {
 				"filters": {
@@ -92,7 +92,7 @@ frappe.ui.form.on('Sales Invoice', {
 			set_default_payment_mode(frm);
 		}
 
-		
+
 	},
 	after_save: function (frm) {
 
@@ -144,7 +144,7 @@ frappe.ui.form.on('Sales Invoice', {
 			}
 		}
 	},
-	
+
 	customer(frm) {
 
 		frappe.call(
@@ -646,7 +646,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
-	frm.trigger("assign_defaults")	
+	frm.trigger("assign_defaults")
 	fill_receipt_schedule(frm);
 
 });
@@ -994,7 +994,7 @@ function set_default_payment_mode(frm)
 {
 	if(frm.doc.credit_sale == 0){
         frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
-			
+
 			if (r && r.default_payment_mode_for_sales) {
 							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
 			} else {

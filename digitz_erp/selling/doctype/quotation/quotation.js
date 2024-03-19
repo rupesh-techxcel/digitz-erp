@@ -3,7 +3,7 @@
 
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
-		
+
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
 
@@ -134,7 +134,7 @@ frappe.ui.form.on('Quotation', {
 				}
 			});
 		}
-	},	
+	},
 	setup: function (frm) {
 
 		frm.add_fetch('customer', 'full_address', 'customer_address')
@@ -165,7 +165,7 @@ frappe.ui.form.on('Quotation', {
 				}
 			};
 		});
-	
+
 		frm.set_query("customer", function () {
 			return {
 				"filters": {
@@ -192,12 +192,24 @@ frappe.ui.form.on('Quotation', {
 				if (r && r.default_credit_sale === 1) {
 						frm.set_value('credit_sale', 1);
 				}
-			});	
-			
+			});
+
 			set_default_payment_mode(frm);
 		}
 	},
 	customer(frm) {
+		frappe.call(
+		{
+			method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+			args: {
+				'party_type': 'Customer',
+				'party': frm.doc.customer
+			},
+			callback: (r) => {
+				frm.set_value('customer_balance',r.message)
+				frm.refresh_field("customer_balance");
+			}
+		});
 		console.log("customer")
 		console.log(frm.doc.customer)
 
@@ -238,7 +250,7 @@ frappe.ui.form.on('Quotation', {
 	credit_sale(frm) {
 
 		set_default_payment_mode(frm);
-		
+
 	},
 	warehouse(frm) {
 		console.log("warehouse set")
@@ -532,16 +544,16 @@ function set_default_payment_mode(frm)
 {
 
 	if(frm.doc.credit_sale == 0){
-		
+
 		frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
-			
+
 			if (r && r.default_payment_mode_for_sales) {
 							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
 			} else {
 							frappe.msgprint('Default payment mode for purchase not found.');
 			}
 		});
-		
+
 	}
 	else
 	{
@@ -550,13 +562,13 @@ function set_default_payment_mode(frm)
 
 	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
 	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
-	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);	
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
 }
 
 frappe.ui.form.on("Quotation", "onload", function (frm) {
-	
+
 	frm.trigger("assign_defaults")
-	
+
 });
 
 

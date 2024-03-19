@@ -66,8 +66,8 @@ class SalesInvoice(Document):
             # Issue - First save the invoie not as credit sale, it will fill up the paid_amount
             # equal to rounded_total. Make it as credit sale in the draft mode and then save.
             # In this case its required to make the paid_amount zero
-        #     self.paid_amount = 0
-        # self.in_words = money_in_words(self.rounded_total,"AED")
+            self.paid_amount = 0
+        self.in_words = money_in_words(self.rounded_total,"AED")
 
         if self.tab_sales:
             self.update_stock = True
@@ -78,11 +78,11 @@ class SalesInvoice(Document):
         # self.validate_item_valuation_rates()
 
     def on_update(self):
-        
+
         self.update_item_prices()
-        
-        update_sales_order_quantities_on_update(self)    
-            
+
+        update_sales_order_quantities_on_update(self)
+
         check_and_update_sales_order_status(self.name, "Sales Invoice")
 
     def on_submit(self):
@@ -98,9 +98,9 @@ class SalesInvoice(Document):
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
         self.do_postings_on_submit()
 
-        if(self.auto_generate_delivery_note):
-            print("submitting DO from sales_invoice")
-            self.submit_delivery_note()
+        # if(self.auto_generate_delivery_note):
+        #     print("submitting DO from sales_invoice")
+        #     self.submit_delivery_note()
 
     def do_postings_on_submit(self):
 
@@ -188,16 +188,16 @@ class SalesInvoice(Document):
     def on_cancel(self):
         cancel_bank_reconciliation("Sales Invoice", self.name)
         # frappe.enqueue(self.cancel_sales_invoice, queue="long")
-        
-        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
         check_and_update_sales_order_status(self.name, "Sales Invoice")
         self.cancel_sales_invoice()
-    
+
     def on_trash(self):
-        cancel_bank_reconciliation("Sales Invoice", self.name)                
-        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        cancel_bank_reconciliation("Sales Invoice", self.name)
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
         check_and_update_sales_order_status(self.name, "Sales Invoice")
-        
+
 
     def cancel_sales_invoice(self):
 

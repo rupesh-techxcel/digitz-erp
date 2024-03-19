@@ -12,6 +12,7 @@
   "customer",
   "customer_name",
   "customer_display_name",
+  "customer_balance",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -397,6 +398,12 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "customer_balance",
+   "fieldtype": "Currency",
+   "label": "Customer Balance",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -415,7 +422,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-03-11 13:23:09.209758",
+ "modified": "2024-03-18 11:50:05.748768",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
