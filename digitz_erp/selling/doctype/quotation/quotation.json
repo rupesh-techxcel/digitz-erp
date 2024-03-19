@@ -396,7 +396,8 @@
    "fieldtype": "Currency",
    "label": "Customer Balance",
    "read_only": 1
-
+  },
+  {
    "fetch_from": "salesman.employee_code",
    "fieldname": "salesman_code",
    "fieldtype": "Data",

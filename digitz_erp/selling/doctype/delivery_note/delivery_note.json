@@ -447,7 +447,8 @@
    "fieldtype": "Currency",
    "label": "Customer Balance",
    "read_only": 1
-
+  },
+  {
    "fieldname": "column_break_sobc",
    "fieldtype": "Column Break"
   },
