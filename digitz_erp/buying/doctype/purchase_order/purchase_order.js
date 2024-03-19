@@ -4,7 +4,7 @@
 frappe.ui.form.on('Purchase Order', {
 
 	refresh:function(frm){
-		
+
 		if (frm.doc.docstatus == 1)
 
 			if (frm.doc.docstatus == 1) {
@@ -66,7 +66,7 @@ frappe.ui.form.on('Purchase Order', {
 		frm.add_fetch('supplier', 'full_address', 'supplier_address')
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
-		
+
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
 
 		frm.set_query("price_list", function () {
@@ -76,7 +76,7 @@ frappe.ui.form.on('Purchase Order', {
 				}
 			};
 		});
-	
+
 		frm.set_query("supplier", function () {
 			return {
 				"filters": {
@@ -104,9 +104,9 @@ frappe.ui.form.on('Purchase Order', {
 	assign_defaults(frm)
 	{
 		if(frm.is_new())
-		{			
+		{
 			frm.trigger("get_default_company_and_warehouse");
-			
+
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
 
 				console.log("assign defualts")
@@ -114,13 +114,13 @@ frappe.ui.form.on('Purchase Order', {
 
 				if (r && r.default_credit_purchase === 1) {
 						frm.set_value('credit_purchase', 1);
-				}		
-			
+				}
+
 			});
 
 			set_default_payment_mode(frm);
 		}
-	},		
+	},
 	validate:function(frm){
 
 		if(!frm.doc.credit_purchase)
@@ -132,6 +132,17 @@ frappe.ui.form.on('Purchase Order', {
 		}
 	},
 	supplier(frm) {
+		frappe.call(
+		{
+			method: 'digitz_erp.api.accounts_api.get_supplier_balance',
+			args: {
+				'supplier': frm.doc.supplier
+			},
+			callback: (r) => {
+				frm.set_value('supplier_balance',r.message[0].supplier_balance)
+				frm.refresh_field("supplier_balance");
+			}
+		});
 		console.log("supplier")
 		console.log(frm.doc.supplier)
 
@@ -383,7 +394,7 @@ frappe.ui.form.on('Purchase Order', {
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
 
-	},	
+	},
 	get_item_units(frm) {
 
 		frappe.call({
@@ -441,7 +452,7 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
 	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
 	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
-	
+
 }
 
 function get_default_company_and_warehouse(frm) {
@@ -485,7 +496,7 @@ function get_default_company_and_warehouse(frm) {
 }
 
 frappe.ui.form.on("Purchase Order", "onload", function (frm) {
-	
+
 	frm.trigger("assign_defaults")
 
 });
@@ -817,5 +828,3 @@ frappe.ui.form.on('Purchase Order Item', {
 		frm.trigger("make_taxes_and_totals");
 	}
 });
-
-

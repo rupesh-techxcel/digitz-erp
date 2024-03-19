@@ -12,6 +12,7 @@
   "customer",
   "customer_name",
   "customer_display_name",
+  "customer_balance",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -390,6 +391,12 @@
    "options": "Cost Center"
   },
   {
+
+   "fieldname": "customer_balance",
+   "fieldtype": "Currency",
+   "label": "Customer Balance",
+   "read_only": 1
+
    "fetch_from": "salesman.employee_code",
    "fieldname": "salesman_code",
    "fieldtype": "Data",
@@ -419,6 +426,7 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+
   }
  ],
  "index_web_pages_for_search": 1,
@@ -437,7 +445,9 @@
    "link_fieldname": "quotation"
   }
  ],
+
  "modified": "2024-03-19 11:20:42.602254",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

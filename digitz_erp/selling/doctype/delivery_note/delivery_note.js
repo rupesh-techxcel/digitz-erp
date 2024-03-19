@@ -66,7 +66,7 @@ frappe.ui.form.on('Delivery Note', {
 				}
 			};
 		});
-	
+
 		frm.set_query("customer", function () {
 			return {
 				"filters": {
@@ -96,7 +96,7 @@ frappe.ui.form.on('Delivery Note', {
 			}
 	});
 
-	
+
 	},
 	assign_defaults(frm)
     {
@@ -114,9 +114,21 @@ frappe.ui.form.on('Delivery Note', {
 			});
 
 			set_default_payment_mode(frm);
-		}	
+		}
     },
 	customer(frm) {
+		frappe.call(
+		{
+			method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+			args: {
+				'party_type': 'Customer',
+				'party': frm.doc.customer
+			},
+			callback: (r) => {
+				frm.set_value('customer_balance',r.message)
+				frm.refresh_field("customer_balance");
+			}
+		});
 		console.log("customer")
 		console.log(frm.doc.customer)
 
@@ -171,7 +183,7 @@ frappe.ui.form.on('Delivery Note', {
 		}
 
 		frm.trigger("set_default_payment_mode");
-	},	
+	},
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
@@ -504,7 +516,7 @@ function set_default_payment_mode(frm)
 {
 	if(frm.doc.credit_sale == 0){
         frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
-			
+
 			if (r && r.default_payment_mode_for_sales) {
 							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
 			} else {

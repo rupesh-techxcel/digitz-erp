@@ -12,6 +12,7 @@
   "customer",
   "customer_name",
   "customer_display_name",
+  "customer_balance",
   "reference_no",
   "customer_address",
   "column_break_6",
@@ -441,6 +442,12 @@
    "fieldtype": "Column Break"
   },
   {
+
+   "fieldname": "customer_balance",
+   "fieldtype": "Currency",
+   "label": "Customer Balance",
+   "read_only": 1
+
    "fieldname": "column_break_sobc",
    "fieldtype": "Column Break"
   },
@@ -452,6 +459,7 @@
   {
    "fieldname": "column_break_jdls",
    "fieldtype": "Column Break"
+
   }
  ],
  "index_web_pages_for_search": 1,
@@ -462,7 +470,9 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
+
  "modified": "2024-03-19 10:50:54.404764",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",
