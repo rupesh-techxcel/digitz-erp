@@ -4,6 +4,9 @@
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
 
+		
+		update_total_big_display(frm);
+
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
 
@@ -93,14 +96,13 @@ frappe.ui.form.on('Quotation', {
 								'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
 							},
 							callback: (r2) => {
-								console.log("Before assign default warehouse");
-								console.log(r2.message.default_warehouse);
+								
 								frm.doc.warehouse = r2.message.default_warehouse;
-								console.log(frm.doc.warehouse);
+								
 								frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 								frm.refresh_field("warehouse");
 								frm.refresh_field("rate_includes_tax");
-								console.log(r2.message);
+								
 								frm.refresh_field("auto_save_delivery_note");
 
 								//Have a button to create delivery note in case delivery note is not integrated with SI
@@ -449,6 +451,8 @@ frappe.ui.form.on('Quotation', {
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
 
+		update_total_big_display(frm);
+
 	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
@@ -563,6 +567,21 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
 	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
 	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
+}
+
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+    
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
 }
 
 frappe.ui.form.on("Quotation", "onload", function (frm) {

@@ -473,7 +473,9 @@
    "link_fieldname": "sales_order"
   }
  ],
+
  "modified": "2024-03-19 11:02:14.877531",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

@@ -49,6 +49,7 @@ frappe.ui.form.on('Delivery Note', {
 		frm.add_fetch('customer', 'salesman', 'salesman')
 		frm.add_fetch('customer', 'tax_id', 'tax_id')
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
 
 		frm.set_query("ship_to_location", function () {
 			return {
@@ -101,6 +102,9 @@ frappe.ui.form.on('Delivery Note', {
     {
 		if(frm.is_new())
 		{
+			// Remove the blank row initially shows in the items table
+			frm.clear_table("items");
+
 			frm.trigger("get_default_company_and_warehouse");
 
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {

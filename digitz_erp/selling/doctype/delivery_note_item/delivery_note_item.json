@@ -31,13 +31,11 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "delivery_note_item_reference_no",
-  "qty_returned",
-  "sales_order_item_reference_no"
+  "sales_order_item_reference_no",
+  "quotation_item_reference_no"
  ],
  "fields": [
   {
-   "columns": 1,
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -45,7 +43,6 @@
    "options": "Warehouse"
   },
   {
-   "columns": 1,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -53,14 +50,12 @@
    "options": "Item"
   },
   {
-   "columns": 1,
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty"
   },
   {
-   "columns": 1,
    "fieldname": "unit",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -68,10 +63,8 @@
    "options": "Unit"
   },
   {
-   "columns": 1,
    "fieldname": "rate",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Rate"
   },
   {
@@ -105,7 +98,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "columns": 1,
    "description": "Qty * Rate Excluded Tax",
    "fieldname": "gross_amount",
    "fieldtype": "Float",
@@ -130,10 +122,8 @@
    "label": "Tax Rate"
   },
   {
-   "columns": 1,
    "fieldname": "tax_amount",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Tax Amount"
   },
   {
@@ -149,7 +139,6 @@
    "label": "Discount Amount"
   },
   {
-   "columns": 1,
    "fieldname": "net_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -162,7 +151,6 @@
    "read_only": 1
   },
   {
-   "columns": 2,
    "fieldname": "display_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -174,22 +162,11 @@
    "label": "Item Name"
   },
   {
-   "fieldname": "delivery_note_item_reference_no",
-   "fieldtype": "Data",
-   "label": "Delivery Note Item Reference No"
-  },
-  {
    "default": "0",
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
    "label": "Rate Includes Tax",
    "read_only": 1
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "qty_returned",
-   "fieldtype": "Float",
-   "label": "Qty Returned"
   },
   {
    "fieldname": "sales_order_item_reference_no",
@@ -201,12 +178,19 @@
    "fieldtype": "Link",
    "label": "Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "quotation_item_reference_no",
+   "fieldtype": "Data",
+   "label": "Quotation Item Reference No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-19 08:42:59.811340",
+
+ "modified": "2024-03-19 08:51:09.858900",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note Item",
