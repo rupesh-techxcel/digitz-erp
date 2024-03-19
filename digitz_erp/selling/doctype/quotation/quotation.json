@@ -19,24 +19,26 @@
   "posting_time",
   "edit_posting_date_and_time",
   "ship_to_location",
-  "salesman",
   "tax_id",
   "column_break_4",
-  "company",
-  "lpo_no",
-  "lpo_date",
   "price_list",
   "rate_includes_tax",
   "warehouse",
   "default_cost_center",
+  "salesman",
+  "salesman_code",
+  "column_break_giic",
+  "company",
   "accounts_section",
   "credit_sale",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "payment_account",
   "column_break_25",
+  "payment_terms",
+  "column_break_ghwk",
   "remarks",
+  "column_break_fomo",
   "section_break_19",
   "items",
   "section_break_29",
@@ -46,13 +48,16 @@
   "column_break_30",
   "section_break_25",
   "gross_total",
-  "total_discount_in_line_items",
   "tax_total",
-  "additional_discount",
-  "column_break_33",
   "net_total",
+  "column_break_33",
+  "total_discount_in_line_items",
+  "additional_discount",
+  "column_break_yzqc",
   "round_off",
   "rounded_total",
+  "column_break_ufpf",
+  "total_big",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -60,7 +65,6 @@
   "terms_and_conditions",
   "tab_break_50",
   "data_53",
-  "do_no",
   "address_line_1",
   "address_line_2",
   "area_name",
@@ -153,16 +157,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "lpo_no",
-   "fieldtype": "Data",
-   "label": "LPO No"
-  },
-  {
-   "fieldname": "lpo_date",
-   "fieldtype": "Date",
-   "label": "LPO Date"
-  },
-  {
    "default": "Standard Selling",
    "fieldname": "price_list",
    "fieldtype": "Link",
@@ -183,6 +177,7 @@
    "reqd": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -337,17 +332,13 @@
   {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "References"
   },
   {
    "fieldname": "data_53",
    "fieldtype": "Section Break",
    "label": "Related Documents"
-  },
-  {
-   "fieldname": "do_no",
-   "fieldtype": "Data",
-   "label": "DO No"
   },
   {
    "fieldname": "amended_from",
@@ -397,6 +388,37 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman Code"
+  },
+  {
+   "fieldname": "column_break_giic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ghwk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_fomo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yzqc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ufpf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -415,7 +437,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-03-11 13:23:09.209758",
+ "modified": "2024-03-19 11:20:42.602254",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

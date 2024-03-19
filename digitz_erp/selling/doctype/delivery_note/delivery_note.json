@@ -36,11 +36,14 @@
   "accounts_section",
   "credit_sale",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "mode",
   "payment_account",
   "column_break_ntvq",
+  "payment_terms",
+  "column_break_sobc",
+  "remarks",
+  "column_break_jdls",
   "section_break_19_1",
   "items",
   "section_break_29",
@@ -343,6 +346,7 @@
    "default": "0",
    "fieldname": "auto_generated_from_sales_invoice",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Auto Generated From Sales Invoice"
   },
   {
@@ -435,6 +439,19 @@
   {
    "fieldname": "column_break_xvlk",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_sobc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_jdls",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -445,7 +462,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
- "modified": "2024-03-18 21:40:03.808257",
+ "modified": "2024-03-19 10:50:54.404764",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",
