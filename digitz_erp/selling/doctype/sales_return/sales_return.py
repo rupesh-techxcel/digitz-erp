@@ -7,11 +7,15 @@ from frappe.utils import now
 from frappe.model.document import Document
 from digitz_erp.utils import *
 from frappe.model.mapper import *
+from frappe.utils import money_in_words
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_for_sales_return_on_update
 class SalesReturn(Document):
+
+    def before_validate(self):
+        self.in_words = money_in_words(self.rounded_total,"AED")
 
     def validate(self):
         self.validate_sales()
@@ -192,22 +196,22 @@ class SalesReturn(Document):
         self.update_sales_invoice_quantities_on_update()
         update_sales_order_quantities_for_sales_return_on_update(self)
         check_and_update_sales_order_status(self.name, "Sales Return")
-        
+
 
     def on_cancel(self):
-        
-        cancel_bank_reconciliation("Sales Return", self.name)        
-        self.cancel_sales_return()        
+
+        cancel_bank_reconciliation("Sales Return", self.name)
+        self.cancel_sales_return()
         update_sales_order_quantities_for_sales_return_on_update(self,for_delete_or_cancel=True)
         check_and_update_sales_order_status(self.name, "Sales Return")
 
     def on_trash(self):
         # On cancel the quantities are already deleted.
         self.update_sales_invoice_quantities_before_delete_or_cancel()
-        
+
         update_sales_order_quantities_for_sales_return_on_update(self,for_delete_or_cancel=True)
         check_and_update_sales_order_status(self.name, "Sales Return")
-        
+
 
     def update_sales_invoice_quantities_before_delete_or_cancel(self):
 

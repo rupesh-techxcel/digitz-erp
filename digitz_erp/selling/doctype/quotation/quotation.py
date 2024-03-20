@@ -3,9 +3,13 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.quotation_api import check_references_created
+from digitz_erp.api.quotation_api import check_references_created 
+from frappe.utils import money_in_words
 
 class Quotation(Document):
+
+	def before_validate(self):
+		self.in_words = money_in_words(self.rounded_total,"AED")
     
     def test(self):
         print('dummy method')

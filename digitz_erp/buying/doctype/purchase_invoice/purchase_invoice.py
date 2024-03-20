@@ -17,6 +17,7 @@ from frappe.model.mapper import get_mapped_doc
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from frappe import throw, _
+from frappe.utils import money_in_words
 
 class PurchaseInvoice(Document):
 
@@ -44,6 +45,7 @@ class PurchaseInvoice(Document):
 
 
 	def before_validate(self):
+		self.in_words = money_in_words(self.rounded_total,"AED")
 
 		print("before_validate")
 		if not self.credit_purchase or self.credit_purchase  == False:
@@ -76,9 +78,9 @@ class PurchaseInvoice(Document):
 	def validate_supplier_inv_no(self):
 		existing_invoice = frappe.db.get_value("Purchase Invoice",{"supplier": self.supplier, "supplier_inv_no": self.supplier_inv_no,"name": ("!=", self.name) if self.name else None})
 		if existing_invoice:
-			
+
 			invoice= frappe.get_doc("Purchase Invoice", existing_invoice)
-   
+
 			if(invoice.docstatus != 2):
 				throw(_("Duplicate Supplier Inv No: Supplier {0}, Invoice No {1}, Existing Invoice: {2}").format(self.supplier, self.supplier_inv_no, existing_invoice))
 
@@ -131,7 +133,7 @@ class PurchaseInvoice(Document):
 			if not item.po_item_reference:
 				continue
 			else:
-       
+
 				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
 
@@ -140,7 +142,7 @@ class PurchaseInvoice(Document):
 
 				print("total_used_qty_not_in_this_pi")
 				print(total_used_qty_not_in_this_pi)
-    
+
 				if total_used_qty_not_in_this_pi:
 					po_item.qty_purchased_in_base_unit = total_used_qty_not_in_this_pi
 				else:
@@ -156,9 +158,9 @@ class PurchaseInvoice(Document):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
 
 	def update_purchase_order_quantities_on_update(self, forDeleteOrCancel=False):
-    
+
 		po_reference_any = False
-  
+
 		for item in self.items:
 			if not item.po_item_reference:
 				continue
@@ -166,17 +168,17 @@ class PurchaseInvoice(Document):
 				# Get total purchase invoice qty for the po_item_reference other than in the current purchase invoice.
 				total_purchased_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
-    
+
 				# Get Total returned quantity for the po_item, since there can be multiple purchase invoice line items for the same po_item_reference and which could be returned from the purchase invoices as well.
-    
+
 				# Note that there is no way purchase return exists for the current purchase invoice since it can be done only after submission of the purchase invoice.
-    
+
 				total_returned_qty_for_the_po_item = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference in (select name from `tabPurchase Invoice Item` pit where pit.po_item_reference=%s) and pret.docstatus<2""",(item.po_item_reference))[0][0]
-    
+
 				total_qty_purchased = (total_purchased_qty_not_in_this_pi if total_purchased_qty_not_in_this_pi else 0) - (total_returned_qty_for_the_po_item if total_returned_qty_for_the_po_item else 0)
-    
+
 				po_item.qty_purchased_in_base_unit = total_qty_purchased + (item.qty_in_base_unit if not forDeleteOrCancel else 0)
-				
+
 				po_item.save()
 				po_reference_any = True
 
@@ -348,15 +350,15 @@ class PurchaseInvoice(Document):
 	def on_cancel(self):
 		cancel_bank_reconciliation("Purchase Invoice", self.name)
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Cancel Pending')
-	
+
 		self.cancel_purchase()
-  
+
 		if self.purchase_order:
-			print("Calling update po qties b4 cancel or delete")			
+			print("Calling update po qties b4 cancel or delete")
 			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
 			check_and_update_purchase_order_status(self.purchase_order)
 
-		
+
 	def update_item_prices(self):
 
 		if(self.update_rates_in_price_list):
@@ -442,7 +444,7 @@ class PurchaseInvoice(Document):
 															})
 
 			else:
-				
+
 				balance_qty =0
 				balance_value =0
 				valuation_rate  = 0
@@ -467,7 +469,7 @@ class PurchaseInvoice(Document):
 				new_stock_balance.stock_value = balance_value
 				new_stock_balance.valuation_rate = valuation_rate
 
-				new_stock_balance.insert()				
+				new_stock_balance.insert()
 
 				update_stock_balance_in_item(docitem.item)
 
@@ -503,9 +505,9 @@ class PurchaseInvoice(Document):
 		# 		{"voucher_type": "Purchase Invoice",
 		# 			"voucher_no":self.name
 		# 		})
-  
-  
-	
+
+
+
 
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
@@ -731,7 +733,7 @@ def create_purchase_return(source_name):
 
 								# Modify the item's qty with the new variable value
 								item.qty = qty_difference / pi_item.conversion_factor
-								
+
 								item.parent = doc.name
 								# item.unit not changing to keep base unit
 								filtered_items.append(item)
@@ -740,6 +742,3 @@ def create_purchase_return(source_name):
  	# Update the document with the filtered items
 	doc.items = filtered_items
 	return doc
-
-
-

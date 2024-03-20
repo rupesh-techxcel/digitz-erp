@@ -4,7 +4,7 @@
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
 
-		
+
 		update_total_big_display(frm);
 
 		console.log("docstatus")
@@ -84,18 +84,29 @@ frappe.ui.form.on('Quotation', {
 							args: {
 								quotation: frm.doc.name
 							},
-							callback: function(r)
-							{
-								frm.reload_doc();
-								if(r.message){
-									frappe.set_route('Form', 'Sales Order', r.message);
-								}
-							}
-		
-						});
-						
-					});
 
+
+								//Have a button to create delivery note in case delivery note is not integrated with SI
+								if (frm.doc.docstatus==1 && !alreadyUsed) {
+
+									frm.add_custom_button('Create Sales Order', () => {
+										frm.call("generate_sales_order").then(r => {
+												if (r.message && r.message.sales_order_name) {
+													frappe.set_route('Form', 'Sales Order', r.message.sales_order_name);
+														frappe.show_alert({
+																message: __('Sales Order successfully created in draft mode.'),
+																indicator: 'green'
+														}, 3);
+												} else {
+														frappe.show_alert({
+																message: __('Failed to create Sales Order.'),
+																indicator: 'red'
+														}, 3);
+												}
+										});
+									});
+
+								
 					frm.add_custom_button('Create Delivery Note', () => {
 
 						frm.call({
@@ -592,7 +603,7 @@ function update_total_big_display(frm) {
 	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
 
     // Add 'AED' prefix and format net_total for display
-    
+
 	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
 
 

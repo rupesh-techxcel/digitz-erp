@@ -6,7 +6,7 @@ frappe.ui.form.on('Purchase Invoice', {
 	refresh:function (frm) {
 
 		create_custom_buttons(frm)
-	
+
 		console.log("refresh")
 
 		if (frm.doc.docstatus == 4) //Hiding for now
@@ -75,7 +75,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
 			return {
 				filters: {
-					is_disabled: 0 
+					is_disabled: 0
 				}
 			};
 		}
@@ -83,9 +83,9 @@ frappe.ui.form.on('Purchase Invoice', {
 	assign_defaults(frm)
 	{
 		if(frm.is_new())
-		{			
+		{
 			frm.trigger("get_default_company_and_warehouse");
-			
+
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
 
 				console.log("r from assign defaults")
@@ -94,15 +94,15 @@ frappe.ui.form.on('Purchase Invoice', {
 					console.log("credit purchase from  assign_defaults")
 					console.log(r.default_credit_purchase)
 						frm.set_value('credit_purchase', 1);
-				}			
-			
+				}
+
 			});
 
 			set_default_payment_mode(frm);
 		}
 
 	},
-	
+
 	validate:function(frm){
 
 		if(!frm.doc.credit_purchase)
@@ -131,7 +131,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		}
 	},
 	supplier(frm) {
-	
+
 		console.log("supplier default price list")
 		frappe.call(
 			{
@@ -192,7 +192,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		}
 	},
 	credit_purchase(frm) {
-		
+
 		set_default_payment_mode(frm);
 
 		fill_payment_schedule(frm,refresh=true);
@@ -221,23 +221,26 @@ frappe.ui.form.on('Purchase Invoice', {
 		console.log(frm.warehouse)
 
 		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Stock Balance',
-					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-					'fieldname': ['stock_qty']
-				},
-				callback: (r2) => {
-					console.log(r2)
-					if (r2 && r2.message && r2.message.stock_qty !== undefined)
-					{
-						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
-						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-					}
-
-				}
-			});
+    {
+        method: 'frappe.client.get_value',
+        args: {
+            'doctype': 'Stock Balance',
+            'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+            'fieldname': ['stock_qty']
+        },
+        callback: (r2) => {
+            console.log(r2);
+            if (r2 && r2.message && r2.message.stock_qty !== undefined)
+            {
+                const itemRow = frm.doc.items.find(item => item.item === frm.item && item.warehouse === frm.warehouse);
+                if (itemRow) {
+                    const unit = itemRow.unit;
+                    frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " " + unit + " for " + frm.item + " at w/h: "+ frm.warehouse + ": ";
+                    frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+                }
+            }
+        }
+    });
 	},
 	make_taxes_and_totals(frm) {
 		console.log("from make totals..")

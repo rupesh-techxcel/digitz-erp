@@ -55,6 +55,7 @@
   "column_break_33",
   "total_discount_in_line_items",
   "additional_discount",
+  "in_words",
   "column_break_5kr0",
   "round_off",
   "rounded_total",
@@ -422,6 +423,11 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -432,7 +438,9 @@
    "link_fieldname": "reference_name"
   }
  ],
+
  "modified": "2024-03-20 10:58:06.158137",
+
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

@@ -4,14 +4,14 @@
 frappe.ui.form.on('Purchase Return', {
 	refresh: function (frm) {
 		create_custom_buttons(frm)
-		
+
         if (frm.doc.docstatus < 1) {
             frm.add_custom_button('Get Items From Purchase', function () {
                 // Call the custom method
                 frm.events.get_items_for_return(frm);
             });
         }
-    },	
+    },
 	setup: function (frm) {
 
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
@@ -48,7 +48,7 @@ frappe.ui.form.on('Purchase Return', {
 		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
 			return {
 				filters: {
-					is_disabled: 0 
+					is_disabled: 0
 				}
 			};
 		}
@@ -56,9 +56,9 @@ frappe.ui.form.on('Purchase Return', {
 	assign_defaults(frm)
 	{
 		if(frm.is_new())
-		{			
+		{
 			frm.trigger("get_default_company_and_warehouse");
-			
+
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
 
 				console.log("r from assign defaults")
@@ -67,8 +67,8 @@ frappe.ui.form.on('Purchase Return', {
 					console.log("credit purchase from  assign_defaults")
 					console.log(r.default_credit_purchase)
 						frm.set_value('credit_purchase', 1);
-				}			
-			
+				}
+
 			});
 
 			set_default_payment_mode(frm);
@@ -478,23 +478,26 @@ frappe.ui.form.on('Purchase Return', {
     console.log(frm.warehouse)
 
 		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Stock Balance',
-					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-					'fieldname': ['stock_qty']
-				},
-				callback: (r2) => {
-					console.log(r2)
-					if (r2 && r2.message && r2.message.stock_qty !== undefined)
-					{
-						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
-						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-					}
-
-				}
-			});
+    {
+        method: 'frappe.client.get_value',
+        args: {
+            'doctype': 'Stock Balance',
+            'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+            'fieldname': ['stock_qty']
+        },
+        callback: (r2) => {
+            console.log(r2);
+            if (r2 && r2.message && r2.message.stock_qty !== undefined)
+            {
+                const itemRow = frm.doc.items.find(item => item.item === frm.item && item.warehouse === frm.warehouse);
+                if (itemRow) {
+                    const unit = itemRow.unit;
+                    frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " " + unit + " for " + frm.item + " at w/h: "+ frm.warehouse + ": ";
+                    frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+                }
+            }
+        }
+    });
   },
   get_default_company_and_warehouse(frm) {
 		var default_company = ""
@@ -572,7 +575,7 @@ function set_default_payment_mode(frm)
 	if(!frm.doc.credit_purchase){
 
         frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_purchase', function(r){
-			
+
 			if (r && r.default_payment_mode_for_purchase) {
 							frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
 			} else {
@@ -603,7 +606,7 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 	}
 
 	if (frm.doc.credit_purchase) {
-		
+
 		var postingDate = frm.doc.posting_date;
 		var creditDays = frm.doc.credit_days;
 		var roundedTotal = frm.doc.rounded_total;

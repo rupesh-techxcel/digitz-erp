@@ -5,33 +5,38 @@ import frappe
 from frappe.model.document import Document
 from digitz_erp.api.sales_order_api import check_pending_items_exists
 from digitz_erp.api.item_price_api import update_customer_item_price
+from frappe.utils import money_in_words
 
 class SalesOrder(Document):
-	
- 
+
+
 	def before_validate(self):
-     
+		self.in_words = money_in_words(self.rounded_total,"AED")
+
 		if self.is_new():
 			for item in self.items:
 				item.qty_sold_in_base_unit = 0
 			self.order_status = "Pending"
-     
+
 	def on_submit(self):
 		self.update_customer_prices()
-     
+
 	def update_customer_prices(self):
 
 		for docitem in self.items:
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_customer_item_price(item, self.customer,rate,self.posting_date)
-	
- 
+
+
 	@frappe.whitelist()
-	def generate_sale_invoice(sales_order_name):
-	
-		pending_items= check_pending_items_exists(sales_order_name)
-  
+
+	def generate_sale_invoice(self):
+
+
+		pending_items= check_pending_items_exists(self.name)
+
+
 		if not pending_items:
 			frappe.throw("No pending items in the Sales Order to generate a Sales Invoice.")
 
@@ -69,6 +74,7 @@ class SalesOrder(Document):
 			sales_invoice_item.sales_order_item_reference_no = item.name
 
 			sales_invoice_doc.append('items', sales_invoice_item)
+
 
 		sales_invoice_doc.insert()
 		frappe.msgprint("Sales Invoice generated successfully, in draft mode.", alert=True)
@@ -132,6 +138,7 @@ def generate_delivery_note(sales_order_name):
 	for item in sales_order_doc.items:
      
 		if(item.qty_in_base_unit > item.qty_sold_in_base_unit):
+
 			idx = idx + 1
 			delivery_note_item = frappe.new_doc("Delivery Note Item")
 			delivery_note_item.warehouse = item.warehouse
@@ -155,12 +162,14 @@ def generate_delivery_note(sales_order_name):
 			delivery_note_item.discount_percentage = item.discount_percentage
 			delivery_note_item.discount_amount = item.discount_amount
 			delivery_note_item.net_amount = item.net_amount
+			delivery_note_item.cost_center = item.cost_center
 			delivery_note_item.unit_conversion_details = item.unit_conversion_details
 			delivery_note_item.idx = idx
 			delivery_note_item.sales_order_item_reference_no = item.name
 
 			delivery_note_doc.append('items', delivery_note_item )
-		#  target_items.append(target_item)
+
+
 
 	delivery_note_doc.insert()
 	frappe.db.commit()
@@ -171,3 +180,4 @@ def generate_delivery_note(sales_order_name):
 	
 
 		
+

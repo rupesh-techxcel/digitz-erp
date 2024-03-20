@@ -6,6 +6,7 @@ from frappe.utils import get_datetime
 from datetime import datetime, timedelta
 from frappe.model.document import Document
 from frappe.utils.data import now
+from frappe.utils import money_in_words
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, reset_document_posting_status_for_recalc_after_submit, update_posting_status, reset_document_posting_status_for_recalc_after_cancel
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
@@ -26,6 +27,7 @@ class DeliveryNote(Document):
         self.posting_time = new_datetime.strftime('%H:%M:%S')
 
     def before_validate(self):
+        self.in_words = money_in_words(self.rounded_total,"AED")
 
         if(self.Voucher_In_The_Same_Time()):
 
@@ -50,20 +52,21 @@ class DeliveryNote(Document):
     def on_cancel(self):
 
         update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
-        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
         check_and_update_sales_order_status(self.name, "Delivery Note")
         self.cancel_delivery_note()
-    
+
     def on_trash(self):
 
-        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)        
+        update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
         check_and_update_sales_order_status(self.name, "Delivery Note")
-        
-        
+
+
     def on_update(self):
+
         
         update_sales_order_quantities_on_update(self)   
-             
+
         check_and_update_sales_order_status(self.name, "Delivery Note")
 
     def on_submit(self):
@@ -144,7 +147,7 @@ class DeliveryNote(Document):
         sales_invoice['naming_series'] = ""
         sales_invoice['posting_date'] = self.posting_date
         sales_invoice['posting_time'] = self.posting_time
-        sales_invoice['delivery_note'] =deliveryNoteName
+        sales_invoice['delivery_notes_to_print'] =deliveryNoteName
         # Change the document status to draft to avoid error while submitting child table
         sales_invoice['docstatus'] = 0
         for item in sales_invoice['items']:
@@ -168,8 +171,8 @@ class DeliveryNote(Document):
         # si.docstatus = 1
 
         si.save()
+        return {"si_name": si.name}
 
-        frappe.msgprint("Sales Invoice created successfully, in draft mode.", alert=True)
 
     @frappe.whitelist()
     def do_test_do_script(self):
@@ -186,7 +189,7 @@ class DeliveryNote(Document):
 
     def cancel_delivery_note(self):
         self.do_cancel_delivery_note()
-        
+
         update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
     def do_cancel_delivery_note(self):

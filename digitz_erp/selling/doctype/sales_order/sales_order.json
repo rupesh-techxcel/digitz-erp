@@ -61,6 +61,7 @@
   "column_break_xkzu",
   "round_off",
   "rounded_total",
+  "in_words",
   "column_break_engq",
   "total_big",
   "section_break_33",
@@ -463,6 +464,12 @@
    "read_only": 1
   },
   {
+
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
+  },
+   {
    "fieldname": "column_break_xkzu",
    "fieldtype": "Column Break"
   }
@@ -479,7 +486,9 @@
    "link_fieldname": "sales_order"
   }
  ],
+
  "modified": "2024-03-19 20:44:40.105559",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

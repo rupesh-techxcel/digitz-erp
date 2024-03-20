@@ -8,9 +8,10 @@ from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from datetime import datetime,timedelta
 from frappe.utils import get_datetime
+from frappe.utils import money_in_words
 
 class PurchaseOrder(Document):
-   
+
 	def Voucher_In_The_Same_Time(self):
 		possible_invalid= frappe.db.count('Purchase Order', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
 		return possible_invalid
@@ -23,7 +24,8 @@ class PurchaseOrder(Document):
 		self.validate_items()
 
 	def before_validate(self):
-     
+		self.in_words = money_in_words(self.rounded_total,"AED")
+
 		if(self.Voucher_In_The_Same_Time()):
 
 				self.Set_Posting_Time_To_Next_Second()
@@ -36,19 +38,19 @@ class PurchaseOrder(Document):
 
 						if(self.Voucher_In_The_Same_Time()):
 							frappe.throw("Voucher with same time already exists.")
-		
+
 		if not self.credit_purchase or self.credit_purchase  == False:
 			self.paid_amount = self.rounded_total
 		else:
 			if self.is_new():
 				print("is new true")
 				self.paid_amount = 0
-    
+
 		if self.is_new():
 			for item in self.items:
 				item.qty_purchased_in_base_unit = 0
 			self.order_status = "Pending"
-	
+
 	def Set_Posting_Time_To_Next_Second(self):
 		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
 
@@ -78,7 +80,7 @@ def get_default_payment_mode():
 
 @frappe.whitelist()
 def generate_purchase_invoice_for_purchase_order(purchase_order):
-    
+
 	purchase_doc = frappe.get_doc("Purchase Order", purchase_order)
 
 	# Create Purchase Invoice
@@ -119,7 +121,7 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 
 	# Append items from Purchase Order to Purchase Invoice
 	for item in purchase_doc.items:
-		
+
 		if(item.qty_in_base_unit - item.qty_purchased_in_base_unit>0):
 			pending_item_exists = True
 			invoice_item = frappe.new_doc("Purchase Invoice Item")
@@ -155,4 +157,3 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 	else:
 		frappe.msgprint("Purchase Invoice cannot be created because there are no pending items in the Purchase Order.")
 		return "No Pending Items"
-     

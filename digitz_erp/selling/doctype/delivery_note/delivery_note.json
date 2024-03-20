@@ -61,6 +61,7 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "in_words",
   "column_break_bwyw",
   "column_break_wsco",
   "taxes",
@@ -74,8 +75,10 @@
   "area_name",
   "country",
   "quotation",
+
   "amended_from",
   "sales_orders"
+
  ],
  "fields": [
   {
@@ -465,6 +468,11 @@
   {
    "fieldname": "column_break_jdls",
    "fieldtype": "Column Break"
+  },  
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   },
   {
    "fieldname": "sales_orders",
@@ -482,7 +490,9 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
+
  "modified": "2024-03-19 15:11:40.935311",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

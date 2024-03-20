@@ -7,11 +7,15 @@ from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
 from frappe.model.mapper import *
+from frappe.utils import money_in_words
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
 
 class PurchaseReturn(Document):
+
+	def before_validate(self):
+		self.in_words = money_in_words(self.rounded_total,"AED")
 
 	def validate(self):
 		self.validate_purchase()
@@ -83,13 +87,13 @@ class PurchaseReturn(Document):
 		self.update_purchase_order_status()
 
 	def on_cancel(self):
-		
+
 		cancel_bank_reconciliation("Purchase Return", self.name)
 		self.update_purchase_invoice_quantities_on_update(for_delete_or_cancel=True)
 		self.update_purchase_order_quantities_on_update(for_delete_or_cancel=True)
 		self.update_purchase_order_status()
 		self.do_postings_for_cancel()
-		
+
 
 	def on_trash(self):
 		# On cancel, the quantities are already deleted.
@@ -166,7 +170,7 @@ class PurchaseReturn(Document):
 				if docitem.item not in item_stock_ledger:
 					new_stock_ledger = frappe.new_doc("Stock Ledger")
 					new_stock_ledger.item = docitem.item
-					new_stock_ledger.item_name = docitem.item_name     
+					new_stock_ledger.item_name = docitem.item_name
 					new_stock_ledger.warehouse = docitem.warehouse
 					new_stock_ledger.posting_date = posting_date_time
 					new_stock_ledger.qty_out = docitem.qty_in_base_unit
@@ -422,7 +426,7 @@ class PurchaseReturn(Document):
 			gl_doc.insert()
 
 	def update_purchase_invoice_quantities_on_update(self, for_delete_or_cancel=False):
-     
+
 		pi_reference_any = False
 
 		for item in self.items:
@@ -431,9 +435,9 @@ class PurchaseReturn(Document):
 
 			# Retrieve the total returned quantity for the purchase invoice item
 			result = frappe.db.sql(
-				"""SELECT SUM(qty_in_base_unit) as total_returned_qty 
-				FROM `tabPurchase Return Item` preti 
-				INNER JOIN `tabPurchase Return` pret ON preti.parent = pret.name 
+				"""SELECT SUM(qty_in_base_unit) as total_returned_qty
+				FROM `tabPurchase Return Item` preti
+				INNER JOIN `tabPurchase Return` pret ON preti.parent = pret.name
 				WHERE preti.pi_item_reference=%s AND pret.name !=%s AND pret.docstatus < 2""",
 				(item.pi_item_reference, self.name)
 			)
@@ -449,7 +453,7 @@ class PurchaseReturn(Document):
 		if pi_reference_any:
 			frappe.msgprint("Returned qty of items in the corresponding purchase invoice updated successfully", indicator="green", alert=True)
 
-   
+
 	def update_purchase_order_quantities_on_update(self, for_delete_or_cancel=False):
 		po_reference_any = False
 		po_item_purchased_dict = {}
@@ -473,11 +477,11 @@ class PurchaseReturn(Document):
 			if po_item_reference:
 				if po_item_reference not in po_item_returned_dict_not_in_this_pr:
 					total_returned_qty_not_in_this_pr = frappe.db.sql(
-						"""SELECT SUM(qty_in_base_unit) as total_returned_qty 
-						FROM `tabPurchase Return Item` preti 
-						INNER JOIN `tabPurchase Return` pret ON preti.parent = pret.name 
-						WHERE preti.pi_item_reference IN 
-						(SELECT name FROM `tabPurchase Invoice Item` pit WHERE pit.po_item_reference=%s) 
+						"""SELECT SUM(qty_in_base_unit) as total_returned_qty
+						FROM `tabPurchase Return Item` preti
+						INNER JOIN `tabPurchase Return` pret ON preti.parent = pret.name
+						WHERE preti.pi_item_reference IN
+						(SELECT name FROM `tabPurchase Invoice Item` pit WHERE pit.po_item_reference=%s)
 						AND pret.name != %s AND pret.docstatus < 2""",
 						(po_item_reference, self.name)
 					)[0][0] or 0
@@ -489,9 +493,9 @@ class PurchaseReturn(Document):
 
 				if po_item_reference not in po_item_purchased_dict:
 					total_qty_purchased_for_the_po_item = frappe.db.sql(
-						"""SELECT SUM(qty_in_base_unit) as total_used_qty 
-						FROM `tabPurchase Invoice Item` pinvi 
-						INNER JOIN `tabPurchase Invoice` pinv ON pinvi.parent = pinv.name 
+						"""SELECT SUM(qty_in_base_unit) as total_used_qty
+						FROM `tabPurchase Invoice Item` pinvi
+						INNER JOIN `tabPurchase Invoice` pinv ON pinvi.parent = pinv.name
 						WHERE pinvi.po_item_reference=%s AND pinv.docstatus < 2""",
 						(po_item_reference,)
 					)[0][0] or 0
@@ -508,9 +512,9 @@ class PurchaseReturn(Document):
 				po_item.save()
 
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator="green", alert=True)
-   
+
 	def update_purchase_order_status(self):
-     
+
 		purchase_orders = []
 
 		for item in self.items:
@@ -534,7 +538,7 @@ class PurchaseReturn(Document):
 		for purchase_order_name in purchase_orders:
 			check_and_update_purchase_order_status(purchase_order_name)  # Ensure this function expects the PO name
 
-   
+
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')

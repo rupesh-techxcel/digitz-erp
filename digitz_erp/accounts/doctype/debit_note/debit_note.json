@@ -39,6 +39,7 @@
   "tax_total",
   "grand_total",
   "column_break_2qwz",
+  "in_words",
   "column_break_pdvw",
   "amended_from"
  ],
@@ -239,12 +240,17 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-27 10:04:23.698556",
+ "modified": "2024-03-20 11:01:42.721122",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Debit Note",

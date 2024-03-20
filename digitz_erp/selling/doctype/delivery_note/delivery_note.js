@@ -21,11 +21,23 @@ frappe.ui.form.on('Delivery Note', {
 
 							if (r.message != 1)
 
-								frm.add_custom_button('Create Sale Invoice', () => {
-									frm.call("generate_sale_invoice")
-								},
+							frm.add_custom_button('Create Sales Invoice', () => {
+								frm.call("generate_sale_invoice").then(r => {
+										if (r.message && r.message.si_name) {
+											frappe.set_route('Form', 'Sales Invoice', r.message.si_name);
+											frappe.show_alert({
+												message: __('The Sales Invoice has been successfully generated and saved in draft mode.'),
+												indicator: 'green'
+											},3);
+									} else {
+										frappe.show_alert({
+											message: __('The Sales Invoice Creation Failed'),
+											indicator: 'red'
+										},3);
+									}
+								});
+							});
 
-								)
 
 						}
 					});
@@ -413,23 +425,26 @@ frappe.ui.form.on('Delivery Note', {
 		console.log(frm.warehouse)
 
 		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Stock Balance',
-					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-					'fieldname': ['stock_qty']
-				},
-				callback: (r2) => {
-					console.log(r2)
-					if (r2 && r2.message && r2.message.stock_qty !== undefined)
-					{
-						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
-						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-					}
-
-				}
-			});
+    {
+        method: 'frappe.client.get_value',
+        args: {
+            'doctype': 'Stock Balance',
+            'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+            'fieldname': ['stock_qty']
+        },
+        callback: (r2) => {
+            console.log(r2);
+            if (r2 && r2.message && r2.message.stock_qty !== undefined)
+            {
+                const itemRow = frm.doc.items.find(item => item.item === frm.item && item.warehouse === frm.warehouse);
+                if (itemRow) {
+                    const unit = itemRow.unit;
+                    frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " " + unit + " for " + frm.item + " at w/h: "+ frm.warehouse + ": ";
+                    frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+                }
+            }
+        }
+    });
 	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""

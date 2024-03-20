@@ -57,16 +57,16 @@
   "round_off",
   "rounded_total",
   "paid_amount",
+  "in_words",
   "column_break_0ktx",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
-  "section_break_27",
-  "amended_from",
   "payment_schedule_tab",
-  "payment_schedule"
+  "payment_schedule",
+  "amended_from"
  ],
  "fields": [
   {
@@ -341,10 +341,6 @@
    "label": "Terms and Conditions"
   },
   {
-   "fieldname": "section_break_27",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -407,12 +403,17 @@
    "fieldtype": "Table",
    "label": "Payment Schedule",
    "options": "Purchase Payment Schedule"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-17 12:01:55.545959",
+ "modified": "2024-03-20 10:58:47.137375",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",
