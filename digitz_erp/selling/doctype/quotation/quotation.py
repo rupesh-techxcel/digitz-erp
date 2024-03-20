@@ -10,9 +10,7 @@ class Quotation(Document):
 
 	def before_validate(self):
 		self.in_words = money_in_words(self.rounded_total,"AED")
-    
-    def test(self):
-        print('dummy method')
+  
 
 @frappe.whitelist()
 def generate_sale_invoice(quotation):
