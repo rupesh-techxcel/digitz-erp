@@ -74,36 +74,17 @@ frappe.ui.form.on('Quotation', {
 					alreadyUsed = false
 				}
 
-				console.log("alreadyused")
-				console.log(alreadyUsed)
+				//Have a button to create delivery note in case delivery note is not integrated with SI
+				if (frm.doc.docstatus==1 && !alreadyUsed) {
 
-			frappe.call({
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Global Settings',
-					'fieldname': 'default_company'
-				},
-				callback: (r) => {
+					frm.add_custom_button('Create Sales Order', () => {
 
-					frm.doc.company = r.message.default_company
-					frm.refresh_field("company");
-					frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-								'doctype': 'Company',
-								'filters': { 'company_name': r.message.default_company },
-								'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
+						frm.call({
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',					
+							args: {
+								quotation: frm.doc.name
 							},
-							callback: (r2) => {
 
-								frm.doc.warehouse = r2.message.default_warehouse;
-
-								frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-								frm.refresh_field("warehouse");
-								frm.refresh_field("rate_includes_tax");
-
-								frm.refresh_field("auto_save_delivery_note");
 
 								//Have a button to create delivery note in case delivery note is not integrated with SI
 								if (frm.doc.docstatus==1 && !alreadyUsed) {
@@ -125,58 +106,45 @@ frappe.ui.form.on('Quotation', {
 										});
 									});
 
-									frm.add_custom_button('Delivery Note', () => {
-										frm.call("generate_delivery_note").then(r => {
-								        if (r.message && r.message.delivery_note_name) {
-								            frappe.set_route('Form', 'Delivery Note', r.message.delivery_note_name);
-														frappe.show_alert({
-															message: __('The Delivery Note has been successfully generated and saved in draft mode.'),
-															indicator: 'green'
-														},3);
-								        }
-												else {
-													frappe.show_alert({
-														message: __('The Delivery Note Creation Failed'),
-														indicator: 'red'
-													},3);
-								        }
-								    });
-									});
+								
+					frm.add_custom_button('Create Delivery Note', () => {
 
-									if(r2.message.delivery_note_integrated_with_sales_invoice)
-									{
-										frm.add_custom_button('Create Sales Invoice & DO', () => {
-											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
-										});
-									}
-									else
-									{
-										frm.add_custom_button('Create Sales Invoice', () => {
-											frm.call("generate_sale_invoice", {
-									        delivery_note_integrated_with_sales_invoice: frm.doc.delivery_note
-									    }).then(r => {
-									        if (r.message && r.message.sales_invoice_name) {
-									            frappe.set_route('Form', 'Sales Invoice', r.message.sales_invoice_name);
-									            frappe.show_alert({
-									                message: __('The Sales Invoice has been successfully generated and saved in draft mode.'),
-									                indicator: 'green'
-									            }, 3);
-									        } else {
-									            frappe.show_alert({
-									                message: __('The Sales Invoice Creation Failed'),
-									                indicator: 'red'
-									            }, 3);
-									        }
-									    });
-										});
-									}
-
+						frm.call({
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_delivery_note',					
+							args: {
+								quotation: frm.doc.name
+							},
+							callback: function(r)
+							{
+								frm.reload_doc();
+								if(r.message){
+									frappe.set_route('Form', 'Delivery Note', r.message);
 								}
 							}
-						}
-					)
+		
+						});
+						
+					});
+
+					frm.add_custom_button('Create Sales Invoice', () => {
+
+						frm.call({
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sale_invoice',					
+							args: {
+								quotation: frm.doc.name
+							},
+							callback: function(r)
+							{
+								frm.reload_doc();
+								if(r.message){
+									frappe.set_route('Form', 'Sales Invoice', r.message);
+								}
+							}
+		
+						});
+						
+					});
 				}
-			});
 		}
 	},
 	setup: function (frm) {
@@ -380,9 +348,6 @@ frappe.ui.form.on('Quotation', {
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
 
-
-
-
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
 			gross_total = gross_total + entry.gross_amount;
@@ -495,6 +460,27 @@ frappe.ui.form.on('Quotation', {
 
 		update_total_big_display(frm);
 
+	},
+	get_item_stock_balance(frm) {
+
+		frappe.call(
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Stock Balance',
+					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+					'fieldname': ['stock_qty']
+				},
+				callback: (r2) => {
+					console.log(r2)
+					if (r2 && r2.message && r2.message.stock_qty !== undefined)
+					{
+						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
+						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					}
+
+				}
+			});
 	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
@@ -637,16 +623,20 @@ frappe.ui.form.on('Quotation Item', {
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
-		console.log(frm.doc.customer);
-		console.log(typeof (frm.doc.customer));
 
 		if (typeof (frm.doc.customer) == "undefined") {
 			frappe.msgprint("Select customer.")
 			row.item = "";
 			return;
 		}
+
+		let doc = frappe.model.get_value("", row.item);
+
+		row.warehouse = frm.doc.warehouse;
+
 		frm.item = row.item
 		frm.trigger("get_item_units");
+		// frm.trigger("make_taxes_and_totals");
 
 		let tax_excluded_for_company = false
 		frappe.call(
@@ -657,19 +647,13 @@ frappe.ui.form.on('Quotation Item', {
 					console.log("digitz_erp.api.settings_api.get_company_settings")
 					console.log(r)
 					tax_excluded_for_company = r.message[0].tax_excluded
-					console.log("use_customer_last_price")
-					console.log(use_customer_last_price)
+
 				}
 			}
 		);
 
-		console.log(row.item);
-		console.log(row.qty);
-		let doc = frappe.model.get_value("", row.item);
-		console.log(doc);
-		row.warehouse = frm.doc.warehouse;
-		console.log(row.warehouse);
-
+		console.log("tax_excluded_for_company")
+		console.log(tax_excluded_for_company)
 
 		frappe.call(
 			{
@@ -680,13 +664,15 @@ frappe.ui.form.on('Quotation Item', {
 					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-
+					console.log("item")
+					console.log(r)
 					row.item_name = r.message.item_name;
+					row.display_name = r.message.item_name;
 					//row.uom = r.message.base_unit;
-
 					if(tax_excluded_for_company)
 					{
 						row.tax_excluded = true;
+						console.log("tax excluded assinged in")
 					}
 					else
 					{
@@ -696,7 +682,12 @@ frappe.ui.form.on('Quotation Item', {
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
 					row.conversion_factor = 1;
-					row.display_name = row.item_name
+
+					frm.item = row.item;
+					frm.warehouse = row.warehouse
+
+					frm.trigger("get_item_stock_balance");
+
 
 					if (!row.tax_excluded) {
 						frappe.call(
@@ -719,11 +710,7 @@ frappe.ui.form.on('Quotation Item', {
 						row.tax_rate = 0;
 					}
 
-					console.log("Item:- %s", row.item);
-					console.log("Price List");
-					console.log(frm.doc.price_list);
-
-					let currency = ""
+					var currency = ""
 					console.log("before call digitz_erp.api.settings_api.get_default_currency")
 					frappe.call(
 						{
@@ -738,25 +725,97 @@ frappe.ui.form.on('Quotation Item', {
 						}
 					);
 
+					var use_customer_last_price =0 ;
+					console.log("before call digitz_erp.api.settings_api.get_company_settings")
+
 					frappe.call(
 						{
-							method: 'digitz_erp.api.item_price_api.get_item_price',
-							async: false,
-
-							args: {
-								'item': row.item,
-								'price_list': frm.doc.price_list,
-								'currency': currency	,
-								'date': frm.doc.posting_date
-							},
-							callback(r) {
-								console.log("digitz_erp.api.item_price_api.get_item_price")
+							method:'digitz_erp.api.settings_api.get_company_settings',
+							async:false,
+							callback(r){
+								console.log("digitz_erp.api.settings_api.get_company_settings")
 								console.log(r)
-								row.rate = parseFloat(r.message);
-								row.rate_in_base_unit = parseFloat(r.message);
+								use_customer_last_price = r.message[0].use_customer_last_price
+								console.log("use_customer_last_price")
+								console.log(use_customer_last_price)
 							}
-						});
+						}
+					);
 
+					console.log("use customer last price")
+					console.log(use_customer_last_price)
+
+					var use_price_list_price = 1
+					if(use_customer_last_price == 1)
+					{
+						console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+						frappe.call(
+							{
+								method:'digitz_erp.api.item_price_api.get_customer_last_price_for_item',
+								args:{
+									'item': row.item,
+									'customer': frm.doc.customer
+								},
+								async:false,
+								callback(r){
+
+									console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+									console.log(r)
+
+									if (r.message !== undefined && r.message.length > 0) {
+										// Assuming r.message is an array, you might want to handle this differently based on your actual response
+										row.rate = parseFloat(r.message[0]);
+										row.rate_in_base_unit = parseFloat(r.message[0]);
+									}
+									else if (r.message!= undefined) {
+										row.rate = parseFloat(r.message)
+										row.rate_in_base_unit = parseFloat(r.message)
+									}
+
+									console.log("customer last price")
+									console.log(row.rate)
+
+									if(r.message != undefined && r.message > 0 )
+									{
+										use_price_list_price = 0
+									}
+								}
+							}
+						);
+					}
+
+					if(use_price_list_price ==1)
+					{
+						console.log("digitz_erp.api.item_price_api.get_item_price")
+						frappe.call(
+							{
+								method: 'digitz_erp.api.item_price_api.get_item_price',
+								async: false,
+
+								args: {
+									'item': row.item,
+									'price_list': frm.doc.price_list,
+									'currency': currency,
+									'date': frm.doc.posting_date
+								},
+								callback(r) {
+									console.log("digitz_erp.api.item_price_api.get_item_price")
+									console.log(r)
+									// row.rate = r.message;
+									// row.rate_in_base_unit = r.message;
+
+									if (r.message !== undefined && r.message.length > 0) {
+										// Assuming r.message is an array, you might want to handle this differently based on your actual response
+										row.rate = r.message[0];
+										row.rate_in_base_unit = r.message[0];
+									}
+									else if (r.message!= undefined) {
+										row.rate = parseFloat(r.message)
+										row.rate_in_base_unit = parseFloat(r.message)
+									}
+								}
+							});
+					}
 					frm.trigger("make_taxes_and_totals");
 					frm.refresh_field("items");
 				}
@@ -803,26 +862,8 @@ frappe.ui.form.on('Quotation Item', {
 		frm.trigger("make_taxes_and_totals");
 	},
 	unit(frm, cdt, cdn) {
+
 		let row = frappe.get_doc(cdt, cdn);
-
-		console.log("Item");
-		console.log(row.item);
-
-		//  frappe.call(
-		//  	{
-		//  		method:'frappe.client.get_valuelist',
-		//  		args:{
-		//  		'doctype':'Item Unit',
-		//  		'filters':{'parent': row.item},
-		//  		'fieldname':['unit','conversion_factor']
-		//  		},
-		//  		callback:(r2)=>
-		//  		{
-		//  			console.log(r2.message);
-		//  		}
-		//  	});
-
-		console.log(row.item);
 
 		frappe.call(
 			{
@@ -839,7 +880,7 @@ frappe.ui.form.on('Quotation Item', {
 						row.conversion_factor = 1;
 					}
 					else {
-						console.log(r.message[0].conversion_factor);
+
 						row.conversion_factor = r.message[0].conversion_factor;
 						row.rate = row.rate_in_base_unit * row.conversion_factor;
 						//row.rate = row.rate * row.conversion_factor;
@@ -858,16 +899,11 @@ frappe.ui.form.on('Quotation Item', {
 	},
 	discount_percentage(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
-		console.log("from discount_percentage")
-		console.log("Gross Amount %f", row.gross_amount);
-
 
 		var discount_percentage = row.discount_percentage;
 
-		console.log("Percentage %s", row.discount_percentage);
-
 		if (row.discount_percentage > 0) {
-			console.log("Apply Discount Percentage")
+
 			var discount = row.gross_amount * (row.discount_percentage / 100);
 			row.discount_amount = discount;
 		}
@@ -880,10 +916,8 @@ frappe.ui.form.on('Quotation Item', {
 
 		frm.refresh_field("items");
 
-
 	},
 	discount_amount(frm, cdt, cdn) {
-		console.log("from discount_amount")
 
 		let row = frappe.get_doc(cdt, cdn);
 		var discount = row.discount_amount;
@@ -901,6 +935,12 @@ frappe.ui.form.on('Quotation Item', {
 
 		frm.refresh_field("items");
 	},
+	warehouse(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		frm.item = row.item
+		frm.warehouse = row.warehouse
+		frm.trigger("get_item_stock_balance");
+	},
 	items_add(frm, cdt, cdn) {
 		var child = locals[cdt][cdn];
 		if (frm.doc.default_cost_center) {
@@ -916,5 +956,4 @@ frappe.ui.form.on('Quotation Item', {
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	}
-
 });

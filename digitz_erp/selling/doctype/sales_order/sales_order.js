@@ -26,42 +26,37 @@ frappe.ui.form.on('Sales Order', {
 
 			if(pending_items_exists)
 			{
-
 				frm.add_custom_button('Create Delivery Note', () => {
-					frm.call("generate_delivery_note").then(r => {
-			        if (r.message && r.message.delivery_note_name) {
-			            frappe.set_route('Form', 'Delivery Note', r.message.delivery_note_name);
-									frappe.show_alert({
-										message: __('The Delivery Note has been successfully generated and saved in draft mode.'),
-										indicator: 'green'
-									},3);
-			        }
-							else {
-								frappe.show_alert({
-									message: __('The Delivery Note Creation Failed'),
-									indicator: 'red'
-								},3);
-			        }
-			    });
-				});
+					frm.call({
+					method: 'digitz_erp.selling.doctype.sales_order.sales_order.generate_delivery_note',					
+					args: {
+						sales_order_name: frm.doc.name
+					},
+					callback: function(r)
+					{
+						frm.reload_doc();
+						if(r.message){
+							frappe.set_route('Form', 'Delivery Note', r.message);
+						}
+					}
+
+				})});
 
 				frm.add_custom_button('Create Sales Invoice', () => {
-			    frm.call("generate_sale_invoice").then(r => {
-			        if (r.message && r.message.sales_invoice_name) {
-			            frappe.set_route('Form', 'Sales Invoice', r.message.sales_invoice_name);
-									frappe.show_alert({
-										message: __('The Sales Invoice has been successfully generated and saved in draft mode.'),
-										indicator: 'green'
-									},3);
-			        } else {
-								frappe.show_alert({
-									message: __('The Sales Invoice Creation Failed'),
-									indicator: 'red'
-								},3);
-			        }
-			    });
-			});
+					frm.call({
+					method: 'digitz_erp.selling.doctype.sales_order.sales_order.generate_sales_invoice',					
+					args: {
+						sales_order_name: frm.doc.name
+					},
+					callback: function(r)
+					{
+						frm.reload_doc();
+						if(r.message){
+							frappe.set_route('Form', 'Sales Invoice', r.message);
+						}
+					}
 
+				})});
 			}
 		}
 
@@ -361,8 +356,6 @@ frappe.ui.form.on('Sales Order', {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
 
-
-
 		console.log("Totals");
 
 		console.log(frm.doc.gross_total);
@@ -382,6 +375,29 @@ frappe.ui.form.on('Sales Order', {
 
 		update_total_big_display(frm);
 
+	},
+	get_item_stock_balance(frm) {
+
+		frappe.call(
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Stock Balance',
+					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+					'fieldname': ['stock_qty']
+				},
+				callback: (r2) => {
+					console.log(r2)
+					console.log("frm.unit")
+					console.log(frm.unit)
+					if (r2 && r2.message && r2.message.stock_qty !== undefined)
+					{
+						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty + " "+ frm.unit +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
+						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+					}
+
+				}
+			});
 	},
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
@@ -585,6 +601,7 @@ frappe.ui.form.on('Sales Order Item', {
 
 					frm.item = row.item;
 					frm.warehouse = row.warehouse
+					frm.unit = row.base_unit
 
 					frm.trigger("get_item_stock_balance");
 

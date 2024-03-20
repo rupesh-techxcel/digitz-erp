@@ -45,6 +45,7 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.add_fetch('supplier', 'full_address', 'supplier_address')
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
+		frm.set_df_property("supplier_inv_no", "mandatory", 1);
 		//frm.get_field('taxes').grid.cannot_add_rows = true;
 
 		frm.set_query("price_list", function () {

@@ -12,7 +12,7 @@ def get_delivery_note_exists(sales_order):
 
 @frappe.whitelist()
 def check_pending_items_exists(sales_order):
-    unsold_items_count_query = """select count(1) from `tabSales Order Item` where qty_sold_in_base_unit < qty_in_base_unit and parent = %s"""
+    unsold_items_count_query = """select count(1) from `tabSales Order Item` where qty_in_base_unit > qty_sold_in_base_unit and parent = %s"""
     unsold_items_count = frappe.db.sql(unsold_items_count_query, (sales_order,))
     if unsold_items_count and unsold_items_count[0][0] > 0:
         return True
@@ -22,7 +22,6 @@ def check_pending_items_exists(sales_order):
 @frappe.whitelist()
 def check_and_update_sales_order_status(document_name, doctype):
 
-    print("document_name")
     print(document_name)
 
     sales_orders_query = ""
@@ -42,7 +41,7 @@ def check_and_update_sales_order_status(document_name, doctype):
     elif doctype == "Sales Return":
         # Using distinct to select unique sales orders affected by the sales return
         sales_orders_query = """
-            select distinct so.name from `tabSales Return Item` sri
+            select distinct so.name as sales_order from `tabSales Return Item` sri
             inner join `tabSales Return` sr on sr.name = sri.parent
             inner join `tabSales Invoice Item` sii on sii.name = sri.si_item_reference
             inner join `tabSales Invoice` si on si.name = sii.parent
@@ -54,11 +53,13 @@ def check_and_update_sales_order_status(document_name, doctype):
     if sales_orders_query:
         sales_orders = frappe.db.sql(sales_orders_query, (document_name), as_dict=True)
 
-        print("sales_orders")
         print(sales_orders)
 
         for sales_order in sales_orders:
-            sales_order_name = sales_order.name
+            
+            sales_order_name = sales_order.sales_order
+            print("sales_order_name")
+            print(sales_order_name)
 
             sales_order_items = frappe.db.sql("""
                 SELECT name FROM `tabSales Order Item`
@@ -68,8 +69,13 @@ def check_and_update_sales_order_status(document_name, doctype):
             sold_any = False
             at_least_one_partial_sale = False
             excess_allocation = False
+            
+            print("sales order items")
+            
+            print(sales_order_items)
 
             for so_item_dict in sales_order_items:
+                
                 so_item_name = so_item_dict['name']
                 so_item = frappe.get_doc("Sales Order Item", so_item_name)
 
@@ -84,12 +90,20 @@ def check_and_update_sales_order_status(document_name, doctype):
 
             # Update the sales order status based on conditions
             if not sold_any:
+                print("not sold_any")
+                
                 frappe.db.set_value("Sales Order", sales_order_name, "order_status", "Pending")
 
             elif at_least_one_partial_sale:
+                
+                print("at_least_one_partial_sale")
+                
                 frappe.db.set_value("Sales Order", sales_order_name, "order_status", "Partial")
 
             elif excess_allocation:
+                
+                print("excess allocation")
+                
                 frappe.msgprint(f"Warning: Sales Order {sales_order_name} contains one or more items with excess allocation.", alert=True)
 
             else:
@@ -129,7 +143,7 @@ def update_sales_order_quantities_on_update(doc_si_or_do, forDeleteOrCancel=Fals
          if doc_si_or_do.doctype == "Delivery Note":
 
                # Calculate quantities from the sales invoices for the corresponing sales order line item
-            total_quantity_sold_in_si= frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabSales Invoice Item` sinvi inner join `tabSales Invoice` sinv on sinvi.parent= sinv.name WHERE sinvi.sales_order_item_reference_no=%s and sinv.docstatus<2 and sinv.name != %s""",(item.sales_order_item_reference_no, doc_si_or_do.name))[0][0]
+            total_quantity_sold_in_si= frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabSales Invoice Item` sinvi inner join `tabSales Invoice` sinv on sinvi.parent= sinv.name WHERE sinvi.sales_order_item_reference_no=%s and sinv.docstatus<2""",(item.sales_order_item_reference_no))[0][0]
 
             #Calculate quantities for the sales order item which is not included in this delivery note line item
             total_quantity_sold_in_other_docs = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabDelivery Note Item` dinvi inner join `tabDelivery Note` dinv on dinvi.parent= dinv.name WHERE dinvi.sales_order_item_reference_no=%s and dinv.name!=%s and dinv.docstatus<2""",(item.sales_order_item_reference_no, doc_si_or_do.name))[0][0]

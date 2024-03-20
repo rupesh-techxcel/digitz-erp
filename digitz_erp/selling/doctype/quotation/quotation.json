@@ -13,14 +13,15 @@
   "customer_name",
   "customer_display_name",
   "customer_balance",
-  "reference_no",
   "customer_address",
+  "tax_id",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
   "ship_to_location",
-  "tax_id",
+  "reference_no",
+  "remarks",
   "column_break_4",
   "price_list",
   "rate_includes_tax",
@@ -38,7 +39,6 @@
   "column_break_25",
   "payment_terms",
   "column_break_ghwk",
-  "remarks",
   "column_break_fomo",
   "section_break_19",
   "items",
@@ -432,6 +432,7 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+
   }
  ],
  "index_web_pages_for_search": 1,
@@ -450,7 +451,9 @@
    "link_fieldname": "quotation"
   }
  ],
+
  "modified": "2024-03-20 10:39:54.237105",
+
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
