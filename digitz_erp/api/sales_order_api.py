@@ -9,7 +9,6 @@ def get_sales_invoice_exists(sales_order):
 def get_delivery_note_exists(sales_order):
    return frappe.db.exists('Delivery Note', {'sales_order': sales_order})
 
-
 @frappe.whitelist()
 def check_pending_items_exists(sales_order):
     unsold_items_count_query = """select count(1) from `tabSales Order Item` where qty_in_base_unit > qty_sold_in_base_unit and parent = %s"""
