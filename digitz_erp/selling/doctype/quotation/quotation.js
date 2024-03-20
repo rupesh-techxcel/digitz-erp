@@ -4,7 +4,7 @@
 frappe.ui.form.on('Quotation', {
 	 refresh: function(frm) {
 
-		
+
 		update_total_big_display(frm);
 
 		console.log("docstatus")
@@ -96,24 +96,51 @@ frappe.ui.form.on('Quotation', {
 								'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice']
 							},
 							callback: (r2) => {
-								
+
 								frm.doc.warehouse = r2.message.default_warehouse;
-								
+
 								frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 								frm.refresh_field("warehouse");
 								frm.refresh_field("rate_includes_tax");
-								
+
 								frm.refresh_field("auto_save_delivery_note");
 
 								//Have a button to create delivery note in case delivery note is not integrated with SI
 								if (frm.doc.docstatus==1 && !alreadyUsed) {
 
 									frm.add_custom_button('Create Sales Order', () => {
-										frm.call("generate_sales_order")
+										frm.call("generate_sales_order").then(r => {
+												if (r.message && r.message.sales_order_name) {
+													frappe.set_route('Form', 'Sales Order', r.message.sales_order_name);
+														frappe.show_alert({
+																message: __('Sales Order successfully created in draft mode.'),
+																indicator: 'green'
+														}, 3);
+												} else {
+														frappe.show_alert({
+																message: __('Failed to create Sales Order.'),
+																indicator: 'red'
+														}, 3);
+												}
+										});
 									});
 
 									frm.add_custom_button('Delivery Note', () => {
-										frm.call("generate_delivery_note")
+										frm.call("generate_delivery_note").then(r => {
+								        if (r.message && r.message.delivery_note_name) {
+								            frappe.set_route('Form', 'Delivery Note', r.message.delivery_note_name);
+														frappe.show_alert({
+															message: __('The Delivery Note has been successfully generated and saved in draft mode.'),
+															indicator: 'green'
+														},3);
+								        }
+												else {
+													frappe.show_alert({
+														message: __('The Delivery Note Creation Failed'),
+														indicator: 'red'
+													},3);
+								        }
+								    });
 									});
 
 									if(r2.message.delivery_note_integrated_with_sales_invoice)
@@ -125,7 +152,22 @@ frappe.ui.form.on('Quotation', {
 									else
 									{
 										frm.add_custom_button('Create Sales Invoice', () => {
-											frm.call("generate_sale_invoice", r2.message.delivery_note_integrated_with_sales_invoice)
+											frm.call("generate_sale_invoice", {
+									        delivery_note_integrated_with_sales_invoice: frm.doc.delivery_note
+									    }).then(r => {
+									        if (r.message && r.message.sales_invoice_name) {
+									            frappe.set_route('Form', 'Sales Invoice', r.message.sales_invoice_name);
+									            frappe.show_alert({
+									                message: __('The Sales Invoice has been successfully generated and saved in draft mode.'),
+									                indicator: 'green'
+									            }, 3);
+									        } else {
+									            frappe.show_alert({
+									                message: __('The Sales Invoice Creation Failed'),
+									                indicator: 'red'
+									            }, 3);
+									        }
+									    });
 										});
 									}
 
@@ -575,7 +617,7 @@ function update_total_big_display(frm) {
 	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
 
     // Add 'AED' prefix and format net_total for display
-    
+
 	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
 
 

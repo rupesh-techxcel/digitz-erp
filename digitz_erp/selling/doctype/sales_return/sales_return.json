@@ -57,6 +57,7 @@
   "column_break_33",
   "total_discount_in_line_items",
   "additional_discount",
+  "in_words",
   "column_break_nabb",
   "round_off",
   "rounded_total",
@@ -535,12 +536,17 @@
    "fieldtype": "Table",
    "label": "Receipt Schedule",
    "options": "Sales Receipt Schedule"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-17 21:22:47.344012",
+ "modified": "2024-03-20 10:57:15.943864",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

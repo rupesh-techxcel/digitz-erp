@@ -5,34 +5,36 @@ import frappe
 from frappe.model.document import Document
 from digitz_erp.api.sales_order_api import check_pending_items_exists
 from digitz_erp.api.item_price_api import update_customer_item_price
+from frappe.utils import money_in_words
 
 class SalesOrder(Document):
-	
- 
+
+
 	def before_validate(self):
-     
+		self.in_words = money_in_words(self.rounded_total,"AED")
+
 		if self.is_new():
 			for item in self.items:
 				item.qty_sold_in_base_unit = 0
 			self.order_status = "Pending"
-     
+
 	def on_submit(self):
 		self.update_customer_prices()
-     
+
 	def update_customer_prices(self):
 
 		for docitem in self.items:
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_customer_item_price(item, self.customer,rate,self.posting_date)
-	
- 
+
+
 	@frappe.whitelist()
 	def generate_sale_invoice(self):
-		
-  
+
+
 		pending_items= check_pending_items_exists(self.name)
-  
+
 		if not pending_items:
 			frappe.throw("No pending items in the Sales Order to generate a Sales Invoice.")
 
@@ -72,18 +74,18 @@ class SalesOrder(Document):
 			sales_invoice_doc.append('items', sales_invoice_item)
 
 		sales_invoice_doc.save()
-		frappe.msgprint("Sales Invoice generated successfully, in draft mode.", alert=True)
+		return {"sales_invoice_name": sales_invoice_doc.name}
 
 	@frappe.whitelist()
 	def generate_delivery_note(self):
-     
+
 		pending_items= check_pending_items_exists(self.name)
-  
+
 		if not pending_items:
-			frappe.throw("No pending items in the Sales Order to generate a Delivery Note.")  
-  
+			frappe.throw("No pending items in the Sales Order to generate a Delivery Note.")
+
 		delivery_note_doc = frappe.new_doc('Delivery Note')
-		delivery_note_doc.compay = self.company		
+		delivery_note_doc.company = self.company
 		delivery_note_doc.customer = self.customer
 		delivery_note_doc.customer_name = self.customer_name
 		delivery_note_doc.customer_display_name = self.customer_display_name
@@ -113,7 +115,7 @@ class SalesOrder(Document):
 		delivery_note_doc.round_off = self.round_off
 		delivery_note_doc.rounded_total = self.rounded_total
 		delivery_note_doc.terms = self.terms
-		delivery_note_doc.terms_and_conditions = self.terms_and_conditions		
+		delivery_note_doc.terms_and_conditions = self.terms_and_conditions
 		delivery_note_doc.address_line_1 = self.address_line_1
 		delivery_note_doc.address_line_2 = self.address_line_2
 		delivery_note_doc.area_name = self.area_name
@@ -121,8 +123,8 @@ class SalesOrder(Document):
 		delivery_note_doc.quotation = self.quotation
 		delivery_note_doc.sales_order = self.name
 
-		delivery_note_doc.save()
-		
+		# delivery_note_doc.save()
+
 		idx = 0
 
 		for item in self.items:
@@ -149,6 +151,7 @@ class SalesOrder(Document):
 			delivery_note_item.discount_percentage = item.discount_percentage
 			delivery_note_item.discount_amount = item.discount_amount
 			delivery_note_item.net_amount = item.net_amount
+			delivery_note_item.cost_center = item.cost_center
 			delivery_note_item.unit_conversion_details = item.unit_conversion_details
 			delivery_note_item.idx = idx
 			delivery_note_item.sales_order_item_reference_no = item.name
@@ -157,7 +160,4 @@ class SalesOrder(Document):
 			#  target_items.append(target_item)
 
 		delivery_note_doc.save()
-  
-	
-
-		
+		return {"delivery_note_name": delivery_note_doc.name}

@@ -3,14 +3,18 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import money_in_words
 
 class Quotation(Document):
 
+	def before_validate(self):
+		self.in_words = money_in_words(self.rounded_total,"AED")
+
 	@frappe.whitelist()
 	def generate_sale_invoice(self):
-     
+
 		self.check_references_created()
-  
+
 		sales_invoice_doc = frappe.new_doc('Sales Invoice')
 
 		# Set fields directly from the object's attributes
@@ -47,14 +51,14 @@ class Quotation(Document):
 			sales_invoice_doc.append('items', sales_invoice_item)
 
 		sales_invoice_doc.save()
-		frappe.msgprint("Sales Invoice generated successfully, in draft mode.", indicator="green", alert=True)
+		return {"sales_invoice_name": sales_invoice_doc.name}
 
 	@frappe.whitelist()
 	def generate_delivery_note(self):
-     
+
 		self.check_references_created()
 		delivery_note_doc = frappe.new_doc('Delivery Note')
-		delivery_note_doc.company = self.company		
+		delivery_note_doc.company = self.company
 		delivery_note_doc.customer = self.customer
 		delivery_note_doc.customer_name = self.customer_name
 		delivery_note_doc.customer_display_name = self.customer_display_name
@@ -84,14 +88,14 @@ class Quotation(Document):
 		delivery_note_doc.round_off = self.round_off
 		delivery_note_doc.rounded_total = self.rounded_total
 		delivery_note_doc.terms = self.terms
-		delivery_note_doc.terms_and_conditions = self.terms_and_conditions		
+		delivery_note_doc.terms_and_conditions = self.terms_and_conditions
 		delivery_note_doc.address_line_1 = self.address_line_1
 		delivery_note_doc.address_line_2 = self.address_line_2
 		delivery_note_doc.area_name = self.area_name
 		delivery_note_doc.country = self.country
 		delivery_note_doc.quotation = self.name
-		
-		
+
+
 		idx = 0
 
 		for item in self.items:
@@ -126,8 +130,8 @@ class Quotation(Document):
 			#  target_items.append(target_item)
 
 		delivery_note_doc.save()
-		frappe.msgprint("Delivery Note successfully created in draft mode.", indicator="green",alert
-                  =True)
+		return {"delivery_note_name": delivery_note_doc.name}
+
 
 	@frappe.whitelist()
 	def generate_sales_order(self):
@@ -149,9 +153,9 @@ class Quotation(Document):
 			item.quotation_item_reference_no = item.name
 			item._meta = ""
 
-		doNo = frappe.get_doc(sales_order).insert()
+		sales_order_doc = frappe.get_doc(sales_order).insert()
 		frappe.db.commit()
-		frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
+		return {"sales_order_name": sales_order_doc.name}
 
 	# For quotation we dont allow multiple documents created for a single quotation. So checking existance of the reference in any of the documents is good enough
 	def check_references_created(self):
@@ -170,4 +174,3 @@ class Quotation(Document):
 
 		if(sales_invoice_exists_for_quotation):
 			frappe.throw("Sales Invoice already exist for the quotation and cannot create additional references.")
-

@@ -61,6 +61,7 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "in_words",
   "column_break_bwyw",
   "column_break_wsco",
   "taxes",
@@ -74,6 +75,7 @@
   "area_name",
   "country",
   "quotation",
+  "sales_order",
   "amended_from"
  ],
  "fields": [
@@ -442,7 +444,6 @@
    "fieldtype": "Column Break"
   },
   {
-
    "fieldname": "customer_balance",
    "fieldtype": "Currency",
    "label": "Customer Balance",
@@ -460,7 +461,17 @@
   {
    "fieldname": "column_break_jdls",
    "fieldtype": "Column Break"
-
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -471,9 +482,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
-
- "modified": "2024-03-19 10:50:54.404764",
-
+ "modified": "2024-03-20 11:00:10.081092",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

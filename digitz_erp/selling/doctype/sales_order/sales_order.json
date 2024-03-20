@@ -60,6 +60,7 @@
   "net_total",
   "round_off",
   "rounded_total",
+  "in_words",
   "column_break_engq",
   "total_big",
   "section_break_33",
@@ -459,6 +460,11 @@
    "fieldtype": "Currency",
    "label": "Customer Balance",
    "read_only": 1
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -473,9 +479,7 @@
    "link_fieldname": "sales_order"
   }
  ],
-
- "modified": "2024-03-19 11:02:14.877531",
-
+ "modified": "2024-03-20 10:51:54.981748",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

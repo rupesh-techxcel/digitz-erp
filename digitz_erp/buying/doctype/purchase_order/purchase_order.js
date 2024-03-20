@@ -200,23 +200,26 @@ frappe.ui.form.on('Purchase Order', {
 		console.log(frm.warehouse)
 
 		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Stock Balance',
-					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-					'fieldname': ['stock_qty']
-				},
-				callback: (r2) => {
-					console.log(r2)
-					if (r2 && r2.message && r2.message.stock_qty !== undefined)
-					{
-						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
-						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-					}
-
-				}
-			});
+    {
+        method: 'frappe.client.get_value',
+        args: {
+            'doctype': 'Stock Balance',
+            'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+            'fieldname': ['stock_qty']
+        },
+        callback: (r2) => {
+            console.log(r2);
+            if (r2 && r2.message && r2.message.stock_qty !== undefined)
+            {
+                const itemRow = frm.doc.items.find(item => item.item === frm.item && item.warehouse === frm.warehouse);
+                if (itemRow) {
+                    const unit = itemRow.unit;
+                    frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " " + unit + " for " + frm.item + " at w/h: "+ frm.warehouse + ": ";
+                    frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+                }
+            }
+        }
+    });
 	},
 	make_taxes_and_totals(frm) {
 		console.log("from make totals..")

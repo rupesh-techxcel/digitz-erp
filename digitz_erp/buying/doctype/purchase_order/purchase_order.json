@@ -60,6 +60,7 @@
   "round_off",
   "rounded_total",
   "paid_amount",
+  "in_words",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
@@ -389,6 +390,11 @@
    "fieldtype": "Currency",
    "label": "Supplier Balance",
    "read_only": 1
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "is_submittable": 1,
@@ -398,7 +404,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-03-18 11:58:49.306201",
+ "modified": "2024-03-20 10:54:11.511762",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

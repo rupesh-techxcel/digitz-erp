@@ -57,6 +57,7 @@
   "column_break_yzqc",
   "round_off",
   "rounded_total",
+  "in_words",
   "column_break_ufpf",
   "total_big",
   "section_break_33",
@@ -391,7 +392,6 @@
    "options": "Cost Center"
   },
   {
-
    "fieldname": "customer_balance",
    "fieldtype": "Currency",
    "label": "Customer Balance",
@@ -427,7 +427,11 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
-
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -446,9 +450,7 @@
    "link_fieldname": "quotation"
   }
  ],
-
- "modified": "2024-03-19 11:20:42.602254",
-
+ "modified": "2024-03-20 10:39:54.237105",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

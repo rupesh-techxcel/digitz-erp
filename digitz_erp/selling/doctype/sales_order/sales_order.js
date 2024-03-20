@@ -28,12 +28,40 @@ frappe.ui.form.on('Sales Order', {
 			{
 
 				frm.add_custom_button('Create Delivery Note', () => {
-					frm.call("generate_delivery_note")
+					frm.call("generate_delivery_note").then(r => {
+			        if (r.message && r.message.delivery_note_name) {
+			            frappe.set_route('Form', 'Delivery Note', r.message.delivery_note_name);
+									frappe.show_alert({
+										message: __('The Delivery Note has been successfully generated and saved in draft mode.'),
+										indicator: 'green'
+									},3);
+			        }
+							else {
+								frappe.show_alert({
+									message: __('The Delivery Note Creation Failed'),
+									indicator: 'red'
+								},3);
+			        }
+			    });
 				});
 
 				frm.add_custom_button('Create Sales Invoice', () => {
-					frm.call("generate_sale_invoice")
-				});
+			    frm.call("generate_sale_invoice").then(r => {
+			        if (r.message && r.message.sales_invoice_name) {
+			            frappe.set_route('Form', 'Sales Invoice', r.message.sales_invoice_name);
+									frappe.show_alert({
+										message: __('The Sales Invoice has been successfully generated and saved in draft mode.'),
+										indicator: 'green'
+									},3);
+			        } else {
+								frappe.show_alert({
+									message: __('The Sales Invoice Creation Failed'),
+									indicator: 'red'
+								},3);
+			        }
+			    });
+			});
+
 			}
 		}
 

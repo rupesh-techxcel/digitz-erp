@@ -40,7 +40,8 @@
   "column_break_ohgp",
   "total_amount",
   "tax_total",
-  "grand_total"
+  "grand_total",
+  "in_words"
  ],
  "fields": [
   {
@@ -238,12 +239,17 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-27 09:57:56.457868",
+ "modified": "2024-03-20 11:02:24.366273",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Credit Note",
