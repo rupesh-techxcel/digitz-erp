@@ -62,7 +62,8 @@ class DeliveryNote(Document):
         
     def on_update(self):
         
-        update_sales_order_quantities_on_update(self)        
+        update_sales_order_quantities_on_update(self)   
+             
         check_and_update_sales_order_status(self.name, "Delivery Note")
 
     def on_submit(self):

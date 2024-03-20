@@ -28,14 +28,15 @@ class SalesOrder(Document):
 	
  
 	@frappe.whitelist()
-	def generate_sale_invoice(self):
-		
-  
-		pending_items= check_pending_items_exists(self.name)
+	def generate_sale_invoice(sales_order_name):
+	
+		pending_items= check_pending_items_exists(sales_order_name)
   
 		if not pending_items:
 			frappe.throw("No pending items in the Sales Order to generate a Sales Invoice.")
 
+		sales_order_doc = frappe.get_doc("Sales Order", sales_order_doc)
+  
 		sales_invoice_doc = frappe.new_doc('Sales Invoice')
 
 		# Set fields directly from the object's attributes
@@ -48,13 +49,11 @@ class SalesOrder(Document):
 			'area_name', 'country', 'quotation'
 		]
 		for field in fields_to_copy:
-			setattr(sales_invoice_doc, field, getattr(self, field, None))
+			setattr(sales_invoice_doc, field, getattr(sales_order_doc, field, None))
 
-		sales_invoice_doc.sales_order = self.name
+		sales_invoice_doc.sales_order = sales_order_doc.name
 
-		sales_invoice_doc.save()
-
-		for item in self.items:
+		for item in sales_order_doc.items:
 			sales_invoice_item = frappe.new_doc("Sales Invoice Item")
 			# Directly map the necessary fields
 			for field in ['warehouse', 'item', 'item_name', 'display_name', 'unit', 'base_unit', 'rate_includes_tax',
@@ -71,72 +70,79 @@ class SalesOrder(Document):
 
 			sales_invoice_doc.append('items', sales_invoice_item)
 
-		sales_invoice_doc.save()
+		sales_invoice_doc.insert()
 		frappe.msgprint("Sales Invoice generated successfully, in draft mode.", alert=True)
+		return sales_invoice_doc.name
 
-	@frappe.whitelist()
-	def generate_delivery_note(self):
+@frappe.whitelist()
+def generate_delivery_note(sales_order_name):
+	
+	pending_items= check_pending_items_exists(sales_order_name)
+
+	if not pending_items:
+		frappe.throw("No pending items in the Sales Order to generate a Delivery Note.")  
+
+	sales_order_doc = frappe.get_doc("Sales Order", sales_order_name)
+
+	delivery_note_doc = frappe.new_doc('Delivery Note')
+	delivery_note_doc.company = sales_order_doc.company		
+	delivery_note_doc.customer = sales_order_doc.customer
+	delivery_note_doc.customer_name = sales_order_doc.customer_name
+	delivery_note_doc.customer_display_name = sales_order_doc.customer_display_name
+	delivery_note_doc.customer_address = sales_order_doc.customer_address
+	delivery_note_doc.reference_no = sales_order_doc.reference_no
+	delivery_note_doc.posting_date = sales_order_doc.posting_date
+	delivery_note_doc.posting_time = sales_order_doc.posting_time
+	delivery_note_doc.ship_to_location = sales_order_doc.ship_to_location
+	delivery_note_doc.salesman = sales_order_doc.salesman
+	delivery_note_doc.salesman_code = sales_order_doc.salesman_code
+	delivery_note_doc.tax_id = sales_order_doc.tax_id
+	delivery_note_doc.lpo_no = sales_order_doc.lpo_no
+	delivery_note_doc.lpo_date = sales_order_doc.lpo_date
+	delivery_note_doc.price_list = sales_order_doc.price_list
+	delivery_note_doc.rate_includes_tax = sales_order_doc.rate_includes_tax
+	delivery_note_doc.warehouse = sales_order_doc.warehouse
+	delivery_note_doc.credit_sale = sales_order_doc.credit_sale
+	delivery_note_doc.credit_days = sales_order_doc.credit_days
+	delivery_note_doc.payment_terms = sales_order_doc.payment_terms
+	delivery_note_doc.payment_mode = sales_order_doc.payment_mode
+	delivery_note_doc.payment_account = sales_order_doc.payment_account
+	delivery_note_doc.remarks = sales_order_doc.remarks
+	delivery_note_doc.gross_total = sales_order_doc.gross_total
+	delivery_note_doc.total_discount_in_line_items = sales_order_doc.total_discount_in_line_items
+	delivery_note_doc.tax_total = sales_order_doc.tax_total
+	delivery_note_doc.net_total = sales_order_doc.net_total
+	delivery_note_doc.round_off = sales_order_doc.round_off
+	delivery_note_doc.rounded_total = sales_order_doc.rounded_total
+	delivery_note_doc.terms = sales_order_doc.terms
+	delivery_note_doc.terms_and_conditions = sales_order_doc.terms_and_conditions		
+	delivery_note_doc.address_line_1 = sales_order_doc.address_line_1
+	delivery_note_doc.address_line_2 = sales_order_doc.address_line_2
+	delivery_note_doc.area_name = sales_order_doc.area_name
+	delivery_note_doc.country = sales_order_doc.country
+	delivery_note_doc.quotation = sales_order_doc.quotation
+	delivery_note_doc.sales_order = sales_order_doc.name
+
+	sales_order = frappe.new_doc("Delivery Note Sales Orders")
+	sales_order.sales_order = sales_order_doc.name
+	delivery_note_doc.append('sales_orders', sales_order )
+	
+	idx = 0
+
+	for item in sales_order_doc.items:
      
-		pending_items= check_pending_items_exists(self.name)
-  
-		if not pending_items:
-			frappe.throw("No pending items in the Sales Order to generate a Delivery Note.")  
-  
-		delivery_note_doc = frappe.new_doc('Delivery Note')
-		delivery_note_doc.compay = self.company		
-		delivery_note_doc.customer = self.customer
-		delivery_note_doc.customer_name = self.customer_name
-		delivery_note_doc.customer_display_name = self.customer_display_name
-		delivery_note_doc.customer_address = self.customer_address
-		delivery_note_doc.reference_no = self.reference_no
-		delivery_note_doc.posting_date = self.posting_date
-		delivery_note_doc.posting_time = self.posting_time
-		delivery_note_doc.ship_to_location = self.ship_to_location
-		delivery_note_doc.salesman = self.salesman
-		delivery_note_doc.salesman_code = self.salesman_code
-		delivery_note_doc.tax_id = self.tax_id
-		delivery_note_doc.lpo_no = self.lpo_no
-		delivery_note_doc.lpo_date = self.lpo_date
-		delivery_note_doc.price_list = self.price_list
-		delivery_note_doc.rate_includes_tax = self.rate_includes_tax
-		delivery_note_doc.warehouse = self.warehouse
-		delivery_note_doc.credit_sale = self.credit_sale
-		delivery_note_doc.credit_days = self.credit_days
-		delivery_note_doc.payment_terms = self.payment_terms
-		delivery_note_doc.payment_mode = self.payment_mode
-		delivery_note_doc.payment_account = self.payment_account
-		delivery_note_doc.remarks = self.remarks
-		delivery_note_doc.gross_total = self.gross_total
-		delivery_note_doc.total_discount_in_line_items = self.total_discount_in_line_items
-		delivery_note_doc.tax_total = self.tax_total
-		delivery_note_doc.net_total = self.net_total
-		delivery_note_doc.round_off = self.round_off
-		delivery_note_doc.rounded_total = self.rounded_total
-		delivery_note_doc.terms = self.terms
-		delivery_note_doc.terms_and_conditions = self.terms_and_conditions		
-		delivery_note_doc.address_line_1 = self.address_line_1
-		delivery_note_doc.address_line_2 = self.address_line_2
-		delivery_note_doc.area_name = self.area_name
-		delivery_note_doc.country = self.country
-		delivery_note_doc.quotation = self.quotation
-		delivery_note_doc.sales_order = self.name
-
-		delivery_note_doc.save()
-		
-		idx = 0
-
-		for item in self.items:
+		if(item.qty_in_base_unit > item.qty_sold_in_base_unit):
 			idx = idx + 1
 			delivery_note_item = frappe.new_doc("Delivery Note Item")
 			delivery_note_item.warehouse = item.warehouse
 			delivery_note_item.item = item.item
 			delivery_note_item.item_name = item.item_name
 			delivery_note_item.display_name = item.display_name
-			delivery_note_item.qty =item.qty
+			delivery_note_item.qty = (item.qty_in_base_unit - item.qty_sold_in_base_unit)/ item.conversion_factor
 			delivery_note_item.unit = item.unit
-			delivery_note_item.rate = item.rate
+			delivery_note_item.rate = item.rate * item.conversion_factor
 			delivery_note_item.base_unit = item.base_unit
-			delivery_note_item.qty_in_base_unit = item.qty_in_base_unit
+			delivery_note_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_sold_in_base_unit
 			delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
 			delivery_note_item.conversion_factor = item.conversion_factor
 			delivery_note_item.rate_includes_tax = item.rate_includes_tax
@@ -154,9 +160,13 @@ class SalesOrder(Document):
 			delivery_note_item.sales_order_item_reference_no = item.name
 
 			delivery_note_doc.append('items', delivery_note_item )
-			#  target_items.append(target_item)
+		#  target_items.append(target_item)
 
-		delivery_note_doc.save()
+	delivery_note_doc.insert()
+	frappe.db.commit()
+	
+	frappe.msgprint("Delivery Note generated successfully, in draft mode.",indicator="green", alert=True)
+	return delivery_note_doc.name
   
 	
 

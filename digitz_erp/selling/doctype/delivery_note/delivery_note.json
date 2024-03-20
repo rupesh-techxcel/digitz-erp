@@ -74,7 +74,8 @@
   "area_name",
   "country",
   "quotation",
-  "amended_from"
+  "amended_from",
+  "sales_orders"
  ],
  "fields": [
   {
@@ -362,24 +363,28 @@
    "fetch_from": "customer.address_line_1",
    "fieldname": "address_line_1",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Address Line 1"
   },
   {
    "fetch_from": "customer.address_line_2",
    "fieldname": "address_line_2",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Address Line 2"
   },
   {
    "fetch_from": "customer.area_name",
    "fieldname": "area_name",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Area Name"
   },
   {
    "fetch_from": "customer.country",
    "fieldname": "country",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Country"
   },
   {
@@ -398,7 +403,8 @@
    "fieldname": "quotation",
    "fieldtype": "Link",
    "label": "Quotation",
-   "options": "Quotation"
+   "options": "Quotation",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -442,7 +448,6 @@
    "fieldtype": "Column Break"
   },
   {
-
    "fieldname": "customer_balance",
    "fieldtype": "Currency",
    "label": "Customer Balance",
@@ -460,7 +465,13 @@
   {
    "fieldname": "column_break_jdls",
    "fieldtype": "Column Break"
-
+  },
+  {
+   "fieldname": "sales_orders",
+   "fieldtype": "Table",
+   "label": "Sales Orders",
+   "options": "Delivery Note Sales Orders",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -471,9 +482,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
-
- "modified": "2024-03-19 10:50:54.404764",
-
+ "modified": "2024-03-19 15:11:40.935311",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

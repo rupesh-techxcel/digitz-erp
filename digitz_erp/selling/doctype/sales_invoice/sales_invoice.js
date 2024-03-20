@@ -5,8 +5,8 @@ frappe.ui.form.on('Sales Invoice', {
 
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
-
-		 if (frm.doc.docstatus === 0) {
+		 
+		 if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) {
 			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
 						delivery_note_dialog(frm)
 					});
@@ -19,6 +19,8 @@ frappe.ui.form.on('Sales Invoice', {
 			})
 		}
 
+
+		update_total_big_display(frm);
 
 		// if(!frm.is_new()){
 		// 	frm.add_custom_button('Sales Return', () =>{
@@ -441,6 +443,7 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
+		update_total_big_display(frm);
 
 	},
 	get_item_stock_balance(frm) {
@@ -642,6 +645,20 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 		frm.doc.receipt_schedule = [];
 		refresh_field("receipt_schedule");
 	}
+}
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
 }
 
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {

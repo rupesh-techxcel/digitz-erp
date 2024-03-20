@@ -105,7 +105,7 @@ frappe.ui.form.on('Purchase Order', {
 	{
 		if(frm.is_new())
 		{
-			frm.trigger("get_default_company_and_warehouse");
+			frm.trigger("get_default_company_and_warehouse")
 
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
 
@@ -217,6 +217,45 @@ frappe.ui.form.on('Purchase Order', {
 
 				}
 			});
+	},
+	get_default_company_and_warehouse(frm) {
+		var default_company = ""
+		console.log("From Get Default Warehouse Method in the parent form")
+	
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Global Settings',
+				'fieldname': 'default_company'
+			},
+			callback: (r) => {
+	
+				default_company = r.message.default_company
+				frm.doc.company = r.message.default_company
+				frm.refresh_field("company");
+				frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args: {
+							'doctype': 'Company',
+							'filters': { 'company_name': default_company },
+							'fieldname': ['default_warehouse', 'rate_includes_tax']
+						},
+						callback: (r2) => {
+							console.log("Before assign default warehouse");
+							console.log(r2.message.default_warehouse);
+							frm.doc.warehouse = r2.message.default_warehouse;
+							console.log(frm.doc.warehouse);
+							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+							frm.refresh_field("warehouse");
+							frm.refresh_field("rate_includes_tax");
+						}
+					}
+	
+				)
+			}
+		})
+	
 	},
 	make_taxes_and_totals(frm) {
 		console.log("from make totals..")
@@ -455,45 +494,7 @@ function set_default_payment_mode(frm)
 
 }
 
-function get_default_company_and_warehouse(frm) {
-	var default_company = ""
-	console.log("From Get Default Warehouse Method in the parent form")
 
-	frappe.call({
-		method: 'frappe.client.get_value',
-		args: {
-			'doctype': 'Global Settings',
-			'fieldname': 'default_company'
-		},
-		callback: (r) => {
-
-			default_company = r.message.default_company
-			frm.doc.company = r.message.default_company
-			frm.refresh_field("company");
-			frappe.call(
-				{
-					method: 'frappe.client.get_value',
-					args: {
-						'doctype': 'Company',
-						'filters': { 'company_name': default_company },
-						'fieldname': ['default_warehouse', 'rate_includes_tax']
-					},
-					callback: (r2) => {
-						console.log("Before assign default warehouse");
-						console.log(r2.message.default_warehouse);
-						frm.doc.warehouse = r2.message.default_warehouse;
-						console.log(frm.doc.warehouse);
-						//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-						frm.refresh_field("warehouse");
-						frm.refresh_field("rate_includes_tax");
-					}
-				}
-
-			)
-		}
-	})
-
-}
 
 frappe.ui.form.on("Purchase Order", "onload", function (frm) {
 

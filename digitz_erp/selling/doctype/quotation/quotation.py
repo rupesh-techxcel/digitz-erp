@@ -3,171 +3,202 @@
 
 import frappe
 from frappe.model.document import Document
+from digitz_erp.api.quotation_api import check_references_created
 
 class Quotation(Document):
+    
+    def test(self):
+        print('dummy method')
 
-	@frappe.whitelist()
-	def generate_sale_invoice(self):
-     
-		self.check_references_created()
-  
-		sales_invoice_doc = frappe.new_doc('Sales Invoice')
+@frappe.whitelist()
+def generate_sale_invoice(quotation):
 
-		# Set fields directly from the object's attributes
-		fields_to_copy = [
-			'company', 'customer', 'customer_name', 'customer_display_name', 'customer_address', 'reference_no',
-			'posting_date', 'posting_time', 'ship_to_location', 'salesman', 'salesman_code', 'tax_id', 'lpo_no',
-			'lpo_date', 'price_list', 'rate_includes_tax', 'warehouse', 'credit_sale', 'credit_days', 'payment_terms',
-			'payment_mode', 'payment_account', 'remarks', 'gross_total', 'total_discount_in_line_items', 'tax_total',
-			'net_total', 'round_off', 'rounded_total', 'terms', 'terms_and_conditions', 'address_line_1', 'address_line_2',
-			'area_name', 'country', 'quotation'
-		]
-		for field in fields_to_copy:
-			setattr(sales_invoice_doc, field, getattr(self, field, None))
+	check_references_created(quotation)
+	quotation_doc = frappe.get_doc('Quotation',quotation)
+	sales_invoice_doc = frappe.new_doc('Sales Invoice')
+	sales_invoice_doc.company = quotation_doc.company		
+	sales_invoice_doc.customer = quotation_doc.customer
+	sales_invoice_doc.customer_name = quotation_doc.customer_name
+	sales_invoice_doc.customer_display_name = quotation_doc.customer_display_name
+	sales_invoice_doc.customer_address = quotation_doc.customer_address
+	sales_invoice_doc.reference_no = quotation_doc.reference_no
+	sales_invoice_doc.posting_date = quotation_doc.posting_date
+	sales_invoice_doc.posting_time = quotation_doc.posting_time
+	sales_invoice_doc.ship_to_location = quotation_doc.ship_to_location
+	sales_invoice_doc.salesman = quotation_doc.salesman
+	sales_invoice_doc.salesman_code = quotation_doc.salesman_code
+	sales_invoice_doc.tax_id = quotation_doc.tax_id
+	sales_invoice_doc.lpo_no = None
+	sales_invoice_doc.lpo_date = None
+	sales_invoice_doc.price_list = quotation_doc.price_list
+	sales_invoice_doc.rate_includes_tax = quotation_doc.rate_includes_tax
+	sales_invoice_doc.warehouse = quotation_doc.warehouse
+	sales_invoice_doc.credit_sale = quotation_doc.credit_sale
+	sales_invoice_doc.credit_days = quotation_doc.credit_days
+	sales_invoice_doc.payment_terms = quotation_doc.payment_terms
+	sales_invoice_doc.payment_mode = quotation_doc.payment_mode
+	sales_invoice_doc.payment_account = quotation_doc.payment_account
+	sales_invoice_doc.remarks = quotation_doc.remarks
+	sales_invoice_doc.gross_total = quotation_doc.gross_total
+	sales_invoice_doc.total_discount_in_line_items = quotation_doc.total_discount_in_line_items
+	sales_invoice_doc.tax_total = quotation_doc.tax_total
+	sales_invoice_doc.net_total = quotation_doc.net_total
+	sales_invoice_doc.round_off = quotation_doc.round_off
+	sales_invoice_doc.rounded_total = quotation_doc.rounded_total
+	sales_invoice_doc.terms = quotation_doc.terms
+	sales_invoice_doc.terms_and_conditions = quotation_doc.terms_and_conditions		
+	sales_invoice_doc.address_line_1 = quotation_doc.address_line_1
+	sales_invoice_doc.address_line_2 = quotation_doc.address_line_2
+	sales_invoice_doc.area_name = quotation_doc.area_name
+	sales_invoice_doc.country = quotation_doc.country
+	sales_invoice_doc.quotation = quotation_doc.name
 
-		sales_invoice_doc.quotation = self.name
+	idx = 0
 
-		sales_invoice_doc.save()
+	for item in quotation_doc.items:
+		idx = idx + 1
+		delivery_note_item = frappe.new_doc("Sales Invoice Item")
+		delivery_note_item.warehouse = item.warehouse
+		delivery_note_item.item = item.item
+		delivery_note_item.item_name = item.item_name
+		delivery_note_item.display_name = item.display_name
+		delivery_note_item.qty =item.qty
+		delivery_note_item.unit = item.unit
+		delivery_note_item.rate = item.rate
+		delivery_note_item.base_unit = item.base_unit
+		delivery_note_item.qty_in_base_unit = item.qty_in_base_unit
+		delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
+		delivery_note_item.conversion_factor = item.conversion_factor
+		delivery_note_item.rate_includes_tax = item.rate_includes_tax
+		delivery_note_item.rate_excluded_tax = item.rate_excluded_tax
+		delivery_note_item.gross_amount = item.gross_amount
+		delivery_note_item.tax_excluded = item.tax_excluded
+		delivery_note_item.tax = item.tax
+		delivery_note_item.tax_rate = item.tax_rate
+		delivery_note_item.tax_amount = item.tax_amount
+		delivery_note_item.discount_percentage = item.discount_percentage
+		delivery_note_item.discount_amount = item.discount_amount
+		delivery_note_item.net_amount = item.net_amount
+		delivery_note_item.unit_conversion_details = item.unit_conversion_details
+		delivery_note_item.idx = idx
+		delivery_note_item.quotation_item_reference_no = item.name
 
-		for item in self.items:
-			sales_invoice_item = frappe.new_doc("Sales Invoice Item")
-			# Directly map the necessary fields
-			for field in ['warehouse', 'item', 'item_name', 'display_name', 'unit', 'base_unit', 'rate_includes_tax',
-						'rate_excluded_tax', 'gross_amount', 'tax_excluded', 'tax', 'tax_rate', 'tax_amount',
-						'discount_percentage', 'discount_amount', 'net_amount', 'unit_conversion_details']:
-				setattr(sales_invoice_item, field, getattr(item, field, None))
+		sales_invoice_doc.append('items', delivery_note_item )
+		#  target_items.append(target_item)
 
-			sales_invoice_item.qty = item.qty
-			sales_invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
-			sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit
-			sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit
-			sales_invoice_item.conversion_factor = item.conversion_factor
-			sales_invoice_item.quotation_item_reference_no = item.name
+	sales_invoice_doc.insert()
+	frappe.msgprint("Sales Invoice successfully created in draft mode.", indicator="green",alert
+				=True)
+	return sales_invoice_doc.name
 
-			sales_invoice_doc.append('items', sales_invoice_item)
+@frappe.whitelist()
+def generate_delivery_note(quotation):
 
-		sales_invoice_doc.save()
-		frappe.msgprint("Sales Invoice generated successfully, in draft mode.", indicator="green", alert=True)
+	check_references_created(quotation)
+	quotation_doc = frappe.get_doc('Quotation',quotation)
+	delivery_note_doc = frappe.new_doc('Delivery Note')
+	delivery_note_doc.company = quotation_doc.company		
+	delivery_note_doc.customer = quotation_doc.customer
+	delivery_note_doc.customer_name = quotation_doc.customer_name
+	delivery_note_doc.customer_display_name = quotation_doc.customer_display_name
+	delivery_note_doc.customer_address = quotation_doc.customer_address
+	delivery_note_doc.reference_no = quotation_doc.reference_no
+	delivery_note_doc.posting_date = quotation_doc.posting_date
+	delivery_note_doc.posting_time = quotation_doc.posting_time
+	delivery_note_doc.ship_to_location = quotation_doc.ship_to_location
+	delivery_note_doc.salesman = quotation_doc.salesman
+	delivery_note_doc.salesman_code = quotation_doc.salesman_code
+	delivery_note_doc.tax_id = quotation_doc.tax_id
+	delivery_note_doc.lpo_no = None
+	delivery_note_doc.lpo_date = None
+	delivery_note_doc.price_list = quotation_doc.price_list
+	delivery_note_doc.rate_includes_tax = quotation_doc.rate_includes_tax
+	delivery_note_doc.warehouse = quotation_doc.warehouse
+	delivery_note_doc.credit_sale = quotation_doc.credit_sale
+	delivery_note_doc.credit_days = quotation_doc.credit_days
+	delivery_note_doc.payment_terms = quotation_doc.payment_terms
+	delivery_note_doc.payment_mode = quotation_doc.payment_mode
+	delivery_note_doc.payment_account = quotation_doc.payment_account
+	delivery_note_doc.remarks = quotation_doc.remarks
+	delivery_note_doc.gross_total = quotation_doc.gross_total
+	delivery_note_doc.total_discount_in_line_items = quotation_doc.total_discount_in_line_items
+	delivery_note_doc.tax_total = quotation_doc.tax_total
+	delivery_note_doc.net_total = quotation_doc.net_total
+	delivery_note_doc.round_off = quotation_doc.round_off
+	delivery_note_doc.rounded_total = quotation_doc.rounded_total
+	delivery_note_doc.terms = quotation_doc.terms
+	delivery_note_doc.terms_and_conditions = quotation_doc.terms_and_conditions		
+	delivery_note_doc.address_line_1 = quotation_doc.address_line_1
+	delivery_note_doc.address_line_2 = quotation_doc.address_line_2
+	delivery_note_doc.area_name = quotation_doc.area_name
+	delivery_note_doc.country = quotation_doc.country
+	delivery_note_doc.quotation = quotation_doc.name
 
-	@frappe.whitelist()
-	def generate_delivery_note(self):
-     
-		self.check_references_created()
-		delivery_note_doc = frappe.new_doc('Delivery Note')
-		delivery_note_doc.company = self.company		
-		delivery_note_doc.customer = self.customer
-		delivery_note_doc.customer_name = self.customer_name
-		delivery_note_doc.customer_display_name = self.customer_display_name
-		delivery_note_doc.customer_address = self.customer_address
-		delivery_note_doc.reference_no = self.reference_no
-		delivery_note_doc.posting_date = self.posting_date
-		delivery_note_doc.posting_time = self.posting_time
-		delivery_note_doc.ship_to_location = self.ship_to_location
-		delivery_note_doc.salesman = self.salesman
-		delivery_note_doc.salesman_code = self.salesman_code
-		delivery_note_doc.tax_id = self.tax_id
-		delivery_note_doc.lpo_no = None
-		delivery_note_doc.lpo_date = None
-		delivery_note_doc.price_list = self.price_list
-		delivery_note_doc.rate_includes_tax = self.rate_includes_tax
-		delivery_note_doc.warehouse = self.warehouse
-		delivery_note_doc.credit_sale = self.credit_sale
-		delivery_note_doc.credit_days = self.credit_days
-		delivery_note_doc.payment_terms = self.payment_terms
-		delivery_note_doc.payment_mode = self.payment_mode
-		delivery_note_doc.payment_account = self.payment_account
-		delivery_note_doc.remarks = self.remarks
-		delivery_note_doc.gross_total = self.gross_total
-		delivery_note_doc.total_discount_in_line_items = self.total_discount_in_line_items
-		delivery_note_doc.tax_total = self.tax_total
-		delivery_note_doc.net_total = self.net_total
-		delivery_note_doc.round_off = self.round_off
-		delivery_note_doc.rounded_total = self.rounded_total
-		delivery_note_doc.terms = self.terms
-		delivery_note_doc.terms_and_conditions = self.terms_and_conditions		
-		delivery_note_doc.address_line_1 = self.address_line_1
-		delivery_note_doc.address_line_2 = self.address_line_2
-		delivery_note_doc.area_name = self.area_name
-		delivery_note_doc.country = self.country
-		delivery_note_doc.quotation = self.name
+
+	idx = 0
+
+	for item in quotation_doc.items:
+		idx = idx + 1
+		delivery_note_item = frappe.new_doc("Delivery Note Item")
+		delivery_note_item.warehouse = item.warehouse
+		delivery_note_item.item = item.item
+		delivery_note_item.item_name = item.item_name
+		delivery_note_item.display_name = item.display_name
+		delivery_note_item.qty =item.qty
+		delivery_note_item.unit = item.unit
+		delivery_note_item.rate = item.rate
+		delivery_note_item.base_unit = item.base_unit
+		delivery_note_item.qty_in_base_unit = item.qty_in_base_unit
+		delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
+		delivery_note_item.conversion_factor = item.conversion_factor
+		delivery_note_item.rate_includes_tax = item.rate_includes_tax
+		delivery_note_item.rate_excluded_tax = item.rate_excluded_tax
+		delivery_note_item.gross_amount = item.gross_amount
+		delivery_note_item.tax_excluded = item.tax_excluded
+		delivery_note_item.tax = item.tax
+		delivery_note_item.tax_rate = item.tax_rate
+		delivery_note_item.tax_amount = item.tax_amount
+		delivery_note_item.discount_percentage = item.discount_percentage
+		delivery_note_item.discount_amount = item.discount_amount
+		delivery_note_item.net_amount = item.net_amount
+		delivery_note_item.unit_conversion_details = item.unit_conversion_details
+		delivery_note_item.idx = idx
+		delivery_note_item.quotation_item_reference_no = item.name
+
+		delivery_note_doc.append('items', delivery_note_item )
+		#  target_items.append(target_item)
+
+	delivery_note_doc.insert()
+	frappe.msgprint("Delivery Note successfully created in draft mode.", indicator="green",alert
+				=True)
+	return delivery_note_doc.name
+
+@frappe.whitelist()
+def generate_sales_order(quotation):
 		
-		
-		idx = 0
+	quotation_doc =frappe.get_doc('Quotation',quotation)
 
-		for item in self.items:
-			idx = idx + 1
-			delivery_note_item = frappe.new_doc("Delivery Note Item")
-			delivery_note_item.warehouse = item.warehouse
-			delivery_note_item.item = item.item
-			delivery_note_item.item_name = item.item_name
-			delivery_note_item.display_name = item.display_name
-			delivery_note_item.qty =item.qty
-			delivery_note_item.unit = item.unit
-			delivery_note_item.rate = item.rate
-			delivery_note_item.base_unit = item.base_unit
-			delivery_note_item.qty_in_base_unit = item.qty_in_base_unit
-			delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
-			delivery_note_item.conversion_factor = item.conversion_factor
-			delivery_note_item.rate_includes_tax = item.rate_includes_tax
-			delivery_note_item.rate_excluded_tax = item.rate_excluded_tax
-			delivery_note_item.gross_amount = item.gross_amount
-			delivery_note_item.tax_excluded = item.tax_excluded
-			delivery_note_item.tax = item.tax
-			delivery_note_item.tax_rate = item.tax_rate
-			delivery_note_item.tax_amount = item.tax_amount
-			delivery_note_item.discount_percentage = item.discount_percentage
-			delivery_note_item.discount_amount = item.discount_amount
-			delivery_note_item.net_amount = item.net_amount
-			delivery_note_item.unit_conversion_details = item.unit_conversion_details
-			delivery_note_item.idx = idx
-			delivery_note_item.quotation_item_reference_no = item.name
+	check_references_created(quotation)
+	sales_order = quotation_doc.__dict__
+	sales_order['doctype'] = 'Sales Order'
+	# delivery_note['against_sales_invoice'] = delivery_note['name']
+	# delivery_note['name'] = delivery_note_name
+	sales_order['naming_series'] = ""
+	sales_order['posting_date'] = quotation_doc.posting_date
+	sales_order['posting_time'] = quotation_doc.posting_time
+	sales_order["quotation"] = quotation_doc.name
 
-			delivery_note_doc.append('items', delivery_note_item )
-			#  target_items.append(target_item)
+	sales_order['docstatus'] = 0
 
-		delivery_note_doc.save()
-		frappe.msgprint("Delivery Note successfully created in draft mode.", indicator="green",alert
-                  =True)
+	for item in sales_order['items']:
+		item.doctype = "Sales Order Item"
+		item.quotation_item_reference_no = item.name
+		item._meta = ""
 
-	@frappe.whitelist()
-	def generate_sales_order(self):
+	new_so = frappe.get_doc(sales_order).insert()
+	frappe.db.commit()
+	frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
+	print("new so created")
+	return new_so.name
 
-		self.check_references_created()
-		sales_order = self.__dict__
-		sales_order['doctype'] = 'Sales Order'
-		# delivery_note['against_sales_invoice'] = delivery_note['name']
-		# delivery_note['name'] = delivery_note_name
-		sales_order['naming_series'] = ""
-		sales_order['posting_date'] = self.posting_date
-		sales_order['posting_time'] = self.posting_time
-		sales_order["quotation"] = self.name
-
-		sales_order['docstatus'] = 0
-
-		for item in sales_order['items']:
-			item.doctype = "Sales Order Item"
-			item.quotation_item_reference_no = item.name
-			item._meta = ""
-
-		doNo = frappe.get_doc(sales_order).insert()
-		frappe.db.commit()
-		frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
-
-	# For quotation we dont allow multiple documents created for a single quotation. So checking existance of the reference in any of the documents is good enough
-	def check_references_created(self):
-
-		sales_order_exists_for_quotation = frappe.db.exists("Sales Order", {"quotation": self.name})
-
-		if sales_order_exists_for_quotation:
-			frappe.throw("Sales Order already exist for the quotation and cannot create additional references.")
-
-		delivery_note_exists_for_quotation = frappe.db.exists("Delivery Note", {"quotation": self.name})
-
-		if(delivery_note_exists_for_quotation):
-			frappe.throw("Delivery Note already exist for the quotation and cannot create additional references")
-
-		sales_invoice_exists_for_quotation = frappe.db.exists("Sales Invoice", {"quotation": self.name})
-
-		if(sales_invoice_exists_for_quotation):
-			frappe.throw("Sales Invoice already exist for the quotation and cannot create additional references.")
 

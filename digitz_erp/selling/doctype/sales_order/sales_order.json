@@ -53,11 +53,12 @@
   "column_break_ywbh",
   "section_break_25",
   "gross_total",
-  "total_discount_in_line_items",
   "tax_total",
-  "additional_discount",
-  "column_break_33",
   "net_total",
+  "column_break_33",
+  "total_discount_in_line_items",
+  "additional_discount",
+  "column_break_xkzu",
   "round_off",
   "rounded_total",
   "column_break_engq",
@@ -367,6 +368,7 @@
    "options": "Purchase Invoice Tax"
   },
   {
+   "collapsible": 1,
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
    "label": "Terms And Conditions"
@@ -459,6 +461,10 @@
    "fieldtype": "Currency",
    "label": "Customer Balance",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xkzu",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -473,9 +479,7 @@
    "link_fieldname": "sales_order"
   }
  ],
-
- "modified": "2024-03-19 11:02:14.877531",
-
+ "modified": "2024-03-19 20:44:40.105559",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
