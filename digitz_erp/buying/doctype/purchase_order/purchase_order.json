@@ -154,6 +154,7 @@
    "reqd": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -404,7 +405,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-03-20 10:54:11.511762",
+ "modified": "2024-03-20 17:43:58.870652",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

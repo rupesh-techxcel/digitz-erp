@@ -75,10 +75,8 @@
   "area_name",
   "country",
   "quotation",
-
   "amended_from",
   "sales_orders"
-
  ],
  "fields": [
   {
@@ -194,6 +192,7 @@
    "reqd": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
    "label": "Accounts"
@@ -468,7 +467,7 @@
   {
    "fieldname": "column_break_jdls",
    "fieldtype": "Column Break"
-  },  
+  },
   {
    "fieldname": "in_words",
    "fieldtype": "Data",
@@ -490,9 +489,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
-
- "modified": "2024-03-19 15:11:40.935311",
-
+ "modified": "2024-03-21 12:16:26.106830",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

@@ -16,31 +16,35 @@ def get_quotation_items_data(quotation_no):
 
 @frappe.whitelist()
 def get_sales_invoice_exists(qtn_no):    
-   return frappe.db.exists('Sales Invoice', {'quotation': qtn_no})
+   return frappe.db.exists('Sales Invoice', {'quotation': qtn_no,'docstatus': ('<', 2)})
 
 @frappe.whitelist()
 def get_sales_order_exists(qtn_no):    
-   return frappe.db.exists('Sales Order', {'quotation': qtn_no})
+   return frappe.db.exists('Sales Order', {'quotation': qtn_no,'docstatus': ('<', 2)})
 
 @frappe.whitelist()
 def get_delivery_note_exists(qtn_no):    
-   return frappe.db.exists('Delivery Note', {'quotation': qtn_no})
+   return frappe.db.exists('Delivery Note', {'quotation': qtn_no, 'docstatus': ('<', 2)})
+
 
 # For quotation we dont allow multiple documents created for a single quotation. So checking existance of the reference in any of the documents is good enough
 @frappe.whitelist()
 def check_references_created(quotation_name):
+    
+    print("from check_reference_created")
+    print(quotation_name)
 
-    sales_order_exists_for_quotation = frappe.db.exists("Sales Order", {"quotation": quotation_name})
+    sales_order_exists_for_quotation = frappe.db.exists("Sales Order", {"quotation": quotation_name,'docstatus': ('<', 2)})
 
     if sales_order_exists_for_quotation:
         frappe.throw("Sales Order already exist for the quotation and cannot create additional references.")
 
-    delivery_note_exists_for_quotation = frappe.db.exists("Delivery Note", {"quotation": quotation_name})
+    delivery_note_exists_for_quotation = frappe.db.exists("Delivery Note", {"quotation": quotation_name,'docstatus': ('<', 2)})
 
     if(delivery_note_exists_for_quotation):
         frappe.throw("Delivery Note already exist for the quotation and cannot create additional references")
 
-    sales_invoice_exists_for_quotation = frappe.db.exists("Sales Invoice", {"quotation": quotation_name})
+    sales_invoice_exists_for_quotation = frappe.db.exists("Sales Invoice", {"quotation": quotation_name,'docstatus': ('<', 2)})
 
     if(sales_invoice_exists_for_quotation):
         frappe.throw("Sales Invoice already exist for the quotation and cannot create additional references.")

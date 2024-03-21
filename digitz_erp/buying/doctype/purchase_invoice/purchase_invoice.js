@@ -88,8 +88,6 @@ frappe.ui.form.on('Purchase Invoice', {
 
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
 
-				console.log("r from assign defaults")
-				console.log(r)
 				if (r && r.default_credit_purchase === 1) {
 					console.log("credit purchase from  assign_defaults")
 					console.log(r.default_credit_purchase)
@@ -101,8 +99,8 @@ frappe.ui.form.on('Purchase Invoice', {
 			set_default_payment_mode(frm);
 		}
 
+		set_payment_visibility(frm)
 	},
-
 	validate:function(frm){
 
 		if(!frm.doc.credit_purchase)
@@ -882,13 +880,14 @@ frappe.ui.form.on('Purchase Invoice Item', {
 
 function set_default_payment_mode(frm)
 {
+	console.log("from set_default_payment_mode")
+
 	if(!frm.doc.credit_purchase){
 
 		frappe.db.get_value('Company', frm.doc.company, 'default_payment_mode_for_purchase', function(r) {
 
 			if (r && r.default_payment_mode_for_purchase) {
 				frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
-
 			}
 			else {
 				frappe.msgprint('Default payment mode for purchase not found.');
@@ -900,6 +899,11 @@ function set_default_payment_mode(frm)
 		frm.set_value('payment_mode','');
 	}
 
+	set_payment_visibility(frm)
+}
+
+function set_payment_visibility(frm)
+{
 	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
 	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
 	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);

@@ -97,10 +97,19 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 	purchase_invoice.supplier_inv_no = purchase_doc.supplier_inv_no
 	purchase_invoice.rate_includes_tax = purchase_doc.rate_includes_tax
 	purchase_invoice.credit_purchase = purchase_doc.credit_purchase
+	
+	
 	purchase_invoice.credit_days = purchase_doc.credit_days
 	purchase_invoice.payment_terms = purchase_doc.payment_terms
+ 
 	purchase_invoice.payment_mode = purchase_doc.payment_mode
 	purchase_invoice.payment_account = purchase_doc.payment_account
+ 
+	print("check credit options")
+	print(purchase_doc.credit_purchase)
+	print(purchase_doc.payment_mode)
+	print(purchase_doc.payment_account)
+ 
 	purchase_invoice.remarks = purchase_doc.remarks
 	purchase_invoice.reference_no = purchase_doc.reference_no
 	purchase_invoice.reference_date = purchase_doc.reference_date

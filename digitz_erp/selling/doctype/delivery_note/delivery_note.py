@@ -41,13 +41,43 @@ class DeliveryNote(Document):
 
                     if(self.Voucher_In_The_Same_Time()):
                         frappe.throw("Voucher with same time already exists.")
-
-
-
+                        
+        self.update_sales_order_references()
 
     def validate(self):
         self.validate_item()
         # self.validate_item_valuation_rates()
+        
+    def update_sales_order_references(self):
+        sales_orders = []
+
+        # Collect unique parent sales orders from the items
+        for item in self.items:
+            if item.sales_order_item_reference_no:
+                
+                sales_order_item_reference_no = item.sales_order_item_reference_no  # Assuming this is defined somewhere in your context
+
+                query = """
+                SELECT parent
+                FROM `tabSales Order Item`
+                WHERE name = %s
+                """
+                parent_sales_order = frappe.db.sql(query, (sales_order_item_reference_no,), as_dict=1)
+
+                # Extracting the first result as parent_sales_order would be a list of dictionaries
+                parent_sales_order = parent_sales_order[0].get('parent') if parent_sales_order else None
+
+                if parent_sales_order not in sales_orders:
+                    sales_orders.append(parent_sales_order)
+
+        # Clear existing entries in the 'sales_orders' child table
+        self.set('sales_orders', [])  # This clears the child table
+
+        # Append new entries to the 'sales_orders' child table
+        for sales_order in sales_orders:
+            self.append('sales_orders', {
+                'sales_order': sales_order
+            })
 
     def on_cancel(self):
 
@@ -63,7 +93,6 @@ class DeliveryNote(Document):
 
 
     def on_update(self):
-
         
         update_sales_order_quantities_on_update(self)   
 
@@ -72,13 +101,7 @@ class DeliveryNote(Document):
     def on_submit(self):
 
         init_document_posting_status(self.doctype,self.name)
-        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-
-        # if(frappe.session.user == "Administrator" and turn_off_background_job):
-        #     self.do_postings_on_submit()
-        # else:
-            # frappe.enqueue(self.do_postings_on_submit, queue="long")
-            # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert= True)
+       
         self.do_postings_on_submit()
 
 

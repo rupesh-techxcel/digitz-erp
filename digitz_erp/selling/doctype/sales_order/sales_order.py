@@ -7,8 +7,7 @@ from digitz_erp.api.sales_order_api import check_pending_items_exists
 from digitz_erp.api.item_price_api import update_customer_item_price
 
 class SalesOrder(Document):
-	
- 
+	 
 	def before_validate(self):
      
 		if self.is_new():
@@ -123,9 +122,11 @@ def generate_delivery_note(sales_order_name):
 	delivery_note_doc.quotation = sales_order_doc.quotation
 	delivery_note_doc.sales_order = sales_order_doc.name
 
-	sales_order = frappe.new_doc("Delivery Note Sales Orders")
-	sales_order.sales_order = sales_order_doc.name
-	delivery_note_doc.append('sales_orders', sales_order )
+	delivery_note_doc.append('sales_orders', {
+        'sales_order': sales_order_doc.name
+    })
+ 
+	print(delivery_note_doc)
 	
 	idx = 0
 
@@ -140,7 +141,7 @@ def generate_delivery_note(sales_order_name):
 			delivery_note_item.display_name = item.display_name
 			delivery_note_item.qty = (item.qty_in_base_unit - item.qty_sold_in_base_unit)/ item.conversion_factor
 			delivery_note_item.unit = item.unit
-			delivery_note_item.rate = item.rate * item.conversion_factor
+			delivery_note_item.rate = item.rate_in_base_unit * item.conversion_factor
 			delivery_note_item.base_unit = item.base_unit
 			delivery_note_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_sold_in_base_unit
 			delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
@@ -164,6 +165,8 @@ def generate_delivery_note(sales_order_name):
 
 	delivery_note_doc.insert()
 	frappe.db.commit()
+ 
+	print(delivery_note_doc)
 	
 	frappe.msgprint("Delivery Note generated successfully, in draft mode.",indicator="green", alert=True)
 	return delivery_note_doc.name

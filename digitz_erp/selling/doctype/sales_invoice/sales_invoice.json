@@ -523,7 +523,9 @@
   {
    "fieldname": "payment_status",
    "fieldtype": "Data",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Payment Status"
   },
   {
@@ -588,7 +590,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2024-03-20 11:16:01.531428",
+ "modified": "2024-03-20 16:13:20.811425",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

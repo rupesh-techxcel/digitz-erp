@@ -53,7 +53,7 @@ class PurchaseInvoice(Document):
 			self.paid_amount = self.rounded_total
 		else:
 			self.paid_amount = 0
-
+   
 		# When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
 		# posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
 
@@ -76,6 +76,10 @@ class PurchaseInvoice(Document):
 			frappe.throw("Select Payment Mode")
 
 	def validate_supplier_inv_no(self):
+     
+		if not self.supplier_inv_no:
+			frappe.throw("Please input supplier invoice number.")
+   
 		existing_invoice = frappe.db.get_value("Purchase Invoice",{"supplier": self.supplier, "supplier_inv_no": self.supplier_inv_no,"name": ("!=", self.name) if self.name else None})
 		if existing_invoice:
 
@@ -119,6 +123,9 @@ class PurchaseInvoice(Document):
 
 	def on_update(self):
 		print("on_update from pi")
+
+		print(self.payment_mode)
+  
 		if self.purchase_order:
 			self.update_purchase_order_quantities_on_update()
 			check_and_update_purchase_order_status(self.purchase_order)

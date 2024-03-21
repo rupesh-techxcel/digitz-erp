@@ -27,9 +27,7 @@ class TabSales (Document):
 
     def before_validate(self):
 
-        # Remove existing ref for duplicate vouchers
-        if self.is_new():
-            self.sales_invoice_no_ref = None
+       
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
         # posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
@@ -50,7 +48,15 @@ class TabSales (Document):
         if not self.company:
             self.company = get_default_company()
         
+        if self.is_new():
+            self.paid_amount = 0
+             # Remove existing ref for duplicate vouchers        
+            self.sales_invoice_no_ref = None
 
+        if self.credit_sale == 0:
+            self.paid_amount = self.rounded_total
+        else:
+            self.paid_amount = 0
 
     def validate_item(self):
 
