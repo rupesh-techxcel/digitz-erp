@@ -402,7 +402,7 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: "Link",
 								fieldname: "reference_name",
-								label: "Reference Name",
+								label: "Reference Name and Date",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
@@ -417,15 +417,6 @@ allocations: function(frm, cdt, cdn)
 								// width: "40%",
 								read_only:true
 							},
-							// {
-							// 	fieldtype: "Date",
-							// 	fieldname: "date",
-							// 	label: "Date",
-							// 	in_place_edit: false,
-							// 	in_list_view: true,
-							// 	// width: "40%",
-							// 	read_only:true
-							// },
 							{
 								fieldtype: "Currency",
 								fieldname: "invoice_amount",
