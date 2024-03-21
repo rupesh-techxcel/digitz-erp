@@ -38,7 +38,6 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Warehouse",
    "options": "Warehouse"
   },
@@ -188,9 +187,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
-
- "modified": "2024-03-19 08:51:09.858900",
-
+ "modified": "2024-03-21 10:38:26.442776",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note Item",
