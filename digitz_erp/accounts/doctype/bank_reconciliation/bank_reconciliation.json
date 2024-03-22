@@ -20,7 +20,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Bank Account",
-   "options": "Bank Account",
+   "options": "Account",
    "reqd": 1
   },
   {
@@ -67,7 +67,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-02 09:24:08.360003",
+ "modified": "2024-03-22 09:30:32.266089",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Bank Reconciliation",

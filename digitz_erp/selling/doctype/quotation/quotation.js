@@ -3,9 +3,9 @@
 
 frappe.ui.form.on('Quotation', {
 	refresh: function(frm) {
-		
+
 		update_total_big_display(frm);
-		
+
 		console.log("docstatus")
 		console.log(frm.doc.docstatus)
 
@@ -82,7 +82,7 @@ frappe.ui.form.on('Quotation', {
 					frm.add_custom_button('Create Sales Order', () => {
 
 						frm.call({
-							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',					
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',
 							args: {
 								quotation: frm.doc.name
 							},
@@ -93,15 +93,15 @@ frappe.ui.form.on('Quotation', {
 									frappe.set_route('Form', 'Sales Order', r.message);
 								}
 							}
-		
+
 						});
-						
+
 					});
 
 					frm.add_custom_button('Create Delivery Note', () => {
 
 						frm.call({
-							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_delivery_note',					
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_delivery_note',
 							args: {
 								quotation: frm.doc.name
 							},
@@ -112,15 +112,15 @@ frappe.ui.form.on('Quotation', {
 									frappe.set_route('Form', 'Delivery Note', r.message);
 								}
 							}
-		
+
 						});
-						
+
 					});
 
 					frm.add_custom_button('Create Sales Invoice', () => {
 
 						frm.call({
-							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sale_invoice',					
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sale_invoice',
 							args: {
 								quotation: frm.doc.name
 							},
@@ -130,8 +130,8 @@ frappe.ui.form.on('Quotation', {
 								if(r.message){
 									frappe.set_route('Form', 'Sales Invoice', r.message);
 								}
-							}		
-						});						
+							}
+						});
 					});
 
 				}
@@ -454,24 +454,28 @@ frappe.ui.form.on('Quotation', {
 	get_item_stock_balance(frm) {
 
 		frappe.call(
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					'doctype': 'Stock Balance',
-					'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
-					'fieldname': ['stock_qty']
-				},
-				callback: (r2) => {
-					console.log(r2)
-					if (r2 && r2.message && r2.message.stock_qty !== undefined)
-					{
-						frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " for " + frm.item + " at w/h: "+ frm.warehouse + ": "
-						frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
-					}
-
-				}
-			});
+    {
+        method: 'frappe.client.get_value',
+        args: {
+            'doctype': 'Stock Balance',
+            'filters': { 'item': frm.item, 'warehouse': frm.warehouse },
+            'fieldname': ['stock_qty']
+        },
+        callback: (r2) => {
+            console.log(r2);
+            if (r2 && r2.message && r2.message.stock_qty !== undefined)
+            {
+                const itemRow = frm.doc.items.find(item => item.item === frm.item && item.warehouse === frm.warehouse);
+                if (itemRow) {
+                    const unit = itemRow.unit;
+                    frm.doc.selected_item_stock_qty_in_the_warehouse = "Stock Bal: "  + r2.message.stock_qty +  " " + unit + " for " + frm.item + " at w/h: "+ frm.warehouse + ": ";
+                    frm.refresh_field("selected_item_stock_qty_in_the_warehouse");
+                }
+            }
+        }
+    });
 	},
+	
 	get_default_company_and_warehouse(frm) {
 		var default_company = ""
 		console.log("From Get Default Warehouse Method in the parent form")

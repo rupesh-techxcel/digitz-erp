@@ -17,6 +17,13 @@ class StockReconciliation(Document):
 
     def validate(self):
         self.validate_items()
+        self.validate_stock_ledger_for_item()
+
+    def validate_stock_ledger_for_item(self):
+        if self.purpose == "Opening Stock":
+            for item in self.items:
+                if frappe.db.exists("Stock Ledger", {"item": item.item, "posting_date": (">", self.posting_date)}):
+                    frappe.throw(_("There is an existing stock entry for the item '{0}' dated prior to the specified posting date").format(item.item))
 
     def validate_items(self):
         item_units = defaultdict(set)

@@ -12,7 +12,7 @@ def create_bank_reconciliation(doc_type, name):
                 "document_name": name,
                 "reference_no": doc.reference_no,
                 "reference_date": doc.reference_date,
-                "bank_account": doc.bank_account,
+                "bank_account": doc.account,
             })
             bank_reconciliation.insert(ignore_permissions=True)
             frappe.msgprint(f"Bank Reconciliation created for {doc_type} {name}")
