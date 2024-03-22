@@ -18,6 +18,7 @@
   "column_break_10",
   "credit_days",
   "credit_amount",
+  "last_transaction_date",
   "section_break_20",
   "address",
   "address_line_1",
@@ -240,11 +241,16 @@
   {
    "fieldname": "column_break_wyer",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_transaction_date",
+   "fieldtype": "Date",
+   "label": "Last Transaction Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-10 10:33:30.935201",
+ "modified": "2024-03-21 20:58:49.323055",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

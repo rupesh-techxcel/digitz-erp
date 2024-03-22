@@ -6,8 +6,7 @@ frappe.ui.form.on('Delivery Note', {
 
 		if (frm.doc.docstatus == 1)
 		{
-
-			if (frm.doc.docstatus == 1 && !frm.doc.auto_generated_from_sales_invoice) {
+			if (frm.doc.docstatus == 1) {
 
 				frappe.call(
 					{
@@ -44,16 +43,31 @@ frappe.ui.form.on('Delivery Note', {
 			}
 		}
 
-		if (frm.doc.docstatus == 0)
-		{
-			frm.add_custom_button(__('Get Items From Sales Order'), function () {
-				sales_order_dialog(frm)
-			})
-		}
+		// if (frm.doc.docstatus == 0)
+		// {
+		// 	frm.add_custom_button(__('Get Items From Sales Order'), function () {
+		// 		sales_order_dialog(frm)
+		// 	})
+		// }
+
+
+		frm.trigger("create_get_items_from_so_button");
 
 		create_custom_buttons(frm)
 
+		
+
 	},
+	create_get_items_from_so_button(frm)
+	{
+		if(frm.doc.docstatus ==0)
+		{	
+			frm.add_custom_button('Get Items from Sales Orders', () => showSalesOrdersDialog(frm));			
+			
+		}
+	},
+	
+	
 	setup: function (frm) {
 
 
@@ -550,6 +564,103 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
 }
 
+function showSalesOrdersDialog(frm) {
+
+	if(!frm.doc.customer)
+	{
+		frappe.msgprint("Select a customer")
+		return
+	}
+
+	frappe.call({
+		method: 'digitz_erp.api.sales_order_api.get_pending_sales_orders_for_delivery_note',
+		args: { customer: frm.doc.customer },
+		callback: function(r) {
+			if (r.message && r.message.length > 0) {
+				const salesOrders = r.message;
+				const content = $('<div>').append($('<table class="table table-bordered">')
+					.append('<thead><tr><th>Select</th><th>Sales Order</th><th>Date</th><th>Amount</th></tr></thead>')
+					.append($('<tbody>').append(salesOrders.map(so => 
+						`<tr><td><input type="checkbox" class="sales-order-checkbox" data-sales-order="${so['Sales Order']}" /></td><td>${so['Sales Order']}</td><td>${so['Date']}</td><td>${so['Amount']}</td></tr>`
+					))));
+
+				const dialog = new frappe.ui.Dialog({
+					title: 'Select Sales Orders',
+					fields: [{ fieldtype: 'HTML', fieldname: 'sales_orders', options: content.html() }],
+					primary_action_label: 'Select',
+					primary_action: function() {
+						const selectedSalesOrders = [];
+						$('.sales-order-checkbox:checked').each(function() {
+							selectedSalesOrders.push($(this).data('sales-order'));
+						});
+						console.log('Selected Sales Orders:', selectedSalesOrders); // Process as needed
+						// Here you can handle the selected sales orders, e.g., save them, pass them to another method, etc.
+						
+						frappe.call({
+							method: 'digitz_erp.api.sales_order_api.get_sales_order_items_pending',
+							args: { sales_orders: selectedSalesOrders },
+							callback: function(response) {
+								console.log(response)
+								const items = response.message;
+								
+								any_duplicate = false
+
+								items.forEach(item => {
+
+									const exists = frm.doc.items.some(frmItem => frmItem.sales_order_item_reference_no === item.sales_order_item_reference_no);
+            
+									if (!exists) {
+
+										frm.add_child('items', {
+											item: item.item,
+											item_name: item.item_name,
+											qty: item.qty,
+											warehouse: item.warehouse,
+											display_name: item.display_name,
+											unit: item.unit,
+											rate: item.rate,
+											base_unit: item.base_unit,
+											qty_in_base_unit: item.qty_in_base_unit,
+											rate_in_base_unit: item.rate_in_base_unit,
+											conversion_factor: item.conversion_factor,
+											rate_includes_tax: item.rate_includes_tax,
+											rate_excluded_tax: item.rate_excluded_tax,
+											gross_amount: item.gross_amount,
+											tax_excluded: item.tax_excluded,
+											tax_rate: item.tax_rate,
+											tax_amount: item.tax_amount,
+											discount_percentage: item.discount_percentage,
+											discount_amount: item.discount_amount,
+											net_amount: item.net_amount,
+											sales_order_item_reference_no: item.sales_order_item_reference_no // Include sales order item reference number
+										});
+
+									}
+									else{
+										any_duplicate = true
+									}
+								});
+								frm.trigger("make_taxes_and_totals");
+								frm.refresh_field('items');
+								
+								if(any_duplicate)
+								{
+									frappe.msgprint("One or more items from the sales order already exist in the document. These items have been ignored.")
+								}
+							}
+						});
+						dialog.hide();
+					}
+				});
+
+				dialog.show();
+			} else {
+				frappe.msgprint('No pending sales orders for this customer.');
+			}
+		}
+	});
+}
+
 frappe.ui.form.on("Delivery Note", "onload", function (frm) {
 
 	frm.trigger("assign_defaults");
@@ -896,76 +1007,6 @@ frappe.ui.form.on('Delivery Note Item', {
 		frm.trigger("make_taxes_and_totals");
 	}
 });
-
-let sales_order_dialog = function (frm) {
-    let d = new frappe.ui.Dialog({
-        title: 'Select Sales Orders',
-        fields: [{
-            label: 'Sales Order Details',
-            fieldname: 'sales_order_details',
-            fieldtype: 'Table',
-            fields: [{
-                label: 'Sales Order',
-                fieldtype: 'Link',
-                options: 'Sales Order',
-                fieldname: 'sales_order',
-                in_list_view: 1,
-                get_query: function(doc) {
-                    const customer = frm.doc.customer;
-                    if (customer) {
-                        return {
-                            filters: {
-                                "customer": customer
-                            }
-                        };
-                    }
-                }
-            }]
-        }],
-        size: 'large',
-        primary_action_label: 'Submit',
-        primary_action(values) {
-            console.log(values);
-            const selectedSalesOrders = values.sales_order_details.map(row => row.sales_order);
-            frappe.call({
-                method: 'digitz_erp.selling.doctype.delivery_note.delivery_note.get_sales_order_items',
-                args: { sales_orders: selectedSalesOrders },
-                callback: function(response) {
-                    const items = response.message;
-                    items.forEach(item => {
-                        frm.add_child('items', {
-                            item: item.item,
-                            item_name: item.item_name,
-                            qty: item.qty,
-                            warehouse: item.warehouse,
-                            display_name: item.display_name,
-                            unit: item.unit,
-                            rate: item.rate,
-                            base_unit: item.base_unit,
-                            qty_in_base_unit: item.qty_in_base_unit,
-                            rate_in_base_unit: item.rate_in_base_unit,
-                            conversion_factor: item.conversion_factor,
-                            rate_includes_tax: item.rate_includes_tax,
-                            rate_excluded_tax: item.rate_excluded_tax,
-                            gross_amount: item.gross_amount,
-                            tax_excluded: item.tax_excluded,
-                            tax_rate: item.tax_rate,
-                            tax_amount: item.tax_amount,
-                            discount_percentage: item.discount_percentage,
-                            discount_amount: item.discount_amount,
-                            net_amount: item.net_amount,
-                            sales_order_item_reference_no: item.sales_order_item_reference_no // Include sales order item reference number
-                        });
-                    });
-                    frm.refresh_field('items');
-                }
-            });
-            d.hide();
-        }
-    });
-
-    d.show();
-}
 
 
 let create_custom_buttons = function(frm){

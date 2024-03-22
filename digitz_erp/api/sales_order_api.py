@@ -10,6 +10,32 @@ def get_delivery_note_exists(sales_order):
    return frappe.db.exists('Delivery Note', {'sales_order': sales_order})
 
 @frappe.whitelist()
+def get_pending_sales_orders_for_delivery_note(customer):
+    so_query = """
+        SELECT 
+            `name` AS 'Sales Order', 
+            `posting_date` AS 'Date', 
+            `rounded_total` AS 'Amount' 
+        FROM 
+            `tabSales Order` 
+        WHERE 
+            `order_status` != 'Completed' 
+            AND `customer` = %s 
+            AND `docstatus` = 1 
+            AND `name` NOT IN (
+                SELECT 
+                    `sales_order` 
+                FROM 
+                    `tabSales Invoice` 
+                WHERE 
+                    `docstatus` < 2
+            )
+    """
+
+    sales_orders = frappe.db.sql(so_query, (customer,), as_dict=True)
+    return sales_orders
+
+@frappe.whitelist()
 def check_pending_items_exists(sales_order):
     unsold_items_count_query = """select count(1) from `tabSales Order Item` where qty_in_base_unit > qty_sold_in_base_unit and parent = %s"""
     unsold_items_count = frappe.db.sql(unsold_items_count_query, (sales_order,))
@@ -17,6 +43,7 @@ def check_pending_items_exists(sales_order):
         return True
     else:
         return False
+    
 
 @frappe.whitelist()
 def check_and_update_sales_order_status(document_name, doctype):
@@ -220,3 +247,24 @@ def update_sales_order_quantities_for_sales_return_on_update(self, for_delete_or
 
 		if(so_reference_any):
 			frappe.msgprint("Sold Qty of items in the corresponding Sales Order updated successfully", indicator= "green", alert= True)
+
+@frappe.whitelist()
+def get_sales_order_items_pending(sales_orders):
+    if isinstance(sales_orders, str):
+        sales_orders = frappe.parse_json(sales_orders)
+    items = []
+    for sales_order in sales_orders:
+        sales_order_items = frappe.get_all('Sales Order Item',
+                                           filters={'parent': sales_order},
+                                           fields=['name', 'item', 'qty', 'warehouse', 'item_name', 'display_name', 'unit', 'rate', 'base_unit',
+                                                   'qty_in_base_unit', 'qty_sold_in_base_unit', 'rate_in_base_unit', 'conversion_factor', 
+                                                   'rate_includes_tax', 'gross_amount', 'tax_excluded', 'tax_rate', 'tax_amount', 
+                                                   'discount_percentage', 'discount_amount', 'net_amount'])
+        for so_item in sales_order_items:
+            so_item['sales_order_item_reference_no'] = so_item['name']
+            so_item['qty'] = (so_item.get('qty_in_base_unit', 0) - so_item.get('qty_sold_in_base_unit', 0) )/ so_item.get('conversion_factor')
+            so_item['qty_in_base_unit'] = so_item.get('qty_in_base_unit', 0) - so_item.get('qty_sold_in_base_unit', 0)
+            
+            items.append(so_item)
+
+    return items

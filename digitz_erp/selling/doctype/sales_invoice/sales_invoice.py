@@ -84,6 +84,8 @@ class SalesInvoice(Document):
         if not self.tab_sales:
             update_sales_order_quantities_on_update(self)
             check_and_update_sales_order_status(self.name, "Sales Invoice")
+        
+        self.update_customer_last_transaction_date()
 
     def on_submit(self):
 
@@ -113,6 +115,11 @@ class SalesInvoice(Document):
         self.update_customer_prices()
 
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
+        self.update_customer_last_transaction_date()
+    
+    def update_customer_last_transaction_date(self):
+        
+        frappe.set_value('Customer',self.customer,{'last_transaction_date':self.posting_date})
 
     def update_item_prices(self):
 

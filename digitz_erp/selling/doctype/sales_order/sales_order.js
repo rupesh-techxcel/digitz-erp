@@ -26,37 +26,69 @@ frappe.ui.form.on('Sales Order', {
 
 			if(pending_items_exists)
 			{
-				frm.add_custom_button('Create Delivery Note', () => {
-					frm.call({
-					method: 'digitz_erp.selling.doctype.sales_order.sales_order.generate_delivery_note',					
-					args: {
-						sales_order_name: frm.doc.name
-					},
-					callback: function(r)
+
+				allow_delivery_note_creation = false
+				allow_sales_invoice_creation = false
+
+				frappe.call(
 					{
-						frm.reload_doc();
-						if(r.message){
-							frappe.set_route('Form', 'Delivery Note', r.message);
+						method: 'digitz_erp.api.sales_restriction_rules_api.do_not_allow_multiple_doctype_creation',
+						async: false,
+						args: {
+							'sales_order': frm.doc.name
+						},
+						callback(r) {
+		
+							console.log("from do_not_allow_multiple_doctype_creation");
+							// Sales Invoice can be created only if sales order does not exist in Delivery Note
+							allow_sales_invoice_creation  = !r.message.exists_in_delivery_note
+							// Delivery Note can be created only if Sales Order does not exist in Sales Invoice
+							allow_delivery_note_creation= !r.message.exists_in_sales_invoice
 						}
-					}
+					});
+				
+				console.log(allow_delivery_note_creation)
+				console.log(allow_sales_invoice_creation)
 
-				})});
-
-				frm.add_custom_button('Create Sales Invoice', () => {
-					frm.call({
-					method: 'digitz_erp.selling.doctype.sales_order.sales_order.generate_sales_invoice',					
-					args: {
-						sales_order_name: frm.doc.name
-					},
-					callback: function(r)
-					{
-						frm.reload_doc();
-						if(r.message){
-							frappe.set_route('Form', 'Sales Invoice', r.message);
+				if (allow_delivery_note_creation == true)
+				{
+					console.log("here")
+					frm.add_custom_button('Create Delivery Note', () => {
+						frm.call({
+						method: 'digitz_erp.selling.doctype.sales_order.sales_order.generate_do',					
+						args: {
+							sales_order_name: frm.doc.name
+						},
+						callback: function(r)
+						{
+							frm.reload_doc();
+							if(r.message){
+								frappe.set_route('Form', 'Delivery Note', r.message);
+							}
 						}
-					}
 
-				})});
+					})});
+				}	
+
+				if (allow_sales_invoice_creation== true)
+				{
+					frm.add_custom_button('Create Sales Invoice', () => {
+						frm.call({
+						method: 'digitz_erp.selling.doctype.sales_order.sales_order.generate_sales_invoice',					
+						args: {
+							sales_order_name: frm.doc.name
+						},
+						callback: function(r)
+						{
+							frm.reload_doc();
+							if(r.message){
+								frappe.set_route('Form', 'Sales Invoice', r.message);
+							}
+						}
+	
+					})});
+				}
+				
 			}
 		}
 
