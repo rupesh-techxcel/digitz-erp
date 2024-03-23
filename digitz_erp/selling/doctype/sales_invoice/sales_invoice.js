@@ -8,7 +8,7 @@ frappe.ui.form.on('Sales Invoice', {
 		 
 		 if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) {
 			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
-						delivery_note_dialog(frm)
+					show_delivery_notes_dialog(frm)
 					});
 			}
 
@@ -22,14 +22,6 @@ frappe.ui.form.on('Sales Invoice', {
 
 		update_total_big_display(frm);
 
-		// if(!frm.is_new()){
-		// 	frm.add_custom_button('Sales Return', () =>{
-		// 		frappe.model.open_mapped_doc({
-	    //     method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.create_sales_return',
-		// 			frm: cur_frm
-	    //   });
-		// 	})
-		// }
 	 },
 	 setup: function (frm) {
 
@@ -666,6 +658,101 @@ function update_total_big_display(frm) {
 
 }
 
+function show_delivery_notes_dialog(frm) {
+    if (!frm.doc.customer) {
+        frappe.msgprint("Select a customer");
+        return;
+    }
+
+    frappe.call({
+        method: 'digitz_erp.api.delivery_note_api.get_pending_delivery_notes_for_new_sales_invoice',
+        args: { customer: frm.doc.customer },
+        callback: function (r) {
+            if (r.message && r.message.length > 0) {
+                const deliveryNotes = r.message;
+                const content = $('<div>').append($('<table class="table table-bordered">')
+                    .append('<thead><tr><th>Select</th><th>Delivery Note</th><th>Date</th><th>Amount</th></tr></thead>')
+                    .append($('<tbody>').append(deliveryNotes.map(dN =>
+                        `<tr><td><input type="checkbox" class="delivery-note-checkbox" data-delivery-note="${dN['Delivery Note']}"/></td><td>${dN['Delivery Note']}</td><td>${dN['Date']}</td><td>${dN['Amount']}</td></tr>`
+                    ))));
+
+                const dialog = new frappe.ui.Dialog({
+                    title: 'Select Delivery Notes',
+                    fields: [{ fieldtype: 'HTML', fieldname: 'delivery_notes', options: content.html() }],
+                    primary_action_label: 'Select',
+                    primary_action: function () {
+                        const selectedDeliveryNotes = $('.delivery-note-checkbox:checked').map(function () {
+                            return $(this).data('delivery-note');
+                        }).get();
+
+                        // Clearing previously selected items before making a new call
+                        dialog.get_field("delivery_notes").$wrapper.empty();
+
+                        frappe.call({
+                            method: 'digitz_erp.api.delivery_note_api.get_delivery_note_items',
+                            args: { delivery_notes: JSON.stringify(selectedDeliveryNotes) },
+                            callback: function (response) {
+                                process_delivery_note_items(frm, response.message);
+                                dialog.hide();
+                            }
+                        });
+                    }
+                });
+
+                dialog.show();
+            } else {
+                frappe.msgprint('No pending delivery notes for this customer.');
+            }
+        }
+    });
+}
+
+function process_delivery_note_items(frm, items) {
+    let any_duplicate = false;
+
+    items.forEach(item => {
+        // Check if the item already exists in the sales invoice based on a unique identifier, like the delivery note item reference number
+        const exists = frm.doc.items && frm.doc.items.some(frmItem => frmItem.delivery_note_item_reference_no === item.delivery_note_item_reference_no);
+
+        if (!exists) {
+            frm.add_child('items', {
+                item: item.item,
+                item_name: item.item_name,
+                qty: item.qty,
+                warehouse: item.warehouse,
+                display_name: item.display_name,
+                unit: item.unit,
+                rate: item.rate,
+                base_unit: item.base_unit,
+                qty_in_base_unit: item.qty_in_base_unit,
+                rate_in_base_unit: item.rate_in_base_unit,
+                conversion_factor: item.conversion_factor,
+                rate_includes_tax: item.rate_includes_tax,
+                gross_amount: item.gross_amount,
+                tax_excluded: item.tax_excluded,
+                tax_rate: item.tax_rate,
+                tax_amount: item.tax_amount,
+                discount_percentage: item.discount_percentage,
+                discount_amount: item.discount_amount,
+                net_amount: item.net_amount,
+                delivery_note_item_reference_no: item.delivery_note_item_reference_no
+            });
+        } else {
+            any_duplicate = true;
+        }
+    });
+
+    frm.refresh_field('items');
+    frm.trigger("make_taxes_and_totals");
+
+    if (any_duplicate) {
+        frappe.msgprint("One or more items from the delivery note already exist in the document. These items have been ignored.");
+    }
+}
+
+
+
+
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
 	frm.trigger("assign_defaults")
@@ -1033,74 +1120,6 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 	frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
-}
-
-
-
-let delivery_note_dialog = function (frm) {
-    let d = new frappe.ui.Dialog({
-        title: 'Select Delivery Notes',
-        fields: [{
-            label: 'Delivery Note Details',
-            fieldname: 'delivery_note_details',
-            fieldtype: 'Table',
-            fields: [{
-                label: 'Delivery Note',
-                fieldtype: 'Link',
-                options: 'Delivery Note',
-                fieldname: 'delivery_note',
-                in_list_view: 1,
-                get_query: function(doc) {
-                    const customer = frm.doc.customer;
-                    if (customer) {
-                        return {
-                            filters: {
-                                "customer": customer
-                            }
-                        };
-                    }
-                }
-            }]
-        }],
-        primary_action_label: 'Submit',
-        primary_action(values) {
-            const selectedDeliveryNotes = values.delivery_note_details.map(row => row.delivery_note);
-            frappe.call({
-                method: 'digitz_erp.selling.doctype.sales_invoice.sales_invoice.get_delivery_note_items',
-                args: { delivery_notes: selectedDeliveryNotes },
-                callback: function(response) {
-                    const items = response.message;
-                    items.forEach(item => {
-                        frm.add_child('items', {
-                            item: item.item,
-                            item_name: item.item_name,
-                            qty: item.qty,
-                            warehouse: item.warehouse,
-                            display_name: item.display_name,
-                            unit: item.unit,
-                            rate: item.rate,
-                            base_unit: item.base_unit,
-                            qty_in_base_unit: item.qty_in_base_unit,
-                            rate_in_base_unit: item.rate_in_base_unit,
-                            conversion_factor: item.conversion_factor,
-                            rate_includes_tax: item.rate_includes_tax,
-                            tax_excluded: item.tax_excluded,
-                            tax_rate: item.tax_rate,
-                            tax_amount: item.tax_amount,
-                            discount_percentage: item.discount_percentage,
-                            discount_amount: item.discount_amount,
-                            net_amount: item.net_amount,
-                            delivery_note_item_reference_no: item.delivery_note_item_reference_no
-                        });
-                    });
-                    frm.refresh_field('items');
-                }
-            });
-            d.hide();
-        }
-    });
-
-    d.show();
 }
 
 

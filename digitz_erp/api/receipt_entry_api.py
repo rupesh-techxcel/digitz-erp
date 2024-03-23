@@ -23,8 +23,8 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             SELECT
                 customer,
                 'Sales Invoice' as reference_type,
-                CONCAT(name, ' | ', posting_date) as reference_name,
-                reference_no,
+                name as reference_name,
+                CONCAT(COALESCE(reference_no, ''), ' ', DATE_FORMAT(posting_date, '%Y-%m-%d')) as reference_no,
                 posting_date,
                 paid_amount,
                 rounded_total as invoice_amount,
@@ -45,9 +45,9 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             receipt_allocation_query = """
                 SELECT
                     si.customer,
-                     CONCAT(si.name, ' | ', si.posting_date) as reference_name,
-                    'Sales Invoice' as reference_type,
-                    si.reference_no,
+                    name as reference_name,
+                    'Sales Invoice' as reference_type,                    
+                    CONCAT(COALESCE(si.reference_no, ''), ' ', DATE_FORMAT(si.posting_date, '%Y-%m-%d')) as reference_no,                    
                     si.posting_date,
                     si.paid_amount,
                     si.rounded_total as invoice_amount,

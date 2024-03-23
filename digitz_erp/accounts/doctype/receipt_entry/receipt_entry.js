@@ -402,7 +402,7 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: "Link",
 								fieldname: "reference_name",
-								label: "Reference Name and Date",
+								label: "Reference Name",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",
@@ -411,7 +411,7 @@ allocations: function(frm, cdt, cdn)
 							{
 								fieldtype: "Link",
 								fieldname: "reference_no",
-								label: "Reference No",
+								label: "Reference No & Date",
 								in_place_edit: false,
 								in_list_view: true,
 								// width: "40%",

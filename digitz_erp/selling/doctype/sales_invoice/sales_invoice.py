@@ -72,6 +72,8 @@ class SalesInvoice(Document):
         if self.tab_sales:
             self.update_stock = True
             self.created_from_tab_sale = True
+        
+        self.update_delivery_note_references()
 
     def validate(self):
         self.validate_item()
@@ -120,6 +122,38 @@ class SalesInvoice(Document):
     def update_customer_last_transaction_date(self):
         
         frappe.set_value('Customer',self.customer,{'last_transaction_date':self.posting_date})
+    
+    def update_delivery_note_references(self):
+        
+        delivery_note_item_reference_nos = [
+            item.delivery_note_item_reference_no for item in self.items if item.delivery_note_item_reference_no
+        ]
+
+        # Avoid repeated database queries by fetching all parent delivery notes in one go
+        if delivery_note_item_reference_nos:
+            query = """
+            SELECT DISTINCT parent
+            FROM `tabDelivery Note Item`
+            WHERE name IN (%s)
+            """
+            # Formatting query string for multiple items
+            format_strings = ','.join(['%s'] * len(delivery_note_item_reference_nos))
+            query = query % format_strings
+
+            parent_delivery_notes = frappe.db.sql(query, tuple(delivery_note_item_reference_nos), as_dict=True)
+            parent_delivery_notes = [dn['parent'] for dn in parent_delivery_notes if dn['parent']]
+        else:
+            parent_delivery_notes = []
+
+        # Clear existing entries in the 'delivery_notes' child table
+        self.set('delivery_notes', [])  # Assuming 'delivery_notes' is the correct child table field name
+
+        # Append new entries to the 'delivery_notes' child table
+        for delivery_note in parent_delivery_notes:
+            self.append('delivery_notes', {  # Ensure the fieldname is correct as per your doctype structure
+                'delivery_note': delivery_note
+            })
+
 
     def update_item_prices(self):
 
