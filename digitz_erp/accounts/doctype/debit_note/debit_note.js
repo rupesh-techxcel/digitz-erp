@@ -42,38 +42,37 @@ frappe.ui.form.on("Debit Note", {
 	},	
 	assign_defaults: function(frm){
 
-		default_company = "";
+		if(frm.is_new())
+		{
 
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
+			default_company = "";
 
-				default_company = r.message.default_company
-				frm.set_value('company',default_company);
-			}
-		});
+			frappe.call({
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Global Settings'	,
+					'fieldname': 'default_company'
+				},
+				callback: (r) => {
 
-		frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
-			if (r && r.default_credit_purchase === 1) {
-					frm.set_value('on_credit', 1);
-			}
-		});
+					default_company = r.message.default_company
+					frm.set_value('company',default_company);
 
-		set_default_payment_mode(frm);
+					frappe.db.get_value("Company", default_company, "default_payable_account").then((r) => {
 
-		frappe.call(
-			{
-				method:'digitz_erp.api.settings_api.get_default_payable_account',
-				async:false,
-				callback(r){
-					frm.set_value('payable_account',r.message);
+						frm.set_value('payable_account',r.message.default_receivable_account);
+					});
 				}
-			}
-		);
+			});
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+				if (r && r.default_credit_purchase === 1) {
+						frm.set_value('on_credit', 1);
+				}
+			});
+
+			set_default_payment_mode(frm);
+		}
 	},
 	rate_includes_tax: function(frm) {
 		frappe.confirm("Updating this will modify the 'rate includes tax' information in the details section and related calculations. Are you sure you want to proceed?", () => {
@@ -134,6 +133,7 @@ frappe.ui.form.on("Debit Note", {
 		frm.add_fetch('supplier', 'tax_id', 'tax_id')
 		frm.add_fetch('supplier', 'full_address', 'supplier_address')
 		frm.add_fetch('company', 'default_warehouse', 'warehouse')
+		frm.add_fetch('payment_mode', 'account', 'payment_account')
 	},
 	supplier(frm){
 			frappe.call(

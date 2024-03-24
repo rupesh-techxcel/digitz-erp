@@ -3,208 +3,66 @@ from frappe.utils import get_datetime
 
 @frappe.whitelist()
 def get_customer_pending_documents(customer, reference_type, receipt_no):
+    base_query = """
+        SELECT
+            customer,
+            '{reference_type}' as reference_type,
+            name as reference_name,
+            CONCAT(COALESCE(reference_no, ''), ' ', DATE_FORMAT(posting_date, '%Y-%m-%d')) as reference_no,
+            posting_date,
+            paid_amount,
+            rounded_total as invoice_amount,
+            rounded_total - paid_amount as balance_amount
+        FROM
+            `tab{document_type}`
+        WHERE
+            customer = %s
+            AND docstatus = 1
+            AND {credit_condition} = 1
+            AND rounded_total > paid_amount
+    """
 
+    queries = []
+    if reference_type in ['Sales Invoice', 'All']:
+        queries.append(base_query.format(reference_type='Sales Invoice', document_type='Sales Invoice', credit_condition='credit_sale'))
+    if reference_type in ['Sales Return', 'All']:
+        queries.append(base_query.format(reference_type='Sales Return', document_type='Sales Return', credit_condition='credit_sale'))
+    if reference_type in ['Credit Note', 'All']:
+        queries.append(base_query.replace('rounded_total', 'grand_total').format(reference_type='Credit Note', document_type='Credit Note', credit_condition='on_credit'))
 
-    print("customer")
-    print(customer)
+    documents_query = " UNION ALL ".join(queries)
+    documents_values = frappe.db.sql(documents_query, (customer,), as_dict=1)
 
-    print("reference_type")
-    print(reference_type)
-
-    print("receipt_no")
-    print(receipt_no)
-
-    if reference_type == 'Sales Invoice':
-
-        # Sales Invoice Query , only consider committed sales invoices but for payment allocations with draft and committed statuses.
-
-        # Get all pending receipts for the customer
-        documents_query = """
+    # Handling receipt allocation
+    receipt_allocation_values = []
+    if receipt_no:
+        receipt_allocation_query = """
             SELECT
-                customer,
-                'Sales Invoice' as reference_type,
-                name as reference_name,
-                CONCAT(COALESCE(reference_no, ''), ' ', DATE_FORMAT(posting_date, '%Y-%m-%d')) as reference_no,
-                posting_date,
-                paid_amount,
-                rounded_total as invoice_amount,
-                rounded_total - paid_amount as balance_amount
+                ra.customer,
+                ra.name as reference_name,
+                ra.reference_type,
+                ra.reference_no,
+                ra.posting_date,
+                ra.paid_amount,
+                ra.invoice_amount,
+                ra.balance_amount
             FROM
-                `tabSales Invoice`
+                `tabReceipt Allocation` ra
             WHERE
-                customer = '{0}'
-                AND docstatus = 1
-                AND credit_sale = 1
-                AND rounded_total > paid_amount
-        """.format(customer)
+                ra.customer = %s
+                AND ra.parent = %s
+                AND (ra.docstatus = 0 or ra.docstatus = 1)
+                AND ra.reference_type IN (%s)
+        """
+        reference_types = ['Sales Invoice', 'Sales Return', 'Credit Note'] if reference_type == 'All' else [reference_type]
+        receipt_allocation_values = frappe.db.sql(receipt_allocation_query, (customer, receipt_no, tuple(reference_types)), as_dict=1)
 
-        # Additional Query for Receipt Allocation (if receipt_no is not None)
-        receipt_allocation_values = []
-        if receipt_no != "":
-             # receipt_allocation_query to include the existing allocations for this receipt, irrespective of qty is pending
-            receipt_allocation_query = """
-                SELECT
-                    si.customer,
-                    name as reference_name,
-                    'Sales Invoice' as reference_type,                    
-                    CONCAT(COALESCE(si.reference_no, ''), ' ', DATE_FORMAT(si.posting_date, '%Y-%m-%d')) as reference_no,                    
-                    si.posting_date,
-                    si.paid_amount,
-                    si.rounded_total as invoice_amount,
-                    si.rounded_total - si.paid_amount as balance_amount
-                FROM
-                    `tabSales Invoice` si
-                JOIN
-                    `tabReceipt Allocation` ra ON si.name = ra.reference_name and ra.reference_type='Sales Invoice'
-                WHERE
-                    si.customer = '{0}'
-                    AND si.docstatus = 1
-                    AND si.credit_sale = 1
-                    AND ra.parent = '{1}'
-                    AND (ra.docstatus = 0 or ra.docstatus = 1)
-            """.format(customer, receipt_no)
+    if receipt_allocation_values:
+        documents_values = [doc for doc in documents_values if doc['reference_name'] not in {ra['reference_name'] for ra in receipt_allocation_values}]
+        combined_values = documents_values + receipt_allocation_values
+        return combined_values
 
-            receipt_allocation_values = frappe.db.sql(receipt_allocation_query, as_dict=1)
-            print("receipt allocation values")
-            print(receipt_allocation_values)
-
-        documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("documents_values")
-        print(documents_values)
-
-        if receipt_allocation_values !=[]:
-            #  Avoid duplicates before combine
-            documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [ra['reference_name'] for ra in receipt_allocation_values]]
-
-            # Combine Results
-            combined_values = documents_values + receipt_allocation_values
-            return combined_values
-        else:
-            return documents_values
-
-    elif reference_type == 'Sales Return':
-        documents_query = """
-            SELECT
-                customer,
-                'Sales Return' as reference_type,
-                name as reference_name,
-                reference_no,
-                posting_date as date,
-                paid_amount,
-                rounded_total as invoice_amount,
-                rounded_total - paid_amount as balance_amount
-            FROM
-                `tabSales Return`
-            WHERE
-                customer = '{0}'
-                AND docstatus = 1
-                AND credit_sale = 1
-                AND rounded_total > paid_amount
-        """.format(customer)
-
-        # Additional Query for Receipt Allocation (if receipt_no is not None)
-        receipt_allocation_values = []
-        if receipt_no != "":
-             # receipt_allocation_query to include the existing allocations for this receipt, irrespective of qty is pending
-            receipt_allocation_query = """
-                SELECT
-                    sr.customer,
-                     sr.name as reference_name,
-                    'Sales Return' as reference_type,
-                    sr.reference_no,
-                    sr.posting_date as date,
-                    sr.paid_amount,
-                    sr.rounded_total as invoice_amount,
-                    sr.rounded_total - sr.paid_amount as balance_amount
-                FROM
-                    `tabSales Return` sr
-                JOIN
-                    `tabReceipt Allocation` ra ON sr.name = ra.reference_name and ra.reference_type='Sales Return'
-                WHERE
-                    sr.customer = '{0}'
-                    AND sr.docstatus = 1
-                    AND sr.credit_sale = 1
-                    AND ra.parent = '{1}'
-                    AND (ra.docstatus = 0 or ra.docstatus = 1)
-            """.format(customer, receipt_no)
-
-            receipt_allocation_values = frappe.db.sql(receipt_allocation_query, as_dict=1)
-            print("receipt allocation values")
-            print(receipt_allocation_values)
-
-        documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("documents_values")
-        print(documents_values)
-
-        if receipt_allocation_values !=[]:
-            #  Avoid duplicates before combine
-            documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [ra['reference_name'] for ra in receipt_allocation_values]]
-
-            # Combine Results
-            combined_values = documents_values + receipt_allocation_values
-            return combined_values
-        else:
-            return documents_values
-    elif reference_type == 'Credit Note':
-        documents_query = """
-            SELECT
-                customer,
-                'Credit Note' as reference_type,
-                name as reference_name,
-                posting_date as date,
-                grand_total,
-                grand_total as invoice_amount,
-                grand_total as balance_amount
-            FROM
-                `tabCredit Note`
-            WHERE
-                customer = '{0}'
-                AND docstatus = 1
-                AND on_credit = 1
-        """.format(customer)
-
-        # Additional Query for Receipt Allocation (if receipt_no is not None)
-        receipt_allocation_values = []
-        if receipt_no != "":
-             # receipt_allocation_query to include the existing allocations for this receipt, irrespective of qty is pending
-            receipt_allocation_query = """
-                SELECT
-                    cn.customer,
-                     cn.name as reference_name,
-                    'Credit Note' as reference_type,
-                    cn.posting_date as date,
-                    cn.grand_total,
-                    cn.grand_total as invoice_amount,
-                    cn.grand_total as balance_amount
-                FROM
-                    `tabCredit Note` cn
-                JOIN
-                    `tabReceipt Allocation` ra ON cn.name = ra.reference_name and ra.reference_type='Credit Note'
-                WHERE
-                    cn.customer = '{0}'
-                    AND cn.docstatus = 1
-                    AND cn.on_credit = 1
-                    AND ra.parent = '{1}'
-                    AND (ra.docstatus = 0 or ra.docstatus = 1)
-            """.format(customer, receipt_no)
-
-            receipt_allocation_values = frappe.db.sql(receipt_allocation_query, as_dict=1)
-            print("receipt allocation values")
-            print(receipt_allocation_values)
-
-        documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("documents_values")
-        print(documents_values)
-
-        if receipt_allocation_values !=[]:
-            #  Avoid duplicates before combine
-            documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [ra['reference_name'] for ra in receipt_allocation_values]]
-
-            # Combine Results
-            combined_values = documents_values + receipt_allocation_values
-            return combined_values
-        else:
-            return documents_values
+    return documents_values
 
 # Get all supplier other payment allocations which is still pending, to reconcile with the payment entry allocations to refresh the balances and pending of each documents. This calls in the stage 1 (as per the comment in the payment entry) of the loading of pending payments.
 # Eg: Suppose the purchase invoice has total amount 1000 and 500 alocated in a payment entry. To create a new payment entry it requires to check the existing payment entires (other than the current payment entry) to get the actual balance of the invoice ie, 500 in the example. Here also only pending allocations are considering because if it is fully paid , in the initial call (with get_supplier_pending_documents) it only fetch pending documents and comparing only those documents

@@ -45,27 +45,36 @@ frappe.ui.form.on("Credit Note", {
 
 	assign_defaults: function(frm){
 
-		default_company = "";
+		if(frm.is_new())
+		{
+			default_company = "";
 
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
+			frappe.call({
+				method: 'frappe.client.get_value',
+				args: {
+					'doctype': 'Global Settings',
+					'fieldname': 'default_company'
+				},
+				callback: (r) => {
 
-				default_company = r.message.default_company
-				frm.set_value('company',default_company);
+					default_company = r.message.default_company
+					frm.set_value('company',default_company);
 
-          frappe.db.get_value("Company", default_company, "default_receivable_account").then((r) => {
+				frappe.db.get_value("Company", default_company, "default_receivable_account").then((r) => {
 
-          frm.set_value('receivable_account',r.message.default_receivable_account);
-          });
-			}
-		});
+					frm.set_value('receivable_account',r.message.default_receivable_account);
+				});
+				}
+			});
 
-		set_default_payment_mode(frm);
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sales', function(r) {
+				if (r && r.default_credit_sales === 1) {
+						frm.set_value('on_credit', 1);
+				}
+			});
+
+			set_default_payment_mode(frm);
+		}
 	},	
 	
     edit_posting_date_and_time(frm) {

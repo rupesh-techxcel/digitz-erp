@@ -11,6 +11,7 @@
   "item_code",
   "item_name",
   "description",
+  "base_unit",
   "column_break_4",
   "item_group",
   "maintain_stock",
@@ -19,15 +20,12 @@
   "tax",
   "section_break_ohog",
   "standard_buying_price",
-  "standard_selling_price",
   "margin_",
+  "standard_selling_price",
+  "column_break_izch",
   "stock_balance",
-  "stock_value",
   "item_valuation_rate",
-  "uoms_section",
-  "base_unit",
-  "column_break_19",
-  "column_break_q9ow",
+  "stock_value",
   "section_break_20",
   "units",
   "disabled",
@@ -89,11 +87,6 @@
   {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "uoms_section",
-   "fieldtype": "Section Break",
-   "label": "Units Of Measurements"
   },
   {
    "default": "0.00",
@@ -160,10 +153,6 @@
    "label": "Stock Balance(Base Unit)"
   },
   {
-   "fieldname": "column_break_19",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "section_break_20",
    "fieldtype": "Section Break"
   },
@@ -184,10 +173,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_q9ow",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "0",
    "fieldname": "margin_",
    "fieldtype": "Float",
@@ -198,11 +183,15 @@
    "fieldname": "item_valuation_rate",
    "fieldtype": "Currency",
    "label": "Valuation Rate"
+  },
+  {
+   "fieldname": "column_break_izch",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-13 10:29:13.730950",
+ "modified": "2024-03-23 22:32:34.391825",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

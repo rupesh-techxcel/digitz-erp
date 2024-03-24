@@ -186,29 +186,32 @@ frappe.ui.form.on("Additional Expense Entry", {
 
 function assign_defaults(frm)
 {
-    default_company = "";
-    frappe.call({
-      method: 'frappe.client.get_value',
-      args: {
-        'doctype': 'Global Settings',
-        'fieldname': 'default_company'
-      },
-      callback: (r) => {
-        default_company = r.message.default_company
-        frm.set_value('company',default_company);
-        frm.refresh_field("company")
-      }
-    });
+	if(frm.is_new())
+	{
+		default_company = "";
+		frappe.call({
+		method: 'frappe.client.get_value',
+		args: {
+			'doctype': 'Global Settings',
+			'fieldname': 'default_company'
+		},
+		callback: (r) => {
+			default_company = r.message.default_company
+			frm.set_value('company',default_company);
+			frm.refresh_field("company")
+		}
+		});
 
-    frappe.call(
-        {
-          method:'digitz_erp.api.settings_api.get_default_payable_account',
-          async:false,
-          callback(r){
-            frm.set_value('default_payable_account',r.message);
-          }
-        }
-      );
+		frappe.call(
+			{
+				method:'digitz_erp.api.settings_api.get_default_payable_account',
+				async:false,
+				callback(r){
+					frm.set_value('default_payable_account',r.message);
+				}
+			}
+		);
+	}
  }
 
 frappe.ui.form.on('Expense Entry Details',{

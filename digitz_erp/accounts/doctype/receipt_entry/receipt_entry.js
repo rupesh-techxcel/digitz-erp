@@ -234,6 +234,9 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 		frm.trigger("get_default_company_and_warehouse");
 		//For receipt entry one blank row is intially added and couldn't find the reason of it. It is not happening with other doctypes. So removing the same.
 		// frm.doc.receipt_entry_details.splice(0,1)
+		
+		// Remove the blank row
+		frm.clear_table("receipt_entry_details");
 	}
 );
 
@@ -364,8 +367,6 @@ allocations: function(frm, cdt, cdn)
 		}});
 
 
-	console.log("Here")
-
 	let pending_invoices_data
 	//Fetch all supplier pending invoices and invoices already allocated in this payment_entry
 	frappe.call({
@@ -377,199 +378,70 @@ allocations: function(frm, cdt, cdn)
 		},
 		callback:(r) => {
 
-			console.log("r.message")
-			console.log(r.message)
-
 			pending_invoices_data = r.message;
-
-			if(selected_reference_type == "Sales Invoice")
-			{
-				child_table_control = frappe.ui.form.make_control({
-					df: {
-						fieldname: "receipt_allocation",
-						fieldtype: "Table",
-						cannot_add_rows:true,
-						fields: [
-							{
-								fieldtype: 'Data',
-								fieldname: 'reference_type',
-								label: 'Reference Type',
-								in_place_edit: false,
-								in_list_view: false,
-								read_only:true,
-								hidden: true
-							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_name",
-								label: "Reference Name",
-								in_place_edit: false,
-								in_list_view: true,
-								// width: "40%",
-								read_only:true
-							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_no",
-								label: "Reference No & Date",
-								in_place_edit: false,
-								in_list_view: true,
-								// width: "40%",
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "invoice_amount",
-								label: "Invoice Amount",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "balance_amount",
-								label: "Balance Amount",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "paying_amount",
-								label: "Paying Amount",
-								in_place_edit: true,
-								in_list_view: true
-							}
-						],
-					},
-					parent: dialog.get_field("sales").$wrapper,
-					render_input: true,
-				});
-			}
-			else if(selected_reference_type == "Sales Return")
-			{
-				child_table_control = frappe.ui.form.make_control({
-					df: {
-						fieldname: "receipt_allocation",
-						fieldtype: "Table",
-						cannot_add_rows:true,
-						fields: [
-							{
-								fieldtype: 'Data',
-								fieldname: 'reference_type',
-								label: 'Reference Type',
-								in_place_edit: false,
-								in_list_view: false,
-								read_only:true,
-								hidden: true
-							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_name",
-								label: "Reference Name",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_no",
-								label: "Reference No",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "invoice_amount",
-								label: "Invoice Amount",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "balance_amount",
-								label: "Balance Amount",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "paying_amount",
-								label: "Paying Amount",
-								in_place_edit: true,
-								in_list_view: true
-							}
-						],
-					},
-					parent: dialog.get_field("sales").$wrapper,
-					render_input: true,
-				});
-			}
-			else if(selected_reference_type == "Credit Note")
-			{
-				child_table_control = frappe.ui.form.make_control({
-					df: {
-						fieldname: "receipt_allocation",
-						fieldtype: "Table",
-						cannot_add_rows:true,
-						fields: [
-							{
-								fieldtype: 'Data',
-								fieldname: 'reference_type',
-								label: 'Reference Type',
-								in_place_edit: false,
-								in_list_view: false,
-								read_only:true,
-								hidden: true
-							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_name",
-								label: "Reference Name",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Link",
-								fieldname: "reference_no",
-								label: "Reference No",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "invoice_amount",
-								label: "Invoice Amount",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "balance_amount",
-								label: "Balance Amount",
-								in_place_edit: false,
-								in_list_view: true,
-								read_only:true
-							},
-							{
-								fieldtype: "Currency",
-								fieldname: "paying_amount",
-								label: "Paying Amount",
-								in_place_edit: true,
-								in_list_view: true
-							}
-						],
-					},
-					parent: dialog.get_field("sales").$wrapper,
-					render_input: true,
-				});
-			}
+			
+			child_table_control = frappe.ui.form.make_control({
+				df: {
+					fieldname: "receipt_allocation",
+					fieldtype: "Table",
+					cannot_add_rows:true,
+					fields: [
+						{
+							fieldtype: 'Data',
+							fieldname: 'reference_type',
+							label: 'Reference Type',
+							in_place_edit: false,
+							in_list_view: false,
+							read_only:true,
+							hidden: true
+						},
+						{
+							fieldtype: "Link",
+							fieldname: "reference_name",
+							label: "Reference Name",
+							in_place_edit: false,
+							in_list_view: true,
+							// width: "40%",
+							read_only:true
+						},
+						{
+							fieldtype: "Link",
+							fieldname: "reference_no",
+							label: "Reference No & Date",
+							in_place_edit: false,
+							in_list_view: true,
+							// width: "40%",
+							read_only:true
+						},
+						{
+							fieldtype: "Currency",
+							fieldname: "invoice_amount",
+							label: "Invoice Amount",
+							in_place_edit: false,
+							in_list_view: true,
+							read_only:true
+						},
+						{
+							fieldtype: "Currency",
+							fieldname: "balance_amount",
+							label: "Balance Amount",
+							in_place_edit: false,
+							in_list_view: true,
+							read_only:true
+						},
+						{
+							fieldtype: "Currency",
+							fieldname: "paying_amount",
+							label: "Paying Amount",
+							in_place_edit: true,
+							in_list_view: true
+						}
+					],
+				},
+				parent: dialog.get_field("sales").$wrapper,
+				render_input: true,
+			});
+			
 
 
 			//Stage 1.

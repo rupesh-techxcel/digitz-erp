@@ -119,7 +119,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-06 15:24:43.187269",
+ "modified": "2024-03-23 20:44:07.413489",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Stock",
@@ -139,7 +139,11 @@
    "quick_list_filter": "[]"
   }
  ],
- "roles": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
  "sequence_id": 1.0,
  "shortcuts": [
   {

@@ -73,9 +73,7 @@
   "references_tab",
   "data_53",
   "auto_save_delivery_note",
-  "delivery_notes",
-  "delivery_notes_to_print",
-  "tab_sales",
+  "invoices",
   "address_line_1",
   "address_line_2",
   "area_name",
@@ -408,25 +406,6 @@
    "label": "Auto Save Delivery Note"
   },
   {
-   "fieldname": "delivery_notes",
-   "fieldtype": "Table",
-   "label": "Delivery Notes",
-   "options": "Sales Invoice Delivery Notes",
-   "read_only": 1
-  },
-  {
-   "fieldname": "delivery_notes_to_print",
-   "fieldtype": "Data",
-   "label": "Delivery Notes To Print"
-  },
-  {
-   "fieldname": "tab_sales",
-   "fieldtype": "Link",
-   "label": "Tab Sales",
-   "options": "Tab Sales",
-   "read_only": 1
-  },
-  {
    "fetch_from": "customer.address_line_1",
    "fieldname": "address_line_1",
    "fieldtype": "Data",
@@ -541,12 +520,26 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+  },
+  {
+   "fieldname": "invoices",
+   "fieldtype": "Table",
+   "label": "Invoices",
+   "options": "Sales Return Invoices"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-03-20 10:57:15.943864",
+ "links": [
+  {
+   "is_child_table": 1,
+   "link_doctype": "Receipt Allocation",
+   "link_fieldname": "reference_name",
+   "parent_doctype": "Receipt Entry",
+   "table_fieldname": "receipt_allocation"
+  }
+ ],
+ "modified": "2024-03-23 18:17:15.954227",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return",

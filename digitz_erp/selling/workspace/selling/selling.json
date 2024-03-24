@@ -230,7 +230,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-02-19 13:19:21.060617",
+ "modified": "2024-03-23 20:44:07.674760",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -240,7 +240,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 5.0,
+ "sequence_id": 4.0,
  "shortcuts": [
   {
    "color": "Grey",

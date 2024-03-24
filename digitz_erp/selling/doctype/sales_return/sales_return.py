@@ -16,6 +16,7 @@ class SalesReturn(Document):
 
     def before_validate(self):
         self.in_words = money_in_words(self.rounded_total,"AED")
+        self.update_sales_invoice_references()
 
     def validate(self):
         self.validate_sales()
@@ -27,7 +28,7 @@ class SalesReturn(Document):
 
                 pi = frappe.get_doc("Sales Invoice Item", docitem.si_item_reference)
 
-                total_returned_qty_not_in_this_sr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabSales Return Item` sreti inner join `tabSales Return` sret on sreti.parent= sret.name WHERE sreti.si_item_reference=%s AND sret.name !=%s and sret.docstatus<2""",(docitem.si_item_reference, self.name))[0][0]
+                total_returned_qty_not_in_this_sr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabSales Return Item` sreti inner join `tabSales Return` sret on sreti.parent= sret.name WHERE sreti.si_item_reference=%s AND sret.name !=%s and sret.docstatus<2""",(docitem.si_item_reference, self.name))[0][0]
 
                 si_item = frappe.get_doc("Sales Invoice Item", docitem.si_item_reference)
 
@@ -35,10 +36,10 @@ class SalesReturn(Document):
                 print(docitem.qty)
 
                 if total_returned_qty_not_in_this_sr:
-                    if(si_item.qty < (total_returned_qty_not_in_this_sr + docitem.qty)):
+                    if(si_item.qty_in_base_unit < (total_returned_qty_not_in_this_sr + docitem.qty_in_base_unit)):
                         frappe.throw("The quantity available for return in the original sales is less than the quantity specified in the line item {}".format(docitem.idx))
                 else:
-                    if(si_item.qty < docitem.qty):
+                    if(si_item.qty_in_base_unit < docitem.qty_in_base_unit):
                         frappe.throw("The quantity available for return in the original sales is less than the quantity specified in the line item {}".format(docitem.idx))
 
     def on_submit(self):
@@ -152,8 +153,6 @@ class SalesReturn(Document):
             gl_doc.insert()
             idx +=1
 
-
-
     def insert_payment_postings(self):
         if self.credit_sale == 0:
             gl_count = frappe.db.count(
@@ -251,6 +250,37 @@ class SalesReturn(Document):
         do_item.qty_returned_in_base_unit = qty_returned + total_returned_qty_not_in_this_si
 
         do_item.save()
+    
+    def update_sales_invoice_references(self):
+        
+        sales_invoice_item_reference_nos = [
+            item.si_item_reference for item in self.items if item.si_item_reference
+        ]
+
+        # Avoid repeated database queries by fetching all parent delivery notes in one go
+        if sales_invoice_item_reference_nos:
+            query = """
+            SELECT DISTINCT parent
+            FROM `tabSales Invoice Item`
+            WHERE name IN (%s)
+            """
+            # Formatting query string for multiple items
+            format_strings = ','.join(['%s'] * len(sales_invoice_item_reference_nos))
+            query = query % format_strings
+
+            sales_invoices = frappe.db.sql(query, tuple(sales_invoice_item_reference_nos), as_dict=True)
+            sales_invoices = [dn['parent'] for dn in sales_invoices if dn['parent']]
+        else:
+            sales_invoices = []
+
+        # Clear existing entries in the 'delivery_notes' child table
+        self.set('invoices', [])  # Assuming 'delivery_notes' is the correct child table field name
+
+        # Append new entries to the 'delivery_notes' child table
+        for sales_invoice in sales_invoices:
+            self.append('invoices', {  # Ensure the fieldname is correct as per your doctype structure
+                'sales_invoice': sales_invoice
+            })
 
     def update_sales_invoice_quantities_on_update(self):
 
@@ -271,6 +301,7 @@ class SalesReturn(Document):
                 si_item.save()
                 si_reference_any = True
 
+                # Updating delivery note reference just for additional information and not using for any calculation
                 if(si_item.delivery_note_item_reference_no):
                     self.update_delivery_note_quantities_for_invoice(si_item.name,si_item.delivery_note_item_reference_no,si_item.qty_returned_in_base_unit)
 

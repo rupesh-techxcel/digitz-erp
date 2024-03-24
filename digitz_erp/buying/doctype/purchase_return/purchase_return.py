@@ -16,6 +16,7 @@ class PurchaseReturn(Document):
 
 	def before_validate(self):
 		self.in_words = money_in_words(self.rounded_total,"AED")
+		self.update_purchase_invoice_references()
 
 	def validate(self):
 		self.validate_purchase()
@@ -28,19 +29,19 @@ class PurchaseReturn(Document):
 
 				pi = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
 
-				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(docitem.pi_item_reference, self.name))[0][0]
+				total_returned_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_returned_qty from `tabPurchase Return Item` preti inner join `tabPurchase Return` pret on preti.parent= pret.name WHERE preti.pi_item_reference=%s AND pret.name !=%s and pret.docstatus<2""",(docitem.pi_item_reference, self.name))[0][0]
 
 				pi_item = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
 
 				print("total_returned_qty_not_in_this_pr")
 				print(total_returned_qty_not_in_this_pr)
-				print(docitem.qty)
+				print(docitem.qty_in_base_unit)
 
 				if total_returned_qty_not_in_this_pr:
-					if(pi_item.qty < (total_returned_qty_not_in_this_pr + docitem.qty)):
+					if(pi_item.qty_in_base_unit < (total_returned_qty_not_in_this_pr + docitem.qty_in_base_unit)):
 						frappe.throw("The quantity available for return in the original purchase is less than the quantity specified in the line item {}".format(docitem.idx))
 				else:
-					if(pi_item.qty < docitem.qty):
+					if(pi_item.qty_in_base_unit < docitem.qty_in_base_unit):
 						frappe.throw("The quantity available for return in the original purchase is less than the quantity specified in the line item {}".format(docitem.idx))
 
 	def validate_stock(self):
@@ -424,6 +425,37 @@ class PurchaseReturn(Document):
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.against_account = default_accounts.default_payable_account
 			gl_doc.insert()
+   
+	def update_purchase_invoice_references(self):
+        
+		purchase_invoice_item_reference_nos = [
+			item.pi_item_reference for item in self.items if item.pi_item_reference
+		]
+
+		# Avoid repeated database queries by fetching all parent delivery notes in one go
+		if purchase_invoice_item_reference_nos:
+			query = """
+			SELECT DISTINCT parent
+			FROM `tabPurchase Invoice Item`
+			WHERE name IN (%s)
+			"""
+			# Formatting query string for multiple items
+			format_strings = ','.join(['%s'] * len(purchase_invoice_item_reference_nos))
+			query = query % format_strings
+
+			purchase_invoices = frappe.db.sql(query, tuple(purchase_invoice_item_reference_nos), as_dict=True)
+			purchase_invoices = [dn['parent'] for dn in purchase_invoices if dn['parent']]
+		else:
+			purchase_invoices = []
+
+		# Clear existing entries in the 'delivery_notes' child table
+		self.set('invoices', [])  # Assuming 'delivery_notes' is the correct child table field name
+
+		# Append new entries to the 'delivery_notes' child table
+		for purchase_invoice in purchase_invoices:
+			self.append('invoices', {  # Ensure the fieldname is correct as per your doctype structure
+				'sales_invoice': purchase_invoice
+			})
 
 	def update_purchase_invoice_quantities_on_update(self, for_delete_or_cancel=False):
 
