@@ -19,29 +19,35 @@
   "edit_posting_date_and_time",
   "rate_includes_tax",
   "column_break_hzrg",
+  "default_cost_center",
+  "column_break_qori",
   "company",
   "warehouse",
   "amended_from",
-  "default_cost_center",
   "section_break_dufs",
   "on_credit",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "payment_account",
   "column_break_rari",
-  "remarks",
+  "payment_terms",
   "receivable_account",
   "column_break_s1hi",
+  "remarks",
+  "column_break_vnnm",
   "credit_note_item_section",
   "credit_note_details",
   "section_break_jmhg",
   "column_break_qigd",
-  "column_break_ohgp",
   "total_amount",
   "tax_total",
   "grand_total",
-  "in_words"
+  "column_break_ohgp",
+  "in_words",
+  "column_break_rkff",
+  "paid_amount",
+  "column_break_clsh",
+  "total_big"
  ],
  "fields": [
   {
@@ -244,12 +250,37 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+  },
+  {
+   "fieldname": "column_break_qori",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vnnm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rkff",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
+  },
+  {
+   "fieldname": "column_break_clsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-20 11:02:24.366273",
+ "modified": "2024-03-24 20:33:03.687138",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Credit Note",

@@ -7,6 +7,7 @@ frappe.ui.form.on("Credit Note", {
 	},
 	refresh(frm){
 		create_custom_buttons(frm)
+		update_total_big_display(frm);
 	},
 	setup:function(frm)
 	{
@@ -157,6 +158,7 @@ frappe.ui.form.on("Credit Note", {
 		frm.set_value('tax_total', tax_total);
 		frm.set_value('grand_total', grand_total);
 		frm.refresh_fields();
+		update_total_big_display(frm);
 	},
   
   validate: function (frm) {
@@ -173,6 +175,20 @@ frappe.ui.form.on("Credit Note", {
 		}
 	},
 });
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.grand_total) ? 0 : parseFloat(frm.doc.grand_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
+}
 
 function set_default_payment_mode(frm)
 {

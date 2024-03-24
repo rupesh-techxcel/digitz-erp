@@ -351,9 +351,19 @@ allocations: function(frm, cdt, cdn)
 
 	// Fetch the customer invoices at the stage on which the document was not yet saved
 
+	client_method = ""
+	if(selected_reference_type == "All")
+	{
+		client_method =  "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts_for_all_references"
+	}
+	else
+	{
+		client_method =  "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts"
+	}
+
 	frappe.call({
 
-		method: "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts",
+		method: client_method,
 		async:false,
 		args: {
 			customer: selected_customer,
@@ -369,8 +379,20 @@ allocations: function(frm, cdt, cdn)
 
 	let pending_invoices_data
 	//Fetch all supplier pending invoices and invoices already allocated in this payment_entry
+	
+	client_method = ""
+
+	if(selected_reference_type == "All")
+	{
+		client_method = "digitz_erp.api.receipt_entry_api.get_customer_all_pending_documents";
+	}
+	else
+	{
+		client_method = "digitz_erp.api.receipt_entry_api.get_customer_pending_documents";
+	}
+
 	frappe.call({
-		method: "digitz_erp.api.receipt_entry_api.get_customer_pending_documents",
+		method: client_method,
 		args: {
 			customer: selected_customer,
 			reference_type: selected_reference_type,

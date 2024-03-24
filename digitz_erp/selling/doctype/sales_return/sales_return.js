@@ -13,6 +13,8 @@ frappe.ui.form.on('Sales Return', {
 			frm.events.get_items_for_return(frm);
 		});
 	}
+
+	update_total_big_display(frm);
   },
   setup: function (frm){
 
@@ -443,6 +445,7 @@ credit_days(frm)
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
+		update_total_big_display(frm);
 
 	},
   additional_discount(frm) {
@@ -591,6 +594,20 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
 	frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
 	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
+}
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
 }
 
 function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
