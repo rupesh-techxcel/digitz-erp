@@ -12,7 +12,7 @@
  "is_hidden": 0,
  "label": "Tab Options",
  "links": [],
- "modified": "2024-03-24 10:46:04.551811",
+ "modified": "2024-03-25 08:07:49.971099",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Options",
@@ -26,7 +26,7 @@
    "role": "Tab User"
   }
  ],
- "sequence_id": 1.0,
+ "sequence_id": 2.0,
  "shortcuts": [
   {
    "color": "Grey",
@@ -52,7 +52,7 @@
   },
   {
    "color": "Grey",
-   "doc_view": "List",
+   "doc_view": "Report Builder",
    "label": "Tab Sales",
    "link_to": "Tab Sales",
    "stats_filter": "[]",
