@@ -47,13 +47,19 @@ def get_columns():
             "fieldname": "customer",
             "fieldtype": "Link",
             "options": "Customer",
-            "width": 290
+            "width": 190
+        },
+        {
+            "label": "Invoice Amount",
+            "fieldname": "invoice_amount",
+            "fieldtype": "Currency",
+            "width": 120
         },
         {
             "label": "Paid Amount",
             "fieldname": "paid_amount",
             "fieldtype": "Currency",
-            "width": 200
+            "width": 120
         },
     ]
 
@@ -66,6 +72,7 @@ def get_data(filters=None):
             re.posting_date as voucher_date,
             ra.reference_name as voucher_no,
             ra.customer as customer,
+            ra.total_amount as invoice_amount,
             re.amount as paid_amount
         FROM
             `tabReceipt Entry` re

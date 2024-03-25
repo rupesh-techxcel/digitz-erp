@@ -13,11 +13,11 @@
  "modified": "2024-03-25 11:00:08.514892",
  "modified_by": "Administrator",
  "module": "Accounts",
- "name": "Receipt  Allocation Report",
+ "name": "Receipt Allocation Report",
  "owner": "Administrator",
  "prepared_report": 0,
  "ref_doctype": "Receipt Entry",
- "report_name": "Receipt  Allocation Report",
+ "report_name": "Receipt Allocation Report",
  "report_type": "Script Report",
  "roles": [
   {

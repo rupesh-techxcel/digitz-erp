@@ -16,13 +16,13 @@ def get_columns():
             "label": "Payment Voucher No",
             "fieldname": "payment_voucher_no",
             "fieldtype": "Data",
-            "width": 161
+            "width": 180
         },
         {
             "label": "Payment Voucher Date",
             "fieldname": "payment_voucher_date",
             "fieldtype": "Date",
-            "width": 161
+            "width": 120
         },
         {
             "label": "Voucher Type",
@@ -34,7 +34,7 @@ def get_columns():
             "label": "Voucher No",
             "fieldname": "voucher_no",
             "fieldtype": "Data",
-            "width": 120
+            "width": 180
         },
 		{
             "label": "Voucher Date",
@@ -47,13 +47,19 @@ def get_columns():
             "fieldname": "supplier",
             "fieldtype": "Link",
             "options": "Supplier",
-            "width": 290
+            "width": 180
+        },
+        {
+            "label": "Invoice Amount",
+            "fieldname": "invoice_amount",
+            "fieldtype": "Currency",
+            "width": 120
         },
         {
             "label": "Paid Amount",
             "fieldname": "paid_amount",
             "fieldtype": "Currency",
-            "width": 200
+            "width": 120
         },
     ]
 
@@ -66,7 +72,8 @@ def get_data(filters=None):
             pe.posting_date as voucher_date,
             pa.reference_name as voucher_no,
             pa.supplier as supplier,
-            pa.paid_amount as paid_amount
+            pa.total_amount as invoice_amount,
+            pa.paying_amount as paid_amount
         FROM
             `tabPayment Entry` pe
         INNER JOIN

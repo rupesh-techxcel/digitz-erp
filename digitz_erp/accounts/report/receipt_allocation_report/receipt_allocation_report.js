@@ -1,7 +1,7 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.query_reports["Receipt  Allocation Report"] = {
+frappe.query_reports["Receipt Allocation Report"] = {
 	"filters": [
 		{
 			"fieldname": "customer",
@@ -16,7 +16,6 @@ frappe.query_reports["Receipt  Allocation Report"] = {
 			"label": "From Date",
 			"width": 150,
 			"default":frappe.datetime.month_start()
-
 		},
 		{
 			"fieldname": "to_date",
