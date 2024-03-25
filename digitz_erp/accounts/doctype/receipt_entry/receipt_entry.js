@@ -231,13 +231,19 @@ frappe.ui.form.on('Receipt Entry', {
 frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 
 	if(frm.doc.__islocal)
+	{
 		frm.trigger("get_default_company_and_warehouse");
 		//For receipt entry one blank row is intially added and couldn't find the reason of it. It is not happening with other doctypes. So removing the same.
-		// frm.doc.receipt_entry_details.splice(0,1)
-		
-		// Remove the blank row
+		// frm.doc.receipt_entry_details.splice(0,1)				
+	}
+
+	if (frm.is_new())
+	{
 		frm.clear_table("receipt_entry_details");
 	}
+}
+
+	
 );
 
  frappe.ui.form.on("Receipt Entry Detail", {
@@ -322,6 +328,11 @@ allocations: function(frm, cdt, cdn)
 	const selected_customer = row.customer
 	const selected_reference_type = row.reference_type
 
+	console.log("selected customer")
+	console.log(selected_customer)
+	console.log("selected reference_type")
+	console.log(selected_reference_type)
+
 	//Allocations are restricted with only one per supplier. So verify that there is no other
 	//row exists with allocation for the selected_supplier
 
@@ -351,15 +362,7 @@ allocations: function(frm, cdt, cdn)
 
 	// Fetch the customer invoices at the stage on which the document was not yet saved
 
-	client_method = ""
-	if(selected_reference_type == "All")
-	{
-		client_method =  "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts_for_all_references"
-	}
-	else
-	{
-		client_method =  "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts"
-	}
+	client_method =  "digitz_erp.api.receipt_entry_api.get_all_customer_pending_receipt_allocations_with_other_receipts"
 
 	frappe.call({
 
@@ -380,17 +383,8 @@ allocations: function(frm, cdt, cdn)
 	let pending_invoices_data
 	//Fetch all supplier pending invoices and invoices already allocated in this payment_entry
 	
-	client_method = ""
-
-	if(selected_reference_type == "All")
-	{
-		client_method = "digitz_erp.api.receipt_entry_api.get_customer_all_pending_documents";
-	}
-	else
-	{
-		client_method = "digitz_erp.api.receipt_entry_api.get_customer_pending_documents";
-	}
-
+	client_method = "digitz_erp.api.receipt_entry_api.get_customer_pending_documents";
+	
 	frappe.call({
 		method: client_method,
 		args: {
@@ -622,16 +616,36 @@ allocations: function(frm, cdt, cdn)
 			console.log("child_table_data")
 			console.log(child_table_data)
 
-			//Clean allocations
-			if(child_table_data != undefined)
-			{
-				cur_frm.doc.receipt_allocation = cur_frm.doc.receipt_allocation.filter(
-					function (row){
-						return row.customer != selected_customer
-					}
-				)
+			console.log("selected customer")
+			console.log(selected_customer)
+			console.log("selected reference_type")
+			console.log(selected_reference_type)
 
-				cur_frm.refresh_field("payment_allocation");
+			// //Clean allocations
+			// if (child_table_data !== undefined) {
+			// 	cur_frm.doc.receipt_allocation = cur_frm.doc.receipt_allocation.filter(row =>
+			// 		!(row.customer === selected_customer && row.reference_type === selected_reference_type)
+			// 	);
+			
+			// 	cur_frm.refresh_field("receipt_allocation");
+			// }
+			
+			if (child_table_data !== undefined) {
+				// Find indexes of rows that match the condition to be removed
+				let indexesToRemove = [];
+				for (let i = 0; i < cur_frm.doc.receipt_allocation.length; i++) {
+					let row = cur_frm.doc.receipt_allocation[i];
+					if (row.customer === selected_customer && row.reference_type === selected_reference_type) {
+						indexesToRemove.push(i);
+					}
+				}
+			
+				// Remove rows in reverse order to avoid index shift issues
+				for (let i = indexesToRemove.length - 1; i >= 0; i--) {
+					cur_frm.doc.receipt_allocation.splice(indexesToRemove[i], 1);
+				}
+			
+				cur_frm.refresh_field("receipt_allocation");
 			}
 
 			var totalPay = 0;

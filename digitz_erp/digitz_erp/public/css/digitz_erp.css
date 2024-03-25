@@ -3,7 +3,17 @@
     background:#68b2f3!important;
     /* background: orange; */
 }
-
+.app-logo {
+    max-height:90px;
+}
+.page-card-head
+{
+    max-height: 90px;
+}
+.page-card-head img
+{
+    max-height:90px;
+}
 .layout-side-section
 {
     background: #cbced3!important;

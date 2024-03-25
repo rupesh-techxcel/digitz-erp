@@ -329,7 +329,7 @@ class ReceiptEntry(Document):
 
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
-					frappe.db.set_value("Credit Note", allocation.reference_name, {'grand_total': invoice_total})
+					frappe.db.set_value("Credit Note", allocation.reference_name, {'paid_amount': invoice_total})
 
 	def insert_gl_records(self):
 
@@ -445,6 +445,20 @@ class ReceiptEntry(Document):
 
 						total_paid_Amount = previous_paid_amount
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
+      
+				if allocation.reference_type == "Sales Return":
+					if(allocation.paying_amount>0):
+						receipt_no = self.name
+						if self.is_new():
+							receipt_no = ""
+
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_sales_return(allocation.reference_name, receipt_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+
+						total_paid_Amount = previous_paid_amount
+						frappe.db.set_value("Sales Return", allocation.reference_name, {'paid_amount': total_paid_Amount})
 
 @frappe.whitelist()
 def get_gl_postings(receipt_entry):

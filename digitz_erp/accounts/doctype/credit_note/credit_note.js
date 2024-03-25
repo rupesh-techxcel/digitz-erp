@@ -68,13 +68,15 @@ frappe.ui.form.on("Credit Note", {
 				}
 			});
 
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sales', function(r) {
-				if (r && r.default_credit_sales === 1) {
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+				if (r && r.default_credit_sale === 1) {
 						frm.set_value('on_credit', 1);
 				}
 			});
 
 			set_default_payment_mode(frm);
+
+			frm.clear_table("credit_note_details");
 		}
 	},	
 	

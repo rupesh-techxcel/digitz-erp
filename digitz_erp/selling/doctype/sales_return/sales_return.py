@@ -147,9 +147,9 @@ class SalesReturn(Document):
             gl_doc.posting_time = self.posting_time
             gl_doc.account = default_accounts.round_off_account
             if self.rounded_total > self.net_total:
-                gl_doc.debit_amount = self.round_off
-            else:
                 gl_doc.credit_amount = self.round_off
+            else:
+                gl_doc.debit_amount = self.round_off
             gl_doc.insert()
             idx +=1
 
@@ -295,9 +295,9 @@ class SalesReturn(Document):
                 si_item = frappe.get_doc("Sales Invoice Item", item.si_item_reference)
 
                 if total_returned_qty_not_in_this_sr:
-                    si_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_sr + item.qty
+                    si_item.qty_returned_in_base_unit = total_returned_qty_not_in_this_sr + item.qty_in_base_unit
                 else:
-                    si_item.qty_returned_in_base_unit = item.qty
+                    si_item.qty_returned_in_base_unit = item.qty_in_base_unit
                 si_item.save()
                 si_reference_any = True
 

@@ -37,6 +37,8 @@ frappe.ui.form.on('Purchase Invoice', {
 				}
 			});
 		}
+
+		update_total_big_display(frm)
 	},
 	setup: function (frm) {
 
@@ -84,6 +86,9 @@ frappe.ui.form.on('Purchase Invoice', {
 	{
 		if(frm.is_new())
 		{
+			// Remove the initial blank item row
+			frm.clear_table('items');
+
 			frm.trigger("get_default_company_and_warehouse");
 
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
@@ -413,6 +418,8 @@ frappe.ui.form.on('Purchase Invoice', {
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
 
+		update_total_big_display(frm)
+
 	},
 	get_user_warehouse(frm)
 	{
@@ -545,6 +552,21 @@ frappe.ui.form.on('Purchase Invoice', {
 	}
 
 });
+
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
+}
 
 frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 

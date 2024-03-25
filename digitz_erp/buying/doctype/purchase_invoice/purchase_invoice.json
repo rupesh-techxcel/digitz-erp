@@ -14,7 +14,6 @@
   "supplier_address",
   "tax_id",
   "column_break_6",
-  "company",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
@@ -26,20 +25,23 @@
   "supplier_inv_date",
   "purchase_order",
   "do_no",
+  "column_break_kkhx",
+  "company",
   "warehouse",
   "default_cost_center",
   "accounts_section",
   "credit_purchase",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "mode",
   "payment_account",
   "column_break_24",
+  "payment_terms",
+  "column_break_yo6a",
   "reference_no",
   "reference_date",
+  "column_break_frqn",
   "remarks",
-  "column_break_yo6a",
   "section_break_19",
   "items",
   "section_break_29",
@@ -60,6 +62,8 @@
   "round_off",
   "rounded_total",
   "paid_amount",
+  "column_break_erax",
+  "total_big",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -428,6 +432,22 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+  },
+  {
+   "fieldname": "column_break_kkhx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_erax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "column_break_frqn",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -445,7 +465,7 @@
    "table_fieldname": "invoices"
   }
  ],
- "modified": "2024-03-23 18:15:56.870409",
+ "modified": "2024-03-25 10:39:28.964173",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

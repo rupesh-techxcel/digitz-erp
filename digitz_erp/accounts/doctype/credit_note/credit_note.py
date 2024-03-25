@@ -9,7 +9,7 @@ from frappe.utils import money_in_words
 class CreditNote(Document):
 
 	def before_validate(self):
-		self.in_words = money_in_words(self.rounded_total,"AED")
+		self.in_words = money_in_words(self.grand_total,"AED")
 
 	def on_submit(self):
 		# frappe.enqueue(self.do_postings_on_submit, queue="long")

@@ -72,6 +72,7 @@ frappe.ui.form.on("Debit Note", {
 			});
 
 			set_default_payment_mode(frm);
+			frm.clear_table("debit_note_details");
 		}
 	},
 	rate_includes_tax: function(frm) {

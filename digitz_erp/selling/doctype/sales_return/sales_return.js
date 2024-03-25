@@ -121,6 +121,9 @@ frappe.ui.form.on('Sales Return', {
 
 					var child_table_data_updated = child_table_control.get_value();
 
+					console.log("child_table_data_updated")
+					console.log(child_table_data_updated)
+
 					// Iterate through the selected items
 					child_table_data_updated.forEach(function (item) {
 

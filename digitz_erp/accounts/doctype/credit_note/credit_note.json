@@ -18,6 +18,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "rate_includes_tax",
+  "reference_no",
   "column_break_hzrg",
   "default_cost_center",
   "column_break_qori",
@@ -275,12 +276,17 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-24 20:33:03.687138",
+ "modified": "2024-03-25 09:56:47.468613",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Credit Note",
