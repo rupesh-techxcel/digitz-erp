@@ -28,7 +28,7 @@ frappe.query_reports["Payment Schedule Report"] = {
             label: __('Group By'),
             fieldtype: 'Select',
             options: 'None\nDate\nSupplier\nSupplier And Date',
-            default: 'Date'
+            default: 'Supplier And Date'
         },
 	]
 };

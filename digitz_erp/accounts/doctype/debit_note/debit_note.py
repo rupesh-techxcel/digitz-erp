@@ -9,7 +9,7 @@ from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_g
 class DebitNote(Document):
 
 	def before_validate(self):
-		self.in_words = money_in_words(self.rounded_total,"AED")
+		self.in_words = money_in_words(self.grand_total,"AED")
 		
 	def on_submit(self):
 		# frappe.enqueue(self.do_postings_on_submit, queue="long")

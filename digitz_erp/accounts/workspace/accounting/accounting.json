@@ -1,6 +1,11 @@
 {
- "charts": [],
- "content": "[{\"id\":\"3HnbUReubQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounting</span>\",\"col\":12}},{\"id\":\"dSibUPh1cA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"unkOo0ku3E\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"gRw1zHO35n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"WHOvnk3qdf\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Chart Of Accounts\",\"col\":3}},{\"id\":\"E7aGVzxKNM\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Company\",\"col\":3}},{\"id\":\"fIuRbd9I6P\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"xUGlintVCH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"oC5fHvHqir\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SbxYxVPKcw\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"8-417abdgm\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Reports\",\"col\":4}},{\"id\":\"b-drBnIcUA\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
+ "charts": [
+  {
+   "chart_name": "Income Expense Chart",
+   "label": "Income Expense Chart"
+  }
+ ],
+ "content": "[{\"id\":\"3HnbUReubQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounting</span>\",\"col\":12}},{\"id\":\"dSibUPh1cA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"iF1OFars50\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Income Expense Chart\",\"col\":12}},{\"id\":\"unkOo0ku3E\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"gRw1zHO35n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"WHOvnk3qdf\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Chart Of Accounts\",\"col\":3}},{\"id\":\"E7aGVzxKNM\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Company\",\"col\":3}},{\"id\":\"fIuRbd9I6P\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"xUGlintVCH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"oC5fHvHqir\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SbxYxVPKcw\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"8-417abdgm\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Reports\",\"col\":4}},{\"id\":\"b-drBnIcUA\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
  "creation": "2024-03-25 08:07:42.632063",
  "custom_blocks": [],
  "docstatus": 0,
@@ -145,7 +150,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Other Reports",
-   "link_count": 4,
+   "link_count": 7,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -189,9 +194,39 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Allocations",
+   "link_count": 0,
+   "link_to": "Payment Allocation Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Receipt Allocations",
+   "link_count": 0,
+   "link_to": "Receipt Allocation Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Schedule",
+   "link_count": 0,
+   "link_to": "Payment Schedule Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-03-25 22:51:05.668525",
+ "modified": "2024-03-26 10:11:26.974132",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",

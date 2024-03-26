@@ -67,7 +67,7 @@ def get_data(filters= None):
             from
                 `tabAccount` 
             where root_type in ('Expense','Income')  or name = 'Accounts' and (is_group=1 or (is_group=0 and include_in_gross_profit =1))
-            ORDER BY FIELD(root_type, 'Income', 'Expense')
+            ORDER BY FIELD(root_type, 'Income', 'Expense'),lft,rgt
         """, as_dict=True
     )
   
@@ -90,15 +90,15 @@ def get_data(filters= None):
         del accounts[index]
     
     filter_accounts(accounts)
-    
+       
     data =[]
     for account in accounts:
         
         if account.name == "Accounts":
             continue
         else:
-            if(account.name == "Income"):
-                account.name = "Revenue"
+            # if(account.name == "Income"):
+            #     account.name = "Revenue"
                 
             data.append(account)
     
@@ -137,6 +137,9 @@ def get_data(filters= None):
     
     np_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=False)
     
+    print("np_accounts")
+    print(np_accounts)
+    
     indices_to_remove = []
     profit = 0
     for i,account in enumerate(accounts):
@@ -160,8 +163,8 @@ def get_data(filters= None):
         if account.name == "Accounts":
             continue
         else:
-            if(account.name == "Income"):
-                account.name = "Revenue"
+            # if(account.name == "Income"):
+            #     account.name = "Revenue"
                 
             data.append(account)
     
@@ -181,8 +184,10 @@ def get_data(filters= None):
     gp_data = {'name':'Net Profit','indent':2,'balance' :profit}
     data.append(gp_data)
     
+        
     return data
 
+    
 
 def get_columns():
     return [
