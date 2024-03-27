@@ -504,8 +504,7 @@
    "fieldname": "receipt_schedule",
    "fieldtype": "Table",
    "label": "Receipt Schedule",
-   "options": "Sales Receipt Schedule",
-   "read_only": 1
+   "options": "Sales Receipt Schedule"
   },
   {
    "fieldname": "receipt_schedule_tab",
@@ -600,7 +599,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-03-23 17:53:23.227916",
+ "modified": "2024-03-26 15:17:34.941446",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

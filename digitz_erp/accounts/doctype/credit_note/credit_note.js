@@ -19,7 +19,7 @@ frappe.ui.form.on("Credit Note", {
 			  }
 			}
 		  });
-	  
+
 			  frm.set_query("warehouse", function() {
 				  return {
 					  "filters": {
@@ -27,7 +27,7 @@ frappe.ui.form.on("Credit Note", {
 					  }
 				  };
 			  });
-	  
+
 		  frm.set_query('receivable_account', () => {
 				  return {
 					  filters: {
@@ -35,13 +35,13 @@ frappe.ui.form.on("Credit Note", {
 					  is_group: 0
 					  }
 				  }
-				  });  
+				  });
 
 		frm.add_fetch('customer', 'full_address', 'address')
 		frm.add_fetch('customer', 'tax_id', 'tax_id')
 		frm.add_fetch('customer', 'credit_days', 'credit_days')
 		frm.add_fetch('payment_mode', 'account', 'payment_account')
-				
+
 	},
 
 	assign_defaults: function(frm){
@@ -78,8 +78,8 @@ frappe.ui.form.on("Credit Note", {
 
 			frm.clear_table("credit_note_details");
 		}
-	},	
-	
+	},
+
     edit_posting_date_and_time(frm) {
     if (frm.doc.edit_posting_date_and_time == 1) {
       frm.set_df_property("posting_date", "read_only", 0);
@@ -90,9 +90,10 @@ frappe.ui.form.on("Credit Note", {
       frm.set_df_property("posting_time", "read_only", 1);
     }
   },
-  
+
   on_credit(frm) {
 		set_default_payment_mode(frm);
+		fill_receipt_schedule(frm)
 
 	},
   customer(frm){
@@ -162,7 +163,7 @@ frappe.ui.form.on("Credit Note", {
 		frm.refresh_fields();
 		update_total_big_display(frm);
 	},
-  
+
   validate: function (frm) {
 
 		if(!frm.doc.on_credit && !frm.doc.payment_mode)
@@ -177,6 +178,75 @@ frappe.ui.form.on("Credit Note", {
 		}
 	},
 });
+
+function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+
+	if(refresh)
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+
+	console.log("fill_receipt_schedule")
+
+	if (frm.doc.on_credit) {
+
+
+		var postingDate = frm.doc.posting_date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.grand_total;
+
+		if (!frm.doc.receipt_schedule) {
+			frm.doc.receipt_schedule = [];
+		}
+
+		var receiptRow = null;
+
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.receipt_schedule.forEach(function(row) {
+			if (row){
+				receiptRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
+
+				row_count++;
+			}
+		});
+
+		//If there is no row exits create one with the relevant values
+		if (!receiptRow) {
+			// Calculate receipt schedule and add a new row
+			receiptRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			receiptRow.payment_mode = "Cash"
+			receiptRow.amount = frm.doc.grand_total;
+			refresh_field("receipt_schedule");
+		}
+		else if (row_count==1)
+		{
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself
+			receiptRow.payment_mode = "Cash"
+			receiptRow.amount = frm.doc.grand_total;
+			refresh_field("receipt_schedule");
+		}
+
+		//Update date based on credit_days if there is a credit days change or change in the credit_sales checkbox
+		if(refresh || refresh_credit_days)
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			refresh_field("receipt_schedule");
+	}
+	else
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+}
+
 
 function update_total_big_display(frm) {
 
@@ -199,7 +269,7 @@ function set_default_payment_mode(frm)
 	if(!frm.doc.on_credit)
 	{
 		frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
-			
+
 			if (r && r.default_payment_mode_for_sales) {
 							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
 			} else {
@@ -215,7 +285,7 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("credit_days", "hidden", !frm.doc.on_credit);
 	frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
 	frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
-	
+
 }
 frappe.ui.form.on('Credit Note Detail',{
 	account(frm, cdt, cdn){
@@ -234,9 +304,11 @@ frappe.ui.form.on('Credit Note Detail',{
   amount: function(frm, cdt, cdn){
     console.log("here")
     frm.trigger("make_taxes_and_totals");
+		fill_receipt_schedule(frm)
   },
   tax_rate: function(frm,cdt,cdn){
     frm.trigger("make_taxes_and_totals");
+		fill_receipt_schedule(frm)
   }	,
   credit_note_details_add(frm,cdt,cdn){
 

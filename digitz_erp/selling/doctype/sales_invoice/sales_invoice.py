@@ -72,7 +72,7 @@ class SalesInvoice(Document):
         if self.tab_sales:
             self.update_stock = True
             self.created_from_tab_sale = True
-        
+
         self.update_delivery_note_references()
 
     def validate(self):
@@ -86,8 +86,9 @@ class SalesInvoice(Document):
         if not self.tab_sales:
             update_sales_order_quantities_on_update(self)
             check_and_update_sales_order_status(self.name, "Sales Invoice")
-        
+
         self.update_customer_last_transaction_date()
+        self.update_receipt_schedules()
 
     def on_submit(self):
 
@@ -118,13 +119,13 @@ class SalesInvoice(Document):
 
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
         self.update_customer_last_transaction_date()
-    
+
     def update_customer_last_transaction_date(self):
-        
+
         frappe.set_value('Customer',self.customer,{'last_transaction_date':self.posting_date})
-    
+
     def update_delivery_note_references(self):
-        
+
         delivery_note_item_reference_nos = [
             item.delivery_note_item_reference_no for item in self.items if item.delivery_note_item_reference_no
         ]
@@ -236,9 +237,9 @@ class SalesInvoice(Document):
         self.cancel_sales_invoice()
 
     def on_trash(self):
-        
+
         cancel_bank_reconciliation("Sales Invoice", self.name)
-        
+
         if not self.tab_sales:
             update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
             check_and_update_sales_order_status(self.name, "Sales Invoice")
@@ -947,6 +948,28 @@ class SalesInvoice(Document):
             cost_of_goods_sold = cog_data[0].cost_of_goods_sold
 
         return cost_of_goods_sold
+
+    def update_receipt_schedules(self):
+        existing_entries = frappe.get_all("Receipt Schedule", filters={"receipt_against": "Sales", "document_no": self.name})
+        for entry in existing_entries:
+            try:
+                frappe.delete_doc("Receipt Schedule", entry.name)
+            except Exception as e:
+                frappe.log_error("Error deleting receipt schedule: " + str(e))
+        if self.credit_sale and self.receipt_schedule:
+            for schedule in self.receipt_schedule:
+                new_receipt_schedule = frappe.new_doc("Receipt Schedule")
+                new_receipt_schedule.receipt_against = "Sales"
+                new_receipt_schedule.customer = self.customer
+                new_receipt_schedule.document_no = self.name
+                new_receipt_schedule.document_date = self.posting_date
+                new_receipt_schedule.scheduled_date = schedule.date
+                new_receipt_schedule.amount = schedule.amount
+                try:
+                    new_receipt_schedule.insert()
+                except Exception as e:
+                    frappe.log_error("Error creating receipt schedule: " + str(e))
+
 
 @frappe.whitelist()
 def get_default_payment_mode():

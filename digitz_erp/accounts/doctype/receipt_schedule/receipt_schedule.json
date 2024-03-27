@@ -1,17 +1,16 @@
 {
  "actions": [],
- "creation": "2023-11-11 15:52:25.091821",
- "default_view": "List",
+ "allow_rename": 1,
+ "creation": "2024-03-26 14:56:48.015974",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "payment_against",
-  "supplier",
+  "receipt_against",
+  "customer",
   "document_no",
   "document_date",
   "scheduled_date",
-  "column_break_epy1",
+  "column_break_gqoa",
   "amount",
   "paid_date",
   "paid_amount",
@@ -19,22 +18,39 @@
  ],
  "fields": [
   {
-   "fieldname": "supplier",
+   "fieldname": "receipt_against",
+   "fieldtype": "Select",
+   "label": "Receipt Against",
+   "options": "Sales\nReturn\nCredit"
+  },
+  {
+   "fieldname": "customer",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Supplier",
-   "options": "Supplier"
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "document_no",
+   "fieldtype": "Data",
+   "label": "Document No"
+  },
+  {
+   "fieldname": "document_date",
+   "fieldtype": "Date",
+   "label": "Document Date"
   },
   {
    "fieldname": "scheduled_date",
    "fieldtype": "Date",
-   "in_list_view": 1,
    "label": "Scheduled Date"
+  },
+  {
+   "fieldname": "column_break_gqoa",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "in_list_view": 1,
    "label": "Amount"
   },
   {
@@ -46,7 +62,6 @@
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Paid Amount"
   },
   {
@@ -55,36 +70,14 @@
    "hidden": 1,
    "label": "Payment Status",
    "options": "Unpaid\nPaid\nPartial\nExcess"
-  },
-  {
-   "fieldname": "payment_against",
-   "fieldtype": "Select",
-   "label": "Payment Against",
-   "options": "Purchase\nReturn\nExpense\nAdditional Expense\nDebit"
-  },
-  {
-   "fieldname": "document_no",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Document No"
-  },
-  {
-   "fieldname": "document_date",
-   "fieldtype": "Date",
-   "label": "Document Date"
-  },
-  {
-   "fieldname": "column_break_epy1",
-   "fieldtype": "Column Break"
   }
  ],
- "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-27 14:38:52.480485",
+ "modified": "2024-03-27 14:40:39.735381",
  "modified_by": "Administrator",
  "module": "Accounts",
- "name": "Payment Schedule",
+ "name": "Receipt Schedule",
  "owner": "Administrator",
  "permissions": [
   {

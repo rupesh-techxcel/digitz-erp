@@ -18,9 +18,33 @@ class CreditNote(Document):
 	def on_cancel(self):
 		self.do_cancel_credit_note()
 
+	def on_update(self):
+		self.update_receipt_schedules()
+
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
 		update_accounts_for_doc_type('Credit Note',self.name)
+
+	def update_receipt_schedules(self):
+		existing_entries = frappe.get_all("Receipt Schedule", filters={"receipt_against": "Credit", "document_no": self.name})
+		for entry in existing_entries:
+			try:
+				frappe.delete_doc("Receipt Schedule", entry.name)
+			except Exception as e:
+				frappe.log_error("Error deleting receipt schedule: " + str(e))
+		if self.on_credit and self.receipt_schedule:
+			for schedule in self.receipt_schedule:
+				new_receipt_schedule = frappe.new_doc("Receipt Schedule")
+				new_receipt_schedule.receipt_against = "Credit"
+				new_receipt_schedule.customer = self.customer
+				new_receipt_schedule.document_no = self.name
+				new_receipt_schedule.document_date = self.posting_date
+				new_receipt_schedule.scheduled_date = schedule.date
+				new_receipt_schedule.amount = schedule.amount
+				try:
+					new_receipt_schedule.insert()
+				except Exception as e:
+					frappe.log_error("Error creating receipt schedule: " + str(e))
 
 	def insert_gl_records(self):
 

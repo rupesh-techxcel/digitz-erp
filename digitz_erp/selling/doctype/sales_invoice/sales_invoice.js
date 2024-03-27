@@ -5,7 +5,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
-		 
+
 		 if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) {
 			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
 					show_delivery_notes_dialog(frm)
@@ -620,7 +620,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 			receiptRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
 			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
 			receiptRow.payment_mode = "Cash"
-			receiptRow.amount = roundedTotal;
+			receiptRow.amount = frm.doc.rounded_total;
 			refresh_field("receipt_schedule");
 		}
 		else if (row_count==1)
@@ -628,7 +628,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 			//If there is only one row update the amount. If there is more than one row that means there is manual
 			//entry and	user need to manage it by themself
 			receiptRow.payment_mode = "Cash"
-			receiptRow.amount = roundedTotal;
+			receiptRow.amount = frm.doc.rounded_total;
 			refresh_field("receipt_schedule");
 		}
 

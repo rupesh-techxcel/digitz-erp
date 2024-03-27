@@ -41,6 +41,8 @@
   "column_break_2qwz",
   "in_words",
   "column_break_pdvw",
+  "tab_break_j0rg",
+  "payment_schedule",
   "amended_from"
  ],
  "fields": [
@@ -171,6 +173,7 @@
    "options": "Account"
   },
   {
+   "default": "0",
    "fieldname": "credit_days",
    "fieldtype": "Int",
    "label": "Credit Days"
@@ -231,11 +234,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series"
-  },
-  {
    "fieldname": "default_cost_center",
    "fieldtype": "Link",
    "label": "Default Cost Center",
@@ -245,12 +243,30 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+  },
+  {
+   "fieldname": "tab_break_j0rg",
+   "fieldtype": "Tab Break",
+   "label": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Purchase Payment Schedule"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "DN-.#####.-.MM.-.YYYY.",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-20 11:01:42.721122",
+ "modified": "2024-03-27 15:34:06.764666",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Debit Note",

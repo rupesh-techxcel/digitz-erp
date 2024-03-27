@@ -946,6 +946,7 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 		var postingDate = frm.doc.posting_date;
 		var creditDays = frm.doc.credit_days;
 		var roundedTotal = frm.doc.rounded_total;
+		console.log("ROUNDED TOTAL:",roundedTotal);
 
 		if (!frm.doc.payment_schedule) {
 			frm.doc.payment_schedule = [];
