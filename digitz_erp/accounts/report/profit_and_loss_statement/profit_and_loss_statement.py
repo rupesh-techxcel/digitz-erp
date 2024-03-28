@@ -52,10 +52,7 @@ def get_chart_data(filters=None):
     return chart
 
 def get_data(filters= None):
-    
-    # print("accounts")
-    # print(accounts)
-    
+      
     accounts = frappe.db.sql(
         """
             select
@@ -70,7 +67,7 @@ def get_data(filters= None):
             ORDER BY FIELD(root_type, 'Income', 'Expense'),lft,rgt
         """, as_dict=True
     )
-  
+    
     gp_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=True)
     
     indices_to_remove = []
@@ -88,10 +85,11 @@ def get_data(filters= None):
     # Remove rows based on indices
     for index in reversed(indices_to_remove):
         del accounts[index]
-    
+        
     filter_accounts(accounts)
-       
+    
     data =[]
+    
     for account in accounts:
         
         if account.name == "Accounts":
@@ -135,11 +133,9 @@ def get_data(filters= None):
         """, as_dict=True
     )
     
+    
     np_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=False)
-    
-    print("np_accounts")
-    print(np_accounts)
-    
+      
     indices_to_remove = []
     profit = 0
     for i,account in enumerate(accounts):
@@ -182,12 +178,10 @@ def get_data(filters= None):
     profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
     
     gp_data = {'name':'Net Profit','indent':2,'balance' :profit}
-    data.append(gp_data)
     
+    data.append(gp_data)
         
     return data
-
-    
 
 def get_columns():
     return [

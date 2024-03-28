@@ -18,25 +18,50 @@ value_fields = (
 def execute(filters=None):
     
 	columns = get_columns()
-	# data = get_data(filters)
-	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'))
+	data_asset = get_data_for_root_type(filters,"Asset")
+	data_liability = get_data_for_root_type(filters,"Liability")
+	data_income = get_data_for_root_type(filters,"Income")
+	data_expense = get_data_for_root_type(filters,"Expense")
+	
+	data =[]
+	if data_asset:
+		data.extend(data_asset)
+	
+	if data_liability:
+		data.extend(data_liability)
+  
+	if data_income:
+		data.extend(data_income)
+  
+	if data_expense:
+		data.extend(data_expense)
+	
+	return columns,data
+ 
+def get_data_for_root_type(filters, root_type):
+     # data = get_data(filters)
+	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type)
 	 
 	accounts_from_table = frappe.db.sql(
-		"""
-			select
-				name,
-				parent_account,
-				lft,
-				rgt,
-				0 as opening_debit,
-				0 as opening_credit,
-				0 as debit, 0 as credit,
-				0 as closing_debit,
-				0 as closing_credit
-			from
-				`tabAccount`
-			order by lft
-		""",as_dict=True
+    """
+		SELECT
+			`name`,
+			`parent_account`,
+			`lft`,
+			`rgt`,
+			0 AS `opening_debit`,
+			0 AS `opening_credit`,
+			0 AS `debit`, 
+			0 AS `credit`,
+			0 AS `closing_debit`,
+			0 AS `closing_credit`
+		FROM
+			`tabAccount`
+		WHERE
+			`root_type` in (%s) OR `root_type` IS NULL
+		ORDER BY
+			`lft`
+		""",(root_type), as_dict=True
 	)
 	
 	for account in accounts_from_table:
@@ -72,7 +97,7 @@ def execute(filters=None):
 			data.append(account)
 	
 
-	return columns, data
+	return data
 
 def prepare_data(accounts, filters, total_row, parent_children_map, accounts_by_name):
 	data = []

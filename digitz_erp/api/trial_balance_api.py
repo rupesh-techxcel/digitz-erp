@@ -2,12 +2,12 @@ import frappe
 from frappe.utils import *
 
 @frappe.whitelist()
-def get_accounts_data(from_date,to_date):
+def get_accounts_data(from_date,to_date, root_type):
     
     query = """
-            SELECT parent_account,account_name from `tabAccount` where is_group = 0
+            SELECT parent_account,account_name from `tabAccount` where is_group = 0 and root_type=%s
             """
-    data = frappe.db.sql(query, as_dict=True)
+    data = frappe.db.sql(query,(root_type), as_dict=True)
     print("data")
     print(data)
     

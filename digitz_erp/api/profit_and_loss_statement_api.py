@@ -5,6 +5,7 @@ from frappe.utils import *
 def get_accounts_data(from_date,to_date,for_gp):
     
     query = ""
+    
     if for_gp:
         query = """
                SELECT parent_account, account_name, root_type
@@ -25,10 +26,7 @@ def get_accounts_data(from_date,to_date,for_gp):
     accounts = {}
     
     for d in data:
-        
-        print("d")
-        print(d)
-        
+                
         balance = get_account_balance(d.account_name,from_date,to_date)
                 
         if(not balance):
@@ -66,9 +64,7 @@ def update_parent_accounts_recursive(account, accounts, account_name):
             "balance": accounts[parent_account]['balance'] + accounts[account_name]['balance']}
     else:   
         accounts[parent_account] = {"balance": accounts[account_name]['balance'] }
-        
-    print("accounts filling")
-    print(accounts)
+    
     update_parent_accounts_recursive(parent_account,accounts,account_name)
     
     
@@ -85,10 +81,7 @@ def get_account_balance(account, from_date,to_date):
         return 0
     
 def re_process_account_data(accounts):
-    
-    print("accounts")
-    print(accounts)
-    
+        
     data = []
     for account in accounts:  
         
@@ -100,10 +93,7 @@ def re_process_account_data(accounts):
             continue
                 
         account_data = {'name':account,'parent_account':parent_account, 'balance':balance}
-        print("account_data")
-        print(account_data)
+        
         data.append(account_data)
-     
-    print("data processed")  
-    print(data) 
+        
     return data
