@@ -8,7 +8,7 @@ frappe.ui.form.on("Debit Note", {
 	},
 	refresh(frm){
 		create_custom_buttons(frm)
-		
+
 	},
 	setup: function(frm)
 	{
@@ -21,7 +21,7 @@ frappe.ui.form.on("Debit Note", {
 				}
 			}
 			});
-	
+
 			frm.set_query("warehouse", function() {
 				return {
 					"filters": {
@@ -29,7 +29,7 @@ frappe.ui.form.on("Debit Note", {
 					}
 				};
 			});
-	
+
 			frm.set_query('payable_account', () => {
 				return {
 					filters: {
@@ -38,8 +38,8 @@ frappe.ui.form.on("Debit Note", {
 					}
 				}
 				});
-				
-	},	
+
+	},
 	assign_defaults: function(frm){
 
 		if(frm.is_new())
@@ -128,6 +128,7 @@ frappe.ui.form.on("Debit Note", {
 		frm.set_value('total_amount', total_amount);
 		frm.set_value('tax_total', tax_total);
 		frm.set_value('grand_total', grand_total);
+		fill_payment_schedule(frm);
 		frm.refresh_fields();
 	},
 	setup(frm){
@@ -161,9 +162,9 @@ frappe.ui.form.on("Debit Note", {
 		}
 	},
 	on_credit: function(frm) {
-		
 		set_default_payment_mode(frm);
-		
+		fill_payment_schedule(frm,refresh=true);
+
 	},
 	validate: function (frm) {
 
@@ -204,8 +205,78 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("credit_days", "hidden", !frm.doc.on_credit);
 	frm.set_df_property("payment_mode", "hidden", frm.doc.on_credit);
 	frm.set_df_property("payment_account", "hidden", frm.doc.on_credit);
-	
+
 }
+
+function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+	if(refresh)
+	{
+		frm.doc.payment_schedule = [];
+		refresh_field("payment_schedule");
+	}
+
+	if (frm.doc.on_credit) {
+		var postingDate = frm.doc.date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.grand_total;
+		console.log("roundedTotal",roundedTotal);
+
+		if (!frm.doc.payment_schedule) {
+			frm.doc.payment_schedule = [];
+		}
+
+		var paymentRow = null;
+
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.payment_schedule.forEach(function(row) {
+			if (row){
+				paymentRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
+
+				row_count++;
+			}
+		});
+		console.log("row_count")
+		console.log(row_count)
+		console.log("paymentRow")
+		console.log(paymentRow)
+		console.log("refresh_credit_days")
+		console.log(refresh_credit_days)
+
+		//If there is no row exits create one with the relevant values
+		if (!paymentRow) {
+			// Calculate payment schedule and add a new row
+			paymentRow = frappe.model.add_child(frm.doc, "Payment Schedule", "payment_schedule");
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			paymentRow.payment_mode = "Cash"
+			paymentRow.amount = frm.doc.grand_total;
+			refresh_field("payment_schedule");
+		}
+		else if (row_count==1)
+		{
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself
+			paymentRow.amount = frm.doc.grand_total;
+			refresh_field("payment_schedule");
+		}
+
+		//Update date based on credit_days if there is a credit days change or change in the credit_purchase checkbox
+		if(refresh || refresh_credit_days)
+			paymentRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			refresh_field("payment_schedule");
+	}
+	else
+	{
+		frm.doc.payment_schedule = [];
+		refresh_field("payment_schedule");
+	}
+}
+
 
 frappe.ui.form.on('Debit Note Detail',{
 	account(frm,cdt, cdn){
@@ -226,6 +297,7 @@ frappe.ui.form.on('Debit Note Detail',{
   	},
 	tax_rate: function(frm,cdt,cdn){
 		frm.trigger("make_taxes_and_totals");
+		fill_payment_schedule(frm);
 	},
 	debit_note_details_add(frm,cdt,cdn){
 

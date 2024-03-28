@@ -48,7 +48,9 @@
   "column_break_rkff",
   "paid_amount",
   "column_break_clsh",
-  "total_big"
+  "total_big",
+  "receipt_schedule_tab",
+  "receipt_schedule"
  ],
  "fields": [
   {
@@ -239,7 +241,8 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Series"
+   "label": "Series",
+   "options": "CN-.#####.-.MM.-.YYYY."
   },
   {
    "fieldname": "default_cost_center",
@@ -281,12 +284,23 @@
    "fieldname": "reference_no",
    "fieldtype": "Data",
    "label": "Reference No"
+  },
+  {
+   "fieldname": "receipt_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Receipt Schedule"
+  },
+  {
+   "fieldname": "receipt_schedule",
+   "fieldtype": "Table",
+   "label": "Receipt Schedule",
+   "options": "Sales Receipt Schedule"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-25 09:56:47.468613",
+ "modified": "2024-03-27 15:53:44.705111",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Credit Note",

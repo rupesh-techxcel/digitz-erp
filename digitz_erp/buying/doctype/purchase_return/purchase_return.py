@@ -86,6 +86,7 @@ class PurchaseReturn(Document):
 		self.update_purchase_invoice_quantities_on_update()
 		self.update_purchase_order_quantities_on_update()
 		self.update_purchase_order_status()
+		self.update_payment_schedules()
 
 	def on_cancel(self):
 
@@ -102,6 +103,34 @@ class PurchaseReturn(Document):
 			self.update_purchase_invoice_quantities_on_update(for_delete_or_cancel=True)
 			self.update_purchase_order_quantities_on_update(for_delete_or_cancel=True)
 			self.update_purchase_order_status()
+
+	def update_payment_schedules(self):
+		# Check for existing payment schedules
+		existing_entries = frappe.get_all("Payment Schedule", filters={"payment_against": "Return", "document_no": self.name})
+
+    # Delete existing payment schedules if found
+		for entry in existing_entries:
+			try:
+				frappe.delete_doc("Payment Schedule", entry.name)
+			except Exception as e:
+				frappe.log_error("Error deleting payment schedule: " + str(e))
+
+		# If credit purchase, create/update payment schedules
+		if self.credit_purchase and self.payment_schedule:
+			for schedule in self.payment_schedule:
+				new_payment_schedule = frappe.new_doc("Payment Schedule")
+				new_payment_schedule.payment_against = "Return"
+				new_payment_schedule.supplier = self.supplier
+				new_payment_schedule.document_no = self.name
+				new_payment_schedule.document_date = self.posting_date
+				new_payment_schedule.scheduled_date = schedule.date
+				new_payment_schedule.amount = schedule.amount
+
+				try:
+					new_payment_schedule.insert()
+				except Exception as e:
+					frappe.log_error("Error creating payment schedule: " + str(e))
+
 
 	def do_postings_on_submit(self):
 		self.insert_gl_records()
@@ -425,9 +454,9 @@ class PurchaseReturn(Document):
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.against_account = default_accounts.default_payable_account
 			gl_doc.insert()
-   
+
 	def update_purchase_invoice_references(self):
-        
+
 		purchase_invoice_item_reference_nos = [
 			item.pi_item_reference for item in self.items if item.pi_item_reference
 		]

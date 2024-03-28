@@ -195,6 +195,7 @@ class SalesReturn(Document):
         self.update_sales_invoice_quantities_on_update()
         update_sales_order_quantities_for_sales_return_on_update(self)
         check_and_update_sales_order_status(self.name, "Sales Return")
+        self.update_receipt_schedules()
 
 
     def on_cancel(self):
@@ -210,6 +211,27 @@ class SalesReturn(Document):
 
         update_sales_order_quantities_for_sales_return_on_update(self,for_delete_or_cancel=True)
         check_and_update_sales_order_status(self.name, "Sales Return")
+
+    def update_receipt_schedules(self):
+        existing_entries = frappe.get_all("Receipt Schedule", filters={"receipt_against": "Return", "document_no": self.name})
+        for entry in existing_entries:
+            try:
+                frappe.delete_doc("Receipt Schedule", entry.name)
+            except Exception as e:
+                frappe.log_error("Error deleting receipt schedule: " + str(e))
+        if self.credit_sale and self.receipt_schedule:
+            for schedule in self.receipt_schedule:
+                new_receipt_schedule = frappe.new_doc("Receipt Schedule")
+                new_receipt_schedule.receipt_against = "Return"
+                new_receipt_schedule.customer = self.customer
+                new_receipt_schedule.document_no = self.name
+                new_receipt_schedule.document_date = self.posting_date
+                new_receipt_schedule.scheduled_date = schedule.date
+                new_receipt_schedule.amount = schedule.amount
+                try:
+                    new_receipt_schedule.insert()
+                except Exception as e:
+                    frappe.log_error("Error creating receipt schedule: " + str(e))
 
 
     def update_sales_invoice_quantities_before_delete_or_cancel(self):
@@ -250,9 +272,9 @@ class SalesReturn(Document):
         do_item.qty_returned_in_base_unit = qty_returned + total_returned_qty_not_in_this_si
 
         do_item.save()
-    
+
     def update_sales_invoice_references(self):
-        
+
         sales_invoice_item_reference_nos = [
             item.si_item_reference for item in self.items if item.si_item_reference
         ]

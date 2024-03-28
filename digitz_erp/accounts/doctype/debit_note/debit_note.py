@@ -10,10 +10,13 @@ class DebitNote(Document):
 
 	def before_validate(self):
 		self.in_words = money_in_words(self.grand_total,"AED")
-		
+
 	def on_submit(self):
 		# frappe.enqueue(self.do_postings_on_submit, queue="long")
 		self.do_postings_on_submit()
+
+	def on_update(self):
+		self.update_payment_schedules()
 
 	def on_cancel(self):
 		self.do_cancel_debit_note()
@@ -22,6 +25,29 @@ class DebitNote(Document):
 
 		self.insert_gl_records()
 		update_accounts_for_doc_type('Debit Note',self.name)
+
+	def update_payment_schedules(self):
+		existing_entries = frappe.get_all("Payment Schedule", filters={"payment_against": "Debit", "document_no": self.name})
+		for entry in existing_entries:
+			try:
+				frappe.delete_doc("Payment Schedule", entry.name)
+			except Exception as e:
+				frappe.log_error("Error deleting payment schedule: " + str(e))
+		if self.on_credit and self.payment_schedule:
+			for schedule in self.payment_schedule:
+				new_payment_schedule = frappe.new_doc("Payment Schedule")
+				new_payment_schedule.payment_against = "Debit"
+				new_payment_schedule.supplier = self.supplier
+				new_payment_schedule.document_no = self.name
+				new_payment_schedule.document_date = self.date
+				new_payment_schedule.scheduled_date = schedule.date
+				new_payment_schedule.amount = schedule.amount
+
+				try:
+					new_payment_schedule.insert()
+				except Exception as e:
+					frappe.log_error("Error creating payment schedule: " + str(e))
+
 
 	def insert_gl_records(self):
 
