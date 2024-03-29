@@ -121,8 +121,6 @@ def get_supplier_last_price_for_item(item, supplier):
 @frappe.whitelist()
 def update_customer_item_price(item_code, customer, price, price_date):
     
-    print("from customer update item price")
-    
     try:
         # Fetch the parent Item document
         item_doc = frappe.get_doc("Item", item_code)
@@ -156,8 +154,6 @@ def update_customer_item_price(item_code, customer, price, price_date):
                 "price": price,
                 "price_date": price_date
             })
-
-            print("before save customer price")
             
             # Save the changes to the Item document
             item_doc.save()
@@ -176,9 +172,7 @@ def update_customer_item_price(item_code, customer, price, price_date):
 
 @frappe.whitelist()
 def update_supplier_item_price(item_code, supplier, price, price_date):
-    
-    print("from customer update item price")
-    
+        
     try:
         # Fetch the parent Item document
         item_doc = frappe.get_doc("Item", item_code)

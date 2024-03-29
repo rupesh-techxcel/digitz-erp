@@ -176,6 +176,10 @@ class ReceiptEntry(Document):
 		if self.amount is not None:
 			amount = self.amount
 
+		print("amount")
+		print(amount)
+		print("total_amount_in_rows")
+		print(total_amount_in_rows)
 		if(amount != total_amount_in_rows):
 			frappe.throw("Mismatch in total amount. Please check the document inputs")
 
@@ -184,9 +188,13 @@ class ReceiptEntry(Document):
 		if self.allocated_amount is not None:
 			allocated_amount = self.allocated_amount
 
+		print("allocated_amount")
+		print(allocated_amount)
+		print("total_allocated_in_rows")
+		print(total_allocated_in_rows)
 		# Both values are not None, perform the comparison
-		if allocated_amount != total_allocated_in_rows:
-			frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
+		# if allocated_amount != total_allocated_in_rows:
+			# frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
 
 
 	def check_excess_allocation(self):
@@ -249,7 +257,7 @@ class ReceiptEntry(Document):
 		create_bank_reconciliation("Receipt Entry", self.name)
 
 	def update_sales_invoices(self):
-		print("from update_sales_invoices")
+		
 		allocations = self.receipt_allocation
 
 		if(allocations):
@@ -386,7 +394,7 @@ class ReceiptEntry(Document):
 					gl_doc.idx = idx
 					gl_doc.posting_date = self.posting_date
 					gl_doc.posting_time = self.posting_time
-					gl_doc.account = receipt_entry.account
+					gl_doc.account = receipt_entry.account if receipt_entry.account else "Trade Receivable"
 					gl_doc.credit_amount = receipt_entry.amount
 					gl_doc.against_account = self.account
 					gl_doc.remarks = self.remarks

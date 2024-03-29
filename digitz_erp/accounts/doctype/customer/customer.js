@@ -72,14 +72,13 @@ frappe.ui.form.on('Customer', {
 		var emirate = "\n" + frm.doc.emirate;
 		var country = "\n" + frm.doc.country;
 		
-		frm.doc.full_address = "\n" + addressline_1 + addressline_2  + area + emirate +  country + "\n"
+		frm.doc.full_address = addressline_1 + addressline_2  + area + emirate +  country + "\n"
 		console.log(frm.doc.full_address);
-
-		
 	},
 	emirate(frm)
 	{
-		frm.doc.area = ""; //Change default area for the emirate selected
+		// frm.doc.area = ""; //Change default area for the emirate selected
+		frm.set_value("area","")
 	},
 	use_default_customer_terms(frm)
 	{

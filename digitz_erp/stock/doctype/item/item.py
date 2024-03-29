@@ -31,8 +31,6 @@ class Item(Document):
 
 	def update_standard_selling_price(self):
 
-		print("from update_standard_selling_price")
-
 		# unique_id = str(uuid.uuid4())
 		# print("unique_id crated")
 		# print(unique_id)
@@ -58,7 +56,7 @@ class Item(Document):
 
 				# Save the document to the database without firing hooks
 				item_price.insert(ignore_permissions=True, ignore_links=True)
-				print("before show alert from item , standard selling, add ")
+
 				frappe.msgprint(f"Price list,'Standard Selling' added for the item, {self.item_code}", alert= True)
 		else:
 
@@ -95,7 +93,7 @@ class Item(Document):
 
 				# Save the document to the database without firing hooks
 				item_price.insert(ignore_permissions=True, ignore_links=True)
-				print("before show alert from item , standard buying, add ")
+				
 				frappe.msgprint(f"Price list,'Standard Buying' added for the item, {self.item_code}", alert= True)
 		else:
 				item_price_name = frappe.get_value("Item Price",{'item': self.item_code, 'price_list': 'Standard Buying', 'currency':currency},['name'])

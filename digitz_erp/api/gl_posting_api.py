@@ -8,8 +8,6 @@ def update_accounts_for_doc_type(doc_type, name):
             SELECT distinct account from `tabGL Posting` gp where gp.voucher_type=%s and gp.voucher_no=%s
             """
     account_list = frappe.db.sql(query, (doc_type,name),as_dict=True)
-    print("account_list")
-    print(account_list)
     
     for account in account_list:
         update_account_balance(account.account)
@@ -55,13 +53,7 @@ def update_all_parent_accounts():
         
 @frappe.whitelist()
 def update_account_balance(account, update_parent_accounts=True):
-    print("")
-    print("")
-    print("")
-    
-    print("account")
-    print(account)
-    
+      
     if(account == "Accounts"):
         return
     
@@ -131,9 +123,7 @@ def update_all_parent_accounts_for_the_root_type(root_type):
           
     direct_parent_accounts = {}
     parent_accounts = {}
-    
-    print("parent accounts and accounts")
-    
+        
     # Cummilate all the values of the direct_parent_accounts dictionary
     for d in data: 
         
@@ -198,7 +188,6 @@ def get_account_balances_for_period_closing(to_date):
     query = """Select a.name,sum(debit_amount)- sum(credit_amount) as balance from `tabGL Posting` gp inner join `tabAccount` a on a.name = gp.account where posting_date<%s and (a.root_type='Expense' or a.root_type='Income') group by a.name """
     
     data = frappe.db.sql(query,(to_date),as_dict= True)
-    print("get_account_balances_for_period_closing")
-    print(data)
+   
     return data
     

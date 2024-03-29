@@ -25,7 +25,6 @@ def reset_document_posting_status_for_recalc_after_cancel(document_type, documen
     doc_posting_status.save()    
 
 def update_posting_status(document_type,document_name, status, status_value=None):
-    print("from API")
     
     doc_name = frappe.get_value("Document Posting Status",{'document_type':document_type,'document_name': document_name},['name'])
     
@@ -38,10 +37,10 @@ def update_posting_status(document_type,document_name, status, status_value=None
     # To update current time status_value passing as None
     if not status_value:
         frappe.set_value('Document Posting Status', doc_name, status,datetime.now())
-        print("from API Done no status value")
+        
     else:
         frappe.set_value('Document Posting Status', doc_name, status,status_value)
-        print("from API Done with status value")
+        
     
     
    

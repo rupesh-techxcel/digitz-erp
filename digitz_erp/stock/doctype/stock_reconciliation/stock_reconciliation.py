@@ -40,7 +40,7 @@ class StockReconciliation(Document):
         datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
 
         # Add one second to the datetime object
-        new_datetime = datetime_object + timedelta(seconds=1)
+        new_datetime = datetime_object + timedelta(seconds=12)
 
         # Extract the new time as a string
         self.posting_time = new_datetime.strftime('%H:%M:%S')
@@ -102,7 +102,7 @@ class StockReconciliation(Document):
 
         for docitem in self.items:
             maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
-            print('MAINTAIN STOCK :', maintain_stock)
+            
             if(maintain_stock == 1):
 
                 change_in_stock_value_for_item = 0
@@ -166,8 +166,6 @@ class StockReconciliation(Document):
 
                     new_stock_ledger.qty_in = qty_in
 
-                    print("qty_in")
-                    print(qty_in)
 
                     new_stock_ledger.qty_out = qty_out
                     new_stock_ledger.unit = docitem.base_unit
@@ -240,7 +238,6 @@ class StockReconciliation(Document):
 
             update_posting_status(self.doctype,self.name,'stock_recalc_time')
 
-        print(stock_adjustment_value)
         return stock_adjustment_value
 
     def on_cancel(self):
@@ -458,5 +455,5 @@ def get_stock_ledgers(stock_reconciliation):
             "balance_qty": ledgers.balance_qty,
             "balance_value": ledgers.balance_value
         })
-    print(formatted_stock_ledgers)
+
     return formatted_stock_ledgers

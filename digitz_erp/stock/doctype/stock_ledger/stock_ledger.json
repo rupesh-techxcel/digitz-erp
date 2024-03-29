@@ -29,7 +29,8 @@
   "log",
   "corrected_on_repost",
   "balance_qty_before_repost",
-  "more_records"
+  "more_records",
+  "more_records_for_item"
  ],
  "fields": [
   {
@@ -184,12 +185,17 @@
    "fieldname": "more_records",
    "fieldtype": "Check",
    "label": "More Records"
+  },
+  {
+   "fieldname": "more_records_for_item",
+   "fieldtype": "Int",
+   "label": "More Records For Item"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-07 12:42:37.944258",
+ "modified": "2024-03-28 18:38:08.635931",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",

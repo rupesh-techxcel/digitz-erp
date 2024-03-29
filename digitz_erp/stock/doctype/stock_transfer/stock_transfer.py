@@ -16,11 +16,17 @@ class StockTransfer(Document):
         self.validate_items()
 
     def validate_items(self):
-        items = set()
-        for item in self.items:
-            if item.item in items:
-                frappe.throw(_("Item {0} is already added in the list").format(item.item))
-            items.add(item.item)
+       items = set()  # Initialize an empty set to keep track of unique combinations
+
+       for item in self.items:
+            # Create a unique identifier by concatenating item, source_warehouse, and target_warehouse
+            unique_id = f"{item.item}-{item.source_warehouse}-{item.target_warehouse}"
+
+            if unique_id in items:
+                frappe.throw(_("Item {0} from {1} to {2} is already added in the list").format(item.item, item.source_warehouse, item.target_warehouse))
+
+            items.add(unique_id)  # Add the unique identifier to the set for tracking
+
 
 
     def Voucher_In_The_Same_Time(self):
@@ -157,6 +163,7 @@ class StockTransfer(Document):
                 new_stock_ledger_source.source_document_id = docitem.name
                 new_stock_ledger_source.change_in_stock_value = change_in_stock_value
                 new_stock_ledger_source.more_records = more_records_count_for_item_for_source > 0
+                new_stock_ledger_source.more_records_for_item = more_records_count_for_item_for_source
                 new_stock_ledger_source.insert()
 
                 if more_records_count_for_item_for_source > 0:
@@ -219,10 +226,11 @@ class StockTransfer(Document):
                 new_stock_ledger_target.source = "Stock Transfer Item"
                 new_stock_ledger_target.source_document_id = docitem.name
                 new_stock_ledger_target.more_records = more_records_count_for_item_for_target > 0
+                new_stock_ledger_target.more_records_for_item = more_records_count_for_item_for_target
                 new_stock_ledger_target.insert()
 
                 if more_records_count_for_item_for_target > 0:
-                    stock_recalc_voucher_for_source.append('records', {'item': docitem.item, 'warehouse': docitem.target_warehouse, 'base_stock_ledger': new_stock_ledger_target.name
+                    stock_recalc_voucher_for_target.append('records', {'item': docitem.item, 'warehouse': docitem.target_warehouse, 'base_stock_ledger': new_stock_ledger_target.name
                                                                         })
                 else:
                     if frappe.db.exists('Stock Balance', {'item': docitem.item, 'warehouse': docitem.target_warehouse}):
@@ -401,8 +409,6 @@ class StockTransfer(Document):
             stock_recalc_voucher_target_wh.insert()
             recalculate_stock_ledgers(stock_recalc_voucher_target_wh, self.posting_date, self.posting_time)
             update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time')
-
-        print(f"Deleting cancelled stock ledger {self.name}")
         
         frappe.db.delete("Stock Ledger",
                           {"voucher": "Stock Transfer",

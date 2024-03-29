@@ -28,8 +28,6 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         new_valuation_rate = 0
         
         base_stock_ledger_name = ""
-        print("record.base_stock_ledger")
-        print(record.base_stock_ledger)
                 
         if record.base_stock_ledger != "No Previous Ledger":
         
@@ -52,8 +50,6 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         log = ""
 
         for sl_name in next_stock_ledgers:   
-            print("new_valuation_rate") 
-            print(new_valuation_rate)        
             new_balance_qty,new_valuation_rate,new_balance_value= update_stock_ledger_values(sl_name, new_balance_qty,new_valuation_rate, new_balance_value,for_reposting=False)
 
         if frappe.db.exists('Stock Balance', {'item':record.item,'warehouse': record.warehouse}):    
@@ -73,8 +69,6 @@ def do_recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_tim
         new_stock_balance.insert()
 
         # item_name = frappe.get_value("Item", record.item,['item_name'])
-        print("record.item")
-        print(record.item)
         
         update_stock_balance_in_item(record.item)
         
@@ -88,7 +82,6 @@ def recalculate_stock_ledgers(stock_recalc_voucher, posting_date, posting_time):
     
 def update_all_item_stock_balances():
     
-    print("from update all item stock balances")
     item_stock_balances = frappe.db.sql("""select item,warehouse,sum(qty_in)- sum(qty_out) as balance_qty from `tabStock Ledger` group by item,warehouse""",as_dict = True)
     
     for record in item_stock_balances:
@@ -141,8 +134,7 @@ def update_all_item_stock_balances():
 # Update item stock balance based on all warehouse balances
 def update_stock_balance_in_item(item):
     
-    print("before udpate item stock balance")
-    
+   
     item_balances_in_warehouses = frappe.get_list('Stock Balance',{'item': item},['stock_qty','stock_value'])
 
     balance_stock_qty = 0
@@ -167,7 +159,6 @@ def update_stock_balance_in_item(item):
     item_to_update.stock_value = balance_stock_value                
     item_to_update.save()
     
-    print("after udpate item stock balance")
 
 # def update_purchase_usage_for_delivery_note(delivery_note_no):
     
@@ -410,8 +401,6 @@ def clean_stock_ledgers_duplicated():
         else:
             udpate_ledgers = False
     
-    print("final deleted stock ledgers") 
-    print(deleted_stock_ledgers)    
         # [End]
                     
 def clean_stock_ledger(ledger_name, deleted_stock_ledgers):
@@ -531,8 +520,6 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
                                 
         if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
             
-            print(f"valuation rate before change {valuation_rate}")
-            print(f"incoming_rate in the stock_ledger", sl.incoming_rate)
             previous_balance_value = balance_value #Assign before change 
             balance_qty = balance_qty + sl.qty_in
             balance_value = balance_value  + (sl.qty_in * sl.incoming_rate)
@@ -542,9 +529,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
             if(balance_qty!=0): #Avoid divisible by zero
                 if sl.voucher == "Purchase Invoice":  #Avoid sales return to assign new_valuation_rate
                     valuation_rate = balance_value/ balance_qty
-                    print("valuation_rate reassigned")
-            
-            print(f"new valuation rate {valuation_rate}")
+                  
                 
         if(sl.voucher == "Stock Transfer"):
             
@@ -628,13 +613,8 @@ def update_cost_of_goods_sold(voucher,voucher_no):
     
     cost_of_goods_sold = 0
     
-    print(cog_data)
-    
     if(cog_data):
         cost_of_goods_sold = cog_data[0].cost_of_goods_sold
-        
-    print(f"cost of goods sold for voucher {voucher_no} = {cost_of_goods_sold}" )
-        
     
     default_company = frappe.db.get_single_value("Global Settings", "default_company")
 

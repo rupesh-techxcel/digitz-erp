@@ -10,9 +10,7 @@ class StockLedger(Document):
 	def on_update(self):
      
 		# If the user attempts to save a stock ledger with a datetime before the 'Stock Repost' record's datetime, means the stock repost already happened on the datetime. Need to find out the previous stock ledger for the user saving stock ledger and update to 'Stock Repost' so that it can be repost again from that stock ledger
-  
-		print("from stock ledger on submit")
-     
+       
 		stock_repost_doc = frappe.get_doc("Stock Repost")  		
 
 		posting_date_dt = getdate(self.posting_date)
