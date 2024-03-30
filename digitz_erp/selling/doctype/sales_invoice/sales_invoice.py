@@ -74,6 +74,10 @@ class SalesInvoice(Document):
             self.created_from_tab_sale = True
 
         self.update_delivery_note_references()
+        
+        if not frappe.db.exists("Customer Delivery Location", self.ship_to_location):
+            self.ship_to_location = ""
+            
 
     def validate(self):
         self.validate_item()
