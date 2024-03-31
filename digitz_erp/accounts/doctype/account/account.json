@@ -72,7 +72,7 @@
    "fieldname": "account_type",
    "fieldtype": "Select",
    "label": "Account Type",
-   "options": "\nDuties and Taxes\nStock\nCash\nBank\nStock Received But Not Billed\nRound Off\nCost Of Goods Sold"
+   "options": "\nDuties and Taxes\nStock\nCash\nBank\nStock Received But Not Billed\nRound Off\nFixed Asset\nAccumulated Depreciation\nDepreciation\nCost Of Goods Sold"
   },
   {
    "fetch_from": "parent_account.root_type",
@@ -113,7 +113,7 @@
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2024-01-26 15:07:06.039942",
+ "modified": "2024-03-31 12:27:00.012074",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

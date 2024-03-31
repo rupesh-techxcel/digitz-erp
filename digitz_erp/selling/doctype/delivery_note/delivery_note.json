@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:naming_series",
  "creation": "2023-02-04 15:44:24.432607",
@@ -489,7 +490,7 @@
    "link_fieldname": "delivery_notes_to_print"
   }
  ],
- "modified": "2024-03-21 12:16:26.106830",
+ "modified": "2024-03-31 12:13:02.681114",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Delivery Note",

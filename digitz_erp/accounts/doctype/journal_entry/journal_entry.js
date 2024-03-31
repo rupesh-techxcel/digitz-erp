@@ -3,14 +3,18 @@
 frappe.ui.form.on('Journal Entry', {
   refresh: function(frm) {
     create_custom_buttons(frm)
-    frm.set_query('account', 'journal_entry_details', () => {
-    return {
-        filters: {
-            is_group: 0
-        }
-    }
-})
+    
 	},
+  setup: function(frm){
+
+    frm.set_query('account', 'journal_entry_details', () => {
+      return {
+          filters: {
+              is_group: 0
+          }
+      }
+    });
+  },
   edit_posting_date_and_time(frm) {
 		if (frm.doc.edit_posting_date_and_time == 1) {
 			frm.set_df_property("posting_date", "read_only", 0);

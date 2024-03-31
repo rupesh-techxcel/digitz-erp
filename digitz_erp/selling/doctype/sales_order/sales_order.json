@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2023-01-15 10:28:24.991095",
@@ -464,12 +465,11 @@
    "read_only": 1
   },
   {
-
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
   },
-   {
+  {
    "fieldname": "column_break_xkzu",
    "fieldtype": "Column Break"
   }
@@ -486,9 +486,7 @@
    "link_fieldname": "sales_order"
   }
  ],
-
- "modified": "2024-03-19 20:44:40.105559",
-
+ "modified": "2024-03-31 12:13:31.807533",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

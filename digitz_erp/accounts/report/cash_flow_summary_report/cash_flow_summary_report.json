@@ -1,0 +1,27 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2024-03-30 10:14:13.037444",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "sales invoice footer",
+ "letterhead": null,
+ "modified": "2024-03-30 10:14:13.037444",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Cash Flow Summary Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "GL Posting",
+ "report_name": "Cash Flow Summary Report",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

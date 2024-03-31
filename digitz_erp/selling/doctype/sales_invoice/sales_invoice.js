@@ -421,11 +421,15 @@ frappe.ui.form.on('Sales Invoice', {
 
 				console.log(frm.doc.net_total)
 				console.log(frm.doc.rounded_total)
+				console.log("here 3")
 			 }
 		 }
+
+			console.log("before call fill_receipt_schedule")
+			fill_receipt_schedule(frm);
 		});
 
-		fill_receipt_schedule(frm);
+		
 
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
@@ -435,6 +439,9 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
+
+		
+
 		update_total_big_display(frm);
 
 	},
@@ -579,6 +586,7 @@ frappe.ui.form.on('Sales Invoice', {
 function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 {
 
+
 	if(refresh)
 	{
 		frm.doc.receipt_schedule = [];
@@ -586,9 +594,12 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 	}
 
 	console.log("fill_receipt_schedule")
+	console.log(frm.doc.credit_sale)
 
 	if (frm.doc.credit_sale) {
 
+		console.log("credit sale")
+		console.log(frm.doc.rounded_total)
 
 		var postingDate = frm.doc.posting_date;
 		var creditDays = frm.doc.credit_days;
@@ -611,6 +622,9 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 				}
 
 				row_count++;
+
+				print("row_count")
+				print(row_count)
 			}
 		});
 
@@ -622,6 +636,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 			receiptRow.payment_mode = "Cash"
 			receiptRow.amount = frm.doc.rounded_total;
 			refresh_field("receipt_schedule");
+			console.log("here 1")
 		}
 		else if (row_count==1)
 		{
@@ -630,6 +645,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 			receiptRow.payment_mode = "Cash"
 			receiptRow.amount = frm.doc.rounded_total;
 			refresh_field("receipt_schedule");
+			console.log("here 2")
 		}
 
 		//Update date based on credit_days if there is a credit days change or change in the credit_sales checkbox
