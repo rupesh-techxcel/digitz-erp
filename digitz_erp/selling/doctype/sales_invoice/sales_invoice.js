@@ -403,16 +403,14 @@ frappe.ui.form.on('Sales Invoice', {
 			console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
 			if (data && data.do_not_apply_round_off_in_si == 1) {
 				frm.doc.rounded_total = frm.doc.net_total;
-				frm.refresh_field('rounded_total');
-				console.log("here 1")
+				frm.refresh_field('rounded_total');				
 			}
 			else {
 			 if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
 				 frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
 				 frm.doc.rounded_total = Math.round(frm.doc.net_total);
 				 frm.refresh_field('round_off');
-				 frm.refresh_field('rounded_total');
-				 console.log("here 2")
+				 frm.refresh_field('rounded_total');				 
 			 }
 			 else{
 
@@ -421,7 +419,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 				console.log(frm.doc.net_total)
 				console.log(frm.doc.rounded_total)
-				console.log("here 3")
+				
 			 }
 		 }
 
@@ -623,8 +621,6 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 				row_count++;
 
-				print("row_count")
-				print(row_count)
 			}
 		});
 
