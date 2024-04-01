@@ -94,8 +94,77 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Reports",
+   "label": "Other Reports",
    "link_count": 6,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quotation Register",
+   "link_count": 0,
+   "link_to": "Quotation Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quotation Itemwise Register",
+   "link_count": 0,
+   "link_to": "Quotation Itemwise Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quotation Itemwise Summary Report",
+   "link_count": 0,
+   "link_to": "Quotation Itemwise Summary Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Order Register",
+   "link_count": 0,
+   "link_to": "Sales Order Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Order Itemwise Register",
+   "link_count": 0,
+   "link_to": "Sales Order Itemwise Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Order Itemwise Summary Report",
+   "link_count": 0,
+   "link_to": "Sales Order Itemwise Summary Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 8,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -163,18 +232,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Other Reports",
-   "link_count": 6,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Quotation Register",
+   "label": "Sales Return Register",
    "link_count": 0,
-   "link_to": "Quotation Register",
+   "link_to": "Sales Return Register",
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
@@ -182,55 +242,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Quotation Itemwise Register",
+   "label": "Sales Return Itemwise Register",
    "link_count": 0,
-   "link_to": "Quotation Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Quotation Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Quotation Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order Register",
-   "link_count": 0,
-   "link_to": "Sales Order Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order Itemwise Register",
-   "link_count": 0,
-   "link_to": "Sales Order Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Sales Order Itemwise Summary Report",
+   "link_to": "Sales Return Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2024-03-25 08:07:50.216887",
+ "modified": "2024-04-01 11:41:33.929011",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
