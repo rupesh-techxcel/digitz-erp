@@ -1,0 +1,27 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2024-04-01 08:32:49.991776",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "sales invoice footer",
+ "letterhead": null,
+ "modified": "2024-04-01 08:33:05.086986",
+ "modified_by": "Administrator",
+ "module": "Selling",
+ "name": "Sales Return Register",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Sales Return",
+ "report_name": "Sales Return Register",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

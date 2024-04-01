@@ -1,0 +1,27 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2024-04-01 09:54:10.973569",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "sales invoice footer",
+ "letterhead": null,
+ "modified": "2024-04-01 09:54:10.973569",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Purchase Return Register",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Purchase Return",
+ "report_name": "Purchase Return Register",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}
