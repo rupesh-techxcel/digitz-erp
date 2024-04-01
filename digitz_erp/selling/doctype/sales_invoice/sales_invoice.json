@@ -37,6 +37,7 @@
   "lpo_no",
   "lpo_date",
   "payment_status",
+  "submitted_record",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -580,6 +581,12 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "default": "0",
+   "fieldname": "submitted_record",
+   "fieldtype": "Check",
+   "label": "Submitted Record"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -600,7 +607,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-03-31 12:12:33.910106",
+ "modified": "2024-04-01 06:37:13.763911",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

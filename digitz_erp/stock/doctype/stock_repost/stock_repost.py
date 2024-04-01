@@ -5,6 +5,8 @@ import frappe
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import re_post_stock_ledgers
 from datetime import date,datetime,timedelta,time
+from datetime import date
+import dateutil.parser
 
 class StockRepost(Document):
     
@@ -35,6 +37,10 @@ class StockRepost(Document):
 			doc_types = ['Purchase Invoice', 'Stock Reconciliation', 'Stock Transfer', 'Receipt Entry', 'Sales Invoice']
 
 			for doc_type in doc_types:
+       
+				
+					
+       
 				# Fetch documents for the current date and doc_type
 				documents = frappe.db.sql(f"""
 					SELECT name
@@ -47,6 +53,15 @@ class StockRepost(Document):
 				for document in documents:
 					doc = frappe.get_doc(doc_type, document.name)
 					print(doc.name)
+        
+					if doc_type == "Sales Invoice":
+						# Assuming doc.posting_date is a date object or converting it into one
+						posting_date = doc.posting_date if isinstance(doc.posting_date, date) else dateutil.parser.parse(doc.posting_date)
+						
+						if posting_date > date(2024, 3, 1) and doc.submitted_record == 0:
+							print(f"skipped {doc.name}")
+							continue
+							
 
 					# Special handling for Stock Reconciliation
 					if doc_type == 'Stock Reconciliation':
@@ -64,6 +79,7 @@ class StockRepost(Document):
 
 			# Move to the next day
 			transaction_date += timedelta(days=1)
+			
    
 		frappe.msgprint("Reposting completed.")
    

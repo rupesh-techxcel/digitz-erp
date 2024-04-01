@@ -20,7 +20,7 @@ class StockTransfer(Document):
 
        for item in self.items:
             # Create a unique identifier by concatenating item, source_warehouse, and target_warehouse
-            unique_id = f"{item.item}-{item.source_warehouse}-{item.target_warehouse}"
+            unique_id = f"{item.item}-{item.source_warehouse}-{item.target_warehouse}-{item.unit}"
 
             if unique_id in items:
                 frappe.throw(_("Item {0} from {1} to {2} is already added in the list").format(item.item, item.source_warehouse, item.target_warehouse))

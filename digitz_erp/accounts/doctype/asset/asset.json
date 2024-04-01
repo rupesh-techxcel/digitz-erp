@@ -1,0 +1,149 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-03-31 18:18:04.873157",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_lial",
+  "naming_series",
+  "asset_name",
+  "asset_group",
+  "item",
+  "asset_category",
+  "gross_value",
+  "amended_from",
+  "column_break_btll",
+  "depreciation_details",
+  "calculate_depreciation",
+  "depreciation_posting_date",
+  "frequency_in_months",
+  "total_number_of_depreciation",
+  "salvage_value",
+  "value_after_depreciation"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_lial",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Asset",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "label": "Asset Category",
+   "options": "Asset Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_btll",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depreciation_details",
+   "fieldtype": "Heading",
+   "label": "Depreciation Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "calculate_depreciation",
+   "fieldtype": "Check",
+   "label": "Calculate Depreciation"
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation==1",
+   "fieldname": "frequency_in_months",
+   "fieldtype": "Int",
+   "label": "Frequency In Months",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation"
+  },
+  {
+   "fieldname": "gross_value",
+   "fieldtype": "Currency",
+   "label": "Gross Value"
+  },
+  {
+   "fieldname": "depreciation_posting_date",
+   "fieldtype": "Date",
+   "label": "Depreciation Posting Date"
+  },
+  {
+   "fieldname": "total_number_of_depreciation",
+   "fieldtype": "Int",
+   "label": "Total Number Of Depreciation"
+  },
+  {
+   "fieldname": "salvage_value",
+   "fieldtype": "Currency",
+   "label": "Salvage Value"
+  },
+  {
+   "fieldname": "value_after_depreciation",
+   "fieldtype": "Currency",
+   "label": "Value After Depreciation"
+  },
+  {
+   "fieldname": "asset_group",
+   "fieldtype": "Link",
+   "label": "Asset Group",
+   "options": "Asset Group"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-03-31 20:38:44.238850",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Asset",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

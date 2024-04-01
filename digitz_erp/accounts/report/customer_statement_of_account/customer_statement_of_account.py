@@ -25,218 +25,119 @@ def execute(filters=None):
 
 def get_data_customer_wise(filters):
     
-	data = ""	
+    customer_condition = "customer = '{}'".format(filters.get('customer')) if filters.get('customer') else "1=1"
+    date_condition = "posting_date BETWEEN '{0}' AND '{1}'".format(filters.get('from_date'), filters.get('to_date')) if filters.get('from_date') and filters.get('to_date') else "1=1"
+    
+    invoice_query = f"""
+        SELECT 
+            customer,
+            rounded_total,
+            paid_amount,
+            posting_date
+        FROM `tabSales Invoice`
+        WHERE 
+            (docstatus = 1 or docstatus = 0) 
+            AND credit_sale = 1 
+            AND {customer_condition}
+            AND {date_condition}
+    """
+    
+    return_query = f"""
+        SELECT 
+            customer,
+            rounded_total,
+            paid_amount,
+            posting_date
+        FROM `tabSales Return`
+        WHERE 
+            (docstatus = 1 or docstatus = 0) 
+            AND credit_sale = 1 
+            AND {customer_condition}
+            AND {date_condition}
+    """
 
-	if filters.get('customer') and  filters.get('from_date') and filters.get('to_date'):		
-	
+    combined_query = f"""
+        SELECT 
+            c.customer_name as customer,
+            SUM(si.rounded_total) as amount,
+            SUM(si.paid_amount) as paid_amount,
+            SUM(si.rounded_total) - SUM(IFNULL(si.paid_amount, 0)) as balance_amount
+        FROM (
+            {invoice_query}
+            UNION ALL
+            {return_query}
+        ) AS si
+        LEFT JOIN `tabCustomer` c ON si.customer = c.name
+        WHERE (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)
+        GROUP BY c.customer_name
+        ORDER BY posting_date
+    """
 
-		# data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as 'ship_to_location' FROM `tabSales Invoice` si  where (si.docstatus = 1 or si.docstatus=0) and si.credit_sale=1 and si.customer = '{0}' and si.posting_date BETWEEN '{1}' and '{2}'  order by si.posting_date""".format(filters.get('customer'),filters.get('from_date'),filters.get('to_date')),as_dict=True)
-		data = frappe.db.sql("""
-		SELECT 
-		c.customer_name as customer,
-		SUM(si.rounded_total) as amount,
-		SUM(si.paid_amount) as paid_amount,
-		SUM(si.rounded_total) - SUM(IFNULL(si.paid_amount, 0)) as balance_amount,
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 
-		AND si.customer = '{0}' 
-		AND si.posting_date BETWEEN '{1}' and '{2}'
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		GROUP BY c.customer_name
-		ORDER BY 
-		si.posting_date
-		""".format(filters.get('customer'), filters.get('from_date'), filters.get('to_date')), as_dict=True)
-
-		# data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as 'ship_to_location' FROM `tabSales Invoice` si  where si.docstatus = 0 and si.credit_sale=1 and si.customer = '{0}' and si.posting_date BETWEEN '{1}' and '{2}'  order by si.posting_date""".format(filters.get('customer'),filters.get('from_date'),filters.get('to_date')),as_dict=True)
-
-	elif filters.get('from_date') and filters.get('to_date'):
-		data = frappe.db.sql("""
-		SELECT 
-			c.customer_name as customer,
-			SUM(si.rounded_total) as amount,
-			SUM(si.paid_amount) as paid_amount,
-			SUM(si.rounded_total) - SUM(IFNULL(si.paid_amount, 0)) as balance_amount
-		FROM 
-			`tabSales Invoice` si 
-		LEFT JOIN
-			`tabCustomer` c ON si.customer = c.name
-		WHERE 
-			(si.docstatus = 1 or si.docstatus = 0) 
-			AND si.credit_sale = 1 		
-			AND si.posting_date BETWEEN '{0}' and '{1}'
-			AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		GROUP BY c.customer_name
-		ORDER BY 
-			si.posting_date
-	""".format(filters.get('from_date'), filters.get('to_date')), as_dict=True)
-
-		
-		# data = frappe.db.sql(""" SELECT si.customer, si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where (si.docstatus = 1 or si.docstatus=0) and si.credit_sale=1  and si.posting_date BETWEEN '{0}' and '{1}' order by si.posting_date""".format(filters.get('from_date'),filters.get('to_date')),as_dict=True)
-	elif filters.get('customer'):
-		data = frappe.db.sql("""
-		SELECT 
-		c.customer_name as customer,
-		SUM(si.rounded_total) as amount,
-		SUM(si.paid_amount) as paid_amount,
-		SUM(si.rounded_total) - SUM(IFNULL(si.paid_amount, 0)) as balance_amount,
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 
-		AND si.customer = '{0}'		
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		GROUP BY c.customer_name
-		ORDER BY 
-		si.posting_date
-		""".format(filters.get('customer')), as_dict=True)
-		# data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where (si.docstatus = 1 or si.docstatus=0) and si.credit_sale=1 and si.customer = '{}' order by posting_date""".format(filters.get('customer')),as_dict=True)
-
-	else:
-		data = frappe.db.sql("""
-		SELECT 
-		c.customer_name as customer,
-		SUM(si.rounded_total) as amount,
-		SUM(si.paid_amount) as paid_amount,
-		SUM(si.rounded_total) - SUM(IFNULL(si.paid_amount, 0)) as balance_amount,
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		GROUP BY c.customer_name
-		ORDER BY 
-		si.posting_date
-		""", as_dict=True) 	
-
-	return data
+    return frappe.db.sql(combined_query, as_dict=True)
     
 def get_data(filters):
-	data = ""
+    
+    print("from get_data")
+    
+    # Define the base fields common in both tables, but handle customer_name outside of this since it's fetched via JOIN
+    common_fields = """
+        si.name as sales_invoice_name,
+        si.posting_date as posting_date,
+        si.rounded_total as amount,
+        si.paid_amount,
+        si.rounded_total - COALESCE(si.paid_amount, 0) as balance_amount,
+        si.ship_to_location as 'ship_to_location'
+    """
 
-	print(filters.get('customer'))
- 
-	if filters.get('customer') and  filters.get('from_date') and filters.get('to_date'):
-     
-		print("case 1")
-  
-		# data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as 'ship_to_location' FROM `tabSales Invoice` si  where (si.docstatus = 1 or si.docstatus=0) and si.credit_sale=1 and si.customer = '{0}' and si.posting_date BETWEEN '{1}' and '{2}'  order by si.posting_date""".format(filters.get('customer'),filters.get('from_date'),filters.get('to_date')),as_dict=True)
-		data = frappe.db.sql("""
-		SELECT 
-		si.name as sales_invoice_name,
-		si.posting_date as posting_date,
-		si.rounded_total as amount,
-		si.paid_amount,
-		si.rounded_total - IFNULL(si.paid_amount, 0) as balance_amount,
-		si.delivery_note as delivery_note,
-		si.ship_to_location as 'ship_to_location',
-		c.customer_name as customer_name
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 
-		AND si.customer = '{0}' 
-		AND si.posting_date BETWEEN '{1}' and '{2}'
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		ORDER BY 
-		si.posting_date
-		""".format(filters.get('customer'), filters.get('from_date'), filters.get('to_date')), as_dict=True)
-  
-  		# data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as 'ship_to_location' FROM `tabSales Invoice` si  where si.docstatus = 0 and si.credit_sale=1 and si.customer = '{0}' and si.posting_date BETWEEN '{1}' and '{2}'  order by si.posting_date""".format(filters.get('customer'),filters.get('from_date'),filters.get('to_date')),as_dict=True)
-  
-	elif filters.get('from_date') and filters.get('to_date'):
-		data = frappe.db.sql("""
-		SELECT 
-		si.customer,
-		si.name as sales_invoice_name,
-		si.posting_date as posting_date,
-		si.rounded_total as amount,
-		si.paid_amount,
-		si.rounded_total - IFNULL(si.paid_amount, 0) as balance_amount,
-		si.delivery_note as delivery_note,
-		si.ship_to_location as 'ship_to_location',
-		c.customer_name as customer_name
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 		
-		AND si.posting_date BETWEEN '{0}' and '{1}'
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		ORDER BY 
-		si.posting_date
-		""".format(filters.get('from_date'), filters.get('to_date')), as_dict=True)
-     
-		# data = frappe.db.sql(""" SELECT si.customer, si.name as sales_invoice_name,si.posting_date as posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where (si.docstatus = 1 or si.docstatus=0) and si.credit_sale=1  and si.posting_date BETWEEN '{0}' and '{1}' order by si.posting_date""".format(filters.get('from_date'),filters.get('to_date')),as_dict=True)
-	elif filters.get('customer'):
-		data = frappe.db.sql("""
-		SELECT 
-		si.name as sales_invoice_name,
-		si.posting_date as posting_date,
-		si.rounded_total as amount,
-		si.paid_amount,
-		si.rounded_total - IFNULL(si.paid_amount, 0) as balance_amount,
-		si.delivery_note as delivery_note,
-		si.ship_to_location as 'ship_to_location',
-		c.customer_name as customer_name
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 
-		AND si.customer = '{0}'		
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		ORDER BY 
-		si.posting_date
-		""".format(filters.get('customer')), as_dict=True)
-		# data = frappe.db.sql(""" SELECT si.name as sales_invoice_name,si.posting_date,si.rounded_total as amount,si.paid_amount,si.rounded_total - IFNULL(si.paid_amount,0) as balance_amount,si.delivery_note as delivery_note,si.ship_to_location as ship_to_location FROM `tabSales Invoice` si where (si.docstatus = 1 or si.docstatus=0) and si.credit_sale=1 and si.customer = '{}' order by posting_date""".format(filters.get('customer')),as_dict=True)
+    invoice_fields = common_fields + ", si.delivery_note as delivery_note"
+    return_fields = common_fields + ", '' as delivery_note"  # Assuming 'delivery_note' does not exist in 'tabSales Return'
 
-	else:
-		data = frappe.db.sql("""
-		SELECT 
-		si.customer,
-		si.name as sales_invoice_name,
-		si.posting_date as posting_date,
-		si.rounded_total as amount,
-		si.paid_amount,
-		si.rounded_total - IFNULL(si.paid_amount, 0) as balance_amount,
-		si.delivery_note as delivery_note,
-		si.ship_to_location as 'ship_to_location',
-		c.customer_name as customer_name
-		FROM 
-		`tabSales Invoice` si 
-		LEFT JOIN
-		`tabCustomer` c ON si.customer = c.name
-		WHERE 
-		(si.docstatus = 1 or si.docstatus = 0) 
-		AND si.credit_sale = 1 
-		AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)  -- Condition to exclude customers
-		ORDER BY 
-		si.posting_date
-		""", as_dict=True) 
-	for dl in data:
-		delivery_note_name = frappe.db.get_value("Sales Invoice Delivery Notes",{"parent":dl.get('sales_invoice_name')},'delivery_note')
+    customer_condition = f"AND si.customer = '{filters.get('customer')}'" if filters.get('customer') else ""
+    date_condition = f"AND si.posting_date BETWEEN '{filters.get('from_date')}' AND '{filters.get('to_date')}'" if filters.get('from_date') and filters.get('to_date') else ""
 
-		dl.update({"delivery_note":delivery_note_name})
-	
-	return data
+    invoice_query = f"""
+    SELECT 
+        {invoice_fields},
+        c.customer_name as customer_name
+    FROM 
+        `tabSales Invoice` si 
+    LEFT JOIN
+        `tabCustomer` c ON si.customer = c.name
+    WHERE 
+        (si.docstatus = 1 or si.docstatus = 0) 
+        AND si.credit_sale = 1 
+        {customer_condition}
+        {date_condition}
+        AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)
+    """
+
+    return_query = f"""
+    SELECT 
+        {return_fields},
+        c.customer_name as customer_name
+    FROM 
+        `tabSales Return` si 
+    LEFT JOIN
+        `tabCustomer` c ON si.customer = c.name
+    WHERE 
+        (si.docstatus = 1 or si.docstatus = 0) 
+        AND si.credit_sale = 1 
+        {customer_condition}
+        {date_condition}
+        AND (c.exclude_from_showing_in_soa IS NULL OR c.exclude_from_showing_in_soa = 0)
+    """
+
+    final_query = f"({invoice_query}) UNION ALL ({return_query}) ORDER BY posting_date"
+
+    data = frappe.db.sql(final_query, as_dict=True)
+
+    # Assuming the delivery_note is relevant only for invoices
+    for dl in data:
+        if 'sales_invoice_name' in dl and 'tabSales Invoice' in dl['sales_invoice_name']:
+            delivery_note_name = frappe.db.get_value("Sales Invoice Delivery Notes", {"parent": dl.get('sales_invoice_name')}, 'delivery_note')
+            dl.update({"delivery_note": delivery_note_name or dl.get('delivery_note')})
+
+    return data
 
 def get_columns():
 	return [
@@ -299,7 +200,7 @@ def get_columns_with_customer():
 	return [
 		{
 		
-			"fieldname": "customer",
+			"fieldname": "customer_name",
 			"fieldtype": "Link",
 			"label": "Customer",
 			"options": "Customer",
