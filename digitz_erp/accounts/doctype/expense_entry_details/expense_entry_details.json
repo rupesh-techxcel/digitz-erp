@@ -8,6 +8,7 @@
  "field_order": [
   "expense_date",
   "supplier",
+  "expense_head",
   "expense_account",
   "payable_account",
   "narration",
@@ -147,12 +148,19 @@
    "fieldtype": "Link",
    "label": "Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "expense_head",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Expense Head",
+   "options": "Expense Head"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-02-27 09:50:50.897661",
+ "modified": "2024-04-03 14:30:31.241102",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry Details",

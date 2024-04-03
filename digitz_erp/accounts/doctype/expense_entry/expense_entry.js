@@ -9,6 +9,26 @@ frappe.ui.form.on('Expense Entry', {
   },
 
   refresh: function(frm) {
+    frappe.call({
+        method: 'frappe.client.get_value',
+        args: {
+            doctype: 'Company',
+            filters: { name: frm.doc.company },
+            fieldname: 'use_expense_heads'
+        },
+        callback: function(r) {
+          if (r.message && r.message.use_expense_heads) {
+              console.log("Checkbox is checked");
+              frm.fields_dict['expense_entry_details'].grid.get_field('expense_head').toogle_display(false);
+              frm.refresh_field('expense_entry_details');
+          } else {
+              console.log("Checkbox is unchecked");
+              frm.fields_dict['expense_entry_details'].grid.get_field('expense_head').toogle_display(true);
+              frm.refresh_field('expense_entry_details');
+          }
+      }
+
+    });
     create_custom_buttons(frm)
     frm.set_query('expense_account', 'expense_entry_details', () => {
       return {
@@ -368,11 +388,11 @@ function assign_defaults(frm)
       if(!frm.is_new() && (frm.doc.docstatus == 1)){
       frm.add_custom_button('General Ledgers',() =>{
           general_ledgers(frm)
-      }, 'Postings');			
+      }, 'Postings');
       }
     }
   }
-  
+
   let general_ledgers = function (frm) {
       frappe.call({
           method: "digitz_erp.api.accounts_api.get_gl_postings",
@@ -382,7 +402,7 @@ function assign_defaults(frm)
           },
           callback: function (response) {
               let gl_postings = response.message;
-  
+
               // Generate HTML content for the popup
               let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
                                 '<table class="table table-bordered" style="width: 100%;">' +
@@ -396,15 +416,15 @@ function assign_defaults(frm)
                                 '</tr>' +
                                 '</thead>' +
                                 '<tbody>';
-  
+
                   gl_postings.forEach(function (gl_posting) {
                   // Handling null values for remarks
                   let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
-                
+
                   // Ensure debit_amount and credit_amount are treated as floats and format them
                   let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
                   let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
-                
+
                   htmlContent += '<tr>' +
                            `<td>${gl_posting.account}</td>` +
                            `<td style="text-align: right;">${debitAmount}</td>` +
@@ -413,9 +433,9 @@ function assign_defaults(frm)
                            `<td>${remarksText}</td>` +
                            '</tr>';
                 });
-  
+
               htmlContent += '</tbody></table></div>';
-  
+
               // Create and show the dialog
               let d = new frappe.ui.Dialog({
                   title: 'General Ledgers',
@@ -429,13 +449,11 @@ function assign_defaults(frm)
                       d.hide();
                   }
               });
-  
+
               // Set custom width for the dialog
               d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
-  
+
               d.show();
           }
       });
   };
-  
-  
