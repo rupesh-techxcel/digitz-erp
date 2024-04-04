@@ -17,10 +17,22 @@ frappe.ui.form.on('Item', {
 	}
  },
 	 setup: function(frm) {
-		if(frm.is_new() == 1)
+		frm.set_query("asset_category", function () {
+			return {
+				"filters": {
+					"is_disabled": 0
+				}
+			};
+		});
+	 },
+	 assign_defaults(frm)
+	 {
+		if(frm.is_new())
 		{
+			frm.trigger("get_default_company_and_settings");
 			frm.trigger("assign_default_tax");
 		}
+
 	 },
 	tax_excluded(frm)
 	{
@@ -142,110 +154,67 @@ frappe.ui.form.on('Item', {
 			frm.doc.margin_ = margin
 			frm.refresh_field("margin_")
 		}
-	}
+	},
+	get_default_company_and_settings(frm)
+	{
+
+		var default_company = ""
+	
+		if(frm.is_new())
+		{
+				console.log("New doc");
+
+				frappe.call({
+					method: 'frappe.client.get_value',
+					args:{
+						'doctype':'Global Settings',
+						'fieldname':'default_company'
+					},
+					callback: (r)=>{
+
+							frappe.call(
+							{
+								method: 'frappe.client.get_value',
+								args:{
+									'doctype':'Company',
+									'filters':{'company_name': r.message.default_company},
+									'fieldname':['tax']
+								},
+								callback:(r2)=>
+								{
+									console.log('Tax')
+									console.log(r2.message.tax)
+									frm.doc.tax = r2.message.tax;
+									frm.refresh_field("tax");
+
+								}
+							}
+
+						)
+					}
+				});
+			}
+			
+			if (frappe.user.has_role('Management')) {
+				console.log("supplier prices visisble")
+				// Show the child table if the user is an Administrator            
+				frm.set_df_property('supplier_rates', 'hidden', false); // This will hide the 'supplier_rates' field
+
+			} else {
+				// Hide the child table if the user is not an Administrator
+				frm.set_df_property('supplier_rates', 'hidden', true); // This will hide the 'supplier_rates' field
+
+				frm.toggle_display('supplier_rates', false); // This will hide the 'supplier_rates' field
+
+				console.log("supplier prices hidden")
+			}
+		}
 
 });
 
 frappe.ui.form.on("Item", "onload", function(frm) {
 
-	var default_company = ""
-	
-	if(frm.is_new())
-	{
-			console.log("New doc");
-
-			frappe.call({
-				method: 'frappe.client.get_value',
-				args:{
-					'doctype':'Global Settings',
-					'fieldname':'default_company'
-				},
-				callback: (r)=>{
-
-						frappe.call(
-						{
-							method: 'frappe.client.get_value',
-							args:{
-								'doctype':'Company',
-								'filters':{'company_name': r.message.default_company},
-								'fieldname':['tax']
-							},
-							callback:(r2)=>
-							{
-								console.log('Tax')
-								console.log(r2.message.tax)
-								frm.doc.tax = r2.message.tax;
-								frm.refresh_field("tax");
-
-							}
-						}
-
-					)
-				}
-			});
-		}
-		else
-		{
-			// frappe.call(
-			// {
-			// 	method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
-			// 	async:false,
-			// 	args:{
-			// 		'item':frm.doc.item_name,
-			// 		'price_list':'Standard Buying'
-			// 		},
-			// 		callback(r)
-			// 		{	console.log("Price");
-			// 			console.log(r.message)
-			// 		if(r.message.length == 1)
-			// 			{
-			// 				console.log(r.message[0].price);
-			// 				frm.doc.standard_buying_price = r.message[0].price;
-			// 			}
-
-			// 		}
-
-			// 	}
-
-			// );
-
-
-			// frappe.call(
-			// 	{
-			// 		method:'digitz_erp.api.common_methods.get_item_price_for_price_list',
-			// 		async:false,
-			// 		args:{
-			// 			'item':frm.doc.item_name,
-			// 			'price_list':'Standard Selling'
-			// 			},
-			// 			callback(r)
-			// 			{	console.log("Price");
-			// 				console.log(r.message)
-			// 			if(r.message.length == 1)
-			// 			{
-			// 				console.log(r.message[0].price);
-			// 				frm.doc.standard_selling_price = r.message[0].price;
-			// 			}
-			// 		}
-
-			// 	}
-			// );
-		}
-
-		if (frappe.user.has_role('Management')) {
-			console.log("supplier prices visisble")
-            // Show the child table if the user is an Administrator            
-			frm.set_df_property('supplier_rates', 'hidden', false); // This will hide the 'supplier_rates' field
-
-        } else {
-            // Hide the child table if the user is not an Administrator
-            frm.set_df_property('supplier_rates', 'hidden', true); // This will hide the 'supplier_rates' field
-
-			frm.toggle_display('supplier_rates', false); // This will hide the 'supplier_rates' field
-
-			console.log("supplier prices hidden")
-        }
-
+	frm.trigger("assign_defaults");
 	}
 );
 

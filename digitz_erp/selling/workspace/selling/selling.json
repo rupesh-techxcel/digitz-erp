@@ -164,7 +164,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Reports",
-   "link_count": 8,
+   "link_count": 9,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -248,9 +248,19 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Return Itemwise Summary Report",
+   "link_count": 0,
+   "link_to": "Sales Return Itemwise Summary Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-04-01 11:41:33.929011",
+ "modified": "2024-04-01 16:23:59.984758",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",

@@ -12,6 +12,7 @@
   "asset_group",
   "item",
   "asset_category",
+  "asset_location",
   "gross_value",
   "amended_from",
   "column_break_btll",
@@ -85,24 +86,31 @@
   {
    "fieldname": "gross_value",
    "fieldtype": "Currency",
-   "label": "Gross Value"
+   "label": "Gross Value",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation",
+   "reqd": 1
   },
   {
+   "depends_on": "eval:doc.calculate_depreciation",
    "fieldname": "depreciation_posting_date",
    "fieldtype": "Date",
-   "label": "Depreciation Posting Date"
+   "label": "Depreciation Posting Date",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation"
   },
   {
+   "depends_on": "eval:doc.calculate_depreciation",
    "fieldname": "total_number_of_depreciation",
    "fieldtype": "Int",
    "label": "Total Number Of Depreciation"
   },
   {
+   "depends_on": "eval:doc.calculate_depreciation",
    "fieldname": "salvage_value",
    "fieldtype": "Currency",
    "label": "Salvage Value"
   },
   {
+   "depends_on": "eval:doc.calculate_depreciation",
    "fieldname": "value_after_depreciation",
    "fieldtype": "Currency",
    "label": "Value After Depreciation"
@@ -117,12 +125,24 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series"
+  },
+  {
+   "fieldname": "asset_location",
+   "fieldtype": "Link",
+   "label": "Asset Location",
+   "options": "Asset Location",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-03-31 20:38:44.238850",
+ "links": [
+  {
+   "link_doctype": "Asset Depreciation Schedule",
+   "link_fieldname": "asset"
+  }
+ ],
+ "modified": "2024-04-02 22:26:14.001154",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Asset",

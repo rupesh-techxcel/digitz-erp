@@ -1,0 +1,169 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-04-02 14:55:46.450206",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_e5mz",
+  "naming_series",
+  "amended_from",
+  "asset",
+  "column_break_mcrh",
+  "purchase_details",
+  "gross_purchase_amount",
+  "link_fixy",
+  "purchase_date",
+  "date_of_asset_in_use",
+  "column_break_gmne",
+  "depreciation_details",
+  "opening_accumulated_depreciation",
+  "total_no_of_depreciations",
+  "no_of_depreciations_booked",
+  "rate_of_depreciation",
+  "frequency_of_depreciation",
+  "expected_value_after_useful_life",
+  "section_break_ljbr",
+  "depreciation_schedule_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_e5mz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Asset Depreciation Schedule",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Asset",
+   "options": "Asset"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "gross_purchase_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Gross Purchase Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_depreciations_booked",
+   "fieldtype": "Int",
+   "label": "No Of Depreciations Booked",
+   "read_only": 1
+  },
+  {
+   "fieldname": "opening_accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Opening Accumulated Depreciation"
+  },
+  {
+   "fieldname": "total_no_of_depreciations",
+   "fieldtype": "Int",
+   "label": "Total No Of Depreciations"
+  },
+  {
+   "description": "Depreciation Percentage Per Year",
+   "fieldname": "rate_of_depreciation",
+   "fieldtype": "Percent",
+   "label": "Rate Of Depreciation"
+  },
+  {
+   "fieldname": "frequency_of_depreciation",
+   "fieldtype": "Int",
+   "label": "Frequency Of Depreciation"
+  },
+  {
+   "fieldname": "expected_value_after_useful_life",
+   "fieldtype": "Currency",
+   "label": "Expected Value After Useful Life"
+  },
+  {
+   "fieldname": "depreciation_schedule_details",
+   "fieldtype": "Table",
+   "label": "Schedule Details",
+   "options": "Asset Depreciation Schedule Detail"
+  },
+  {
+   "fieldname": "depreciation_details",
+   "fieldtype": "Heading",
+   "label": "Depreciation Details"
+  },
+  {
+   "fieldname": "column_break_gmne",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ljbr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_of_asset_in_use",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Of Asset In Use",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_mcrh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_details",
+   "fieldtype": "Heading",
+   "label": "Purchase Details"
+  },
+  {
+   "fieldname": "link_fixy",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-04-02 22:32:25.148147",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Asset Depreciation Schedule",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

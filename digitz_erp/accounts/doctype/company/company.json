@@ -58,6 +58,7 @@
   "default_payment_mode_for_sales",
   "default_credit_purchase",
   "default_credit_sale",
+  "default_asset_location",
   "terms_and_conditions_tab",
   "supplier_terms",
   "section_break_39",
@@ -404,7 +405,7 @@
   },
   {
    "default": "0",
-   "description": "This field determines, by default, whether submitting sales invoices will update the stock.",
+   "description": "This field determines, by default, whether submitting sales invoices will update the stock. By default stock updates only with Delivery Note unless this option is turned on.",
    "fieldname": "update_stock_in_sales_invoice",
    "fieldtype": "Check",
    "label": "Update stock in Sales Invoice"
@@ -415,11 +416,17 @@
    "fieldname": "use_expense_heads",
    "fieldtype": "Check",
    "label": " Use separate Expense Heads instead of direct account ledgers in Expense Entries."
+  },
+  {
+   "fieldname": "default_asset_location",
+   "fieldtype": "Link",
+   "label": "Default Asset Location",
+   "options": "Asset Location"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-16 08:39:08.728416",
+ "modified": "2024-04-03 11:28:20.629295",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

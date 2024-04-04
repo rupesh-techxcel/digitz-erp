@@ -10,7 +10,8 @@ frappe.ui.form.on("Asset Category", {
         frm.set_query("asset_account", function () {
 			return {
 				"filters": {
-					"account_type": "Fixed Asset"                    
+					"account_type": "Fixed Asset" ,
+					"is_group":0
 				}
 			};
 		});
@@ -18,7 +19,8 @@ frappe.ui.form.on("Asset Category", {
         frm.set_query("depreciation_account", function () {
 			return {
 				"filters": {
-					"account_type": "Depreciation"                    
+					"account_type": "Depreciation",
+					"is_group":0
 				}
 			};
 		});
@@ -26,7 +28,8 @@ frappe.ui.form.on("Asset Category", {
         frm.set_query("accumulated_depreciation_account", function () {
 			return {
 				"filters": {
-					"account_type": "Accumulated Depreciation"                    
+					"account_type": "Accumulated Depreciation",
+					"is_group":0
 				}
 			};
 		});

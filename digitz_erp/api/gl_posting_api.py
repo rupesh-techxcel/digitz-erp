@@ -7,10 +7,16 @@ def update_accounts_for_doc_type(doc_type, name):
     query = """
             SELECT distinct account from `tabGL Posting` gp where gp.voucher_type=%s and gp.voucher_no=%s
             """
-    account_list = frappe.db.sql(query, (doc_type,name),as_dict=True)
+            
+    # The following logic should change to avoid calling update_all_parent_accounts. It is doing just to correct all parent accounts
     
-    for account in account_list:
-        update_account_balance(account.account)
+    if 1==0:
+        account_list = frappe.db.sql(query, (doc_type,name),as_dict=True)
+        
+        for account in account_list:
+            update_account_balance(account.account)
+    else:
+        update_all_parent_accounts()
         
 def delete_gl_postings_for_cancel_doc_type(doc_type,name):
     
@@ -94,12 +100,12 @@ def update_all_parent_accounts_for_the_root_type(root_type):
     SELECT name from `tabAccount` where root_type= %s and is_group = 1    
     """    
     data = frappe.db.sql(query, (root_type,), as_dict = 1)
-    
+        
     for d in data:
-        account = frappe.get_doc('Account',d.name)
-        account.balance = 0
-        account.balance_dr_cr = None
-        account.save()
+        frappe.db.set_value('Account', d.name, {
+            'balance': 0,
+            'balance_dr_cr': None
+        })
     
     # Query to get gl_postings balances for the account and  direct parent_account
     query = """
@@ -134,34 +140,57 @@ def update_all_parent_accounts_for_the_root_type(root_type):
         
    
     #  Update corresponding direct_parent_account values to the table
-    for key in direct_parent_accounts:
+    # for key in direct_parent_accounts:
               
-        account = frappe.get_doc('Account', key)
-        account.balance = abs(direct_parent_accounts[key])
+    #     account = frappe.get_doc('Account', key)
+    #     account.balance = abs(direct_parent_accounts[key])
         
-        if(direct_parent_accounts[key] == 0):    
-            account.balance_dr_cr  = None
-        else:    
-            account.balance_dr_cr = 'Dr' if direct_parent_accounts[key] > 0 else 'Cr'
+    #     if(direct_parent_accounts[key] == 0):    
+    #         account.balance_dr_cr  = None
+    #     else:    
+    #         account.balance_dr_cr = 'Dr' if direct_parent_accounts[key] > 0 else 'Cr'
             
-        account.save()
+    #     account.save()
         
+    #     # Save the direct_parent_account and balance to the generic parent_accounts dictionary
+    #     parent_accounts[key] = direct_parent_accounts[key]
+    #     update_parent_account_to_root_recursive(key,parent_accounts, parent_accounts[key])
+    
+    for key in direct_parent_accounts:
+        balance = abs(direct_parent_accounts[key])
+        balance_dr_cr = 'Dr' if direct_parent_accounts[key] > 0 else 'Cr' if direct_parent_accounts[key] < 0 else None
+
+        # Directly update the balance and balance_dr_cr fields in the Account document
+        frappe.db.set_value('Account', key, {
+            'balance': balance,
+            'balance_dr_cr': balance_dr_cr
+        })
+
         # Save the direct_parent_account and balance to the generic parent_accounts dictionary
         parent_accounts[key] = direct_parent_accounts[key]
-        update_parent_account_to_root_recursive(key,parent_accounts, parent_accounts[key])
+        update_parent_account_to_root_recursive(key, parent_accounts, parent_accounts[key])
 
     # After recursively update the balances to the parent_accounts dictionary save them to the database
-    for key in parent_accounts:
-        account = frappe.get_doc('Account', key)
-        if(account):
-            account.balance = abs(parent_accounts[key])
+    # for key in parent_accounts:
+    #     account = frappe.get_doc('Account', key)
+    #     if(account):
+    #         account.balance = abs(parent_accounts[key])
             
-            if(parent_accounts[key] == 0):    
-                account.balance_dr_cr  = None
-            else:    
-                account.balance_dr_cr = 'Dr' if parent_accounts[key] > 0 else 'Cr'
+    #         if(parent_accounts[key] == 0):    
+    #             account.balance_dr_cr  = None
+    #         else:    
+    #             account.balance_dr_cr = 'Dr' if parent_accounts[key] > 0 else 'Cr'
                 
-            account.save()
+    #         account.save()
+    for key in parent_accounts:
+        balance_value = abs(parent_accounts[key])
+        balance_dr_cr_value = 'Dr' if parent_accounts[key] > 0 else 'Cr' if parent_accounts[key] < 0 else None
+
+        # Directly update the balance and balance_dr_cr fields in the Account document
+        frappe.db.set_value('Account', key, {
+            'balance': balance_value,
+            'balance_dr_cr': balance_dr_cr_value
+        })
     
 def update_parent_account_to_root_recursive(account, parent_accounts, account_balance):
       

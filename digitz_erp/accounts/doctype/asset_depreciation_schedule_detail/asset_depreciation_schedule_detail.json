@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-04-02 15:26:57.793935",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "schedule_date",
+  "depreciation_amount",
+  "accumulated_depreciation_amount",
+  "depreciation_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "schedule_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Schedule Date"
+  },
+  {
+   "fieldname": "depreciation_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Depreciation Amount"
+  },
+  {
+   "fieldname": "accumulated_depreciation_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Accumulated Depreciation Amount"
+  },
+  {
+   "fieldname": "depreciation_entry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Depreciation Entry",
+   "options": "Depreciation Entry"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-04-02 15:30:40.795998",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Asset Depreciation Schedule Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

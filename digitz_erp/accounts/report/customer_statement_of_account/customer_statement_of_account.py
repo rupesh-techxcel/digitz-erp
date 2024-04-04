@@ -45,8 +45,8 @@ def get_data_customer_wise(filters):
     return_query = f"""
         SELECT 
             customer,
-            rounded_total,
-            paid_amount,
+            rounded_total * -1 as rounded_total,
+            paid_amount * -1 as paid_amount,
             posting_date
         FROM `tabSales Return`
         WHERE 
@@ -80,7 +80,7 @@ def get_data(filters):
     print("from get_data")
     
     # Define the base fields common in both tables, but handle customer_name outside of this since it's fetched via JOIN
-    common_fields = """
+    invoice_fields = """
         si.name as sales_invoice_name,
         si.posting_date as posting_date,
         si.rounded_total as amount,
@@ -88,9 +88,18 @@ def get_data(filters):
         si.rounded_total - COALESCE(si.paid_amount, 0) as balance_amount,
         si.ship_to_location as 'ship_to_location'
     """
+    
+    return_fields = """
+        si.name as sales_invoice_name,
+        si.posting_date as posting_date,
+        si.rounded_total*-1 as amount,
+        si.paid_amount * -1 as paid_amount,
+        (si.rounded_total - COALESCE(si.paid_amount, 0))*-1 as balance_amount,
+        si.ship_to_location as 'ship_to_location'
+    """
 
-    invoice_fields = common_fields + ", si.delivery_note as delivery_note"
-    return_fields = common_fields + ", '' as delivery_note"  # Assuming 'delivery_note' does not exist in 'tabSales Return'
+    invoice_fields = invoice_fields + ", si.delivery_note as delivery_note"
+    return_fields = return_fields + ", '' as delivery_note"  # Assuming 'delivery_note' does not exist in 'tabSales Return'
 
     customer_condition = f"AND si.customer = '{filters.get('customer')}'" if filters.get('customer') else ""
     date_condition = f"AND si.posting_date BETWEEN '{filters.get('from_date')}' AND '{filters.get('to_date')}'" if filters.get('from_date') and filters.get('to_date') else ""

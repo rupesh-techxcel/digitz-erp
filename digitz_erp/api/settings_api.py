@@ -30,7 +30,7 @@ def get_default_tax():
 @frappe.whitelist()
 def get_company_settings():
     default_company = get_default_company()
-    company_settings = frappe.db.sql("""select default_currency, use_customer_last_price, use_supplier_last_price,tax_excluded from tabCompany where name='{0}'""".format(default_company), as_dict = True)        
+    company_settings = frappe.db.sql("""select default_currency, use_customer_last_price, use_supplier_last_price,tax_excluded,default_asset_location from tabCompany where name='{0}'""".format(default_company), as_dict = True)        
     return company_settings
 
 @frappe.whitelist()
