@@ -18,9 +18,13 @@ def execute(filters=None):
 		columns = get_columns_for_customer_group()
 		data = get_data_customer_wise(filters)
   
-	if(filters.get('show_pending_only')):		
-		data = [row for row in data if row.get('balance_amount', 0) > 0]
-     
+	if filters.get('show_pending_only'):
+		data = [
+			row for row in data if 
+			(row.get('doc_type') == 'Sales Invoice' and row.get('balance_amount', 0) > 0) or 
+			(row.get('doc_type') == 'Sales Return' and row.get('balance_amount', 0) < 0) or 
+			(row.get('doc_type') == 'Credit Note' and row.get('balance_amount', 0) < 0)
+		]     
 	return columns, data
 
 def get_data_customer_wise(filters):
@@ -106,7 +110,7 @@ def get_data(filters):
 
     invoice_query = f"""
     SELECT 
-        {invoice_fields},
+        {invoice_fields},'Sales Invoice' as doc_type ,
         c.customer_name as customer_name
     FROM 
         `tabSales Invoice` si 
@@ -122,7 +126,7 @@ def get_data(filters):
 
     return_query = f"""
     SELECT 
-        {return_fields},
+        {return_fields},'Sales Return' as doc_type ,
         c.customer_name as customer_name
     FROM 
         `tabSales Return` si 

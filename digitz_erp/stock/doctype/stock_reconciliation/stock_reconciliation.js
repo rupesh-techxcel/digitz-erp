@@ -12,7 +12,7 @@ frappe.ui.form.on('Stock Reconciliation', {
 			return {
 				filters: {
 					root_type: 'Liability',
-								// is_group: 1
+					 is_group: 0
 				}
 			}
 		});
@@ -30,8 +30,11 @@ frappe.ui.form.on('Stock Reconciliation', {
 	{
 
 		if(frm.is_new())
-		{
+		{			
+			// Remove the initial blank item row			
 			frm.trigger("get_default_company_and_warehouse");
+
+			frm.clear_table('items');
 
 		}
 	},
@@ -177,6 +180,13 @@ frappe.ui.form.on("Stock Reconciliation", "onload", function (frm) {
 })
 
 frappe.ui.form.on('Stock Reconciliation Item', {
+	items_add(frm, cdt, cdn) {
+
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+		frm.refresh_field("items");
+
+	},
 	item(frm, cdt, cdn) {
 		var child = locals[cdt][cdn];
 		if (frm.doc.default_cost_center) {
@@ -200,10 +210,7 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 						row.base_unit = r.message.base_unit;
 						row.unit = r.message.base_unit;
 
-						console.log("unit, baseunit, r.message.base_unit")
-						console.log(row.unit)
-						console.log(row.base_unit)
-						console.log(r.message.base_unit)
+		
 
 						frm.item = row.item
 						frm.trigger("get_item_units");
@@ -213,6 +220,9 @@ frappe.ui.form.on('Stock Reconciliation Item', {
 
 						row.warehouse = frm.doc.warehouse
 						row.display_name = row.item_name
+						row.item_name = row.item_name
+						frm.refresh_field("items");
+
 						frm.trigger("get_item_stock_balance");
 
 						console.log("row")
