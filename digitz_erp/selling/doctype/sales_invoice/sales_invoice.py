@@ -77,7 +77,12 @@ class SalesInvoice(Document):
         
         if not frappe.db.exists("Customer Delivery Location", self.ship_to_location):
             self.ship_to_location = ""
-            
+        
+        for item in self.items:
+            # Format the values to two decimal places and assign them to the print fields
+            item.amount_print = "{:.2f}".format(item.gross_amount)
+            item.tax_amount_print = "{:.2f}".format(item.tax_amount)
+            item.total_amount_print = "{:.2f}".format(item.net_amount)  
 
     def validate(self):
         self.validate_item()

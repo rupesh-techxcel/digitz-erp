@@ -214,7 +214,25 @@
    "fieldname": "quotation_item_reference_no",
    "fieldtype": "Data",
    "label": "Quotation Item Reference No"
-  }
+  },
+  {
+    "fieldname": "amount_print",
+    "fieldtype": "Data",
+    "label": "Amount Print",
+    "hidden": 1
+   },
+   {
+    "fieldname": "tax_amount_print",
+    "fieldtype": "Data",
+    "label": "Tax Amount Print",
+    "hidden": 1
+   },
+   {
+    "fieldname": "total_amount_print",
+    "fieldtype": "Data",
+    "label": "Total Amount Print",
+    "hidden": 1
+   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
