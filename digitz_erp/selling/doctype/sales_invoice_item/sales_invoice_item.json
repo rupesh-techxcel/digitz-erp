@@ -34,7 +34,10 @@
   "qty_returned_in_base_unit",
   "cost_center",
   "sales_order_item_reference_no",
-  "quotation_item_reference_no"
+  "quotation_item_reference_no",
+  "amount_print",
+  "tax_amount_print",
+  "total_amount_print"
  ],
  "fields": [
   {
