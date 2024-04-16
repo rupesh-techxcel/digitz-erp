@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:department",
  "creation": "2022-12-22 13:19:03.591215",
  "default_view": "List",
  "doctype": "DocType",
@@ -14,7 +15,8 @@
   {
    "fieldname": "department",
    "fieldtype": "Data",
-   "label": "Department"
+   "label": "Department",
+   "unique": 1
   },
   {
    "fieldname": "head",
@@ -25,10 +27,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-15 13:07:55.099439",
+ "modified": "2024-04-12 11:22:04.980223",
  "modified_by": "Administrator",
  "module": "HR Base",
  "name": "Department",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
