@@ -2,7 +2,7 @@ import frappe
 from frappe.utils import *
 
 @frappe.whitelist()
-def get_accounts_data(from_date,to_date,for_gp):
+def get_accounts_data(from_date,to_date,accumulated_values,for_gp):
     
     query = ""
     
@@ -27,7 +27,7 @@ def get_accounts_data(from_date,to_date,for_gp):
     
     for d in data:
                 
-        balance = get_account_balance(d.account_name,from_date,to_date)
+        balance = get_account_balance(d.account_name,from_date,to_date,accumulated_values)
                 
         if(not balance):
             balance = 0
@@ -68,17 +68,31 @@ def update_parent_accounts_recursive(account, accounts, account_name):
     update_parent_accounts_recursive(parent_account,accounts,account_name)
     
     
-def get_account_balance(account, from_date,to_date):
+def get_account_balance(account, from_date,to_date, accumulated_values):
     
-    query="""
-    SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl where gl.account = %s and posting_date >= %s and posting_date<=%s
-    """
+    query =""
     
-    data = frappe.db.sql(query,(account,from_date,to_date), as_dict=True)
-    if data and data[0]:
-        return data[0].balance
-    else:
-        return 0
+    if accumulated_values:
+        
+        query="""
+        SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl where gl.account = %s and posting_date<=%s
+        """
+        
+        data = frappe.db.sql(query,(account,to_date), as_dict=True)
+        if data and data[0]:
+            return data[0].balance
+        else:
+            return 0
+    else:            
+        query="""
+        SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl where gl.account = %s and posting_date >= %s and posting_date<=%s
+        """
+        
+        data = frappe.db.sql(query,(account,from_date,to_date), as_dict=True)
+        if data and data[0]:
+            return data[0].balance
+        else:
+            return 0
     
 def re_process_account_data(accounts):
         

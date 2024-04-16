@@ -1,0 +1,158 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"jJL7b5V_zG\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Fixed Assets</span>\",\"col\":12}},{\"id\":\"0v-woSm3xD\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"WUnl7L08va\",\"type\":\"card\",\"data\":{\"card_name\":\"Assets\",\"col\":4}},{\"id\":\"rh7ysTU-fb\",\"type\":\"card\",\"data\":{\"card_name\":\"Transaction\",\"col\":4}},{\"id\":\"bPu7zCK2N8\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"FlM_Sc9Mx6\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"b63kLVmCf8\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Asset\",\"col\":4}},{\"id\":\"7DHhy525nP\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Asset Group\",\"col\":4}},{\"id\":\"JPhhCjY90a\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Asset Category\",\"col\":4}},{\"id\":\"JzPt9lIpJE\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Asset Location\",\"col\":4}}]",
+ "creation": "2024-04-10 12:52:50.562895",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "organization",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Fixed Assets",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Assets",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset",
+   "link_count": 0,
+   "link_to": "Asset",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Group",
+   "link_count": 0,
+   "link_to": "Asset Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Category",
+   "link_count": 0,
+   "link_to": "Asset Category",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Location",
+   "link_count": 0,
+   "link_to": "Asset Location",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Depreciation Schedule",
+   "link_count": 0,
+   "link_to": "Asset Depreciation Schedule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transaction",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Depreciation Entry",
+   "link_count": 0,
+   "link_to": "Depreciation Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Depreciation Report",
+   "link_count": 0,
+   "link_to": "Asset Depreciation Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Asset Book Value Report",
+   "link_count": 0,
+   "link_to": "Asset Book Value Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2024-04-10 18:24:34.897437",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Fixed Assets",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Asset",
+   "label": "Asset",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Asset Group",
+   "label": "Asset Group",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Asset Category",
+   "label": "Asset Category",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Asset Location",
+   "label": "Asset Location",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 10.0,
+ "shortcuts": [],
+ "title": "Fixed Assets"
+}

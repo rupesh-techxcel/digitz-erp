@@ -146,6 +146,21 @@ frappe.ui.form.on('Item', {
 
 		}
 	},
+	is_fixed_asset(frm)
+	{
+		if(frm.doc.is_fixed_asset)
+		{			
+			frm.set_value("maintain_stock",false)
+		}
+	},
+	maintain_stock(frm)
+	{
+		if(frm.doc.maintain_stock)
+		{
+			frm.set_value("is_fixed_asset",false)			
+		}
+
+	},
 	get_margin_from_rates(frm)
 	{
 		if(!isNaN(frm.doc.standard_buying_price) && !isNaN(frm.doc.standard_selling_price))

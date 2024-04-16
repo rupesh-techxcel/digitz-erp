@@ -8,31 +8,56 @@
  "engine": "InnoDB",
  "field_order": [
   "document_name",
-  "doc_type",
-  "next_expiry_date"
+  "document_type",
+  "status",
+  "validity_in_months",
+  "next_expiry_date",
+  "renewal_action_status"
  ],
  "fields": [
   {
    "fieldname": "document_name",
    "fieldtype": "Data",
-   "label": "Document Name"
-  },
-  {
-   "fieldname": "doc_type",
-   "fieldtype": "Select",
-   "label": "Doc Type",
-   "options": "Passport\nVisa\nGovernment Issued Id (Eg: Emirates Id)\nLabour Contract No\nInsurance No\nOther"
+   "in_list_view": 1,
+   "label": "Document Name",
+   "reqd": 1
   },
   {
    "fieldname": "next_expiry_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Next Expiry Date"
+  },
+  {
+   "fieldname": "validity_in_months",
+   "fieldtype": "Int",
+   "label": "Validity In Months"
+  },
+  {
+   "fieldname": "renewal_action_status",
+   "fieldtype": "Select",
+   "label": "Renewal Action Status",
+   "options": "Not Started\nProcessing\nCompleted"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nExpired"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "Passport\nVisa\nEmirates Id\nLabour Contract\nInsurance\nOther",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-15 13:08:40.555792",
+ "modified": "2024-04-07 16:54:15.461856",
  "modified_by": "Administrator",
  "module": "HR Base",
  "name": "Employee Document",

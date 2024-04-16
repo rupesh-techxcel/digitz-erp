@@ -15,6 +15,23 @@ frappe.ui.form.on("Asset", {
 				}
 			};
 		});
+
+		frm.set_query("asset_credit_account", function () {
+			return {
+				"filters": {
+					"root_type": "Liability" ,
+					"is_group":0
+				}
+			};
+		});
+
+		
+		frm.set_df_property('asset_credit_account', 'hidden', frm.doc.purchase_invoice);
+		frm.set_df_property('opening_depreciation', 'hidden', frm.doc.purchase_invoice);
+		frm.set_df_property('asset_credit_account', 'reqd', !frm.doc.purchase_invoice);
+		frm.set_df_property('opening_depreciation', 'reqd', !frm.doc.purchase_invoice);
+
+
     },
 	assign_defaults(frm){
 

@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2024-04-02 14:55:46.450206",
@@ -10,22 +11,19 @@
   "naming_series",
   "amended_from",
   "asset",
+  "asset_group",
+  "asset_location",
+  "asset_category",
   "column_break_mcrh",
-  "purchase_details",
-  "gross_purchase_amount",
-  "link_fixy",
-  "purchase_date",
-  "date_of_asset_in_use",
-  "column_break_gmne",
   "depreciation_details",
-  "opening_accumulated_depreciation",
-  "total_no_of_depreciations",
-  "no_of_depreciations_booked",
-  "rate_of_depreciation",
-  "frequency_of_depreciation",
-  "expected_value_after_useful_life",
-  "section_break_ljbr",
-  "depreciation_schedule_details"
+  "opening_depreciation",
+  "date_of_depreciation",
+  "depreciation",
+  "accumulated_depreciation",
+  "book_value",
+  "posting_status",
+  "column_break_uuri",
+  "depreciation_entry"
  ],
  "fields": [
   {
@@ -45,6 +43,10 @@
   {
    "fieldname": "asset",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Asset",
    "options": "Asset"
   },
@@ -54,96 +56,93 @@
    "label": "Naming Series"
   },
   {
-   "fieldname": "gross_purchase_amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Gross Purchase Amount",
-   "reqd": 1
-  },
-  {
-   "fieldname": "no_of_depreciations_booked",
-   "fieldtype": "Int",
-   "label": "No Of Depreciations Booked",
-   "read_only": 1
-  },
-  {
-   "fieldname": "opening_accumulated_depreciation",
-   "fieldtype": "Currency",
-   "label": "Opening Accumulated Depreciation"
-  },
-  {
-   "fieldname": "total_no_of_depreciations",
-   "fieldtype": "Int",
-   "label": "Total No Of Depreciations"
-  },
-  {
-   "description": "Depreciation Percentage Per Year",
-   "fieldname": "rate_of_depreciation",
-   "fieldtype": "Percent",
-   "label": "Rate Of Depreciation"
-  },
-  {
-   "fieldname": "frequency_of_depreciation",
-   "fieldtype": "Int",
-   "label": "Frequency Of Depreciation"
-  },
-  {
-   "fieldname": "expected_value_after_useful_life",
-   "fieldtype": "Currency",
-   "label": "Expected Value After Useful Life"
-  },
-  {
-   "fieldname": "depreciation_schedule_details",
-   "fieldtype": "Table",
-   "label": "Schedule Details",
-   "options": "Asset Depreciation Schedule Detail"
-  },
-  {
    "fieldname": "depreciation_details",
    "fieldtype": "Heading",
    "label": "Depreciation Details"
-  },
-  {
-   "fieldname": "column_break_gmne",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_ljbr",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "purchase_date",
-   "fieldtype": "Date",
-   "label": "Purchase Date",
-   "read_only": 1
-  },
-  {
-   "fieldname": "date_of_asset_in_use",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Date Of Asset In Use",
-   "reqd": 1
   },
   {
    "fieldname": "column_break_mcrh",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "purchase_details",
-   "fieldtype": "Heading",
-   "label": "Purchase Details"
+   "fieldname": "opening_depreciation",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Opening Depreciation"
   },
   {
-   "fieldname": "link_fixy",
+   "fieldname": "date_of_depreciation",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Of Depreciation"
+  },
+  {
+   "fieldname": "depreciation",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Depreciation"
+  },
+  {
+   "fieldname": "accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Accumulated Depreciation"
+  },
+  {
+   "fieldname": "book_value",
+   "fieldtype": "Currency",
+   "label": "Book Value"
+  },
+  {
+   "fieldname": "posting_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Posting Status",
+   "options": "Scheduled\nPosted"
+  },
+  {
+   "fetch_from": "asset.asset_group",
+   "fieldname": "asset_group",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Asset Group",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.asset_location",
+   "fieldname": "asset_location",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Asset Location"
+  },
+  {
+   "fieldname": "asset_category",
    "fieldtype": "Link",
-   "label": "Purchase Invoice",
-   "options": "Purchase Invoice"
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Asset Category",
+   "options": "Asset Category"
+  },
+  {
+   "fieldname": "column_break_uuri",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depreciation_entry",
+   "fieldtype": "Link",
+   "label": "Depreciation Entry",
+   "options": "Depreciation Entry"
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-02 22:32:25.148147",
+ "modified": "2024-04-10 18:11:03.057206",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Asset Depreciation Schedule",

@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class AssetDepreciationScheduleDetail(Document):
+class BudgetAccount(Document):
 	pass

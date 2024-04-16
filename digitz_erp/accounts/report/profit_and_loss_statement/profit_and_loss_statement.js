@@ -39,6 +39,11 @@ frappe.query_reports["Profit and Loss Statement"] = {
 			"depends_on": "eval: doc.year_selection == 'Date Range' ",
 			"default":frappe.datetime.year_end()
 		},
+		{
+			"fieldname": "accumulated_values",
+			"fieldtype": "Check",
+			"label": "Accumulated Values"			
+		}
 	],
 		"tree": true,
 		"treeView": true,

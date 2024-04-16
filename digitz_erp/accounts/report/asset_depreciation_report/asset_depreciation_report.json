@@ -1,7 +1,7 @@
 {
  "add_total_row": 0,
  "columns": [],
- "creation": "2024-03-30 10:14:13.037444",
+ "creation": "2024-04-10 12:32:49.529159",
  "disabled": 0,
  "docstatus": 0,
  "doctype": "Report",
@@ -10,18 +10,14 @@
  "is_standard": "Yes",
  "letter_head": "sales invoice footer",
  "letterhead": null,
- "modified": "2024-03-30 10:14:13.037444",
+ "modified": "2024-04-10 12:32:49.529159",
  "modified_by": "Administrator",
  "module": "Accounts",
- "name": "Cash Flow Summary Report",
+ "name": "Asset Depreciation Report",
  "owner": "Administrator",
  "prepared_report": 0,
- "ref_doctype": "GL Posting",
- "report_name": "Cash Flow Summary Report",
+ "ref_doctype": "Asset Depreciation Schedule",
+ "report_name": "Asset Depreciation Report",
  "report_type": "Script Report",
- "roles": [
-  {
-   "role": "System Manager"
-  }
- ]
+ "roles": []
 }

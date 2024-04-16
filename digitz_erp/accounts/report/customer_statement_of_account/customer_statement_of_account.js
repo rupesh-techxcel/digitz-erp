@@ -31,13 +31,14 @@ frappe.query_reports["Customer Statement Of Account"] = {
 			"label": "Group By",
 			"width": 150,
 			"options": "Invoice\nCustomer",
-			"default" : "Invoice"
+			"default" : "Customer"
 		},
 		{
 			"fieldname": "show_pending_only",
 			"fieldtype": "Check",
 			"label": "Show Pending Only",
-			"width": 150			
+			"width": 150,
+			"depends_on": "eval:doc.group_by == 'Invoice'" 
 		}
 
 	]

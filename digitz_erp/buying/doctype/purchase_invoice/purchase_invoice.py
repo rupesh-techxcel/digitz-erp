@@ -215,12 +215,18 @@ class PurchaseInvoice(Document):
 		item_stock_ledger = {}
 
 		for docitem in self.items:
-			maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
-			print('MAINTAIN STOCK :', maintain_stock)
+			maintain_stock, fixed_asset, asset_category = frappe.db.get_value('Item',
+			docitem.item_code, ['maintain_stock', 'is_fixed_asset', 'asset_category'])
+	
+
+			if fixed_asset == 1:
+				self.do_asset_posting(docitem, asset_category=asset_category)				
+				continue
+		
 			if(maintain_stock == 1):
 
-   		# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
-		# in this flow itself. If more records, exists stock balance will be udpated lateer
+				# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
+				# in this flow itself. If more records, exists stock balance will be udpated lateer
 				more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
 					'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
 
@@ -228,14 +234,8 @@ class PurchaseInvoice(Document):
 
 				new_balance_qty = docitem.qty_in_base_unit
 
-				print("default balance qty")
-				print(new_balance_qty)
-
 				# Default valuation rate
 				valuation_rate = docitem.rate_in_base_unit
-
-				print("default valuation rate")
-				print(valuation_rate)
 
 				# Default balance value calculating withe the current row only
 				new_balance_value = new_balance_qty * valuation_rate
@@ -353,6 +353,42 @@ class PurchaseInvoice(Document):
 			# posting_status_doc.save()
 
 			update_posting_status(self.doctype, self.name, 'stock_recalc_time', None)
+   
+	def do_asset_posting(self,item, asset_category):
+     
+		# Get the default company from the Global Settings
+		company = frappe.db.get_single_value("Global Settings", "default_company")
+
+		# Get the default asset location for the specified company
+		default_asset_location = frappe.get_value("Company", company, 'default_asset_location')
+
+		# Check if the default asset location is not set
+		if not default_asset_location:
+			# Try to retrieve the 'Default Asset Location' document
+			asset_location = frappe.db.exists("Asset Location", "Default Asset Location")
+
+			# If the 'Default Asset Location' document does not exist, create it
+			if not asset_location:
+				asset_location = frappe.new_doc("Asset Location")
+				asset_location.location_name = "Default Asset Location"
+				asset_location.insert()  # Save the new asset location document
+				default_asset_location = asset_location.name
+			else:
+				default_asset_location = asset_location
+
+			# You should probably link the default asset location with the company here
+			# Assuming 'default_asset_location' is a field in the 'Company' doctype
+			frappe.db.set_value("Company", company, "default_asset_location", default_asset_location)
+		
+		asset = frappe.new_doc("Asset")
+		asset.asset_name = item.name
+		asset.item = item.item_code
+		asset.asset_category = asset_category
+		asset.asset_location = default_asset_location
+		asset.gross_value = item.gross_amount
+		asset.posting_date = self.posting_date
+		asset.posting_time = self.posting_time
+		asset.insert()
 
 	def on_cancel(self):
 		cancel_bank_reconciliation("Purchase Invoice", self.name)

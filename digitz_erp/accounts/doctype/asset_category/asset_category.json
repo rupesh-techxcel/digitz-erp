@@ -9,8 +9,8 @@
   "category_name",
   "is_disabled",
   "asset_account",
-  "depreciation_account",
-  "accumulated_depreciation_account"
+  "accumulated_depreciation_account",
+  "depreciation_account"
  ],
  "fields": [
   {
@@ -29,7 +29,7 @@
    "fieldname": "asset_account",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Asset Account",
+   "label": "Fixed Asset Account",
    "options": "Account",
    "reqd": 1
   },
@@ -37,18 +37,20 @@
    "fieldname": "depreciation_account",
    "fieldtype": "Link",
    "label": "Depreciation Account",
-   "options": "Account"
+   "options": "Account",
+   "reqd": 1
   },
   {
    "fieldname": "accumulated_depreciation_account",
    "fieldtype": "Link",
    "label": "Accumulated Depreciation Account",
-   "options": "Account"
+   "options": "Account",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-31 20:49:10.749167",
+ "modified": "2024-04-08 21:05:32.666854",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Asset Category",

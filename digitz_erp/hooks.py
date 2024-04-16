@@ -112,24 +112,24 @@ fixtures = ["Custom Field", "Custom DocPerm"]
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 	# "all": [
 	# 	"digitz_erp.api.stock_update.re_post_stock_ledgers"
 	# ],
 	# "daily": [
-	# 	"digitz_erp.tasks.daily"
+		# "digitz_erp.tasks.daily"
 		# "digitz_erp.api.stock_update.re_post_stock_ledgers"
 	# ],
-	# "hourly": [
-	# 	"digitz_erp.tasks.hourly"
-	# ],
+	"hourly": [
+		"digitz_erp.api.scheduler_api.post_depreciation_for_depreciation_schedulers"
+	]
 	# "weekly": [
 	# 	"digitz_erp.tasks.weekly"
 	# ],
 	# "monthly": [
 	# 	"digitz_erp.tasks.monthly"
 	# ],
-# }
+}
 
 # Testing
 # -------

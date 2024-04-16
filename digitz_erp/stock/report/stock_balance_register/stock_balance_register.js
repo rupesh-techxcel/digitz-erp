@@ -17,20 +17,6 @@ frappe.query_reports["Stock Balance Register"] = {
 			"label": "W/H",
 			"options": "Warehouse",
 			"width": 150,
-		},
-		{
-			"fieldname": "from_date",
-			"fieldtype": "Date",
-			"label": "From Date",
-			"width": 150,
-			"default":frappe.datetime.month_start()
-		},
-		{
-			"fieldname": "to_date",
-			"fieldtype": "Date",
-			"label": "To Date",
-			"width": 150,
-			"default":frappe.datetime.month_end()
-		},
+		}
 	]
 };

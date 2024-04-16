@@ -9,16 +9,27 @@
   "section_break_lial",
   "naming_series",
   "asset_name",
+  "posting_date",
   "asset_group",
   "item",
-  "asset_category",
+  "item_name",
   "asset_location",
-  "gross_value",
   "amended_from",
+  "column_break_vqpy",
+  "gross_value",
+  "purchase_invoice",
+  "purchase_invoice_item_reference",
+  "column_break_qivo",
+  "asset_category",
+  "asset_account",
+  "depreciation_account",
+  "accumulated_depreciation_account",
   "column_break_btll",
   "depreciation_details",
   "calculate_depreciation",
-  "depreciation_posting_date",
+  "opening_depreciation",
+  "asset_credit_account",
+  "rate_of_depreciation",
   "frequency_in_months",
   "total_number_of_depreciation",
   "salvage_value",
@@ -42,7 +53,9 @@
   {
    "fieldname": "asset_name",
    "fieldtype": "Data",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Asset Name",
    "reqd": 1
   },
@@ -92,16 +105,9 @@
   },
   {
    "depends_on": "eval:doc.calculate_depreciation",
-   "fieldname": "depreciation_posting_date",
-   "fieldtype": "Date",
-   "label": "Depreciation Posting Date",
-   "mandatory_depends_on": "eval:doc.calculate_depreciation"
-  },
-  {
-   "depends_on": "eval:doc.calculate_depreciation",
    "fieldname": "total_number_of_depreciation",
    "fieldtype": "Int",
-   "label": "Total Number Of Depreciation"
+   "label": "Life Duration In Months"
   },
   {
    "depends_on": "eval:doc.calculate_depreciation",
@@ -110,6 +116,7 @@
    "label": "Salvage Value"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.calculate_depreciation",
    "fieldname": "value_after_depreciation",
    "fieldtype": "Currency",
@@ -119,7 +126,8 @@
    "fieldname": "asset_group",
    "fieldtype": "Link",
    "label": "Asset Group",
-   "options": "Asset Group"
+   "options": "Asset Group",
+   "reqd": 1
   },
   {
    "fieldname": "naming_series",
@@ -132,6 +140,85 @@
    "label": "Asset Location",
    "options": "Asset Location",
    "reqd": 1
+  },
+  {
+   "description": "The asset valuation will be recorded in the General Ledger based on the posting date, and the depreciation date will also be calculated accordingly.",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "column_break_vqpy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset_category.asset_account",
+   "fieldname": "asset_account",
+   "fieldtype": "Data",
+   "label": "Fixed Asset Account",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset_category.depreciation_account",
+   "fieldname": "depreciation_account",
+   "fieldtype": "Data",
+   "label": "Depreciation Account(Expense)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset_category.accumulated_depreciation_account",
+   "fieldname": "accumulated_depreciation_account",
+   "fieldtype": "Data",
+   "label": "Accumulated Depreciation Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_invoice_item_reference",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice Item Reference",
+   "options": "Purchase Invoice Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_qivo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation",
+   "fieldname": "opening_depreciation",
+   "fieldtype": "Currency",
+   "label": "Opening Depreciation"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation==1",
+   "description": " Use the 'Asset Credit Account' for opening depreciation, leave it blank otherwise.",
+   "fieldname": "asset_credit_account",
+   "fieldtype": "Link",
+   "label": "Asset Credit Account",
+   "mandatory_depends_on": "eval:doc.opening_depreciation>0",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.calculate_depreciation==1",
+   "description": "Per Year Depreciation Percent",
+   "fieldname": "rate_of_depreciation",
+   "fieldtype": "Percent",
+   "label": "Rate Of Depreciation",
+   "mandatory_depends_on": "eval:doc.calculate_depreciation==1"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -142,7 +229,7 @@
    "link_fieldname": "asset"
   }
  ],
- "modified": "2024-04-02 22:26:14.001154",
+ "modified": "2024-04-10 18:23:29.602799",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Asset",
@@ -163,6 +250,7 @@
    "write": 1
   }
  ],
+ "search_fields": "asset_name",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

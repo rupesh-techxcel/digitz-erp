@@ -11,8 +11,11 @@ def execute(filters=None):
     data = get_data(filters)    
    
     chart = get_chart_data(filters)
-    # return columns, data, None, chart
-    return columns, data, None,chart
+    
+    report_summary = get_report_summary(filters)
+    
+    # return columns, data, None,chart, report_summary
+    return columns, data, None,None, report_summary
 
 def get_chart_data(filters=None):
     
@@ -51,6 +54,45 @@ def get_chart_data(filters=None):
     chart["fieldtype"] = "Currency"
     return chart
 
+def get_report_summary(filters=None):
+
+    profit_label = _("Net Profit")
+    income_label = _("Total Income")
+    expense_label = _("Total Expense")
+    
+    query = """
+            SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') 
+            """
+    income_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+    
+    net_income =income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0
+    
+    query = """
+            SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Expense') 
+            """
+    expense_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+    
+    net_expense = expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
+    
+    net_profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
+    
+    currency = "AED"
+    
+    return [
+		{"value": net_income, "label": income_label, "datatype": "Currency", "currency": currency},
+		{"type": "separator", "value": "-"},
+		{"value": net_expense, "label": expense_label, "datatype": "Currency", "currency": currency},
+		{"type": "separator", "value": "=", "color": "blue"},
+		{
+			"value": net_profit,
+			"indicator": "Green" if net_profit > 0 else "Red",
+			"label": profit_label,
+			"datatype": "Currency",
+			"currency": currency,
+		},
+	]
+    
+  
 def get_data(filters= None):
       
     accounts = frappe.db.sql(
@@ -68,7 +110,9 @@ def get_data(filters= None):
         """, as_dict=True
     )
     
-    gp_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=True)
+    accumulated_values = filters.get('accumulated_values')
+    
+    gp_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),accumulated_values,for_gp=True)
     
     indices_to_remove = []
     profit = 0
@@ -100,18 +144,39 @@ def get_data(filters= None):
                 
             data.append(account)
     
-    # Get Gross Profit
-    query = """
-            SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') and a.include_in_gross_profit = 1
-            """
-    income_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+    query= ""
+    accumulated_values = filters.get('accumulated_values')    
     
-    query = """
-            SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Expense') and a.include_in_gross_profit = 1
-            """
-    expense_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+    profit = 0
     
-    profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
+    if(accumulated_values == True):
+        
+         # Get Gross Profit
+        query = """
+                SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date<=%s and a.root_type in ('Income') and a.include_in_gross_profit = 1
+                """
+        income_balance_data = frappe.db.sql(query,(filters.get('to_date')), as_dict = 1)
+        
+        query = """
+                SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date<=%s and a.root_type in ('Expense') and a.include_in_gross_profit = 1
+                """
+        expense_balance_data = frappe.db.sql(query,(filters.get('to_date')), as_dict = 1)
+        
+        profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
+        
+    else:
+        # Get Gross Profit
+        query = """
+                SELECT sum(credit_amount)-sum(debit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Income') and a.include_in_gross_profit = 1
+                """
+        income_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+        
+        query = """
+                SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl inner join `tabAccount` a on a.name = gl.account where posting_date >= %s and posting_date<=%s and a.root_type in ('Expense') and a.include_in_gross_profit = 1
+                """
+        expense_balance_data = frappe.db.sql(query,(filters.get('from_date'), filters.get('to_date')), as_dict = 1)
+        
+        profit = (income_balance_data[0].balance if income_balance_data and income_balance_data[0].balance else 0) - expense_balance_data[0].balance if expense_balance_data and expense_balance_data[0].balance else 0
     
     gp_data = {'name':'Gross Profit','indent':2,'balance' :profit}
     data.append(gp_data)
@@ -134,7 +199,7 @@ def get_data(filters= None):
     )
     
     
-    np_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),for_gp=False)
+    np_accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),accumulated_values,for_gp=False)
       
     indices_to_remove = []
     profit = 0
