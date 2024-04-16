@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{employee_code} - {employee_name}",
+ "autoname": "format:{employee_code}",
  "creation": "2022-12-22 13:16:45.023583",
  "default_view": "List",
  "doctype": "DocType",
@@ -15,6 +15,7 @@
   "state",
   "country",
   "personal_email",
+  "company",
   "company_email",
   "personal_mob_no",
   "company_mobile_no",
@@ -28,7 +29,7 @@
   "dob",
   "gender",
   "qualification",
-  "join_date",
+  "date_of_joining",
   "status",
   "erp_user",
   "documents_tab",
@@ -140,11 +141,6 @@
    "label": "Qualification"
   },
   {
-   "fieldname": "join_date",
-   "fieldtype": "Date",
-   "label": "Join Date"
-  },
-  {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
@@ -166,11 +162,22 @@
    "fieldtype": "Table",
    "label": "Documents",
    "options": "Employee Document"
+  },
+  {
+   "fieldname": "date_of_joining",
+   "fieldtype": "Date",
+   "label": "Join Date"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-15 13:06:41.130154",
+ "modified": "2024-04-12 14:34:04.042728",
  "modified_by": "Administrator",
  "module": "HR Base",
  "name": "Employee",
