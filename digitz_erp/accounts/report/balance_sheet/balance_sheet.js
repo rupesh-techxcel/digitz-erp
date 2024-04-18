@@ -35,20 +35,33 @@ frappe.query_reports["Balance Sheet"] = {
 			"fieldtype": "Date",
 			"label": "From Date",
 			"depends_on": "eval: doc.period_selection == 'Date Range' ",
-			"default":frappe.datetime.month_start()
+			"default":frappe.datetime.year_start()
 		},
 		{
 			"fieldname": "to_date",
 			"fieldtype": "Date",
 			"label": "To Date",
 			"depends_on": "eval: doc.period_selection == 'Date Range' ",
-			"default":frappe.datetime.month_end()
+			"default":frappe.datetime.year_end()
 		},
 		{
 			"fieldname": "accumulated_values",
 			"fieldtype": "Check",
 			"label": "Accumulated Values"
 		},
+		{
+            "fieldname": "periodicity",
+            "label": "Periodicity",
+            "fieldtype": "Select",
+            "options": [                
+                { "value": "Monthly", "label": "Monthly" },
+                { "value": "Quarterly", "label": "Quarterly" },
+                { "value": "Half-Yearly", "label": "Half-Yearly" },
+                { "value": "Yearly", "label": "Yearly" }
+            ],
+            "default": "Yearly",
+            "reqd": 1
+        }
 		
 	],
 		"tree": true,

@@ -14,7 +14,7 @@ frappe.query_reports["Cash Flow Report"] = {
 				if (r.message && Array.isArray(r.message) && r.message.length > 0) {
 					var year_field = frappe.query_report.get_filter('year');
 					// Ensure options are set as a newline-separated string if it's an array
-					year_field.df.options = r.message.join("\n");
+					year_field.df.options = r.message;
 					// Set the first fiscal year as the default if not set
 					
 					year_field.refresh();
@@ -34,7 +34,8 @@ frappe.query_reports["Cash Flow Report"] = {
         {
             "fieldname": "filter_based_on",
             "fieldtype": "Select",
-            "options": "Fiscal Year\nDate Range",
+            // "options": "Fiscal Year\nDate Range",
+            "options": "Date Range",
             "default": "Date Range"	
         },
         {

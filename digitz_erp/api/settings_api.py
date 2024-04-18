@@ -116,7 +116,7 @@ def get_period_list(start_date, end_date, periodicity):
     months = get_months(start_date, end_date)    
 
     for i in range(cint(math.ceil(months / months_to_add))):
-        print("Processing period", i)  # Implement the actual logic for adding periods to period_list
+        
         period = frappe._dict({"from_date": start_date})
 
         if i == 0 :
