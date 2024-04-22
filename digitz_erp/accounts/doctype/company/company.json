@@ -65,8 +65,7 @@
   "customer_terms",
   "system_tab",
   "material_receipt_integrated_with_purchase",
-  "delivery_note_integrated_with_sales_invoice",
-  "use_expense_heads"
+  "delivery_note_integrated_with_sales_invoice"
  ],
  "fields": [
   {
@@ -411,13 +410,6 @@
    "label": "Update stock in Sales Invoice"
   },
   {
-   "default": "0",
-   "description": "This field determines whether to use Expense Heads instead of account ledgers directly in Expense Entries.",
-   "fieldname": "use_expense_heads",
-   "fieldtype": "Check",
-   "label": " Use separate Expense Heads instead of direct account ledgers in Expense Entries."
-  },
-  {
    "fieldname": "default_asset_location",
    "fieldtype": "Link",
    "label": "Default Asset Location",
@@ -426,7 +418,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-03 11:28:20.629295",
+ "modified": "2024-04-22 13:19:52.374390",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

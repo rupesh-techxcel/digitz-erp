@@ -236,7 +236,8 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Series"
+   "label": "Series",
+   "options": "EE-.#####.-.MM.-.YYYY."
   },
   {
    "fieldname": "default_cost_center",
@@ -252,7 +253,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-22 12:04:54.179474",
+ "modified": "2024-04-22 13:21:31.403583",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",
