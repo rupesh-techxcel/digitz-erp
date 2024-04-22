@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2023-05-26 10:48:47.936066",
@@ -434,7 +435,7 @@
    "table_fieldname": "payment_allocation"
   }
  ],
- "modified": "2024-03-23 18:14:40.594087",
+ "modified": "2024-04-22 11:56:01.670548",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

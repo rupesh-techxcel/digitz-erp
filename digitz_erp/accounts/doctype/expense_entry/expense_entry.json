@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2023-07-19 13:14:47.879782",
@@ -251,7 +252,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-07 11:33:20.172000",
+ "modified": "2024-04-22 12:04:54.179474",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

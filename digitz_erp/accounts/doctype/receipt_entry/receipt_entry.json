@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2022-12-22 17:48:43.827640",
@@ -178,7 +179,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-27 11:13:14.778199",
+ "modified": "2024-04-22 12:00:54.708970",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",
