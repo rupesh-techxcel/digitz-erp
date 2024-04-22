@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2023-01-15 10:25:58.992227",
@@ -432,7 +433,6 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
-
   }
  ],
  "index_web_pages_for_search": 1,
@@ -451,9 +451,7 @@
    "link_fieldname": "quotation"
   }
  ],
-
- "modified": "2024-03-20 10:39:54.237105",
-
+ "modified": "2024-04-22 11:32:12.239307",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

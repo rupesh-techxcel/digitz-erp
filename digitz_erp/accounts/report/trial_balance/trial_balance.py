@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from digitz_erp.accounts.report.digitz_erp import filter_accounts
+from digitz_erp.accounts.report.digitz_erp import filter_accounts,sort_accounts
 from digitz_erp.api.trial_balance_api import get_accounts_data
 
 value_fields = (
@@ -37,6 +37,46 @@ def execute(filters=None):
 		data.extend(data_expense)
 	
 	return columns,data
+
+def fetch_account_hierarchy(root_types=None):
+    # Determine root_types filter
+    root_type_filter = root_types if root_types else ['Account', 'Liability', 'Income', 'Expense']
+
+    # Fetch the specified root account with additional root_type filtering
+    root_accounts = frappe.get_all('Account',
+                                   filters={
+                                       'parent_account': None,
+                                       'root_type': ['in', root_type_filter]
+                                   },
+                                   fields=['name', 'parent_account', 'balance'])
+
+    if not root_accounts:
+        return "No root accounts found matching the specified types."
+
+    # Initialize the hierarchy dictionary
+    hierarchy = {}
+    for root in root_accounts:
+        hierarchy[root.name] = {
+            'balance': root.balance,
+            'children': {}
+        }
+
+    # Function to fetch child accounts recursively
+    def add_children(parent_name, parent_dict):
+        children = frappe.get_all('Account',
+                                  filters={'parent_account': parent_name},
+                                  fields=['name', 'parent_account', 'balance', 'is_group', 'include_in_gross_profit'])
+        for child in children:
+            # Only add groups or specific non-group accounts
+            if child['is_group'] == 1 or (child['is_group'] == 0 and child['include_in_gross_profit'] == 0):
+                parent_dict[child['name']] = {'balance': child['balance'], 'children': {}}
+                add_children(child['name'], parent_dict[child['name']])  # Recurse to add further children
+
+    # Start the recursion for each root account
+    for root in root_accounts:
+        add_children(root.name, hierarchy[root.name]['children'])
+
+    return hierarchy
  
 def get_data_for_root_type(filters, root_type):
      # data = get_data(filters)
@@ -86,7 +126,8 @@ def get_data_for_root_type(filters, root_type):
 	print("accounts_from_table")
 	print(accounts_from_table)	
  
-	filter_accounts(accounts_from_table)
+	# filter_accounts(accounts_from_table)
+	accounts_from_table  = sort_accounts(accounts_from_table)
   
 	data =[]
 	for account in accounts_from_table:

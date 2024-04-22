@@ -2,7 +2,7 @@ import frappe
 from frappe.utils import *
 
 @frappe.whitelist()
-def get_accounts_data(from_date,to_date,accumulated_values,for_gp):
+def get_accounts_data(for_gp, period_list):
     
     query = ""
     
@@ -26,31 +26,41 @@ def get_accounts_data(from_date,to_date,accumulated_values,for_gp):
     accounts = {}
     
     for d in data:
-                
-        balance = get_account_balance(d.account_name,from_date,to_date,accumulated_values)
-                
-        if(not balance):
-            balance = 0
+        
+        for period in period_list:
             
-        if(d.root_type == "Income"):
-            balance = balance * -1
+            period_from_date = period["from_date"] #Always to use from date to get the correct value for 'as on the to_date'
             
-        accounts[d.account_name] = {
-            "balance": balance            
-        }
+            period_to_date = period["to_date"]
+                
+            balance = get_account_balance(d.account_name,period_from_date,period_to_date)
+                    
+            if(not balance):
+                balance = 0
+                
+            if(d.root_type == "Income"):
+                balance = balance * -1
+                
+            if balance == 0:
+                continue
+            
+            if d.account_name not in accounts:
+                accounts[d.account_name] = {}
+            
+            accounts[d.account_name][period["key"]] = balance
+            
+            if d.parent_account not in accounts:
+                accounts[d.parent_account] = {}
+            
+            accounts[d.parent_account][period["key"]] = accounts[d.parent_account].get(period["key"], 0) + balance
+                        
+            update_parent_accounts_recursive(d.parent_account,accounts,d.account_name, balance, period)
         
-        if(d.parent_account in accounts):
-            accounts[d.parent_account] = {"balance":accounts[d.parent_account]["balance"] + balance}
-        else:
-            accounts[d.parent_account] = {"balance":balance}
-        
-        update_parent_accounts_recursive(d.parent_account,accounts,d.account_name)
-        
-    return re_process_account_data(accounts)
+    return accounts
 
 # Method to update the parent account of the account passing in, not the account's 
 # Means, currently passed in account's values already updated
-def update_parent_accounts_recursive(account, accounts, account_name):
+def update_parent_accounts_recursive(account, accounts, account_name, balance, period):
     account_doc = frappe.get_doc('Account',account)
     
     # The parent account intend to be updated is the root account and need not update
@@ -59,55 +69,24 @@ def update_parent_accounts_recursive(account, accounts, account_name):
     
     parent_account = account_doc.parent_account
     
-    if parent_account in accounts:
-        accounts[parent_account] = {
-            "balance": accounts[parent_account]['balance'] + accounts[account_name]['balance']}
-    else:   
-        accounts[parent_account] = {"balance": accounts[account_name]['balance'] }
+    # Initialize parent account if not already done
+    if parent_account not in accounts:
+            accounts[parent_account] = {"parent": parent_account}
     
-    update_parent_accounts_recursive(parent_account,accounts,account_name)
+    accounts[parent_account][period["key"]] = accounts[parent_account].get(period["key"], 0) + balance
     
+    update_parent_accounts_recursive(parent_account,accounts,account_name, balance, period)
     
-def get_account_balance(account, from_date,to_date, accumulated_values):
+def get_account_balance(account, from_date,to_date):
     
     query =""
-    
-    if accumulated_values:
-        
-        query="""
-        SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl where gl.account = %s and posting_date<=%s
-        """
-        
-        data = frappe.db.sql(query,(account,to_date), as_dict=True)
-        if data and data[0]:
-            return data[0].balance
-        else:
-            return 0
-    else:            
-        query="""
-        SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl where gl.account = %s and posting_date >= %s and posting_date<=%s
-        """
-        
-        data = frappe.db.sql(query,(account,from_date,to_date), as_dict=True)
-        if data and data[0]:
-            return data[0].balance
-        else:
-            return 0
-    
-def re_process_account_data(accounts):
-        
-    data = []
-    for account in accounts:  
-        
-        parent_account = frappe.db.get_value('Account',account,['parent_account'])
-        
-        balance = accounts[account]['balance'] if accounts[account]['balance'] else 0
-        
-        if(balance == 0):
-            continue
                 
-        account_data = {'name':account,'parent_account':parent_account, 'balance':balance}
-        
-        data.append(account_data)
-        
-    return data
+    query="""
+    SELECT sum(debit_amount)-sum(credit_amount) as balance from `tabGL Posting` gl where gl.account = %s and posting_date >= %s and posting_date<=%s
+    """
+    
+    data = frappe.db.sql(query,(account,from_date,to_date), as_dict=True)
+    if data and data[0]:
+        return data[0].balance
+    else:
+        return 0

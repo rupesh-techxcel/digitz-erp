@@ -7,7 +7,7 @@ frappe.query_reports["Profit and Loss Statement"] = {
 				"fieldname": "year_selection",
 				"label": __("Year Selection"),
 				"fieldtype": "Select",
-				"options": "Date Range\nFiscal Year",
+				"options": "Date Range",
 				"default": "Date Range",
 				"on_change": function(query_report) {
 					var year_selection = query_report.get_values().year_selection;
@@ -40,10 +40,18 @@ frappe.query_reports["Profit and Loss Statement"] = {
 			"default":frappe.datetime.year_end()
 		},
 		{
-			"fieldname": "accumulated_values",
-			"fieldtype": "Check",
-			"label": "Accumulated Values"			
-		}
+            "fieldname": "periodicity",
+            "label": "Periodicity",
+            "fieldtype": "Select",
+            "options": [                
+                { "value": "Monthly", "label": "Monthly" },
+                { "value": "Quarterly", "label": "Quarterly" },
+                { "value": "Half-Yearly", "label": "Half-Yearly" },
+                { "value": "Yearly", "label": "Yearly" }
+            ],
+            "default": "Yearly",
+            "reqd": 1
+        }
 	],
 		"tree": true,
 		"treeView": true,

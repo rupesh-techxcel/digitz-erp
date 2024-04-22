@@ -24,6 +24,84 @@ class SalesOrder(Document):
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_customer_item_price(item, self.customer,rate,self.posting_date)
+    
+	@frappe.whitelist()
+	def generate_sales_order(self):
+
+		sales_order = frappe.new_doc('Sales Order')
+
+		sales_order.customer = self.customer
+		sales_order.customer_name = self.customer_name
+		sales_order.customer_display_name = self.customer_display_name
+		sales_order.customer_address = self.customer_address        
+		sales_order.posting_date = self.posting_date
+		sales_order.posting_time = self.posting_time
+		sales_order.ship_to_location = self.ship_to_location
+		sales_order.salesman = self.salesman
+		sales_order.salesman_code = self.salesman_code
+		sales_order.tax_id = self.tax_id
+		
+		sales_order.price_list = self.price_list
+		sales_order.rate_includes_tax = self.rate_includes_tax
+		sales_order.warehouse = self.warehouse        
+		sales_order.credit_sale = self.credit_sale
+		sales_order.credit_days = self.credit_days
+		sales_order.payment_terms = self.payment_terms
+		sales_order.payment_mode = self.payment_mode
+		sales_order.payment_account = self.payment_account
+		sales_order.remarks = self.remarks
+		sales_order.gross_total = self.gross_total
+		sales_order.total_discount_in_line_items = self.total_discount_in_line_items
+		sales_order.tax_total = self.tax_total
+		sales_order.net_total = self.net_total
+		sales_order.round_off = self.round_off
+		sales_order.rounded_total = self.rounded_total
+		sales_order.terms = self.terms
+		sales_order.terms_and_conditions = self.terms_and_conditions
+		sales_order.auto_generated_from_delivery_note = False
+		sales_order.address_line_1 = self.address_line_1
+		sales_order.address_line_2 = self.address_line_2
+		sales_order.area_name = self.area_name
+		sales_order.country = self.country
+		sales_order.company = self.company
+
+
+		idx = 0
+
+		for item in self.items:
+			idx = idx + 1
+			sales_order_item = frappe.new_doc("Sales Order Item")
+			sales_order_item.warehouse = item.warehouse
+			sales_order_item.item = item.item
+			sales_order_item.item_name = item.item_name
+			sales_order_item.display_name = item.display_name
+			sales_order_item.qty =item.qty
+			sales_order_item.unit = item.unit
+			sales_order_item.rate = item.rate
+			sales_order_item.base_unit = item.base_unit
+			sales_order_item.qty_in_base_unit = item.qty_in_base_unit
+			sales_order_item.rate_in_base_unit = item.rate_in_base_unit
+			sales_order_item.conversion_factor = item.conversion_factor
+			sales_order_item.rate_includes_tax = item.rate_includes_tax
+			sales_order_item.rate_excluded_tax = item.rate_excluded_tax
+			sales_order_item.gross_amount = item.gross_amount
+			sales_order_item.tax_excluded = item.tax_excluded
+			sales_order_item.tax = item.tax
+			sales_order_item.tax_rate = item.tax_rate
+			sales_order_item.tax_amount = item.tax_amount
+			sales_order_item.discount_percentage = item.discount_percentage
+			sales_order_item.discount_amount = item.discount_amount
+			sales_order_item.net_amount = item.net_amount
+			sales_order_item.unit_conversion_details = item.unit_conversion_details
+			sales_order_item.idx = idx
+
+			sales_order.append('items', sales_order_item)            
+
+		sales_order.save()
+
+		frappe.msgprint("Sales Order duplicated successfully.",indicator="green", alert=True)
+		
+		return sales_order.name
 
 @frappe.whitelist()
 def generate_do(sales_order_name):
@@ -122,6 +200,7 @@ def generate_do(sales_order_name):
 
 	frappe.msgprint("Delivery Note generated successfully, in draft mode.",indicator="green", alert=True)
 	return delivery_note_doc.name
+
 
 @frappe.whitelist()
 def generate_sales_invoice(sales_order_name):

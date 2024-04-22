@@ -158,6 +158,85 @@ class DeliveryNote(Document):
                     valuation_rate = frappe.get_value("Item", docitem.item, ['item_valuation_rate'])
                     if(valuation_rate == 0):
                         frappe.throw("Please provide a valuation rate for the item, as there is no existing purchase invoice for it.")
+                        
+                        
+    @frappe.whitelist()
+    def generate_delivery_note(self):
+
+        delivery_note = frappe.new_doc('Delivery Note')
+
+        delivery_note.customer = self.customer
+        delivery_note.customer_name = self.customer_name
+        delivery_note.customer_display_name = self.customer_display_name
+        delivery_note.customer_address = self.customer_address        
+        delivery_note.posting_date = self.posting_date
+        delivery_note.posting_time = self.posting_time
+        delivery_note.ship_to_location = self.ship_to_location
+        delivery_note.salesman = self.salesman
+        delivery_note.salesman_code = self.salesman_code
+        delivery_note.tax_id = self.tax_id
+        
+        delivery_note.price_list = self.price_list
+        delivery_note.rate_includes_tax = self.rate_includes_tax
+        delivery_note.warehouse = self.warehouse        
+        delivery_note.credit_sale = self.credit_sale
+        delivery_note.credit_days = self.credit_days
+        delivery_note.payment_terms = self.payment_terms
+        delivery_note.payment_mode = self.payment_mode
+        delivery_note.payment_account = self.payment_account
+        delivery_note.remarks = self.remarks
+        delivery_note.gross_total = self.gross_total
+        delivery_note.total_discount_in_line_items = self.total_discount_in_line_items
+        delivery_note.tax_total = self.tax_total
+        delivery_note.net_total = self.net_total
+        delivery_note.round_off = self.round_off
+        delivery_note.rounded_total = self.rounded_total
+        delivery_note.terms = self.terms
+        delivery_note.terms_and_conditions = self.terms_and_conditions
+        delivery_note.auto_generated_from_delivery_note = False
+        delivery_note.address_line_1 = self.address_line_1
+        delivery_note.address_line_2 = self.address_line_2
+        delivery_note.area_name = self.area_name
+        delivery_note.country = self.country
+        delivery_note.company = self.company
+
+
+        idx = 0
+
+        for item in self.items:
+            idx = idx + 1
+            delivery_note_item = frappe.new_doc("Delivery Note Item")
+            delivery_note_item.warehouse = item.warehouse
+            delivery_note_item.item = item.item
+            delivery_note_item.item_name = item.item_name
+            delivery_note_item.display_name = item.display_name
+            delivery_note_item.qty =item.qty
+            delivery_note_item.unit = item.unit
+            delivery_note_item.rate = item.rate
+            delivery_note_item.base_unit = item.base_unit
+            delivery_note_item.qty_in_base_unit = item.qty_in_base_unit
+            delivery_note_item.rate_in_base_unit = item.rate_in_base_unit
+            delivery_note_item.conversion_factor = item.conversion_factor
+            delivery_note_item.rate_includes_tax = item.rate_includes_tax
+            delivery_note_item.rate_excluded_tax = item.rate_excluded_tax
+            delivery_note_item.gross_amount = item.gross_amount
+            delivery_note_item.tax_excluded = item.tax_excluded
+            delivery_note_item.tax = item.tax
+            delivery_note_item.tax_rate = item.tax_rate
+            delivery_note_item.tax_amount = item.tax_amount
+            delivery_note_item.discount_percentage = item.discount_percentage
+            delivery_note_item.discount_amount = item.discount_amount
+            delivery_note_item.net_amount = item.net_amount
+            delivery_note_item.unit_conversion_details = item.unit_conversion_details
+            delivery_note_item.idx = idx
+
+            delivery_note.append('items', delivery_note_item)            
+
+        delivery_note.save()
+
+        frappe.msgprint("Delivery Note duplicated successfully.",indicator="green", alert=True)
+        
+        return delivery_note.name
 
     @frappe.whitelist()
     def generate_sale_invoice(self):

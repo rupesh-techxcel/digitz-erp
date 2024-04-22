@@ -1020,6 +1020,26 @@ let create_custom_buttons = function(frm){
 		}, 'Postings');
 		}
 	}
+
+	if (!frm.is_new()) {
+		frm.add_custom_button(__('Duplicate DO'), function() {
+			// Call the method directly on the server-side document instance
+			frm.call({
+				method: "generate_delivery_note",
+				doc: frm.doc,
+				callback: function(r) {
+					if (!r.exc) {
+						// Navigate to the new duplicated invoice
+						frappe.set_route("Form", "Delivery Note", r.message);
+						frappe.show_alert({
+							message: __("New Delivery Note " + r.message + " has been opened."),
+							indicator: 'green'
+						});
+					}
+				}
+			});
+		} );
+	}
 }
 
 let general_ledgers = function (frm) {

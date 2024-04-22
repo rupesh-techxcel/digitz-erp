@@ -12,6 +12,84 @@ class Quotation(Document):
      
 		self.in_words = money_in_words(self.rounded_total,"AED")
   
+	@frappe.whitelist()
+	def generate_quotation(self):
+
+		quotation = frappe.new_doc('Quotation')
+
+		quotation.customer = self.customer
+		quotation.customer_name = self.customer_name
+		quotation.customer_display_name = self.customer_display_name
+		quotation.customer_address = self.customer_address        
+		quotation.posting_date = self.posting_date
+		quotation.posting_time = self.posting_time
+		quotation.ship_to_location = self.ship_to_location
+		quotation.salesman = self.salesman
+		quotation.salesman_code = self.salesman_code
+		quotation.tax_id = self.tax_id
+		
+		quotation.price_list = self.price_list
+		quotation.rate_includes_tax = self.rate_includes_tax
+		quotation.warehouse = self.warehouse        
+		quotation.credit_sale = self.credit_sale
+		quotation.credit_days = self.credit_days
+		quotation.payment_terms = self.payment_terms
+		quotation.payment_mode = self.payment_mode
+		quotation.payment_account = self.payment_account
+		quotation.remarks = self.remarks
+		quotation.gross_total = self.gross_total
+		quotation.total_discount_in_line_items = self.total_discount_in_line_items
+		quotation.tax_total = self.tax_total
+		quotation.net_total = self.net_total
+		quotation.round_off = self.round_off
+		quotation.rounded_total = self.rounded_total
+		quotation.terms = self.terms
+		quotation.terms_and_conditions = self.terms_and_conditions
+		quotation.auto_generated_from_delivery_note = False
+		quotation.address_line_1 = self.address_line_1
+		quotation.address_line_2 = self.address_line_2
+		quotation.area_name = self.area_name
+		quotation.country = self.country
+		quotation.company = self.company
+
+
+		idx = 0
+
+		for item in self.items:
+			idx = idx + 1
+			quotation_item = frappe.new_doc("Quotation Item")
+			quotation_item.warehouse = item.warehouse
+			quotation_item.item = item.item
+			quotation_item.item_name = item.item_name
+			quotation_item.display_name = item.display_name
+			quotation_item.qty =item.qty
+			quotation_item.unit = item.unit
+			quotation_item.rate = item.rate
+			quotation_item.base_unit = item.base_unit
+			quotation_item.qty_in_base_unit = item.qty_in_base_unit
+			quotation_item.rate_in_base_unit = item.rate_in_base_unit
+			quotation_item.conversion_factor = item.conversion_factor
+			quotation_item.rate_includes_tax = item.rate_includes_tax
+			quotation_item.rate_excluded_tax = item.rate_excluded_tax
+			quotation_item.gross_amount = item.gross_amount
+			quotation_item.tax_excluded = item.tax_excluded
+			quotation_item.tax = item.tax
+			quotation_item.tax_rate = item.tax_rate
+			quotation_item.tax_amount = item.tax_amount
+			quotation_item.discount_percentage = item.discount_percentage
+			quotation_item.discount_amount = item.discount_amount
+			quotation_item.net_amount = item.net_amount
+			quotation_item.unit_conversion_details = item.unit_conversion_details
+			quotation_item.idx = idx
+
+			quotation.append('items', quotation_item)            
+
+		quotation.save()
+
+		frappe.msgprint("Quotation duplicated successfully.",indicator="green", alert=True)
+		
+		return quotation.name
+  
 
 @frappe.whitelist()
 def generate_sale_invoice(quotation):

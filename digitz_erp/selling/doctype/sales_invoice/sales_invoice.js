@@ -6,18 +6,8 @@ frappe.ui.form.on('Sales Invoice', {
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
 
-		 if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) {
-			frm.add_custom_button(__('Get Items From Delivery Note'), function () {
-					show_delivery_notes_dialog(frm)
-					});
-			}
-
-		if(frm.doc.docstatus == 1 && frm.doc.update_stock == false)
-		{
-			frm.add_custom_button('Create Delivery Note', () => {
-				frm.call("generate_delivery_note")
-			})
-		}
+		//  if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) 
+		 
 
 
 		update_total_big_display(frm);
@@ -1137,8 +1127,8 @@ function set_default_payment_mode(frm)
 	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
 }
 
-
 let create_custom_buttons = function(frm){
+
 	if (frappe.user.has_role('Management')) {
 		if(!frm.is_new() && (frm.doc.docstatus == 1)){
 		frm.add_custom_button('General Ledgers',() =>{
@@ -1148,6 +1138,40 @@ let create_custom_buttons = function(frm){
 				stock_ledgers(frm)
 		}, 'Postings');
 		}
+	}
+
+	if (!frm.is_new()) {
+		frm.add_custom_button(__('Duplicate'), function() {
+			// Call the method directly on the server-side document instance
+			frm.call({
+				method: "generate_sales_invoice",
+				doc: frm.doc,
+				callback: function(r) {
+					if (!r.exc) {
+						// Navigate to the new duplicated invoice
+						frappe.set_route("Form", "Sales Invoice", r.message);
+						frappe.show_alert({
+							message: __("New Sales Invoice " + r.message + " has been opened."),
+							indicator: 'green'
+						});
+					}
+				}
+			});
+		} );
+	}
+
+	if(frm.is_new())
+	{
+		frm.add_custom_button(__('Get Items From Delivery Note'), function () {
+			show_delivery_notes_dialog(frm)
+			});
+	}
+
+	if(frm.doc.docstatus == 1 && frm.doc.update_stock == false)
+	{
+		frm.add_custom_button('Create Delivery Note', () => {
+			frm.call("generate_delivery_note")
+		})
 	}
 }
 

@@ -3,17 +3,17 @@
 
 import frappe
 from frappe import _
-from digitz_erp.accounts.report.digitz_erp import filter_accounts
+from digitz_erp.accounts.report.digitz_erp import filter_accounts,sort_accounts
 from digitz_erp.api.balance_sheet_api import get_accounts_data
 from datetime import datetime, timedelta
 from digitz_erp.api.settings_api import get_period_list
 
 def execute(filters=None):
     # columns = get_columns()
-    data,columns = get_data(filters)
+    data,columns,summary = get_data(filters)
         
     # chart = get_chart_data(filters)
-    return columns, data, None, None
+    return columns, data, None, None, summary
 
 def get_chart_data(filters=None):
     data = get_data(filters)
@@ -102,7 +102,9 @@ def get_data(filters=None):
     for index in reversed(indices_to_remove):
         del accounts[index]
       
-    filter_accounts(accounts)
+    # filter_accounts(accounts)
+    
+    accounts= sort_accounts(accounts)    
     
     gp_data = {'name': 'Provisional Profit', 'indent': 2}
 
@@ -132,10 +134,21 @@ def get_data(filters=None):
         
     data =[]
     
+    assets_total = 0
+    liabilities_total = 0
+    profit = 0
+    
+    # Assuming period_list is not empty and each dictionary has a 'key'
+    last_period = period_list[-1]  # Access the last dictionary in the list
+    last_key = last_period['key']  # Retrieve the value of 'key' from the last dictionary
+    
     for account in accounts:
         
         if account.name == "Accounts":
             continue
+        
+        if account.name == "Assets":
+            assets_total = account[last_key]
         
         # Include profit in the liability
         # Include profit in the liability
@@ -144,16 +157,46 @@ def get_data(filters=None):
                 key = period['key']
                 # Ensure there's a default value of 0 for both account and gp_data before adding
                 account[key] = account.get(key, 0) + gp_data.get(key, 0)
+        
+            liabilities_total = account[last_key]
                 
         data.append(account)
         
-    
+    profit = gp_data[last_key]
     
     data.append(gp_data)
     
     columns = get_columns(period_list)
+    
+    summary_data = []
+    
+    summary_data.append({            
+          
+            "label": "Total Asset",
+            "value": assets_total,
+            "datatype": "Currency",            
+            "currency": "AED"        
+        })
+    
+    summary_data.append({            
+          
+            "label": "Total Liability",
+            "value": liabilities_total,
+            "datatype": "Currency",            
+            "currency": "AED"        
+        })
+    
+    summary_data.append({            
+          
+            "label": "Provisional Profit/Loss",
+            "value": profit,
+            "datatype": "Currency",            
+            "currency": "AED",
+            "indicator": "Green" if profit > 0 else  ("Red" if profit<0 else "Black")
+        })
+    
         
-    return data,columns
+    return data,columns,summary_data
 
 def get_columns(period_list):
     columns = [

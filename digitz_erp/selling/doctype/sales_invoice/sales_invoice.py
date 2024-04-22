@@ -941,6 +941,85 @@ class SalesInvoice(Document):
                 except Exception as e:
                     frappe.log_error("Error creating receipt schedule: " + str(e))
 
+    @frappe.whitelist()
+    def generate_sales_invoice(self):
+
+        sales_invoice = frappe.new_doc('Sales Invoice')
+
+        sales_invoice.customer = self.customer
+        sales_invoice.customer_name = self.customer_name
+        sales_invoice.customer_display_name = self.customer_display_name
+        sales_invoice.customer_address = self.customer_address        
+        sales_invoice.posting_date = self.posting_date
+        sales_invoice.posting_time = self.posting_time
+        sales_invoice.ship_to_location = self.ship_to_location
+        sales_invoice.salesman = self.salesman
+        sales_invoice.salesman_code = self.salesman_code
+        sales_invoice.tax_id = self.tax_id        
+        sales_invoice.price_list = self.price_list
+        sales_invoice.rate_includes_tax = self.rate_includes_tax
+        sales_invoice.warehouse = self.warehouse
+        sales_invoice.update_stock = self.update_stock
+        sales_invoice.credit_sale = self.credit_sale
+        sales_invoice.credit_days = self.credit_days
+        sales_invoice.payment_terms = self.payment_terms
+        sales_invoice.payment_mode = self.payment_mode
+        sales_invoice.payment_account = self.payment_account
+        sales_invoice.remarks = self.remarks
+        sales_invoice.gross_total = self.gross_total
+        sales_invoice.total_discount_in_line_items = self.total_discount_in_line_items
+        sales_invoice.tax_total = self.tax_total
+        sales_invoice.net_total = self.net_total
+        sales_invoice.round_off = self.round_off
+        sales_invoice.rounded_total = self.rounded_total
+        sales_invoice.terms = self.terms
+        sales_invoice.terms_and_conditions = self.terms_and_conditions
+        sales_invoice.auto_generated_from_delivery_note = False
+        sales_invoice.address_line_1 = self.address_line_1
+        sales_invoice.address_line_2 = self.address_line_2
+        sales_invoice.area_name = self.area_name
+        sales_invoice.country = self.country
+        sales_invoice.company = self.company
+
+        sales_invoice.save()
+
+        idx = 0
+
+        for item in self.items:
+            idx = idx + 1
+            sales_invoice_item = frappe.new_doc("Sales Invoice Item")
+            sales_invoice_item.warehouse = item.warehouse
+            sales_invoice_item.item = item.item
+            sales_invoice_item.item_name = item.item_name
+            sales_invoice_item.display_name = item.display_name
+            sales_invoice_item.qty =item.qty
+            sales_invoice_item.unit = item.unit
+            sales_invoice_item.rate = item.rate
+            sales_invoice_item.base_unit = item.base_unit
+            sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit
+            sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit
+            sales_invoice_item.conversion_factor = item.conversion_factor
+            sales_invoice_item.rate_includes_tax = item.rate_includes_tax
+            sales_invoice_item.rate_excluded_tax = item.rate_excluded_tax
+            sales_invoice_item.gross_amount = item.gross_amount
+            sales_invoice_item.tax_excluded = item.tax_excluded
+            sales_invoice_item.tax = item.tax
+            sales_invoice_item.tax_rate = item.tax_rate
+            sales_invoice_item.tax_amount = item.tax_amount
+            sales_invoice_item.discount_percentage = item.discount_percentage
+            sales_invoice_item.discount_amount = item.discount_amount
+            sales_invoice_item.net_amount = item.net_amount
+            sales_invoice_item.unit_conversion_details = item.unit_conversion_details
+            sales_invoice_item.idx = idx
+
+            sales_invoice.append('items', sales_invoice_item)            
+
+            sales_invoice.save()
+
+        frappe.msgprint("Sales Invoice duplicated successfully.",indicator="green", alert=True)
+        
+        return sales_invoice.name
+    
 
 @frappe.whitelist()
 def get_default_payment_mode():
