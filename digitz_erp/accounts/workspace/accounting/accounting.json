@@ -5,7 +5,7 @@
    "label": "Income Expense Chart"
   }
  ],
- "content": "[{\"id\":\"3HnbUReubQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounting</span>\",\"col\":12}},{\"id\":\"GPAeX9p5ZP\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Income Expense Chart\",\"col\":12}},{\"id\":\"dSibUPh1cA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"5HDjMU_zSF\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"q4dW7wWC4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Assets\",\"col\":4}},{\"id\":\"oC5fHvHqir\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SbxYxVPKcw\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"8-417abdgm\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Reports\",\"col\":4}},{\"id\":\"b-drBnIcUA\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
+ "content": "[{\"id\":\"3HnbUReubQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounting</span>\",\"col\":12}},{\"id\":\"QG352ZHr-f\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Profit and Loss Statement\",\"col\":4}},{\"id\":\"GPAeX9p5ZP\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Income Expense Chart\",\"col\":12}},{\"id\":\"dSibUPh1cA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"5HDjMU_zSF\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"q4dW7wWC4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Assets\",\"col\":4}},{\"id\":\"oC5fHvHqir\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SbxYxVPKcw\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"8-417abdgm\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Reports\",\"col\":4}},{\"id\":\"b-drBnIcUA\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
  "creation": "2024-03-25 08:07:42.632063",
  "custom_blocks": [],
  "docstatus": 0,
@@ -354,11 +354,16 @@
    "type": "Link"
   }
  ],
- "modified": "2024-04-22 09:51:02.200452",
+ "modified": "2024-04-22 17:21:50.296246",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
- "number_cards": [],
+ "number_cards": [
+  {
+   "label": "Profit and Loss Statement",
+   "number_card_name": "Profit and Loss Statement"
+  }
+ ],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,

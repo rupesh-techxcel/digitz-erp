@@ -25,6 +25,7 @@
   "amount",
   "allocated_amount",
   "remarks",
+  "customers",
   "section_break_wgdje",
   "amended_from",
   "section_break_yppjt",
@@ -54,7 +55,6 @@
   {
    "fieldname": "payment_mode",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Payment Mode",
    "options": "Payment Mode",
    "reqd": 1
@@ -174,12 +174,19 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "customers",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Customers",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-22 12:00:54.708970",
+ "modified": "2024-04-22 15:05:50.893080",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

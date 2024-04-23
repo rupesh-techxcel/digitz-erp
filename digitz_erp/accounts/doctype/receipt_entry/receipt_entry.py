@@ -23,6 +23,27 @@ class ReceiptEntry(Document):
 
 		# Extract the new time as a string
 		self.posting_time = new_datetime.strftime('%H:%M:%S')
+  
+	def assign_customers(self):
+		# Assuming receipt_entry_details is a list of dictionaries containing receipt details
+		receipt_details = self.receipt_entry_details
+
+		# Initialize an empty list to store customer names
+		customers = []
+
+		# Check if there are any receipt details
+		if receipt_details:
+			# Loop through each detail in the receipt details
+			for receipt_detail in receipt_details:
+				# Check if 'customer' key exists and has a value
+				if receipt_detail.customer:
+					# Append the customer name to the customers list
+					if receipt_detail.customer not in customers:
+						customers.append(receipt_detail.customer)
+
+		# Join all customer names into a single string separated by commas
+		customers_str = ", ".join(customers)
+		self.customers = customers_str
 
 	def assign_missing_reference_nos(self):
 		if self.payment_mode != "Bank":
@@ -58,6 +79,7 @@ class ReceiptEntry(Document):
 		self.assign_missing_reference_nos()
 		self.clean_deleted_allocations()
 		self.postings_start_time = datetime.now()
+		self.assign_customers()  
 
 	def validate(self):
 
