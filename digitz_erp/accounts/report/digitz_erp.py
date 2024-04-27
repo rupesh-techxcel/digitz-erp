@@ -37,23 +37,20 @@ def sort_accounts(accounts):
     for account in accounts:
         if account["name"] == "Accounts":
             sort_accounts.append(account)
-            print("here 1")
+            
             break
-        
-    print("here 0")
-    print(accounts)
     
     def add_to_parent_account(account, indent):
-        print("here 2")
+    
         for account_in_accounts in accounts:
-            print("here 3")
+    
             if account_in_accounts["parent_account"] == account:
-                print("here 4")
+    
                 account_in_accounts["added"] = 1
                 account_in_accounts["indent"] = indent + 1
                 sort_accounts.append(account_in_accounts)
                 add_to_parent_account(account_in_accounts["name"],indent+1)
-                print(indent)
+    
     
     add_to_parent_account("Accounts",0) 
     

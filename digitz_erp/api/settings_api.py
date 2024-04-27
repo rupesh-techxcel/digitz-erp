@@ -176,3 +176,8 @@ def get_label(periodicity, from_date, to_date):
         label = formatdate(from_date, "MMM yyyy") + " - " + formatdate(to_date, "MMM yyyy")
 
     return label
+
+def get_gl_narration(document_type):
+    
+    narration =frappe.get_value("GL Narration",{"doc_type":document_type},['narration'])
+    return narration

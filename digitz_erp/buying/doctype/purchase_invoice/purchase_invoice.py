@@ -9,7 +9,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
 from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price,update_supplier_item_price
-from digitz_erp.api.settings_api import get_default_currency
+from digitz_erp.api.settings_api import get_default_currency, get_gl_narration
 from digitz_erp.api.purchase_invoice_api import check_balance_qty_to_return_for_purchase_invoice
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from datetime import datetime,timedelta
@@ -105,7 +105,7 @@ class PurchaseInvoice(Document):
 
 	def do_postings_on_submit(self):
 
-		self.insert_gl_records(self.remarks)
+		self.insert_gl_records()
 		self.insert_payment_postings()
 		self.do_stock_posting()
 		create_bank_reconciliation("Purchase Invoice", self.name)
@@ -216,7 +216,7 @@ class PurchaseInvoice(Document):
 
 		for docitem in self.items:
 			maintain_stock, fixed_asset, asset_category = frappe.db.get_value('Item',
-			docitem.item_code, ['maintain_stock', 'is_fixed_asset', 'asset_category'])
+			docitem.item, ['maintain_stock', 'is_fixed_asset', 'asset_category'])
 	
 
 			if fixed_asset == 1:
@@ -550,13 +550,46 @@ class PurchaseInvoice(Document):
 		# 		})
 
 
-
-
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
+  
+	def get_narration(self):
+     
+				# Assign supplier, invoice_no, and remarks
+		supplier = self.supplier
+		invoice_no = self.supplier_inv_no
+		remarks = self.remarks if self.remarks else ""
+		payment_mode = ""
+		if self.credit_purchase:
+			payment_mode = "Credit"
+		else:
+			payment_mode = self.payment_mode
+		
+		# Get the gl_narration which might be empty
+		gl_narration = get_gl_narration('Purchase Invoice')  # This could return an empty string
 
-	def insert_gl_records(self, remarks):
+		# Provide a default template if gl_narration is empty
+		if not gl_narration:
+			gl_narration = "Purchase from {supplier}, Invoice No: {invoice_no}"
 
-		print("from insert_gl_records")
+		print("gl_narration")
+		print(gl_narration)
+
+		# Replace placeholders with actual values
+		narration = gl_narration.format(payment_mode=payment_mode, supplier_name=supplier, invoice_number=invoice_no)
+
+		# Append remarks if they are available
+		if remarks:
+			narration += f", {remarks}"
+   
+		return narration     
+
+	def insert_gl_records(self):
+
+		remarks = self.get_narration()
+		print("remarks")
+		print(remarks)
+
+		
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',

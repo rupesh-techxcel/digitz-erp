@@ -12,6 +12,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_for_sales_return_on_update
+from digitz_erp.api.settings_api import get_gl_narration
 class SalesReturn(Document):
 
     def before_validate(self):
@@ -59,8 +60,37 @@ class SalesReturn(Document):
         self.insert_payment_postings()
         update_accounts_for_doc_type('Sales Return', self.name)
         create_bank_reconciliation("Sales Return", self.name)
+        
+    def get_narration(self):
+        
+        # Assign supplier, invoice_no, and remarks
+        customer = self.customer_name
+        remarks = self.remarks if self.remarks else ""
+        payment_mode = ""
+        if self.credit_sale:
+            payment_mode = "Credit"
+        else:
+            payment_mode = self.payment_mode
+        
+        # Get the gl_narration which might be empty
+        gl_narration = get_gl_narration('Sales Return')  # This could return an empty string
+
+        # Provide a default template if gl_narration is empty
+        if not gl_narration:
+            gl_narration = "Purchase Return from {customer}"
+
+        # Replace placeholders with actual values
+        narration = gl_narration.format(customer=customer)
+
+        # Append remarks if they are available
+        if remarks:
+            narration += f", {remarks}"
+
+        return narration   
 
     def insert_gl_records(self):
+        
+        remarks = self.get_narration()
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")
         default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
@@ -78,6 +108,7 @@ class SalesReturn(Document):
         gl_doc.party_type = "Customer"
         gl_doc.party = self.customer
         gl_doc.against_account = default_accounts.default_income_account
+        gl_doc.remarks = remarks
         gl_doc.insert()
         idx +=1
 
@@ -92,6 +123,7 @@ class SalesReturn(Document):
         gl_doc.account = default_accounts.default_income_account
         gl_doc.debit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_receivable_account
+        gl_doc.remarks = remarks
         gl_doc.insert()
         idx +=1
 
@@ -106,6 +138,7 @@ class SalesReturn(Document):
             gl_doc.account = default_accounts.tax_account
             gl_doc.debit_amount = self.tax_total
             gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.remarks = remarks
             gl_doc.insert()
             idx +=1
 
@@ -121,6 +154,7 @@ class SalesReturn(Document):
         gl_doc.account = default_accounts.default_inventory_account
         gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.cost_of_goods_sold_account
+        gl_doc.remarks = remarks
         gl_doc.insert()
         idx +=1
 
@@ -134,6 +168,7 @@ class SalesReturn(Document):
         gl_doc.account = default_accounts.cost_of_goods_sold_account
         gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.default_inventory_account
+        gl_doc.remarks = remarks
         gl_doc.insert()
         idx +=1
 
@@ -150,10 +185,13 @@ class SalesReturn(Document):
                 gl_doc.credit_amount = self.round_off
             else:
                 gl_doc.debit_amount = self.round_off
+            gl_doc.remarks = remarks
             gl_doc.insert()
             idx +=1
 
     def insert_payment_postings(self):
+        
+        remarks = self.get_narration()
         if self.credit_sale == 0:
             gl_count = frappe.db.count(
                 'GL Posting', {'voucher_type': 'Sales Return', 'voucher_no': self.name})
@@ -176,6 +214,7 @@ class SalesReturn(Document):
             gl_doc.party_type = "Customer"
             gl_doc.party = self.customer
             gl_doc.against_account = payment_mode.account
+            gl_doc.remarks = remarks
             gl_doc.insert()
 
             idx = idx + 1
@@ -189,6 +228,7 @@ class SalesReturn(Document):
             gl_doc.account = payment_mode.account
             gl_doc.credit_amount = self.rounded_total
             gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.remarks = remarks
             gl_doc.insert()
 
     def on_update(self):

@@ -64,10 +64,8 @@ class StockTransfer(Document):
                 docitem.target_warehouse = self.target_warehouse
 
     def on_submit(self):
+        
         init_document_posting_status(self.doctype, self.name)
-
-        turn_off_background_job = frappe.db.get_single_value("Global Settings", 'turn_off_background_job')
-
         self.do_postings_on_submit()
 
     def do_postings_on_submit(self):

@@ -307,12 +307,56 @@ function assign_defaults(frm)
         }
       );
 
+
+      frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+
+				if (r && r.default_credit_purchase === 1) {
+				
+					console.log(r.default_credit_purchase)
+						frm.set_value('credit_expense', 1);
+				}
+
+			});
+
       // frm.set_value('credit_expense', true);
 
-        frm.refresh_fields();
+      set_default_payment_mode(frm);
+
+      frm.refresh_fields();
     }
 
   }
+
+  function set_default_payment_mode(frm)
+{
+	console.log("from set_default_payment_mode")
+
+	if(!frm.doc.credit_purchase){
+
+		frappe.db.get_value('Company', frm.doc.company, 'default_payment_mode_for_purchase', function(r) {
+
+			if (r && r.default_payment_mode_for_purchase) {
+				frm.set_value('payment_mode', r.default_payment_mode_for_purchase);
+			}
+			else {
+				frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+    }
+	else
+	{
+		frm.set_value('payment_mode','');
+	}
+
+	set_payment_visibility(frm)
+}
+
+function set_payment_visibility(frm)
+{
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_purchase);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_purchase);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_purchase);
+}
 
   function fill_payment_schedule(frm)
   {

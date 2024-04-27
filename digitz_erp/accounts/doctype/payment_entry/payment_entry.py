@@ -430,7 +430,6 @@ class PaymentEntry(Document):
 					if payment_entry.supplier == allocation.supplier and payment_entry.reference_type== allocation.reference_type :
 						allocation.payment_entry_detail = payment_entry.name
 
-
 	def insert_gl_records(self):
 		# default_company = frappe.db.get_single_value(
 		# 	"Global Settings", "default_company")
@@ -439,20 +438,11 @@ class PaymentEntry(Document):
 		# 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 		idx = 1
 
-		# Trade Receivable - Debit
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Payment Entry"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = self.account
-		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-		gl_doc.credit_amount = self.amount
-		gl_doc.remarks = self.remarks
-		gl_doc.insert()
+		
 
 		payment_details = self.payment_entry_details
+  
+		for_return_amount = 0
 
 		if(payment_details):
 			for payment_entry in payment_details:
@@ -467,7 +457,12 @@ class PaymentEntry(Document):
 					gl_doc.posting_time = self.posting_time
 					gl_doc.account = payment_entry.account
 					gl_doc.against_account = self.account
-					gl_doc.debit_amount = payment_entry.amount
+					if (payment_entry.reference_type == "Purchase Return") or (payment_entry.reference_type == "Debit Note") :         
+						gl_doc.credit_amount = payment_entry.amount
+						for_return_amount += payment_entry.amount
+					else:
+						gl_doc.debit_amount = payment_entry.amount
+						
 					gl_doc.party_type = "Supplier"
 					gl_doc.party = payment_entry.supplier
 					gl_doc.remarks = payment_entry.remarks
@@ -492,6 +487,34 @@ class PaymentEntry(Document):
 						gl_doc.party_type = "Supplier"
 						gl_doc.party = payment_entry.supplier
 					gl_doc.insert()
+     
+		if for_return_amount>0:
+			# Trade Receivable - Debit
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Payment Entry"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = self.account
+			gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+			gl_doc.debit_amount = for_return_amount
+			gl_doc.remarks = self.remarks
+			gl_doc.insert()
+		
+  
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Payment Entry"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.posting_date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = self.account
+		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+		# Debit for only amount which is reduced by the return_amount
+		gl_doc.credit_amount = self.amount - for_return_amount
+		gl_doc.remarks = self.remarks
+		gl_doc.insert()
 
 	def GetAccountForTheHighestAmountInPayments(self):
 

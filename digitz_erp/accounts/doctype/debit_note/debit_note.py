@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import money_in_words
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.settings_api import get_gl_narration
 
 class DebitNote(Document):
 
@@ -47,9 +48,46 @@ class DebitNote(Document):
 					new_payment_schedule.insert()
 				except Exception as e:
 					frappe.log_error("Error creating payment schedule: " + str(e))
+     
+	def get_narration(self):
+		
+		# Assign supplier, invoice_no, and remarks
+		supplier_name = self.supplier
+		print("supplier_name")
+		print(supplier_name)
+		remarks = self.remarks if self.remarks else ""
+		payment_mode = ""
+		if self.on_credit:
+			payment_mode = "Credit"
+		else:
+			payment_mode = self.payment_mode
+		
+		# Get the gl_narration which might be empty
+		gl_narration = get_gl_narration('Debit Note')  # This could return an empty string
 
+		# Provide a default template if gl_narration is empty
+		if not gl_narration:
+			gl_narration = f"Debit Note to {supplier_name}"
+   
+
+		# Replace placeholders with actual values
+		narration = gl_narration.format(supplier=supplier_name)  
+		print("supplier_name")
+  
+
+		print("narration")
+		print(narration)
+	
+
+		# Append remarks if they are available
+		if remarks:
+			narration += f", {remarks}"
+
+		return narration   
 
 	def insert_gl_records(self):
+     
+		remarks = self.get_narration()
 
 		idx = 1
 
@@ -66,6 +104,7 @@ class DebitNote(Document):
 		gl_doc.remarks = self.remarks
 		gl_doc.party_type = "Supplier"
 		gl_doc.party = self.supplier
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 
 		tax_ledgers = {}
@@ -81,7 +120,7 @@ class DebitNote(Document):
 			gl_doc.account = debit_note_detail.account
 			gl_doc.credit_amount = debit_note_detail.amount_excluded_tax
 			gl_doc.against_account = self.payable_account
-			gl_doc.remarks = debit_note_detail.narration
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 
 			if not debit_note_detail.tax_excluded and debit_note_detail.tax_amount > 0:
@@ -102,7 +141,7 @@ class DebitNote(Document):
 				gl_doc.account = tax_account
 				gl_doc.credit_amount = tax_amount
 				gl_doc.against_account = self.payable_account
-				gl_doc.remarks = ""
+				gl_doc.remarks = remarks
 				gl_doc.insert()
 
 		# For payments
@@ -115,10 +154,10 @@ class DebitNote(Document):
 			gl_doc.posting_date = self.date
 			gl_doc.account = self.payable_account
 			gl_doc.credit_amount = self.grand_total
-			gl_doc.against_account = self.payment_account
-			gl_doc.remarks = self.remarks
+			gl_doc.against_account = self.payment_account			
 			gl_doc.party_type = "Supplier"
 			gl_doc.party = self.supplier
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 
 			idx = idx + 1
@@ -130,7 +169,7 @@ class DebitNote(Document):
 			gl_doc.account = self.payment_account
 			gl_doc.debit_amount = self.grand_total
 			gl_doc.against_account = self.payable_account
-			gl_doc.remarks = self.remarks
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 
 	def GetAccountForTheHighestAmount(self):

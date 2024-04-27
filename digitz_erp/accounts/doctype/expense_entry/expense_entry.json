@@ -43,8 +43,7 @@
   "section_break_jtpi",
   "amended_from",
   "payment_schedule_tab",
-  "payment_schedule",
-  "column_break_jjnt"
+  "payment_schedule"
  ],
  "fields": [
   {
@@ -204,10 +203,6 @@
    "options": "Expense Payment Schedule"
   },
   {
-   "fieldname": "column_break_jjnt",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "default_payable_account",
    "fieldtype": "Link",
    "label": "Default Payable Account",
@@ -253,7 +248,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-22 13:21:31.403583",
+ "modified": "2024-04-24 10:50:03.909108",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

@@ -112,8 +112,7 @@
   {
    "fieldname": "supplier_inv_date",
    "fieldtype": "Date",
-   "label": "Supplier Inv Date",
-   "reqd": 1
+   "label": "Supplier Inv Date"
   },
   {
    "fetch_from": "expense_head.expense_account",
@@ -161,7 +160,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-04-22 13:27:57.007355",
+ "modified": "2024-04-24 10:46:16.521156",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry Details",

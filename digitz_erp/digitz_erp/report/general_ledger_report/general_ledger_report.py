@@ -13,7 +13,7 @@ def get_data(filters):
    
 	data = []
 
-	order_by = "posting_date"
+	order_by = "posting_date,voucher_type,voucher_no"
 	if(filters.get("order_by_account")):
 		order_by = "account,posting_date"
 	

@@ -6,6 +6,7 @@ from frappe.utils import get_datetime
 from frappe.utils.data import now
 from frappe.model.document import Document
 from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
+from digitz_erp.api.settings_api import get_gl_narration
 from frappe.model.mapper import *
 from frappe.utils import money_in_words
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
@@ -332,8 +333,36 @@ class PurchaseReturn(Document):
 
 		delete_gl_postings_for_cancel_doc_type('Purchase Return',self.name)
 
+	def get_narration(self):
+		
+		# Assign supplier, invoice_no, and remarks
+		supplier = self.supplier		
+		remarks = self.remarks if self.remarks else ""
+		payment_mode = ""
+		if self.credit_purchase:
+			payment_mode = "Credit"
+		else:
+			payment_mode = self.payment_mode
+		
+		# Get the gl_narration which might be empty
+		gl_narration = get_gl_narration('Purchase Return')  # This could return an empty string
 
+		# Provide a default template if gl_narration is empty
+		if not gl_narration:
+			gl_narration = "Purchase Return from {supplier}"
+
+		# Replace placeholders with actual values
+		narration = gl_narration.format(supplier=supplier)
+
+		# Append remarks if they are available
+		if remarks:
+			narration += f", {remarks}"
+
+		return narration   
+
+ 
 	def insert_gl_records(self):
+		remarks = self.get_narration()
 
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
@@ -353,6 +382,7 @@ class PurchaseReturn(Document):
 
 		gl_doc.party = self.supplier
 		gl_doc.against_account = default_accounts.default_inventory_account
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 		idx +=1
 
@@ -380,6 +410,7 @@ class PurchaseReturn(Document):
 			gl_doc.account = default_accounts.tax_account
 			gl_doc.credit_amount = self.tax_total
 			gl_doc.against_account = default_accounts.default_payable_account
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 			idx +=1
 
@@ -400,7 +431,8 @@ class PurchaseReturn(Document):
 			else:
 				gl_doc.debit_amount = self.round_off
 				gl_doc.against_account = default_accounts.default_inventory_account
-
+    
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 			idx +=1
 
@@ -415,10 +447,13 @@ class PurchaseReturn(Document):
 		gl_doc.account = default_accounts.default_inventory_account
 		gl_doc.credit_amount = self.net_total - self.tax_total
 		gl_doc.against_account = default_accounts.default_payable_account
+		gl_doc.remarks = remarks
 		gl_doc.insert()
 		idx +=1
 
 	def insert_payment_postings(self):
+	
+		remarks = self.get_narration()
 
 		if self.credit_purchase==0:
 			gl_count = frappe.db.count('GL Posting',{'voucher_type':'Purchase Return', 'voucher_no': self.name})
@@ -440,6 +475,7 @@ class PurchaseReturn(Document):
 			gl_doc.party_type = "Supplier"
 			gl_doc.party = self.supplier
 			gl_doc.against_account = payment_mode.account
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 
 			idx= idx + 1
@@ -453,6 +489,7 @@ class PurchaseReturn(Document):
 			gl_doc.account = payment_mode.account
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.against_account = default_accounts.default_payable_account
+			gl_doc.remarks = remarks
 			gl_doc.insert()
 
 	def update_purchase_invoice_references(self):
@@ -483,7 +520,7 @@ class PurchaseReturn(Document):
 		# Append new entries to the 'delivery_notes' child table
 		for purchase_invoice in purchase_invoices:
 			self.append('invoices', {  # Ensure the fieldname is correct as per your doctype structure
-				'sales_invoice': purchase_invoice
+				'purchase_invoice': purchase_invoice
 			})
 
 	def update_purchase_invoice_quantities_on_update(self, for_delete_or_cancel=False):

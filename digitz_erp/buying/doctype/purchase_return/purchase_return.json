@@ -15,32 +15,33 @@
   "supplier_address",
   "tax_id",
   "column_break_6",
-  "company",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
   "price_list",
-  "rate_includes_tax",
   "default_cost_center",
+  "rate_includes_tax",
   "column_break_10",
-  "section_break_11",
   "supplier_inv_no",
   "supplier_inv_date",
   "purchase_order",
   "do_no",
+  "column_break_gbjl",
+  "company",
   "warehouse",
   "accounts_section",
   "credit_purchase",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "mode",
   "payment_account",
   "column_break_24",
+  "payment_terms",
+  "column_break_9hcl",
   "reference_no",
   "reference_date",
+  "column_break_ktbt",
   "remarks",
-  "column_break_9hcl",
   "section_break_19",
   "items",
   "section_break_29",
@@ -146,11 +147,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_11",
-   "fieldtype": "Heading",
-   "label": "Supplier Documents"
-  },
-  {
    "fieldname": "supplier_inv_no",
    "fieldtype": "Data",
    "label": "Supplier Inv No"
@@ -250,15 +246,6 @@
    "fieldname": "item_units",
    "fieldtype": "Data",
    "label": "Item Units"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Purchase Invoice",
-   "print_hide": 1,
-   "read_only": 1
   },
   {
    "fieldname": "section_break_25",
@@ -422,6 +409,14 @@
    "fieldtype": "Table",
    "label": "Invoices",
    "options": "Purchase Return Invoices"
+  },
+  {
+   "fieldname": "column_break_gbjl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ktbt",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -435,7 +430,7 @@
    "table_fieldname": "payment_allocation"
   }
  ],
- "modified": "2024-04-22 11:56:01.670548",
+ "modified": "2024-04-23 17:47:01.516644",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

@@ -8,7 +8,7 @@ frappe.query_reports["Trial Balance"] = {
 				"fieldname": "from_date",
 				"fieldtype": "Date",
 				"label": "From Date",
-				"default":frappe.datetime.month_start()
+				"default":frappe.datetime.year_start()
 			},
 			{
 				"fieldname": "to_date",

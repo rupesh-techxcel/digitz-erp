@@ -42,12 +42,12 @@ frappe.query_reports["Account Ledger Report"] = {
 			"fieldtype": "Date",
 			"label": "To Date",			
 			"default":frappe.datetime.month_end()	
-		},
+		},		
 		{		
 			"fieldname": "show_party",
 			"fieldtype": "Check",
 			"label": "Show Party",			
-			"width": 40,		
+			"width": 25,		
 			"default":false	
 		},
 		// {

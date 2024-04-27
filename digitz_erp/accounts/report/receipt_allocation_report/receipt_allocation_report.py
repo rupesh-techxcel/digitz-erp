@@ -73,7 +73,7 @@ def get_data(filters=None):
             ra.reference_name as voucher_no,
             ra.customer as customer,
             ra.total_amount as invoice_amount,
-            re.amount as paid_amount
+            ra.paying_amount as paid_amount
         FROM
             `tabReceipt Entry` re
         INNER JOIN

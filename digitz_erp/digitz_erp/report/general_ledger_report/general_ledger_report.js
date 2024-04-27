@@ -46,7 +46,7 @@ frappe.query_reports["General Ledger Report"] = {
 		{		
 			"fieldname": "order_by_account",
 			"fieldtype": "Check",
-			"label": "Order by account"
+			"label": "Sort by account"
 		},
 
 	]

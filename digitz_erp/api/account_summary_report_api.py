@@ -2,14 +2,12 @@ import frappe
 from frappe.utils import *
 
 @frappe.whitelist()
-def get_accounts_data(from_date,to_date, root_type):
+def get_accounts_data(from_date,to_date, root_type, account_ledger,account_group):
     
     query = """
             SELECT parent_account,account_name from `tabAccount` where is_group = 0 and root_type=%s
             """
     data = frappe.db.sql(query,(root_type), as_dict=True)
-    print("data")
-    print(data)
     
     accounts = {}
     
@@ -92,21 +90,75 @@ def get_accounts_data(from_date,to_date, root_type):
             accounts[d.parent_account]['closing_debit'] = 0
         
         update_parent_accounts_recursive(d.parent_account,accounts,d.account_name)
+        
+    parent_accounts = []
     
-    return re_process_account_data(accounts)
+    if account_ledger:
+        
+        parent_accounts.append(account_ledger)
+        
+        def get_parent_accounts(account):
+            
+            print(account)
+            
+            if account == "Accounts":
+                return
+            
+            parent_account = frappe.get_value("Account", account,['parent_account'])
+            
+            parent_accounts.append(parent_account)
+            
+            get_parent_accounts(parent_account)
+        
+        get_parent_accounts(account_ledger)
+        
+    if account_group:
+        
+        def get_child_accounts_and_groups(parent_account):
+        
+        # Query to fetch accounts under the specified parent account
+            accounts_in_group = frappe.db.sql("""SELECT name,is_group FROM `tabAccount` WHERE parent_account=%s""", (parent_account,), as_dict=True)
+            
+            # Appending each account to the parent_accounts list
+            for account in accounts_in_group:            
+                parent_accounts.append(account.name)
+                if(account.is_group):
+                    get_child_accounts_and_groups(account.name)
+                    
+        parent_accounts.append(account_group)
+        get_child_accounts_and_groups(account_group)
+        
+        def get_parent_accounts_to_root_for_group(account):   
+            
+            parent_account = frappe.get_value("Account", account,['parent_account'])
+            
+            if parent_account == None:
+                return
+            
+            parent_accounts.append(parent_account)
+            
+            get_parent_accounts_to_root_for_group(parent_account)
+        
+        get_parent_accounts_to_root_for_group(account_group)
+    
+    return re_process_account_data(accounts, parent_accounts)
 
-def re_process_account_data(accounts):
+def re_process_account_data(accounts,parent_accounts):
     
     data = []
+    
     for account in accounts:  
+        
+        if parent_accounts !=[] and account not in parent_accounts:
+            
+            continue
         
         parent_account = frappe.db.get_value('Account',account,['parent_account'])
         
-        print(accounts[account]['opening_debit'])     
         account_data = {'name':account,'parent_account':parent_account, 'opening_debit':accounts[account]['opening_debit'], 'opening_credit':accounts[account]['opening_credit'], 'debit':accounts[account]['debit'], 'credit':accounts[account]['credit'],'closing_debit': accounts[account]['closing_debit'],'closing_credit':accounts[account]['closing_credit']}
         
         data.append(account_data)
-     
+    
     return data
 
 # Method to update the parent account of the account passing in, not the account's 

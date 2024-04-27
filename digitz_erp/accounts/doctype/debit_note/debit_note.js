@@ -38,7 +38,6 @@ frappe.ui.form.on("Debit Note", {
 					}
 				}
 				});
-
 	},
 	assign_defaults: function(frm){
 
@@ -60,7 +59,7 @@ frappe.ui.form.on("Debit Note", {
 
 					frappe.db.get_value("Company", default_company, "default_payable_account").then((r) => {
 
-						frm.set_value('payable_account',r.message.default_receivable_account);
+						frm.set_value('payable_account',r.message.default_payable_account);
 					});
 				}
 			});
@@ -72,6 +71,7 @@ frappe.ui.form.on("Debit Note", {
 			});
 
 			set_default_payment_mode(frm);
+
 			frm.clear_table("debit_note_details");
 		}
 	},

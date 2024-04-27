@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "creation": "2024-04-24 15:02:22.428579",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "doc_type",
+  "narration"
+ ],
+ "fields": [
+  {
+   "fieldname": "doc_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Doc Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "narration",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Narration"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-04-24 18:08:10.006105",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "GL Narration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -11,6 +11,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, reset_document_posting_status_for_recalc_after_submit, update_posting_status, reset_document_posting_status_for_recalc_after_cancel
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_on_update
+from digitz_erp.api.settings_api import get_gl_narration
 class DeliveryNote(Document):
 
     def Voucher_In_The_Same_Time(self):
@@ -458,8 +459,37 @@ class DeliveryNote(Document):
             cost_of_goods_sold = cog_data[0].cost_of_goods_sold
 
         return cost_of_goods_sold
+    
+    def get_narration(self):
+        
+        # Assign supplier, invoice_no, and remarks
+        customer_name = self.customer_name
+        remarks = self.remarks if self.remarks else ""
+        payment_mode = ""
+        if self.credit_sale:
+            payment_mode = "Credit"
+        else:
+            payment_mode = self.payment_mode
+        
+        # Get the gl_narration which might be empty
+        gl_narration = get_gl_narration('Delivery Note')  # This could return an empty string
+
+        # Provide a default template if gl_narration is empty
+        if not gl_narration:
+            gl_narration = "Delivery Note for {customer_name}"
+
+        # Replace placeholders with actual values
+        narration = gl_narration.format(customer_name=customer_name)
+
+        # Append remarks if they are available
+        if remarks:
+            narration += f", {remarks}"
+
+        return narration  
 
     def insert_gl_records(self):
+        
+        remarks = self.get_narration()
 
         print("From insert gl records")
 
@@ -482,6 +512,7 @@ class DeliveryNote(Document):
         gl_doc.credit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.cost_of_goods_sold_account
         gl_doc.is_for_cogs = True
+        gl_doc.remarks = remarks
         gl_doc.insert()
 
         # Cost Of Goods Sold - Debit - Against Inventory
@@ -496,6 +527,7 @@ class DeliveryNote(Document):
         gl_doc.debit_amount = cost_of_goods_sold
         gl_doc.against_account = default_accounts.default_inventory_account
         gl_doc.is_for_cogs = True
+        gl_doc.remarks = remarks
         gl_doc.insert()
 
         update_posting_status(self.doctype,self.name, 'gl_posted_time')

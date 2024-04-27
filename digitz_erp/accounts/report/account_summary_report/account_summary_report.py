@@ -1,10 +1,10 @@
-# Copyright (c) 2023, Rupesh P and contributors
+# Copyright (c) 2024, Rupesh P and contributors
 # For license information, please see license.txt
 
 import frappe
 from frappe import _
 from digitz_erp.accounts.report.digitz_erp import filter_accounts,sort_accounts
-from digitz_erp.api.trial_balance_api import get_accounts_data
+from digitz_erp.api.account_summary_report_api import get_accounts_data
 
 value_fields = (
 	"opening_debit",
@@ -17,11 +17,39 @@ value_fields = (
 
 def execute(filters=None):
     
+	if filters.get('account') and filters.get('account_group'):
+		frappe.throw("Please select either an account or an account group, not both.")
+  
+	root_type = ""
+	data_liability=[]
+	data_income = []
+	data_asset = []
+	data_expense = []
+ 
+	if filters.get('account'):     
+		account = frappe.get_doc("Account", filters.get("account"))
+		root_type = account.root_type
+
+	if filters.get('account_group'):     
+		account = frappe.get_doc("Account", filters.get("account_group"))
+		print("account for account group")
+		print(account)
+		root_type = account.root_type     
+		print(root_type)
+
 	columns = get_columns()
-	data_asset = get_data_for_root_type(filters,"Asset")
-	data_liability = get_data_for_root_type(filters,"Liability")
-	data_income = get_data_for_root_type(filters,"Income")
-	data_expense = get_data_for_root_type(filters,"Expense")
+
+	if root_type == "" or root_type =="Asset":
+		data_asset = get_data_for_root_type(filters,"Asset")
+
+	if root_type == "" or root_type =="Liability":		
+		data_liability = get_data_for_root_type(filters,"Liability")
+
+	if root_type == "" or root_type =="Income":		
+		data_income = get_data_for_root_type(filters,"Income")
+
+	if root_type == "" or root_type =="Expense":		
+		data_expense = get_data_for_root_type(filters,"Expense")
 	
 	data =[]
 	if data_asset:
@@ -37,10 +65,11 @@ def execute(filters=None):
 		data.extend(data_expense)
 	
 	return columns,data
- 
+
 def get_data_for_root_type(filters, root_type):
-     # data = get_data(filters)
-	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type)
+	
+		
+	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type,filters.get('account'),filters.get('account_group'))
 	 
 	accounts_from_table = frappe.db.sql(
     """
@@ -82,9 +111,6 @@ def get_data_for_root_type(filters, root_type):
 	condition_to_remove = {'name': 'Accounts'}
  
 	accounts_from_table = [account for account in accounts_from_table if account != condition_to_remove]
- 
-	print("accounts_from_table")
-	print(accounts_from_table)	
  
 	# filter_accounts(accounts_from_table)
 	accounts_from_table  = sort_accounts(accounts_from_table)

@@ -74,6 +74,8 @@ frappe.ui.form.on('Sales Return', {
   {
 	if(frm.is_new())
 	{
+		frm.clear_table('items');
+		
 		frm.trigger("get_default_company_and_warehouse");
 
 		frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {

@@ -370,25 +370,11 @@ class ReceiptEntry(Document):
 
 		# default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
 		# 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
-		idx = 1
-
-		# Trade Receivable - Debit
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Receipt Entry"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = self.account
-		gl_doc.debit_amount = self.amount
-		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-		gl_doc.remarks = self.remarks
-		# gl_doc.party_type = "Customer"
-		# gl_doc.party = self.customer
-		# gl_doc.against_account = default_accounts.default_income_account
-		gl_doc.insert()
+		idx = 0
 
 		receipt_details = self.receipt_entry_details
+  
+		for_return_amount = 0
 
 		if(receipt_details):
 			for receipt_entry in receipt_details:
@@ -401,7 +387,13 @@ class ReceiptEntry(Document):
 					gl_doc.posting_date = self.posting_date
 					gl_doc.posting_time = self.posting_time
 					gl_doc.account = receipt_entry.account
-					gl_doc.credit_amount = receipt_entry.amount
+		
+					if (receipt_entry.reference_type == "Sales Return") or (receipt_entry.reference_type == "Credit Note") : 
+						gl_doc.debit_amount = receipt_entry.amount
+						for_return_amount += receipt_entry.amount
+					else:
+						gl_doc.credit_amount = receipt_entry.amount
+				
 					gl_doc.party_type = "Customer"
 					gl_doc.party = receipt_entry.customer
 					gl_doc.against_account = self.account
@@ -421,6 +413,38 @@ class ReceiptEntry(Document):
 					gl_doc.against_account = self.account
 					gl_doc.remarks = self.remarks
 					gl_doc.insert()
+     
+		if for_return_amount >0:
+
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Receipt Entry"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = self.account
+			gl_doc.credit_amount = for_return_amount
+			gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+			gl_doc.remarks = self.remarks
+			# gl_doc.party_type = "Customer"
+			# gl_doc.party = self.customer
+			# gl_doc.against_account = default_accounts.default_income_account
+			gl_doc.insert()
+   
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Receipt Entry"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.posting_date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = self.account
+		gl_doc.debit_amount = self.amount -for_return_amount
+		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+		gl_doc.remarks = self.remarks
+		# gl_doc.party_type = "Customer"
+		# gl_doc.party = self.customer
+		# gl_doc.against_account = default_accounts.default_income_account
+		gl_doc.insert()
 
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_receipt()

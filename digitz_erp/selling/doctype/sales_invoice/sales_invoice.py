@@ -10,7 +10,7 @@ from frappe.www.printview import get_html_and_style
 from digitz_erp.utils import *
 from frappe.model.mapper import *
 from digitz_erp.api.item_price_api import update_item_price,update_customer_item_price
-from digitz_erp.api.settings_api import get_default_currency
+from digitz_erp.api.settings_api import get_default_currency, get_gl_narration
 from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
@@ -385,8 +385,37 @@ class SalesInvoice(Document):
                 })
 
         update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
+        
+    def get_narration(self):
+        
+        # Assign supplier, invoice_no, and remarks
+        customer_name = self.customer_name		
+        remarks = self.remarks if self.remarks else ""
+        payment_mode = ""
+        if self.credit_sale:
+            payment_mode = "Credit"
+        else:
+            payment_mode = self.payment_mode
+        
+        # Get the gl_narration which might be empty
+        gl_narration = get_gl_narration('Sales Invoice')  # This could return an empty string
+
+        # Provide a default template if gl_narration is empty
+        if not gl_narration:
+            gl_narration = "Sales to {customer_name}"
+
+        # Replace placeholders with actual values
+        narration = gl_narration.format(payment_mode=payment_mode, customer_name=customer_name)
+
+        # Append remarks if they are available
+        if remarks:
+            narration += f", {remarks}"
+
+        return narration    
 
     def insert_gl_records(self):
+        
+        remarks = self.get_narration()
 
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")
@@ -408,6 +437,7 @@ class SalesInvoice(Document):
         gl_doc.party_type = "Customer"
         gl_doc.party = self.customer
         gl_doc.against_account = default_accounts.default_income_account
+        gl_doc.remarks = remarks
         gl_doc.insert()
         idx +=1
 
@@ -421,6 +451,7 @@ class SalesInvoice(Document):
         gl_doc.account = default_accounts.default_income_account
         gl_doc.credit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_receivable_account
+        gl_doc.remarks = remarks
         gl_doc.insert()
         idx +=1
 
@@ -438,6 +469,7 @@ class SalesInvoice(Document):
             gl_doc.account = default_accounts.tax_account
             gl_doc.credit_amount = self.tax_total
             gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.remarks = remarks
             gl_doc.insert()
             idx +=1
 
@@ -456,7 +488,8 @@ class SalesInvoice(Document):
                 gl_doc.credit_amount = abs(self.round_off)
             else:
                 gl_doc.debit_amount = abs(self.round_off)
-
+            
+            gl_doc.remarks = remarks
             gl_doc.insert()
             idx +=1
 
@@ -482,6 +515,7 @@ class SalesInvoice(Document):
                 gl_doc.debit_amount = cost_of_goods_sold
                 gl_doc.against_account = default_accounts.default_inventory_account
                 gl_doc.is_for_cogs = True
+                gl_doc.remarks = remarks
                 gl_doc.insert()
                 idx +=1
 
@@ -496,12 +530,15 @@ class SalesInvoice(Document):
                 gl_doc.credit_amount = cost_of_goods_sold
                 gl_doc.against_account = default_accounts.cost_of_goods_sold_account
                 gl_doc.is_for_cogs = True
+                gl_doc.remarks = remarks
                 gl_doc.insert()
                 idx +=1
 
         update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
 
     def insert_payment_postings(self):
+        
+        remarks = self.get_narration()
 
         if self.credit_sale == 0:
 
@@ -530,6 +567,7 @@ class SalesInvoice(Document):
             gl_doc.party_type = "Customer"
             gl_doc.party = self.customer
             gl_doc.against_account = payment_mode.account
+            gl_doc.remarks = remarks
             gl_doc.insert()
 
             idx = idx + 1
@@ -543,6 +581,7 @@ class SalesInvoice(Document):
             gl_doc.account = payment_mode.account
             gl_doc.debit_amount = self.rounded_total
             gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.remarks = remarks
             gl_doc.insert()
 
             update_posting_status(self.doctype,self.name, 'payment_posted_time',None)
