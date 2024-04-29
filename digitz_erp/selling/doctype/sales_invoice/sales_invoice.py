@@ -455,7 +455,6 @@ class SalesInvoice(Document):
         gl_doc.insert()
         idx +=1
 
-
         if self.tax_total >0:
 
             # Tax - Credit

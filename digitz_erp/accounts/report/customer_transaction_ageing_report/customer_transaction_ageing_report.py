@@ -13,6 +13,7 @@ def execute(filters=None):
 def get_data(filters):
 	filters = filters or {}
 	customer_filter = filters.get('customer', '')
+	date_filter = filters.get('from_date')
 
 	sql_query = """
 	SELECT
@@ -28,6 +29,11 @@ def get_data(filters):
 	# Applying customer filter if provided
 	if customer_filter:
 		sql_query += " AND si.customer = %s" % frappe.db.escape(customer_filter)
+  
+	if date_filter:
+		sql_query += " AND si.posting_date>=%s" % frappe.db.escape(date_filter)
+  
+
 
 	# Group by customer and order by ageing in descending order
 	sql_query += """
@@ -52,7 +58,7 @@ def get_columns(filters):
      	{		
 			"fieldname": "customer",
 			"fieldtype": "Link",
-			"label": "Item",
+			"label": "Customer",
 			"options": "Customer",
 			"width": 450,	
 		},

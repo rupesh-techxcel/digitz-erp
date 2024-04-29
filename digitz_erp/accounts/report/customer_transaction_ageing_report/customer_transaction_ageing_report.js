@@ -10,6 +10,12 @@ frappe.query_reports["Customer Transaction Ageing Report"] = {
 			"options": "Customer",
 			"width": 150,	
 		},
+		{		
+			"fieldname": "from_date",
+			"fieldtype": "Date",
+			"label": "Show from Date",			
+			"width": 150,	
+		},
 
 	]
 };
