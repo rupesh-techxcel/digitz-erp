@@ -8,7 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "warehouse_name",
-  "is_disabled"
+  "disabled"
  ],
  "fields": [
   {
@@ -18,9 +18,9 @@
   },
   {
    "default": "0",
-   "fieldname": "is_disabled",
+   "fieldname": "disabled",
    "fieldtype": "Check",
-   "label": "Is Disabled"
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,

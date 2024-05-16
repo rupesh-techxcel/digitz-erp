@@ -29,7 +29,7 @@
   "credit_days",
   "credit_amount",
   "default_price_list",
-  "is_disabled",
+  "disabled",
   "section_break_20",
   "use_default_supplier_terms",
   "default_terms",
@@ -158,12 +158,6 @@
    "options": "Abu Dhabi\nAjman\nDubai\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
   },
   {
-   "default": "0",
-   "fieldname": "is_disabled",
-   "fieldtype": "Check",
-   "label": "Is Disabled"
-  },
-  {
    "description": "Address shows in prints",
    "fieldname": "full_address",
    "fieldtype": "Small Text",
@@ -185,11 +179,17 @@
    "fieldname": "tax_not_applicable",
    "fieldtype": "Check",
    "label": "Tax Not Applicable"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-11 13:51:12.886527",
+ "modified": "2024-05-16 08:47:07.999502",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

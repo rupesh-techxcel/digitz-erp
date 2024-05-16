@@ -288,7 +288,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Other Reports",
-   "link_count": 8,
+   "link_count": 7,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -362,19 +362,9 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Customer Transaction Ageing Report",
-   "link_count": 0,
-   "link_to": "Customer Transaction Ageing Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
   }
  ],
- "modified": "2024-04-29 07:44:22.658297",
+ "modified": "2024-04-29 16:30:26.310667",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",

@@ -96,7 +96,7 @@ frappe.ui.form.on('Delivery Note', {
 		frm.set_query("customer", function () {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});
@@ -104,7 +104,7 @@ frappe.ui.form.on('Delivery Note', {
 		frm.set_query("warehouse", function() {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});
@@ -112,7 +112,7 @@ frappe.ui.form.on('Delivery Note', {
 		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
             return {
                 filters: {
-                    is_disabled: 0
+                    disabled: 0
                 }
             };
 		}
@@ -120,6 +120,15 @@ frappe.ui.form.on('Delivery Note', {
 			if (r && r.default_credit_sale === 1) {
 					frm.set_value('credit_sale', 1);
 			}
+	});
+
+	frm.set_query("salesman", function() {
+		return {
+			"filters": {
+				"disabled": 0,
+				"status": ["!=", "On Boarding"]
+			}
+		};
 	});
 
 

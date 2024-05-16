@@ -22,6 +22,15 @@ frappe.ui.form.on('Customer', {
 			};
 		});	
 
+		frm.set_query("salesman", function() {
+			return {
+				"filters": {
+					"disabled": 0,
+					"status": ["!=", "On Boarding"]
+				}
+			};
+		});
+
 		frm.set_df_property("default_terms","hidden", frm.doc.use_default_customer_terms)
 		frm.set_df_property("terms","hidden", frm.doc.use_default_customer_terms)
 	},	 

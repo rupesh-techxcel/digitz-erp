@@ -14,14 +14,14 @@ frappe.ui.form.on('Stock Transfer', {
 		frm.set_query("source_warehouse", function() {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});
 		frm.set_query("target_warehouse", function() {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});
@@ -29,14 +29,14 @@ frappe.ui.form.on('Stock Transfer', {
 		frm.fields_dict['items'].grid.get_field('source_warehouse').get_query = function(doc, cdt, cdn) {
             return {
                 filters: {
-                    is_disabled: 0
+                    disabled: 0
                 }
             };
 		}
 		frm.fields_dict['items'].grid.get_field('target_warehouse').get_query = function(doc, cdt, cdn) {
             return {
                 filters: {
-                    is_disabled: 0
+                    disabled: 0
                 }
             };
 		}

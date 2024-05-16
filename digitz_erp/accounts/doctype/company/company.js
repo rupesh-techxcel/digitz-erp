@@ -6,7 +6,7 @@ frappe.ui.form.on('Company', {
 		frm.set_query("default_warehouse", function() {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});

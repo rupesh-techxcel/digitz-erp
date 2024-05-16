@@ -9,7 +9,7 @@ frappe.ui.form.on('Receipt Entry', {
 		frm.set_query("warehouse", function() {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});

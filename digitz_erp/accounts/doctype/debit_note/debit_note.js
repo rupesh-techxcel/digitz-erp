@@ -25,7 +25,7 @@ frappe.ui.form.on("Debit Note", {
 			frm.set_query("warehouse", function() {
 				return {
 					"filters": {
-						"is_disabled": 0
+						"disabled": 0
 					}
 				};
 			});

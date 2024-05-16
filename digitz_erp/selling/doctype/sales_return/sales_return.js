@@ -33,7 +33,7 @@ frappe.ui.form.on('Sales Return', {
 		frm.set_query("warehouse", function() {
 		  return {
 			"filters": {
-			  "is_disabled": 0
+			  "disabled": 0
 			}
 		  };
 		});
@@ -41,7 +41,7 @@ frappe.ui.form.on('Sales Return', {
 		frm.fields_dict['items'].grid.get_field('warehouse').get_query = function(doc, cdt, cdn) {
 				return {
 					filters: {
-						is_disabled: 0
+						disabled: 0
 					}
 				};
 		}
@@ -57,7 +57,7 @@ frappe.ui.form.on('Sales Return', {
 		frm.set_query("supplier", function () {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});
@@ -67,6 +67,15 @@ frappe.ui.form.on('Sales Return', {
 			  "parent": frm.doc.customer
 			}
 		  };
+		});
+
+		frm.set_query("salesman", function() {
+			return {
+				"filters": {
+					"disabled": 0,
+					"status": ["!=", "On Boarding"]
+				}
+			};
 		});
 
   },

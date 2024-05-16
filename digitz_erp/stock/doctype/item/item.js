@@ -20,7 +20,7 @@ frappe.ui.form.on('Item', {
 		frm.set_query("asset_category", function () {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});

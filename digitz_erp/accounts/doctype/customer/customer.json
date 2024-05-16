@@ -38,7 +38,7 @@
   "full_address",
   "column_break_wyer",
   "delivery_locations",
-  "is_disabled",
+  "disabled",
   "section_break_24",
   "use_default_customer_terms",
   "default_terms",
@@ -92,12 +92,6 @@
   {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_disabled",
-   "fieldtype": "Check",
-   "label": "Is Disabled"
   },
   {
    "fetch_from": "default_terms.terms",
@@ -246,11 +240,17 @@
    "fieldname": "last_transaction_date",
    "fieldtype": "Date",
    "label": "Last Transaction Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-21 20:58:49.323055",
+ "modified": "2024-05-16 08:47:34.581943",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

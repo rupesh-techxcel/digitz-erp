@@ -7,10 +7,10 @@
  "engine": "InnoDB",
  "field_order": [
   "category_name",
-  "is_disabled",
   "asset_account",
   "accumulated_depreciation_account",
-  "depreciation_account"
+  "depreciation_account",
+  "disabled"
  ],
  "fields": [
   {
@@ -18,12 +18,6 @@
    "fieldtype": "Data",
    "label": "Category Name",
    "unique": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "is_disabled",
-   "fieldtype": "Check",
-   "label": "Is Disabled"
   },
   {
    "fieldname": "asset_account",
@@ -46,11 +40,17 @@
    "label": "Accumulated Depreciation Account",
    "options": "Account",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-08 21:05:32.666854",
+ "modified": "2024-05-16 08:49:56.652429",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Asset Category",

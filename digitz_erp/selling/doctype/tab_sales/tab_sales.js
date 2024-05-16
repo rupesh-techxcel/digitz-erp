@@ -490,7 +490,16 @@ frappe.ui.form.on("Tab Sales", "onload", function (frm) {
 	frm.set_query("customer", function () {
 		return {
 			"filters": {
-				"is_disabled": 0
+				"disabled": 0
+			}
+		};
+	});
+
+	frm.set_query("salesman", function() {
+		return {
+			"filters": {
+				"disabled": 0,
+				"status": ["!=", "On Boarding"]
 			}
 		};
 	});

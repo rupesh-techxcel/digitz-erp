@@ -8,7 +8,7 @@ frappe.ui.form.on('Payment Entry', {
 		frm.set_query("warehouse", function() {
 			return {
 				"filters": {
-					"is_disabled": 0
+					"disabled": 0
 				}
 			};
 		});

@@ -8,7 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "warehouse_name",
-  "is_disabled"
+  "disabled"
  ],
  "fields": [
   {
@@ -18,14 +18,14 @@
   },
   {
    "default": "0",
-   "fieldname": "is_disabled",
+   "fieldname": "disabled",
    "fieldtype": "Check",
-   "label": "Is Disabled"
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-11 10:16:40.251317",
+ "modified": "2024-05-16 08:44:38.297654",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Warehouse",

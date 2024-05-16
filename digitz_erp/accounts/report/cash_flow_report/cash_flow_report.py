@@ -141,7 +141,7 @@ def get_data(filters=None):
     
     summary_data.append({            
           
-            "label": cash_flow_account["section_footer"],
+            "label": "Net Change In Cash",
             "value": total_value,
             "datatype": "Currency",
             "indicator": "Green" if total_value > 0 else  ("Red" if total_value<0 else "Black"),
