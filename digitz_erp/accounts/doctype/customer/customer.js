@@ -6,10 +6,12 @@ frappe.ui.form.on('Customer', {
 	refresh:function(frm)
 	{
 
-		frm.add_custom_button(__('Merge Customer'), function() {
-            // Open the merge popup
-            open_merge_popup(frm);
-        });
+		if (frappe.user.has_role('Management')) {
+			frm.add_custom_button(('Merge Customer'), function() {
+				// Open the merge popup
+				open_merge_popup(frm);
+			});
+		}
 
 		frm.set_query("area", function() {
 			return {
