@@ -21,6 +21,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "ship_to_location",
+  "location_to_print",
   "salesman",
   "salesman_code",
   "warehouse",
@@ -587,6 +588,14 @@
    "fieldname": "submitted_record",
    "fieldtype": "Check",
    "label": "Submitted Record"
+  },
+  {
+   "description": "This is a duplicate field for ship_to_location and getting saved from the server side. It is added because of 'Customer Delivery Location' is a child table for customer and cannot have access here",
+   "fieldname": "location_to_print",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Location To Print",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -607,7 +616,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-04-01 06:37:13.763911",
+ "modified": "2024-06-24 07:50:37.257009",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

@@ -80,9 +80,14 @@ class SalesInvoice(Document):
         
         for item in self.items:
             # Format the values to two decimal places and assign them to the print fields
+            item.rate_print = "{:.2f}".format(item.rate)  
             item.amount_print = "{:.2f}".format(item.gross_amount)
             item.tax_amount_print = "{:.2f}".format(item.tax_amount)
             item.total_amount_print = "{:.2f}".format(item.net_amount)  
+        
+        # Ship to location is a child table reference for customer and cannot have acess 
+        # from Sales Invoice. So adding a duplicate field for printing purpose
+        self.location_to_print = self.ship_to_location
 
     def validate(self):
         self.validate_item()
