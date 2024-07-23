@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-23 11:49:07.013618",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "stock_ledger",
+  "repost_time",
+  "voucher",
+  "voucher_no",
+  "item"
+ ],
+ "fields": [
+  {
+   "fieldname": "stock_ledger",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Stock Ledger",
+   "options": "Stock Ledger"
+  },
+  {
+   "fieldname": "repost_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Repost Time"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Title"
+  },
+  {
+   "fetch_from": "stock_ledger.voucher",
+   "fieldname": "voucher",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Voucher"
+  },
+  {
+   "fetch_from": "stock_ledger.voucher_no",
+   "fieldname": "voucher_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Voucher No"
+  },
+  {
+   "fetch_from": "stock_ledger.item",
+   "fieldname": "item",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Item"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-07-23 13:01:32.756542",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Stock Repost Detail",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

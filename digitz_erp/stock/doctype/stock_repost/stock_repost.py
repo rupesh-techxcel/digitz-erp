@@ -13,7 +13,8 @@ class StockRepost(Document):
 	@frappe.whitelist()
 	def stock_repost(self):        
 		try:
-			re_post_stock_ledgers()
+			print("Stock repost starting..")
+			re_post_stock_ledgers(show_alert=True)
 			print("stock repost completed")
 		except Exception as e:
 			# Handle any other exception

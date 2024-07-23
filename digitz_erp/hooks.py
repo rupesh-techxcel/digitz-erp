@@ -121,7 +121,8 @@ scheduler_events = {
 		# "digitz_erp.api.stock_update.re_post_stock_ledgers"
 	# ],
 	"hourly": [
-		"digitz_erp.api.scheduler_api.post_depreciation_for_depreciation_schedulers"
+		"digitz_erp.api.scheduler_api.post_depreciation_for_depreciation_schedulers",
+		"digitz_erp.tasks.re_post_stock_ledgers"
 	]
 	# "weekly": [
 	# 	"digitz_erp.tasks.weekly"

@@ -233,7 +233,8 @@ def update_stock_balance_in_item(item):
 #                     su_doc.insert()
 #                     continue
 
-def re_post_stock_ledgers():
+@frappe.whitelist()
+def re_post_stock_ledgers(show_alert=False):
     
     post_only_for_a_date=False
     doc = frappe.get_doc("Stock Repost")
@@ -251,7 +252,7 @@ def re_post_stock_ledgers():
     
     doc.posting_status = "In Process"
     doc.save()
-    
+        
     clean_stock_ledgers_duplicated()
     
     # If there is already a reposting happened, get the last_processed_stock_ledger and fetch its posting_date to process subsequent stock ledgers  
@@ -270,6 +271,8 @@ def re_post_stock_ledgers():
     stock_ledgers_for_sales_invoice = []
     stock_ledgers_for_sales_return = []
     
+    start_time = datetime.now()
+    
     while udpate_ledgers==True:
                
         # Get stock ledgers with the last assigned posting_date (there can be multiple records)
@@ -282,6 +285,8 @@ def re_post_stock_ledgers():
 
             # Loop through each 'Stock Ledger' record
             for ledger in stock_ledgers_with_same_date_and_time: 
+                
+                print(ledger['name'])
                 
                 update_stock_ledger(ledger['name'], for_reposting=True)                
                 doc.last_processed_stock_ledger = ledger['name']
@@ -297,14 +302,27 @@ def re_post_stock_ledgers():
                     stock_ledgers_for_sales_return.append(ledger['voucher_no'])
                 
         
-        next_stock_ledger = frappe.db.sql("""
-            SELECT sl.name, sl.posting_date,voucher,voucher_no FROM `tabStock Ledger` sl
-            WHERE posting_date > %s ORDER BY posting_date ASC
-            LIMIT 1
-        """, (posting_date,), as_dict=True)
+        # next_stock_ledger = frappe.db.sql("""
+        #     SELECT sl.name, sl.posting_date,voucher,voucher_no FROM `tabStock Ledger` sl
+        #     WHERE posting_date > %s ORDER BY posting_date ASC
+        #     LIMIT 1
+        # """, (posting_date,), as_dict=True)
         
-        if(next_stock_ledger and next_stock_ledger[0]): 
-            
+        # As part of the automatic reposting, the repostings doing only for records which is prior to one hour to now, to avoid conflict with the currenly being posted stock ledgers
+        
+        one_hour_ago = datetime.now() - timedelta(hours=1)
+        one_hour_ago_str = one_hour_ago.strftime('%Y-%m-%d %H:%M:%S')
+
+        next_stock_ledger = frappe.db.sql("""
+            SELECT sl.name, sl.posting_date, sl.voucher, sl.voucher_no 
+            FROM `tabStock Ledger` sl
+            WHERE sl.posting_date > %s 
+            AND sl.posting_date < %s
+            ORDER BY sl.posting_date ASC
+            LIMIT 1
+        """, (posting_date, one_hour_ago_str), as_dict=True)
+        
+        if(next_stock_ledger and next_stock_ledger[0]):
             
             if post_only_for_a_date == True and (  
                     next_stock_ledger[0].posting_date.date() != posting_date.date()):                
@@ -317,6 +335,7 @@ def re_post_stock_ledgers():
             posting_date = next_stock_ledger[0].posting_date
             doc.last_processed_stock_ledger = next_stock_ledger[0].name
             doc.last_processed_posting_date = posting_date
+            doc.save()
             
             if next_stock_ledger[0].voucher == "Sales Invoice" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_sales_invoice:
                     stock_ledgers_for_sales_invoice.append(next_stock_ledger[0].voucher_no)
@@ -326,6 +345,8 @@ def re_post_stock_ledgers():
                     
             if next_stock_ledger[0].voucher == "Sales Return" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_sales_return:
                     stock_ledgers_for_sales_return.append(next_stock_ledger[0].voucher_no)
+                    
+            create_stock_repost_detail(next_stock_ledger,start_time)            
             
         else:
             udpate_ledgers = False
@@ -338,7 +359,19 @@ def re_post_stock_ledgers():
     doc.save()
     frappe.db.commit()
     
-    frappe.msgprint("Stock update completed")
+    if show_alert:
+        frappe.msgprint("Stock update completed")
+
+def create_stock_repost_detail(next_stock_ledger, start_time):
+    
+    # Format start_time to dd-mm-yyyy
+    formatted_start_time = start_time.strftime("%d-%m-%Y %H:%M:%S")
+    
+    stock_repost_detail = frappe.new_doc("Stock Repost Detail")
+    stock_repost_detail.title = f"Stock Reposting at {formatted_start_time}"
+    stock_repost_detail.stock_ledger = next_stock_ledger[0].name
+    stock_repost_detail.repost_time = datetime.now()  # Correctly call the now() method
+    stock_repost_detail.insert()
 
 def update_all_cost_of_goods_solds(delivery_note_list, sales_invoice_list,sales_return_list):
     
