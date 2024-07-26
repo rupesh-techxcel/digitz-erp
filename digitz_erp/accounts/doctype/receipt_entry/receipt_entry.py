@@ -146,10 +146,10 @@ class ReceiptEntry(Document):
 				messge = """Customer is mandatory for the referene type Sales Invoice, at line {0} """.format(receipt_entry.idx)
 				frappe.throw(messge)
 
-			if receipt_entry.reference_type == "Sales Invoice" and receipt_entry.customer and receipt_entry.allocated_amount ==0:
+			# if receipt_entry.reference_type == "Sales Invoice" and receipt_entry.customer and receipt_entry.allocated_amount ==0:
 
-				messge = """Allocation not found for the payment at line {0} """.format(receipt_entry.idx)
-				frappe.throw(messge)
+			# 	messge = """Allocation not found for the payment at line {0} """.format(receipt_entry.idx)
+			# 	frappe.throw(messge)
 
 
     # Cleaning the deleted allocations is crucial, so this method should call even though it cleans with the client side javascript code

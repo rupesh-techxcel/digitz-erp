@@ -247,15 +247,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Quotation",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_25",
    "fieldtype": "Section Break",
    "label": "Totals"

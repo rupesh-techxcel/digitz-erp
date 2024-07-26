@@ -561,7 +561,7 @@ frappe.ui.form.on('Quotation', {
 		});
 
 		if (!valid) {
-			frapp.message("No valid item found in the document");
+			frapp.msgprint("No valid item found in the document");
 			return;
 		}
 	},

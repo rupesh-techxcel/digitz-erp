@@ -121,10 +121,10 @@ frappe.ui.form.on('Sales Invoice', {
 			frappe.msgprint("Select payment mode")
 		}
 
-		if (!valid) {
-			frappe.message("No valid item found in the document");
-			return;
-		}
+		// if (!valid) {
+		// 	frappe.message("No valid item found in the document");
+		// 	return;
+		// }
 
 		if (frm.doc.tab_sales)
 			frappe.throw("Cannot change Sales Invoice created from a Tab Sales. Do it from the correspodning Tab Sale")

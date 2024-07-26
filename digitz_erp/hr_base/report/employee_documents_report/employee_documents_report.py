@@ -26,7 +26,8 @@ def get_data(filters):
     where_clause = " AND ".join(conditions) if conditions else "1 = 1"
 
     # Query the child table data based on the dynamic conditions
-    data = frappe.db.sql(f"""
+    try:
+         data = frappe.db.sql(f"""
         SELECT 
             parent AS employee,
             document_name,
@@ -39,6 +40,9 @@ def get_data(filters):
         WHERE
             {where_clause}
     """, values, as_dict=True)
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), 'Error executing query')
+        frappe.throw(f"An error occurred while executing the query: {str(e)}")
 
     return data
 

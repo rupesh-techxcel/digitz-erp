@@ -515,7 +515,7 @@ frappe.ui.form.on('Sales Order', {
 		});
 
 		if (!valid) {
-			frapp.message("No valid item found in the document");
+			frapp.msgprint("No valid item found in the document");
 			return;
 		}
 	},
