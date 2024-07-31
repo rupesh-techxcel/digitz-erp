@@ -105,7 +105,7 @@ frappe.ui.form.on('Purchase Order', {
 	{
 		if(frm.is_new())
 		{
-			frm.clear_table('items');
+			// frm.clear_table('items');
 
 			frm.trigger("get_default_company_and_warehouse")
 
