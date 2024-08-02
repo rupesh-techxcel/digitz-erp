@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProjectStagesTable(Document):
+class ProjectStageTable(Document):
 	pass

@@ -137,7 +137,7 @@
    "fieldname": "project_stage_table",
    "fieldtype": "Table",
    "label": "Project Stage",
-   "options": "Project Stages Table"
+   "options": "Project Stage Table"
   },
   {
    "fieldname": "notes_section",
