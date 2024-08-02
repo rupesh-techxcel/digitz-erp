@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PRO-INV-{project}-{###}",
+ "creation": "2024-07-22 11:54:22.167526",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "project",
+  "column_break_pcrr",
+  "date",
+  "section_break_rjkk",
+  "stage_details",
+  "section_break_lckh",
+  "advance_deducation",
+  "retentation_deducation"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_pcrr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "section_break_rjkk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "stage_details",
+   "fieldtype": "Table",
+   "label": "Stage Details",
+   "options": "Stage Table"
+  },
+  {
+   "fieldname": "section_break_lckh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "advance_deducation",
+   "fieldtype": "Float",
+   "label": "Advance Deducation",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "retentation_deducation",
+   "fieldtype": "Float",
+   "label": "Retentation Deducation",
+   "non_negative": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-08-02 11:03:04.462250",
+ "modified_by": "Administrator",
+ "module": "Project",
+ "name": "Progressive Invoice",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

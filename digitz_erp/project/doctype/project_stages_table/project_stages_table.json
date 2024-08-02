@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-15 10:57:43.204807",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "project_stage_defination",
+  "schedule_of_project",
+  "percentage_of_completion",
+  "proforma_invoice",
+  "sales_invoice",
+  "net_total"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_stage_defination",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Stage Defination"
+  },
+  {
+   "fieldname": "schedule_of_project",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Schedule Of Project"
+  },
+  {
+   "fieldname": "percentage_of_completion",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Percentage Of Completion"
+  },
+  {
+   "fieldname": "proforma_invoice",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Proforma Invoice",
+   "options": "Proforma Invoice"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "fetch_from": "sales_invoice.net_total",
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "non_negative": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-08-01 14:22:09.184554",
+ "modified_by": "Administrator",
+ "module": "Project",
+ "name": "Project Stages Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

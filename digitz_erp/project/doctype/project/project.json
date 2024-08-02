@@ -1,0 +1,178 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:name1",
+ "creation": "2024-07-01 14:50:14.136177",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "name1",
+  "project_delivery_date",
+  "status",
+  "column_break_juec",
+  "expected_start_date",
+  "expected_end_date",
+  "priority",
+  "customer_details_section",
+  "customer",
+  "sales_order",
+  "column_break_nzbm",
+  "advance_entry",
+  "section_break_pgei",
+  "retentation_percentage",
+  "retentation_amt",
+  "column_break_tlzb",
+  "amount_after_retentation",
+  "project_amount",
+  "section_break_updt",
+  "project_stage_table",
+  "notes_section",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "project_delivery_date",
+   "fieldtype": "Date",
+   "label": "Project Delivery Date"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nOpen\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "column_break_juec",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "expected_start_date",
+   "fieldtype": "Date",
+   "label": "Expected Start Date"
+  },
+  {
+   "bold": 1,
+   "fieldname": "expected_end_date",
+   "fieldtype": "Date",
+   "label": "Expected End Date"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "\nLow\nMedium\nHigh"
+  },
+  {
+   "fieldname": "customer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Customer Details"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "column_break_nzbm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advance_entry",
+   "fieldtype": "Link",
+   "label": "Advance Receipt Entry",
+   "options": "Receipt Entry"
+  },
+  {
+   "fieldname": "section_break_pgei",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "retentation_percentage",
+   "fieldtype": "Data",
+   "label": "Retentation Percentage"
+  },
+  {
+   "fieldname": "retentation_amt",
+   "fieldtype": "Int",
+   "label": "Retentation Amount",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_tlzb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount_after_retentation",
+   "fieldtype": "Int",
+   "label": "Amount After Retentation",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "project_amount",
+   "fieldtype": "Int",
+   "label": "Project Amount",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "section_break_updt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "project_stage_table",
+   "fieldtype": "Table",
+   "label": "Project Stage",
+   "options": "Project Stages Table"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-08-02 08:31:06.407959",
+ "modified_by": "Administrator",
+ "module": "Project",
+ "name": "Project",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
