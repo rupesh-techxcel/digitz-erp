@@ -120,6 +120,8 @@ frappe.ui.form.on("Project", {
                 localStorage.setItem('percentage_of_completion', percentage_of_completion);
                 localStorage.setItem('project_stage_defination', stage_name);
                 localStorage.setItem('project_amount', frm.doc.project_amount);
+                localStorage.setItem("retentation_percentage",frm.doc.retentation_percentage);
+                localStorage.setItem("advance_amount",frm.doc.advance_amount);
                 // if(localStorage.getItem("prev_stage_name")){
                 // 	print_msg()
                 // }
@@ -206,8 +208,8 @@ frappe.ui.form.on("Project", {
                 if (response.message) {
                     console.log("retentation % and more", response)
                     let data = response.message
-                    frm.set_value("retentation_amt",Math.round(data.retentation_amt)/100)
-                    frm.set_value("amount_after_retentation", Math.round(data.amount_after_retentation)/100)
+                    frm.set_value("retentation_amt",Math.round(data.retentation_amt))
+                    frm.set_value("amount_after_retentation", Math.round(data.amount_after_retentation))
                 }
             }
         })

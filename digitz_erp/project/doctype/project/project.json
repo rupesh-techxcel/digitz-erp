@@ -18,6 +18,7 @@
   "sales_order",
   "column_break_nzbm",
   "advance_entry",
+  "advance_amount",
   "section_break_pgei",
   "retentation_percentage",
   "retentation_amt",
@@ -124,6 +125,7 @@
    "non_negative": 1
   },
   {
+   "fetch_from": "sales_order.custom_net_total_copy",
    "fieldname": "project_amount",
    "fieldtype": "Int",
    "label": "Project Amount",
@@ -148,11 +150,20 @@
    "fieldname": "notes",
    "fieldtype": "Text Editor",
    "label": "Notes"
+  },
+  {
+   "fetch_from": "advance_entry.amount",
+   "fieldname": "advance_amount",
+   "fieldtype": "Float",
+   "label": "Advance Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-02 08:31:06.407959",
+ "modified": "2024-08-03 09:25:58.780628",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

@@ -45,9 +45,12 @@
   "project",
   "project_stage",
   "percentage_of_completion",
+  "advance_entry",
+  "advance_amount",
   "column_break_tlly",
   "retentation_percentage",
   "retentation_amount",
+  "total_project_amount",
   "amount_after_retentation",
   "section_break_19",
   "item_table",
@@ -71,6 +74,12 @@
   "in_words",
   "column_break_ufpf",
   "total_big",
+  "billing_details_section",
+  "invoice_amount",
+  "deduction_for_retentation",
+  "column_break_alju",
+  "deduction_for_advance",
+  "net_amount",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -303,6 +312,7 @@
    "fieldname": "retentation_percentage",
    "fieldtype": "Float",
    "label": "Retentation Percentage",
+   "non_negative": 1,
    "read_only": 1
   },
   {
@@ -316,7 +326,7 @@
    "fetch_from": "project.amount_after_retentation",
    "fieldname": "amount_after_retentation",
    "fieldtype": "Float",
-   "label": "Amount After Retentation ",
+   "label": "Project Amount After Retentation ",
    "read_only": 1
   },
   {
@@ -365,6 +375,7 @@
   {
    "fieldname": "section_break_25",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Totals"
   },
   {
@@ -495,6 +506,71 @@
    "options": "Proforma Invoice",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fetch_from": "project.project_amount",
+   "fieldname": "total_project_amount",
+   "fieldtype": "Currency",
+   "label": "Total Project Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "billing_details_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Details"
+  },
+  {
+   "fieldname": "invoice_amount",
+   "fieldtype": "Currency",
+   "label": "Invoice Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deduction_for_retentation",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retentation",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_alju",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "deduction_for_advance",
+   "fieldtype": "Currency",
+   "label": "Deduction For Advance",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project.sales_order",
+   "fieldname": "advance_entry",
+   "fieldtype": "Data",
+   "label": "Advance Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "advance_amount",
+   "fieldtype": "Currency",
+   "label": "Advance Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -513,7 +589,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-08-02 08:47:05.832094",
+ "modified": "2024-08-02 15:41:10.367708",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",
