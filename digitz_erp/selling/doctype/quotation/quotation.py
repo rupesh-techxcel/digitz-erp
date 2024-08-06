@@ -10,7 +10,7 @@ class Quotation(Document):
 
 	def before_validate(self):
      
-		self.in_words = money_in_words(self.rounded_total,"AED")
+		self.in_words = money_in_words(self.net_total,"AED")
   
 	@frappe.whitelist()
 	def generate_quotation(self):

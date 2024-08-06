@@ -254,6 +254,12 @@ frappe.ui.form.on('Sales Order', {
 			})
 	},
 	make_taxes_and_totals(frm) {
+
+		if(frm.doc.item_table.length>0){
+			update_total_big_display_1(frm);
+			frm.set_df_property("items","read_only",1)
+		}
+		else{
 		console.log("from make totals..")
 		frm.clear_table("taxes");
 		frm.refresh_field("taxes");
@@ -435,7 +441,7 @@ frappe.ui.form.on('Sales Order', {
 		frm.refresh_field("rounded_total");
 
 		update_total_big_display(frm);
-
+	}
 	},
 	get_item_stock_balance(frm) {
 
@@ -960,7 +966,7 @@ frappe.ui.form.on('Sales Order Item', {
 
 
 
-frappe.ui.form.on('Quotation New Item Details', {
+frappe.ui.form.on('Sales Order New Item Details', {
     qty: function(frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
         if (row.qty && row.rate) {
@@ -1016,8 +1022,24 @@ frappe.ui.form.on('Quotation New Item Details', {
 
 frappe.ui.form.on("Sales Order",{
     refresh: function(frm){
-        let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${frm.doc.custom_net_total_copy}</div>`;
+        let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${frm.doc.net_total}</div>`;
 		frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
+		// if(frm.doc.items.length > 0){
+		// }
+
+		if(frm.doc.item_table.length > 0){
+			update_total_big_display_1(frm);
+		}else{
+			update_total_big_display(frm);
+		}
+
+		
+
+		if(frm.doc.quotation_id){
+			frm.set_df_property('item_table','hidden',0)
+		}
+
         if(!frm.is_new()){
             frm.add_custom_button(__('Create Project'), function() {
                 frappe.call({
@@ -1043,10 +1065,14 @@ frappe.ui.form.on("Sales Order",{
             });
         }
     },
-    make_taxes_and_totals(frm){
-        update_total_big_display_1(frm);
+    // make_taxes_and_total(frm){
+	// 	if(frm.doc.item_table.length>0){
+	// 		update_total_big_display_1(frm);
+	// 	}else{
+	// 		// make_taxes_and_totals(frm);
+	// 	}
 
-    },
+    // },
     setup: function(frm){
         let data = localStorage.getItem('sales_order_data');
 			frm.trigger("get_default_company_and_warehouse").then(()=>{
@@ -1057,31 +1083,44 @@ frappe.ui.form.on("Sales Order",{
 					console.log("sales_order_data",data)
 					// Set the fields with the retrieved data
 					frm.set_value('customer', data.customer);
-                    frm.set_value('custom_quotation_id', data.name);
+                    frm.set_value('quotation_id', data.name);
+					// if(data['items'] && data['items'].length > 0){
+						// frm.set_df_property('items','hidden',0)
 
-					data["items"].forEach(item => {
-						let row = frm.add_child('items');
-
-						for(let key in item){
-							row[key] = item[key]
-						}
-				    });
-                    data["custom_item_table"].forEach(item =>{
-                        let row = frm.add_child('custom_item_table');
-
-						for(let key in item){
-							row[key] = item[key]
-						}
-                    })
+						
+						data["items"].forEach(item => {
+							let row = frm.add_child('items');
+	
+							for(let key in item){
+								row[key] = item[key]
+							}
+						});
+					// }else{
+						// frm.set_df_property('item_table','hidden',1)
+					// }
+                    // if(data['item_table'] && data['item_table'].length > 0){
+						// frm.set_df_property('items','hidden',0)
+						data["item_table"].forEach(item =>{
+							let row = frm.add_child('item_table');
+	
+							for(let key in item){
+								row[key] = item[key]
+							}
+						})
+					// }else{
+					// 	frm.set_df_property('item_table','hidden',1)
+					// }
 				frm.refresh_field('items');
-                frm.refresh_field('custom_item_table');
+                frm.refresh_field('item_table');
 				// Call other_fields_orcustom function
 				// frappe.ui.form.trigger('Quotation', 'rate_includes_tax', frm);
 				
 				// Refresh the field to show the added rows
 				frm.refresh_field('items');
-                frm.refresh_field('custom_item_table');
-
+                frm.refresh_field('item_table');
+				if(frm.doc.item_table && frm.doc.item_table.length > 0){
+					update_total_big_display_1(frm)
+				}
 				// Clear the data from localStorage
 				localStorage.removeItem('sales_order_data');
 				console.log("removed data",localStorage.getItem('sales_order_data'))
@@ -1097,19 +1136,21 @@ function update_total_big_display_1(frm) {
 
 	// let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
 	let netTotal=0;
-	frm.doc.custom_item_table.forEach((e)=>{
+	frm.doc.item_table.forEach((e)=>{
 			netTotal+= e.amount;
 	})
     netTotal = netTotal.toFixed(2);
-    frm.set_value("custom_net_total_copy",netTotal)
-
+	
     // Add 'AED' prefix and format net_total for display
+	
+    frm.set_value("net_total",netTotal)
+	frm.set_value("gross_total",netTotal)
 
 	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
 
 
     // Directly update the HTML content of the 'total_big' field
-    frm.set_value("custom_amount",displayHtml)
-	frm.fields_dict['custom_amount'].$wrapper.html(displayHtml);
+    frm.set_value("total_big",displayHtml)
+	frm.fields_dict['total_big'].$wrapper.html(displayHtml);
 
 }

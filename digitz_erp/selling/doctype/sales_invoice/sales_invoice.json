@@ -39,6 +39,10 @@
   "lpo_date",
   "payment_status",
   "submitted_record",
+  "project_stage_details_section",
+  "project",
+  "stage_proforma_invoice",
+  "allocated_receipt_entry",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -54,12 +58,19 @@
   "remarks",
   "section_break_19",
   "items",
+  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
   "column_break_uozz",
   "amended_from",
+  "billing_details_section",
+  "invoice_amount",
+  "deduction_for_retentation",
+  "column_break_zrqa",
+  "deduction_for_advance",
+  "net_amount",
   "section_break_25",
   "gross_total",
   "tax_total",
@@ -596,6 +607,82 @@
    "hidden": 1,
    "label": "Location To Print",
    "read_only": 1
+  },
+  {
+   "fieldname": "project_stage_details_section",
+   "fieldtype": "Section Break",
+   "label": "Project & Stage Details"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stage_proforma_invoice",
+   "fieldtype": "Link",
+   "label": "Stage Proforma Invoice",
+   "options": "Proforma Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "allocated_receipt_entry",
+   "fieldtype": "Data",
+   "label": "Allocated Receipt Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_table",
+   "fieldtype": "Table",
+   "label": "Item Table",
+   "options": "Proforma Invoice Table"
+  },
+  {
+   "fieldname": "billing_details_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Details"
+  },
+  {
+   "fetch_from": "stage_proforma_invoice.invoice_amount",
+   "fieldname": "invoice_amount",
+   "fieldtype": "Currency",
+   "label": "Invoice Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "stage_proforma_invoice.deduction_for_retentation",
+   "fieldname": "deduction_for_retentation",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retentation",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zrqa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "stage_proforma_invoice.deduction_for_advance",
+   "fieldname": "deduction_for_advance",
+   "fieldtype": "Currency",
+   "label": "Deduction For Advance",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "stage_proforma_invoice.net_amount",
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -616,7 +703,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-06-24 07:50:37.257009",
+ "modified": "2024-08-06 12:55:13.918451",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

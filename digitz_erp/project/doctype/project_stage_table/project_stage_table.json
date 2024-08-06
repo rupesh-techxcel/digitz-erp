@@ -47,7 +47,7 @@
    "options": "Sales Invoice"
   },
   {
-   "fetch_from": "sales_invoice.custom_net_amount",
+   "fetch_from": "sales_invoice.net_amount",
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "label": "Net Total",
@@ -58,7 +58,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-03 09:48:56.745153",
+ "modified": "2024-08-06 12:56:25.357411",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project Stage Table",

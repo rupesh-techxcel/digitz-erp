@@ -55,7 +55,7 @@ def execute(filters=None):
         FROM
             `tabProject` p
         LEFT JOIN
-            `tabProject Stages Table` pst ON pst.parent = p.name
+            `tabProject Stage Table` pst ON pst.parent = p.name
         WHERE
             1=1
             {conditions}

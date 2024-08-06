@@ -16,12 +16,18 @@ frappe.ui.form.on("Project", {
     refresh(frm) {
         localStorage.setItem("current_project", frm.doc.name)
 
+        if(frm.is_new()){
+            frm.set_df_property("advance_entry","read_only",1)
+        }else{
+            frm.set_df_property("advance_entry","read_only",0)
+        }
+
         frm.set_query('advance_entry', () => {
             return {
                 filters: {
                     'customer': frm.doc.customer,
-                    'custom_project': frm.doc.name,
-                    'custom_advance_payment': 1
+                    'project': frm.doc.name,
+                    'advance_payment': 1
                 }
             }
         });
@@ -47,7 +53,7 @@ frappe.ui.form.on("Project", {
 
             return {
                 "filters": {
-                    "custom_project": frm.doc.name1
+                    "project": frm.doc.name1
                 }
             }
         })
@@ -175,14 +181,14 @@ frappe.ui.form.on("Project", {
 
         }
 
-        frm.fields_dict['stage'].grid.get_field('project_stage').get_query = function (doc, cdt, cdn) {
-            var child = locals[cdt][cdn];
-            return {
-                filters: {
-                    'project': frm.doc.name1 // Change these filters as per your requirement
-                }
-            };
-        };
+        // frm.fields_dict['stage'].grid.get_field('project_stage').get_query = function (doc, cdt, cdn) {
+        //     var child = locals[cdt][cdn];
+        //     return {
+        //         filters: {
+        //             'project': frm.doc.name1 // Change these filters as per your requirement
+        //         }
+        //     };
+        // };
 
     },
     // advance_entry(frm){
@@ -198,19 +204,34 @@ frappe.ui.form.on("Project", {
         }
 
 
-        frappe.call({
-            method: "digitz_erp.project.doctype.project.project.calculate_rest_amt",
-            args: {
-                sales_order_id: frm.doc.sales_order,
-                retentation_percentage: percentage
-            },
-            callback: function (response) {
-                if (response.message) {
-                    console.log("retentation % and more", response)
-                    let data = response.message
-                    frm.set_value("retentation_amt",Math.round(data.retentation_amt))
-                    frm.set_value("amount_after_retentation", Math.round(data.amount_after_retentation))
+        if(frm.doc.sales_order){
+            frappe.call({
+                method: "digitz_erp.project.doctype.project.project.calculate_rest_amt",
+                args: {
+                    sales_order_id: frm.doc.sales_order,
+                    retentation_percentage: percentage
+                },
+                callback: function (response) {
+                    if (response.message) {
+                        console.log("retentation % and more", response)
+                        let data = response.message
+                        frm.set_value("retentation_amt",Math.round(data.retentation_amt))
+                        frm.set_value("amount_after_retentation", Math.round(data.amount_after_retentation))
+                    }
                 }
+            })
+        }
+    },
+
+    sales_order(frm){
+        frappe.db.get_value("Sales Order", frm.doc.sales_order,'net_total').then(r=>{
+            console.log(r.message)
+            if(r.message){
+                frm.set_value("project_amount",r.message.net_total)
+                let amt = (r.message.net_total * parseFloat(frm.doc.retentation_percentage)) / 100;
+                frm.set_value("retentation_amt", amt);
+                frm.set_value("amount_after_retentation", parseFloat(r.message.net_total - amt))
+                console.log(r.message.net_total,amt,frm.doc.retentation_percentage)
             }
         })
     }

@@ -18,7 +18,7 @@ frappe.ui.form.on("Proforma Invoice", {
         // if(!frm.is_new()){
         //     frm.add_custom_button(__('Create Progressive Invoice'), function() {
         //         // frappe.call({
-        //         //     method: "digitz_services.digitz_services.whitelist_methods.sales_order.create_sales_order",
+        //         //     method: "digitz_services.digitz_services.whitelist_methods.custom_sales_order.create_sales_order",
         //         //     args: {
         //         //         quotation_id: frm.doc.name,
         //         //     },
@@ -62,7 +62,7 @@ frappe.ui.form.on("Proforma Invoice", {
 					frm.set_value("retentation_percentage",retentation_percentage)
 
 					frm.set_df_property('items', 'hidden', 1);
-					frm.set_df_property('custom_item_table', 'hidden', 0);
+					frm.set_df_property('item_table', 'hidden', 0);
 					frm.add_child("item_table",{
 						"item": project_stage_defination,
 						"description": project_stage_defination,
@@ -135,9 +135,9 @@ frappe.ui.form.on("Proforma Invoice", {
         //                     })
         //                 })
         //                 frm.refresh_field('item_table');
-		// 				frm.set_value("net_total",data.custom_net_total_copy);
+		// 				frm.set_value("net_total",data.net_total);
 
-		// 				let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${data.custom_net_total_copy}</div>`;
+		// 				let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${data.net_total}</div>`;
 
 
 		// 				// Directly update the HTML content of the 'total_big' field
@@ -167,7 +167,7 @@ frappe.ui.form.on("Proforma Invoice", {
                     let sales_order = response.message;
                     if (sales_order) {
                         // Loop through each item in the custom_item_table of the Sales Order
-                        sales_order.custom_item_table.forEach(function(item_row) {
+                        sales_order.item_table.forEach(function(item_row) {
                             // Add each item to the Proforma Invoice's so_items table
                             frm.add_child("so_items", {
                                 "item": item_row.item,

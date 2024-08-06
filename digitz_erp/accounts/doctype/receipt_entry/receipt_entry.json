@@ -28,6 +28,11 @@
   "customers",
   "section_break_wgdje",
   "amended_from",
+  "advance_section_break",
+  "advance_payment",
+  "customer",
+  "column_break_twrj",
+  "project",
   "section_break_yppjt",
   "receipt_entry_details",
   "show_allocations",
@@ -104,6 +109,7 @@
   },
   {
    "allow_on_submit": 1,
+   "depends_on": "eval: doc.advance_payment == undefined || doc.advance_payment == 0",
    "fieldname": "receipt_allocation",
    "fieldtype": "Table",
    "label": "Receipt Allocation",
@@ -112,6 +118,7 @@
   {
    "allow_on_submit": 1,
    "default": "False",
+   "depends_on": "eval: doc.advance_payment == undefined || doc.advance_payment == 0",
    "fieldname": "show_allocations",
    "fieldtype": "Check",
    "label": "Show Allocations"
@@ -184,17 +191,50 @@
    "read_only": 1
   },
   {
-    "allow_on_submit": 1,
-    "fieldname": "receipt_allocation_copy",
-    "fieldtype": "Table",
-    "label": "Receipt Allocation Copy",
-    "options": "Receipt Allocation"
-   }
+   "allow_on_submit": 1,
+   "depends_on": "eval: doc.advance_payment == 1",
+   "fieldname": "receipt_allocation_copy",
+   "fieldtype": "Table",
+   "label": "Receipt Allocation",
+   "options": "Receipt Allocation"
+  },
+  {
+   "default": "0",
+   "fieldname": "advance_payment",
+   "fieldtype": "Check",
+   "label": "Advance Payment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_twrj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "advance_section_break",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Advance Payment Details",
+   "read_only": 1
+  }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-07-24 15:19:23.600685",
+ "modified": "2024-08-05 11:44:45.024352",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

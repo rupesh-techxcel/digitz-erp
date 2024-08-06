@@ -573,3 +573,4 @@ def receipt_allocation_updates(receipt_entry_id, sales_inv_id):
         return "Row added successfully"
     else:
         return "Row already exists, no action taken"
+

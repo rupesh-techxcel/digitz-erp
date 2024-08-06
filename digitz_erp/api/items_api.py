@@ -22,13 +22,15 @@ def get_item_units_query(self, query, txt, searchfield, start, page_len, filters
                   WHERE unit.parent = '{0}'""".format(self.name)
 
 @frappe.whitelist()
-def get_item_uoms(item):
-
- return frappe.get_all(
+def get_item_uoms(item=None):
+	if(item):
+		return frappe.get_all(
 		"Item Unit",
 		filters={"parent": item},
 		fields=["unit","conversion_factor"]		
 	)
+	else:
+		return ""
 
 @frappe.whitelist()
 def get_item_price_for_price_list(item, price_list):

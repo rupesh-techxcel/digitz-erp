@@ -5,11 +5,15 @@ import frappe
 from frappe.model.document import Document
 from digitz_erp.api.sales_order_api import check_pending_items_exists
 from digitz_erp.api.item_price_api import update_customer_item_price
+from frappe.utils import money_in_words
+
 
 class SalesOrder(Document):
 	 
 	def before_validate(self):
-     
+		self.in_words = money_in_words(self.net_total,"AED")
+		self.in_words_copy = money_in_words(self.net_total_copy,"AED")
+
 		if self.is_new():
 			for item in self.items:
 				item.qty_sold_in_base_unit = 0

@@ -105,14 +105,16 @@
   },
   {
    "fieldname": "retentation_percentage",
-   "fieldtype": "Data",
-   "label": "Retentation Percentage"
+   "fieldtype": "Percent",
+   "label": "Retentation Percentage",
+   "precision": "2"
   },
   {
    "fieldname": "retentation_amt",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "label": "Retentation Amount",
-   "non_negative": 1
+   "non_negative": 1,
+   "precision": "2"
   },
   {
    "fieldname": "column_break_tlzb",
@@ -120,16 +122,18 @@
   },
   {
    "fieldname": "amount_after_retentation",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "label": "Amount After Retentation",
-   "non_negative": 1
+   "non_negative": 1,
+   "precision": "2"
   },
   {
-   "fetch_from": "sales_order.custom_net_total_copy",
+   "fetch_from": "sales_order.net_total_copy",
    "fieldname": "project_amount",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "label": "Project Amount",
-   "non_negative": 1
+   "non_negative": 1,
+   "precision": "2"
   },
   {
    "fieldname": "section_break_updt",
@@ -163,7 +167,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-03 09:25:58.780628",
+ "modified": "2024-08-05 13:59:24.018152",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

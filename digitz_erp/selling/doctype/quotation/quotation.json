@@ -43,6 +43,7 @@
   "column_break_fomo",
   "section_break_19",
   "items",
+  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_iwxfb",
@@ -424,6 +425,13 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+  },
+  {
+   "fieldname": "item_table",
+   "fieldtype": "Table",
+   "label": "Item Table",
+   "options": "Quotation New Item Details",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -442,7 +450,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-04-22 11:32:12.239307",
+ "modified": "2024-08-06 09:26:06.854211",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
