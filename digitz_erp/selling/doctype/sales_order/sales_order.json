@@ -511,12 +511,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "net_total",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_pjwt",
    "fieldtype": "Column Break"
   },

@@ -27,7 +27,6 @@ frappe.ui.form.on("Project", {
                 filters: {
                     'customer': frm.doc.customer,
                     'project': frm.doc.name,
-                    'advance_payment': 1
                 }
             }
         });
@@ -84,12 +83,17 @@ frappe.ui.form.on("Project", {
                 // })
                 localStorage.setItem("project_id", frm.doc.name);
                 frappe.set_route("Form", "Progressive Invoice", "new-progressive-invoice-tzqymbxqvm");
-            });
+            },__("Progressive Invoice"));
 
             frm.add_custom_button(__('Show Created Progressive Invoice'), function () {
                 // Redirect to BOQ list view with filters applied
                 frappe.set_route('List', 'Progressive Invoice', { 'project': frm.doc.name });
-            });
+            },__("Progressive Invoice"));
+
+            // frm.add_custom_button(__('Advance Entry'), function () {
+            //     // Redirect to BOQ list view with filters applied
+            //     frappe.set_route('List', 'Progressive Invoice', { 'project': frm.doc.name });
+            // },__("Progressive Invoice"));
         }
 
         // Ensure the script runs after the form is refreshed

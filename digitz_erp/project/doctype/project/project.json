@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "name1",
+  "project_type",
   "project_delivery_date",
   "status",
   "column_break_juec",
@@ -96,8 +97,8 @@
   {
    "fieldname": "advance_entry",
    "fieldtype": "Link",
-   "label": "Advance Receipt Entry",
-   "options": "Receipt Entry"
+   "label": "Advance Entry",
+   "options": "Advance Entry"
   },
   {
    "fieldname": "section_break_pgei",
@@ -156,18 +157,24 @@
    "label": "Notes"
   },
   {
-   "fetch_from": "advance_entry.amount",
+   "fetch_from": "advance_entry.net_total",
    "fieldname": "advance_amount",
    "fieldtype": "Float",
    "label": "Advance Amount",
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "fieldname": "project_type",
+   "fieldtype": "Select",
+   "label": "Project Type",
+   "options": "\nSupply\nService\nBoth"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-05 13:59:24.018152",
+ "modified": "2024-08-09 10:48:10.777218",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

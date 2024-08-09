@@ -202,12 +202,14 @@
    "default": "0",
    "fieldname": "advance_payment",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Advance Payment",
    "read_only": 1
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Customer",
    "options": "Customer",
    "read_only": 1
@@ -219,6 +221,7 @@
   {
    "fieldname": "project",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Project",
    "options": "Project",
    "read_only": 1
@@ -234,7 +237,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-08-05 11:44:45.024352",
+ "modified": "2024-08-09 10:15:36.173318",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

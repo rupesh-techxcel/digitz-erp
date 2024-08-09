@@ -59,6 +59,10 @@
   "default_credit_purchase",
   "default_credit_sale",
   "default_asset_location",
+  "advance_payments_section",
+  "default_advance_received_account",
+  "column_break_bggm",
+  "default_advance_paid_account",
   "terms_and_conditions_tab",
   "supplier_terms",
   "section_break_39",
@@ -414,11 +418,32 @@
    "fieldtype": "Link",
    "label": "Default Asset Location",
    "options": "Asset Location"
+  },
+  {
+   "fieldname": "advance_payments_section",
+   "fieldtype": "Section Break",
+   "label": "Advance Payments"
+  },
+  {
+   "fieldname": "default_advance_received_account",
+   "fieldtype": "Link",
+   "label": "Default Advance Received Account ",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_bggm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_advance_paid_account",
+   "fieldtype": "Link",
+   "label": "Default Advance Paid Account ",
+   "options": "Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-22 13:19:52.374390",
+ "modified": "2024-08-09 09:24:58.402694",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

@@ -316,7 +316,32 @@ frappe.ui.form.on('Quotation', {
 		frm.doc.rounded_total = 0;
 
 		frm.doc.items.forEach(function (entry) {
-			console.log("Item in Row")
+			if(entry.lumpsum_amount){
+				// let row = frappe.get_doc(cdt, cdn);
+				// let gross_amount =  row.gross_amount;
+				// let net_amount = 0;
+		
+				// if(row.lumpsum_amount){
+				// 	if(row.discount_percentage){
+				// 		gross_amount *= (row.discount_percentage/100);
+				// 	}
+				// 	if(row.tax_amount){
+				// 		net_amount += (gross_amount + row.tax_amount);
+				// 	}
+				// 	frappe.model.set_value(cdt,cdn,'net_amount',net_amount)
+				// }
+
+
+				// console.log(frm.doc.items)
+				// for(item in frm.doc.items){
+					gross_total += entry.gross_amount;
+					net_total += entry.net_amount;
+				// }
+				// frm.set_value('gross_total',gross_total)
+				// frm.set_value('net_total',net_total)
+			}
+			else{
+				console.log("Item in Row")
 			console.log(entry.item);
 			var tax_in_rate = 0;
 
@@ -438,6 +463,7 @@ frappe.ui.form.on('Quotation', {
 			}
 			else {
 				console.log("Qty and Rate are NaN");
+			}
 			}
 
 		});
@@ -877,13 +903,26 @@ frappe.ui.form.on('Quotation Item', {
 		}
 	},
 	qty(frm, cdt, cdn) {
-		frm.trigger("make_taxes_and_totals");
+		let row = frappe.get_doc(cdt, cdn);
+		if(!row.lumpsum_amount){
+			frm.trigger("make_taxes_and_totals");
+		}
 	},
 	rate(frm, cdt, cdn) {
-		frm.trigger("make_taxes_and_totals");
+		let row = frappe.get_doc(cdt, cdn);
+		if(!row.lumpsum_amount){
+			frm.trigger("make_taxes_and_totals");
+		}
 	},
 	rate_includes_tax(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
+	},
+	gross_amount(frm,cdt,cdn){
+		update_amount_with_lumpsum(frm,cdt,cdn);
+	},
+	lumpsum_amount(frm,cdt,cdn){
+		let row = frappe.get_doc(cdt,cdn);
+		
 	},
 	unit(frm, cdt, cdn) {
 
@@ -975,12 +1014,40 @@ frappe.ui.form.on('Quotation Item', {
 		row.warehouse = frm.doc.warehouse
 
 		frm.trigger("make_taxes_and_totals");
+		update_amount_with_lumpsum(frm,cdt,cdn);
 
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
+		update_amount_with_lumpsum(frm,cdt,cdn);
 	}
 });
 
 
 
+function update_amount_with_lumpsum(frm,cdt,cdn){
+	let row = frappe.get_doc(cdt, cdn);
+		let gross_amount =  row.gross_amount;
+		let net_amount = 0;
+		
+		if(row.lumpsum_amount){
+			if(row.discount_percentage){
+				gross_amount *= (row.discount_percentage/100);
+			}
+			if(row.tax_amount){
+				net_amount += (gross_amount + row.tax_amount);
+			}
+			frappe.model.set_value(cdt,cdn,'net_amount',net_amount)
+		}
+
+
+		let gross_total = 0;
+		let net_total = 0;
+			console.log(frm.doc.items)
+		for(item in frm.doc.items){
+			gross_total += item.gross_amount;
+			net_total += item.net_amount;
+		}
+		frm.set_value('gross_total',gross_total)
+		frm.set_value('net_total',net_total)
+}

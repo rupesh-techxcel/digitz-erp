@@ -790,8 +790,8 @@ let general_ledgers = function (frm) {
 
 frappe.ui.form.on("Receipt Entry",{
     refresh: function(frm){
-        prev_customer = localStorage.getItem('prev_customer')
-        prev_project = localStorage.getItem('prev_project')
+        let prev_customer = localStorage.getItem('prev_customer')
+        let prev_project = localStorage.getItem('prev_project')
         
         if(prev_customer && prev_project){
             console.log("Receipt Entry With Custom Data.")
@@ -799,10 +799,9 @@ frappe.ui.form.on("Receipt Entry",{
             frm.set_value('project', prev_project);
             frm.set_value('customer', prev_customer);
             frm.set_value('advance_payment',1)
-
-            localStorage.removeItem('prev_customer');
-            localStorage.removeItem('prev_project');
         }
+		localStorage.removeItem('prev_customer');
+		localStorage.removeItem('prev_project');
 
     }
 })

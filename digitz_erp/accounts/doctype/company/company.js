@@ -45,6 +45,20 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 			}
 		};
 	});
+	frm.set_query("default_advance_received_account",function(){
+		return{
+			"filters": {
+				"root_type":"Liability"
+			}
+		}
+	})
+	frm.set_query("default_advance_paid_account",function(){
+		return{
+			"filters": {
+				"root_type":"Asset"
+			}
+		}
+	})
 
 	frm.set_query("stock_received_but_not_billed", function() {
 		return {
