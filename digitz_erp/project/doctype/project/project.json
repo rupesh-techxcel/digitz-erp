@@ -27,6 +27,10 @@
   "amount_after_retentation",
   "project_amount",
   "section_break_updt",
+  "progress_entry",
+  "column_break_xcaf",
+  "average__of_completion",
+  "section_break_snci",
   "project_stage_table",
   "notes_section",
   "notes"
@@ -98,7 +102,8 @@
    "fieldname": "advance_entry",
    "fieldtype": "Link",
    "label": "Advance Entry",
-   "options": "Advance Entry"
+   "options": "Advance Entry",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_pgei",
@@ -138,7 +143,8 @@
   },
   {
    "fieldname": "section_break_updt",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Progress Details"
   },
   {
    "fieldname": "project_stage_table",
@@ -170,11 +176,32 @@
    "fieldtype": "Select",
    "label": "Project Type",
    "options": "\nSupply\nService\nBoth"
+  },
+  {
+   "fieldname": "progress_entry",
+   "fieldtype": "Link",
+   "label": "Progress Entry",
+   "options": "Progress Entry"
+  },
+  {
+   "fetch_from": "progress_entry.average_of_completion",
+   "fieldname": "average__of_completion",
+   "fieldtype": "Percent",
+   "label": "Average % Of Completion",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xcaf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_snci",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-09 10:48:10.777218",
+ "modified": "2024-08-11 14:59:33.232910",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

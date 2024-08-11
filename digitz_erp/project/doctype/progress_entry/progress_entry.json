@@ -34,7 +34,7 @@
   "lpo_no",
   "order_status",
   "default_cost_center",
-  "quotation_id",
+  "sales_order_id",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -46,9 +46,13 @@
   "column_break_rkkd",
   "remarks",
   "column_break_kjrk",
+  "project_details_section",
+  "project",
   "section_break_19",
   "items",
   "item_table",
+  "progress_entry_items",
+  "average_of_completion",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
@@ -244,16 +248,10 @@
    "options": "Cost Center"
   },
   {
-   "fieldname": "quotation_id",
-   "fieldtype": "Link",
-   "label": "Quotation ID",
-   "options": "Quotation",
-   "read_only": 1
-  },
-  {
    "collapsible": 1,
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Accounts"
   },
   {
@@ -323,6 +321,7 @@
    "depends_on": "eval: doc.items != undefined || doc.items.length>0",
    "fieldname": "items",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Items",
    "options": "Sales Order Item"
   },
@@ -330,12 +329,14 @@
    "depends_on": "eval: doc.item_table != undefined && doc.item_table.length>0 && doc.quotation_id != undefined && doc.quotation_id != \"\"",
    "fieldname": "item_table",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Item Table",
    "options": "Sales Order New Item Details"
   },
   {
    "fieldname": "section_break_29",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hidden": 1
   },
   {
    "fieldname": "selected_item_stock_qty_in_the_warehouse",
@@ -580,14 +581,32 @@
    "search_index": 1
   },
   {
-   "fieldname": "amended_from",
+   "fieldname": "progress_entry_items",
+   "fieldtype": "Table",
+   "label": "Progress Entry Items",
+   "options": "Progress Entry Items"
+  },
+  {
+   "fieldname": "sales_order_id",
+   "fieldtype": "Data",
+   "label": "Sales Order ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_details_section",
+   "fieldtype": "Section Break",
+   "label": "Project Details"
+  },
+  {
+   "fieldname": "project",
    "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Progress Entry",
-   "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "average_of_completion",
+   "fieldtype": "Percent",
+   "label": "Average % Of Completion"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -602,7 +621,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-09 07:56:28.781175",
+ "modified": "2024-08-09 14:47:16.714340",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

@@ -49,6 +49,7 @@ frappe.ui.form.on("Progressive Invoice", {
         frm.set_value("customer", frm.data.customer);
         frm.set_value("project", frm.data.name);
         frm.set_value("retentation_deducation", frm.data.retentation_amt);
+        frm.set_value('advance_deducation', frm.data.advance_amount);
         // frm.set_value()
 
         frm.data.project_stage_table.forEach(item => {

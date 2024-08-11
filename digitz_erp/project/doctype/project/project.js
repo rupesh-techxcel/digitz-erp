@@ -16,11 +16,11 @@ frappe.ui.form.on("Project", {
     refresh(frm) {
         localStorage.setItem("current_project", frm.doc.name)
 
-        if(frm.is_new()){
-            frm.set_df_property("advance_entry","read_only",1)
-        }else{
-            frm.set_df_property("advance_entry","read_only",0)
-        }
+        // if(frm.is_new()){
+        //     frm.set_df_property("advance_entry","read_only",1)
+        // }else{
+        //     frm.set_df_property("advance_entry","read_only",0)
+        // }
 
         frm.set_query('advance_entry', () => {
             return {
@@ -83,12 +83,24 @@ frappe.ui.form.on("Project", {
                 // })
                 localStorage.setItem("project_id", frm.doc.name);
                 frappe.set_route("Form", "Progressive Invoice", "new-progressive-invoice-tzqymbxqvm");
-            },__("Progressive Invoice"));
+            },__("Actions"));
 
             frm.add_custom_button(__('Show Created Progressive Invoice'), function () {
                 // Redirect to BOQ list view with filters applied
                 frappe.set_route('List', 'Progressive Invoice', { 'project': frm.doc.name });
-            },__("Progressive Invoice"));
+            },__("Actions"));
+
+            frm.add_custom_button(__('Create Advance Entry'), function () {
+                // Redirect to BOQ list view with filters applied
+                // frappe.set_route('List', 'Progressive Invoice', { 'project': frm.doc.name });
+                frappe.new_doc('Advance Entry',{}, ae =>{
+                    ae.customer = frm.doc.customer;
+                    ae.project = frm.doc.name;
+
+                    // let row = frappe.model.add_child(ae, '');
+                    // row.advance_item_table = "Advance amount for the project";
+                })
+            },__("Actions"));
 
             // frm.add_custom_button(__('Advance Entry'), function () {
             //     // Redirect to BOQ list view with filters applied

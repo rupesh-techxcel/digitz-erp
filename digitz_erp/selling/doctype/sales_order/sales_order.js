@@ -278,6 +278,13 @@ frappe.ui.form.on('Sales Order', {
 		frm.doc.rounded_total = 0;
 
 		frm.doc.items.forEach(function (entry) {
+			if(entry.lumpsum_amount){
+					gross_total += entry.gross_amount;entry.tax_amount;
+					tax_total += entry.tax_amount;
+					net_total += entry.net_amount + entry.tax_amount;
+			}
+			else
+			{
 			console.log("entry")
 			console.log(entry);
 			var tax_in_rate = 0;
@@ -399,6 +406,7 @@ frappe.ui.form.on('Sales Order', {
 			}
 			else {
 				console.log("Qty and Rate are NaN");
+			}
 			}
 
 		});
@@ -811,9 +819,11 @@ frappe.ui.form.on('Sales Order Item', {
 		if (row.tax_excluded) {
 			row.tax = "";
 			row.tax_rate = 0;
+			row.tax_amount = 0;
 			frm.refresh_field("items");
 			frm.trigger("make_taxes_and_totals");
 		}
+		update_row(frm,cdt,cdn);
 	},
 	tax(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
@@ -831,6 +841,7 @@ frappe.ui.form.on('Sales Order Item', {
 					callback: (r2) => {
 						row.tax_rate = r2.message.tax_rate;
 						frm.refresh_field("items");
+						update_row(frm,cdt,cdn);
 						frm.trigger("make_taxes_and_totals");
 					}
 				});
@@ -959,11 +970,35 @@ frappe.ui.form.on('Sales Order Item', {
 	},
 	items_remove(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
-	}
+	},
+	tax_rate(frm,cdt,cdn){
+		update_row(frm,cdt,cdn);
+	},
+	gross_amount(frm,cdt,cdn){
+		// update_amount_with_lumpsum(frm,cdt,cdn);
+		update_row(frm,cdt,cdn);
+	},
+	lumpsum_amount(frm,cdt,cdn){
+		update_row(frm,cdt,cdn);
+	},
 
 
 });
 
+
+function update_row(frm,cdt,cdn){
+	let row = frappe.get_doc(cdt,cdn);
+
+	if(row.lumpsum_amount){
+		let tax_amount = row.gross_amount * row.tax_rate/100;
+
+		frappe.model.set_value(cdt,cdn,'tax_amount', tax_amount);
+		frappe.model.set_value(cdt,cdn,'qty', 0);
+		frappe.model.set_value(cdt,cdn,'net_amount', row.gross_amount + tax_amount); 
+		frm.trigger("make_taxes_and_totals");
+	}
+	
+}
 
 
 frappe.ui.form.on('Sales Order New Item Details', {
@@ -1057,12 +1092,46 @@ frappe.ui.form.on("Sales Order",{
                         }
                     }
                 })
-            });
+            },__("Project Actions"));
 
             frm.add_custom_button(__('Show Created Project'), function() {
                 // Redirect to BOQ list view with filters applied
                 frappe.set_route('List', 'Project', {'sales_order' : frm.doc.name} );
-            });
+            },__("Project Actions"));
+
+			frm.add_custom_button(__("Create Progress Entry"), function(){
+				frappe.new_doc("Progress Entry",{}, pe =>{
+					pe.customer = frm.doc.customer;
+					pe.company = frm.doc.company;
+					pe.project = frm.doc.project;
+					pe.warehouse = frm.doc.warehouse;
+					pe.sales_order_id = frm.doc.name;
+
+					frm.doc.items.forEach(item =>{
+						let row =  frappe.model.add_child(pe, 'progress_entry_items');
+
+						for(i in item){
+							row[i] = item[i]
+						}
+					})
+
+					pe.gross_total = frm.doc.gross_total;
+					pe.net_total = frm.doc.net_total;
+					pe.tax_total = frm.doc.tax_total;
+
+					pe.total_discount_in_line_items = frm.doc.total_discount_in_line_items;
+					pe.additional_discount = frm.doc.additional_discount;
+					pe.rounded_total = frm.doc.rounded_total;
+					pe.in_words = frm.doc.in_words;
+					let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${pe.net_total}</div>`;
+					pe.total_big = displayHtml;
+				})
+			},__("Progress Entry"));
+
+			
+			frm.add_custom_button(__("Show Created Progress Entry"), function(){
+				frappe.set_route('List', 'Progress Entry', { 'sales_order_id': frm.doc.name });
+			},__("Progress Entry"));
         }
     },
     // make_taxes_and_total(frm){
