@@ -9,6 +9,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "project_details_section",
+  "project",
+  "project_stage",
+  "percentage_of_completion",
+  "total_prev_completion_percent",
+  "sales_order_id",
+  "advance_amount",
+  "column_break_tlly",
+  "retentation_percentage",
+  "retentation_amount",
+  "total_project_amount",
+  "amount_after_retentation",
+  "section_break_rqid",
   "naming_series",
   "customer",
   "customer_name",
@@ -41,17 +54,6 @@
   "payment_terms",
   "column_break_ghwk",
   "column_break_fomo",
-  "project_details_section",
-  "project",
-  "project_stage",
-  "percentage_of_completion",
-  "advance_entry",
-  "advance_amount",
-  "column_break_tlly",
-  "retentation_percentage",
-  "retentation_amount",
-  "total_project_amount",
-  "amount_after_retentation",
   "section_break_19",
   "item_table",
   "items",
@@ -101,6 +103,7 @@
    "options": "PFO-.YYYY.-"
   },
   {
+   "fetch_from": "project.customer",
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -164,12 +167,14 @@
   {
    "fieldname": "ship_to_location",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Ship To Location",
    "options": "Customer Delivery Location"
   },
   {
    "fieldname": "reference_no",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Reference No"
   },
   {
@@ -185,6 +190,7 @@
    "default": "Standard Selling",
    "fieldname": "price_list",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Price List",
    "options": "Price List"
   },
@@ -192,6 +198,7 @@
    "default": "0",
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Rate includes tax"
   },
   {
@@ -210,6 +217,7 @@
   {
    "fieldname": "salesman",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Salesman",
    "options": "Employee"
   },
@@ -348,6 +356,7 @@
   {
    "fieldname": "so_items",
    "fieldtype": "Table",
+   "hidden": 1,
    "options": "Quotation New Item Details"
   },
   {
@@ -558,16 +567,30 @@
    "read_only": 1
   },
   {
-   "fetch_from": "project.sales_order",
-   "fieldname": "advance_entry",
-   "fieldtype": "Data",
-   "label": "Advance Entry",
-   "read_only": 1
-  },
-  {
+   "fetch_from": "project.advance_amount",
    "fieldname": "advance_amount",
    "fieldtype": "Currency",
    "label": "Advance Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_rqid",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "project.sales_order",
+   "fieldname": "sales_order_id",
+   "fieldtype": "Data",
+   "label": "Sales Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_prev_completion_percent",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "total_prev_completion_percent",
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
@@ -589,7 +612,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-08-02 15:41:10.367708",
+ "modified": "2024-08-13 12:09:04.188905",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

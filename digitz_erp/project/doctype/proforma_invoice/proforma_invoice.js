@@ -9,12 +9,12 @@ frappe.ui.form.on("Proforma Invoice", {
 		// let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${frm.doc.net_total}</div>`;
 		// frm.fields_dict['total_big'].$wrapper.html(displayHtml);
 
-		localStorage.removeItem('prev_project_name');
-        localStorage.removeItem('prev_stage_name');
-        localStorage.removeItem('customer_name');
-		localStorage.removeItem('percentage_of_completion');
-		localStorage.removeItem('project_stage_defination');
-		localStorage.removeItem('project_amount');
+		// localStorage.removeItem('prev_project_name');
+        // localStorage.removeItem('prev_stage_name');
+        // localStorage.removeItem('customer_name');
+		// localStorage.removeItem('percentage_of_completion');
+		// localStorage.removeItem('project_stage_defination');
+		// localStorage.removeItem('project_amount');
         // if(!frm.is_new()){
         //     frm.add_custom_button(__('Create Progressive Invoice'), function() {
         //         // frappe.call({
@@ -51,6 +51,8 @@ frappe.ui.form.on("Proforma Invoice", {
 				let project_amount = localStorage.getItem('project_amount')
 				let retentation_percentage = localStorage.getItem("retentation_percentage");
 				let advance_amount = localStorage.getItem("advance_amount");
+				let total_prev_completion_percent = localStorage.getItem("total_prev_completion_percent");
+				let new_completion_percentage = percentage_of_completion - total_prev_completion_percent;
         
 				if(localStorage.getItem("prev_stage_name") && localStorage.getItem("percentage_of_completion") && customer_name){
 					console.log("Proforma Invoice Entry With Custom Data.")
@@ -60,36 +62,40 @@ frappe.ui.form.on("Proforma Invoice", {
 					frm.set_value('percentage_of_completion',percentage_of_completion)
 					frm.set_value("total_project_amount",project_amount)
 					frm.set_value("retentation_percentage",retentation_percentage)
+					frm.set_value("total_prev_completion_percent",total_prev_completion_percent)
+
+					
 
 					frm.set_df_property('items', 'hidden', 1);
 					frm.set_df_property('item_table', 'hidden', 0);
 					frm.add_child("item_table",{
 						"item": project_stage_defination,
 						"description": project_stage_defination,
-						"completed_percentage": percentage_of_completion,
+						"completed_percentage": new_completion_percentage,
 						"quantity": 1,
 						"unit": "Nos",
-						"rate": (project_amount * percentage_of_completion) / 100,
-						"amount": (project_amount * percentage_of_completion) / 100,
+						"rate": (project_amount * new_completion_percentage) / 100,
+						"amount": (project_amount * new_completion_percentage) / 100,
 					})
 					console.log("frm",frm.doc)
 					// update_total_big_display_1(frm);
 
 
-					localStorage.removeItem('prev_project_name');
-					localStorage.removeItem('prev_stage_name');
-					localStorage.removeItem('customer_name');
-					localStorage.removeItem('percentage_of_completion');
-					localStorage.removeItem('project_stage_defination');
-					localStorage.removeItem('project_amount');
-					localStorage.removeItem("retentation_percentage");
-					localStorage.removeItem('advance_amount');
+					// localStorage.removeItem('prev_project_name');
+					// localStorage.removeItem('prev_stage_name');
+					// localStorage.removeItem('customer_name');
+					// localStorage.removeItem('percentage_of_completion');
+					// localStorage.removeItem('project_stage_defination');
+					// localStorage.removeItem('project_amount');
+					// localStorage.removeItem("retentation_percentage");
+					// localStorage.removeItem('advance_amount');
+					// localStorage.removeItem('total_prev_completion_percent');
 
 
 
-		let deduction_for_advance = (advance_amount * frm.doc.percentage_of_completion)/100;
+		let deduction_for_advance = (advance_amount * new_completion_percentage)/100;
 		console.log("frm.doc.total_project_amount",frm.doc.total_project_amount,percentage_of_completion,frm.doc.percentage_of_completion)
-			let invoice_amount = (parseFloat(frm.doc.total_project_amount) * parseFloat(frm.doc.percentage_of_completion))/100;
+			let invoice_amount = (parseFloat(frm.doc.total_project_amount) * parseFloat(new_completion_percentage))/100;
 			let deduction_for_retentation = (invoice_amount * parseFloat(frm.doc.retentation_percentage))/100;
 			let net_amount = invoice_amount - deduction_for_advance - deduction_for_retentation;
 			frm.set_value("invoice_amount", invoice_amount);

@@ -100,9 +100,8 @@
   },
   {
    "fieldname": "advance_entry",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Advance Entry",
-   "options": "Advance Entry",
    "read_only": 1
   },
   {
@@ -144,6 +143,7 @@
   {
    "fieldname": "section_break_updt",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Progress Details"
   },
   {
@@ -163,7 +163,6 @@
    "label": "Notes"
   },
   {
-   "fetch_from": "advance_entry.net_total",
    "fieldname": "advance_amount",
    "fieldtype": "Float",
    "label": "Advance Amount",
@@ -196,12 +195,26 @@
   },
   {
    "fieldname": "section_break_snci",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Progress Details Section"
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2024-08-11 14:59:33.232910",
+ "links": [
+  {
+   "link_doctype": "Advance Entry",
+   "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Progress Entry",
+   "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Progressive Invoice",
+   "link_fieldname": "project"
+  }
+ ],
+ "modified": "2024-08-13 14:10:58.297755",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

@@ -1,42 +1,351 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
-
 frappe.ui.form.on("Progress Entry", {
-	refresh(frm) {
-    //    if(!frm.is_new()){
-    //     frm.add_custom_button(__("Create Proforma Invoice"),function(){
+  // Triggered after the form is loaded
+//   onload(frm) {
+//     // Set up custom handlers after the form is fully loaded
+//     setup_custom_handlers(frm);
+// },
+validate(frm){
+    if(frm.doc.previous_progress_entry == frm.doc.name){
+        frappe.throw("Choose a valid Progress Entry !")
+    }
+},
+setup(frm){
+  let project = localStorage.getItem("current_project");
+  let prev_progress_entry = localStorage.getItem("prev_progress_entry");
 
-    //     },__("Action"))
-    //    }
-	},
+  // localStorage.clear();
+    if(project){
+      frm.set_value("project", project);
+    }
+
+    if(prev_progress_entry){
+      frm.set_value('is_prev_progress_exists',1);
+      frm.set_value('previous_progress_entry', prev_progress_entry);
+
+      localStorage.removeItem('prev_progress_entry')
+    }
+},
+
+// Triggered when the form is refreshed
+refresh(frm) {
+    
+
+
+    if(frm.is_new()){
+        get_default_company_and_warehouse(frm)
+    }
+
+    frm.set_query('previous_progress_entry', function() {
+        return {
+            filters: {
+                name: ['!=', frm.doc.name],
+                project: frm.doc.project,
+                sales_order: frm.doc.sales_order
+            }
+        };
+    });
+    // Optionally, add custom buttons or actions here if needed
+  },
+  project(frm){
+    frm.set_value('progress_entry_items',[]);
+    if (frm.doc.project && frm.doc.is_prev_progress_exists == 0) {
+        // Fetch the Sales Order linked to this project
+        // frappe.call({
+        //   method: "frappe.client.get_value",
+        //   args: {
+        //     doctype: "Project",
+        //     filters: { name: frm.doc.project },
+        //     fieldname: "sales_order",
+        //   },
+        //   callback: function (r) {
+        //     if (r.message && r.message.sales_order) {
+        //       frm.set_value("sales_order", r.message.sales_order);
+        //       fetch_sales_order_items(frm);
+        //     } else {
+        //       frappe.msgprint(
+        //         __("No Sales Order found for the selected Project.")
+        //       );
+        //     }
+        //   },
+        // });
+        frm.set_value("average_of_completion",0);
+        if(frm.doc.sales_order){
+          fetch_sales_order_items(frm);
+        }
+    }
+    else{
+        
+
+        frm.set_value("average_of_completion",0);
+        frm.set_value("gross_total","");
+        frm.set_value("tax_total","");
+        frm.set_value("net_total","");
+        frm.set_value("total_discount_in_line_items","");
+        frm.set_value("additional_discount","");
+        frm.set_value("round_off","");
+        frm.set_value("rounded_total","");
+        frm.set_value("in_words","");
+      // Refresh the field to show the updated items
+      frm.refresh_field("progress_entry_items");
+      frm.refresh_fields()
+
+        if(frm.doc.previous_progress_entry && frm.doc.previous_progress_entry != frm.doc.name){
+          
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "Progress Entry",
+                    name: frm.doc.previous_progress_entry,
+                },
+                callback: function (r) {
+                  if (r.message && r.message.progress_entry_items) {
+                    frm.set_value('progress_entry_items',[]);
+                    update_table_and_total(frm,r);
+                  } else {
+                    frappe.msgprint(
+                      __(`No Items Are In Previous Progress Entry, ${frm.doc.previous_progress_entry}.`)
+                    );
+                  }
+                },
+              });
+        }else{
+            if(frm.doc.previous_progress_entry == frm.doc.name){
+                frappe.throw(`Choose a valid Progress Entry !`);
+            }
+        }
+    }
+  },
+  is_prev_progress_exists(frm){
+      if(frm.doc.is_prev_progress_exists == 0){
+          frm.set_value("previous_progress_entry","");
+        }
+        frm.trigger('project');
+  },
+  previous_progress_entry(frm){
+    frm.trigger('project');
+  }
 });
 
-frappe.ui.form.on("Progress Entry Items",{
-    completion_percentage(frm,cdt,cdn) {
-        let row = frappe.get_doc(cdt,cdn);
-        console.log(row);
+function setup_custom_handlers(frm) {
+  // Set up handler for Project field
+//   frm.set_query("project", function () {
+//     return {
+//       filters: {
+//         // Add any necessary filters for the Project field
+//       },
+//     };
+//   });
 
-        if(row.completion_percentage > 100){
-            row.completion_percentage = 0;
-            frappe.msgprint({
-                title: __('Validation Error'),
-                indicator: 'red',
-                message: __("Completion % can't be more than 100%")
-            });
-        }else{
-            update_progress(frm);
-        }
+  // Set up handler for Sales Order field
+//   frm.fields_dict["sales_order"].df.onchange = function () {
+//     if (frm.doc.sales_order) {
+//       fetch_sales_order_items(frm);
+//     }
+//   };
+}
+
+function fetch_sales_order_items(frm) {
+  // Fetch the Sales Order details
+  frappe.call({
+    method: "frappe.client.get",
+    args: {
+      doctype: "Sales Order",
+      name: frm.doc.sales_order,
     },
-    progress_entry_items_delete(frm){
-        update_progress(frm)
-    }
-})
+    callback: function (r) {
+      if (r.message && r.message.items) {
+        console.log(r.message.items);
+        // Clear existing items
+        frm.clear_table("progress_entry_items");
 
-function update_progress(frm){
-    let total_percentage = 0;
-    let total_items = frm.doc.progress_entry_items.length;
-    for(item of frm.doc.progress_entry_items){
-        total_percentage += item.completion_percentage;
+        // Add items from the Sales Order to Progress Entry Items
+        r.message.items.forEach(function (item) {
+          // Create a new row in Progress Entry Items table
+          const row = frm.add_child("progress_entry_items");
+
+          // Assigning values to the row fields
+
+          row.lumpsum_amount = item.lumpsum_amount;
+          row.rate_includes_tax = item.rate_includes_tax;
+          row.tax_excluded = item.tax_excluded;
+          row.discount_percentage = item.discount_percentage;
+          row.discount_amount = item.discount_amount;
+          row.warehouse = item.warehouse;
+          row.item = item.item;
+          row.item_name = item.item_name;
+          row.display_name = item.display_name;
+          row.qty = item.qty;
+          row.unit = item.unit;
+          row.rate = item.rate;
+          row.base_unit = item.base_unit;
+          row.qty_in_base_unit = item.qty_in_base_unit;
+          row.rate_in_base_unit = item.rate_in_base_unit;
+          row.conversion_factor = item.conversion_factor;
+          row.rate_excluded_tax = item.rate_excluded_tax;
+          row.gross_amount = item.gross_amount;
+          row.tax = item.tax;
+          row.tax_rate = item.tax_rate;
+          row.tax_amount = item.tax_amount;
+          row.net_amount = item.net_amount;
+          row.unit_conversion_details = item.unit_conversion_details;
+          row.cost_center = item.cost_center;
+          row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
+          row.quotation_item_reference_no = item.quotation_item_reference_no;
+
+          // Refresh the field to update the table
+          frm.refresh_field("progress_entry_items");
+
+          // Optionally, adjust fields if necessary
+          // row.custom_field = item.custom_field || default_value;
+        });
+
+        frm.doc.gross_total = r.message.gross_total;
+        frm.doc.tax_total = r.message.tax_total;
+        frm.doc.net_total = r.message.net_total;
+        frm.doc.total_discount_in_line_items = r.message.total_discount_in_line_items;
+        frm.doc.additional_discount = r.message.additional_discount;
+        frm.doc.round_off = r.message.round_off;
+        frm.doc.rounded_total = r.message.rounded_total;
+        frm.doc.in_words = r.message.in_words;
+        // Refresh the field to show the updated items
+        frm.refresh_field("progress_entry_items");
+        frm.refresh_fields()
+      } else {
+        frappe.msgprint(__("No items found for the selected Sales Order."));
+      }
+    },
+    
+  });
+}
+
+
+function update_table_and_total(frm,r){
+    r.message.progress_entry_items.forEach(function (item) {
+        // Create a new row in Progress Entry Items table
+        const row = frm.add_child("progress_entry_items");
+
+        // Assigning values to the row fields
+        row.completion_percentage = item.completion_percentage;
+        row.lumpsum_amount = item.lumpsum_amount;
+        row.rate_includes_tax = item.rate_includes_tax;
+        row.tax_excluded = item.tax_excluded;
+        row.discount_percentage = item.discount_percentage;
+        row.discount_amount = item.discount_amount;
+        row.warehouse = item.warehouse;
+        row.item = item.item;
+        row.item_name = item.item_name;
+        row.display_name = item.display_name;
+        row.qty = item.qty;
+        row.unit = item.unit;
+        row.rate = item.rate;
+        row.base_unit = item.base_unit;
+        row.qty_in_base_unit = item.qty_in_base_unit;
+        row.rate_in_base_unit = item.rate_in_base_unit;
+        row.conversion_factor = item.conversion_factor;
+        row.rate_excluded_tax = item.rate_excluded_tax;
+        row.gross_amount = item.gross_amount;
+        row.tax = item.tax;
+        row.tax_rate = item.tax_rate;
+        row.tax_amount = item.tax_amount;
+        row.net_amount = item.net_amount;
+        row.unit_conversion_details = item.unit_conversion_details;
+        row.cost_center = item.cost_center;
+        row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
+        row.quotation_item_reference_no = item.quotation_item_reference_no;
+
+        // Refresh the field to update the table
+        frm.refresh_field("progress_entry_items");
+
+        // Optionally, adjust fields if necessary
+        // row.custom_field = item.custom_field || default_value;
+      });
+
+      frm.doc.average_of_completion = r.message.average_of_completion;
+
+      frm.doc.gross_total = r.message.gross_total;
+      frm.doc.tax_total = r.message.tax_total;
+      frm.doc.net_total = r.message.net_total;
+      frm.doc.total_discount_in_line_items = r.message.total_discount_in_line_items;
+      frm.doc.additional_discount = r.message.additional_discount;
+      frm.doc.round_off = r.message.round_off;
+      frm.doc.rounded_total = r.message.rounded_total;
+      frm.doc.in_words = r.message.in_words;
+      // Refresh the field to show the updated items
+      frm.refresh_field("progress_entry_items");
+      frm.refresh_fields()
+}
+
+
+
+frappe.ui.form.on("Progress Entry Items", {
+  completion_percentage(frm, cdt, cdn) {
+    let row = frappe.get_doc(cdt, cdn);
+    console.log(row);
+
+    if (row.completion_percentage > 100) {
+      row.completion_percentage = 0;
+      frappe.msgprint({
+        title: __("Validation Error"),
+        indicator: "red",
+        message: __("Completion % can't be more than 100%"),
+      });
+    } else {
+      update_progress(frm);
     }
-    frm.set_value('average_of_completion', (total_percentage/total_items))
+  },
+  progress_entry_items_delete(frm) {
+    update_progress(frm);
+  },
+});
+
+function update_progress(frm) {
+  let total_percentage = 0;
+  let total_items = frm.doc.progress_entry_items.length;
+  for (item of frm.doc.progress_entry_items) {
+    total_percentage += item.completion_percentage;
+  }
+  frm.set_value("average_of_completion", total_percentage / total_items);
+}
+
+
+function  get_default_company_and_warehouse(frm) {
+    var default_company = ""
+    console.log("From Get Default Warehouse Method in the parent form")
+
+    frappe.call({
+        method: 'frappe.client.get_value',
+        args: {
+            'doctype': 'Global Settings',
+            'fieldname': 'default_company'
+        },
+        callback: (r) => {
+
+            default_company = r.message.default_company
+            frm.doc.company = r.message.default_company
+            frm.refresh_field("company");
+            frappe.call(
+                {
+                    method: 'frappe.client.get_value',
+                    args: {
+                        'doctype': 'Company',
+                        'filters': { 'company_name': default_company },
+                        'fieldname': ['default_warehouse', 'rate_includes_tax']
+                    },
+                    callback: (r2) => {
+                        console.log("Before assign default warehouse");
+                        console.log(r2.message.default_warehouse);
+                        frm.doc.warehouse = r2.message.default_warehouse;
+                        console.log(frm.doc.warehouse);
+                        frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+                        frm.refresh_field("warehouse");
+                        frm.refresh_field("rate_includes_tax");
+                    }
+                }
+
+            )
+        }
+    })
+
 }

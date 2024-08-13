@@ -66,18 +66,47 @@ function get_default_company_and_warehouse(frm) {
 
 frappe.ui.form.on("Advance Entry Item",{
     amount(frm,cdt,cdn){
+        let row = frappe.get_doc(cdt,cdn);
+        if(row.tax_rate){
+            let tax_amount = row.amount * row.tax_rate/100;
+            frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
+        }
+        update_net_amount(frm,cdt,cdn)
+        // frm.trigger('tax');
         update_net_total(frm);
     },
     advance_item_table_remove(frm){
         update_net_total(frm);
+    },
+    tax(frm,cdt,cdn){
+        update_tax_amount(frm,cdt,cdn);
+        update_net_amount(frm,cdt,cdn)
+        update_net_total(frm);
+    },
+    tax_rate(frm,cdt,cdn){
+        update_tax_amount(frm,cdt,cdn);
+        update_net_amount(frm,cdt,cdn);
+
+        update_net_total(frm);
     }
 })
 
-
+function update_net_amount(frm,cdt,cdn){
+    let row = frappe.get_doc(cdt,cdn);
+    // frm.trigger('tax')
+    frappe.model.set_value(cdt,cdn,'net_amount',(row.amount + row.tax_amount))
+}
+function update_tax_amount(frm,cdt,cdn){
+    let row = frappe.get_doc(cdt,cdn);
+        if(row.tax_rate){
+            let tax_amount = row.amount * row.tax_rate/100;
+            frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
+        }
+}
 function update_net_total(frm){
     let net_total = 0;
     frm.doc.advance_item_table.forEach(item =>{
-        net_total += item.amount;
+        net_total += item.net_amount;
     })
 
     frm.set_value("net_total",net_total);

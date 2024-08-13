@@ -9,6 +9,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "project_section",
+  "project",
+  "stage_proforma_invoice",
+  "allocated_receipt_entry",
+  "section_break_jexz",
   "naming_series",
   "customer",
   "customer_name",
@@ -40,10 +45,6 @@
   "lpo_date",
   "payment_status",
   "submitted_record",
-  "project_section",
-  "project",
-  "stage_proforma_invoice",
-  "allocated_receipt_entry",
   "accounts_section",
   "payment_mode",
   "mode",
@@ -113,6 +114,7 @@
    "options": "AE-.#####.-.MM.-.YYYY."
   },
   {
+   "fetch_from": "project.customer",
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -696,6 +698,10 @@
    "fieldtype": "Data",
    "label": "Advance Account",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_jexz",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -716,7 +722,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-08-09 10:40:54.394569",
+ "modified": "2024-08-12 09:53:15.875414",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Advance Entry",

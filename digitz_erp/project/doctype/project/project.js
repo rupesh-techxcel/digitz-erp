@@ -13,6 +13,44 @@ frappe.ui.form.on("Project", {
             }
         })
     },
+    onload_post_render: function(frm) {
+        // Add a custom button to the child table
+        frm.fields_dict['project_stage_table'].grid.add_custom_button('Create PE', function() {
+            // Custom logic for your button
+            // frappe.msgprint('Custom button clicked!');
+            if(frm.doc.project_stage_table.length < 1){
+                frappe.new_doc("Progress Entry",{}, pe=>{
+                    pe.project = frm.doc.name;
+                });
+            }
+            else{
+                let last_idx = frm.doc.project_stage_table.length - 1;
+                let process_entry_id = frm.doc.project_stage_table[last_idx].progress_entry;
+                
+                if(frm.doc.project_stage_table.length >= 1 && process_entry_id){
+                    frappe.new_doc("Progress Entry",{}, pe=>{
+                        pe.project = frm.doc.name;
+                        pe.previous_progress_entry = process_entry_id;
+                        pe.is_prev_progress_exists = 1;
+                    });
+                }
+                else if(frm.doc.project_stage_table.length == 1){
+                    frappe.new_doc("Progress Entry",{}, pe=>{
+                        pe.project = frm.doc.name;
+                    });
+                }else{
+                    frappe.msgprint(`Previos Progress Entry Not Exists For Row Number ${last_idx+1}. Remove The Last Row.`);
+                }
+                // if(process_entry_id){
+                //     frappe.new_doc("Progress Entry",{}, pe=>{
+                //         pe.project = frm.doc.name;
+                //         pe.previous_progress_entry = process_entry_id;
+                //         pe.is_prev_progress_exists = 1;
+                //     });
+                // }
+            }
+        });
+    },
     refresh(frm) {
         localStorage.setItem("current_project", frm.doc.name)
 
@@ -38,6 +76,15 @@ frappe.ui.form.on("Project", {
                 }
             }
         });
+        frm.set_query("progress_entry", "project_stage_table", function (doc, cdt, cdn) {
+            var d = locals[cdt][cdn]
+
+            return {
+                "filters": {
+                    "project": frm.doc.name1
+                }
+            }
+        })
         frm.set_query("proforma_invoice", "project_stage_table", function (doc, cdt, cdn) {
             var d = locals[cdt][cdn]
 
@@ -115,7 +162,22 @@ frappe.ui.form.on("Project", {
             var doc = frm.fields_dict['project_stage_table'].grid.get_row($row.data('idx') - 1).doc;
             console.log("doc", doc)
 
+            // var doc2 = frm.fields_dict['project_stage_table'].grid.get_row($row.data('idx') - 2).doc;
+            // if(doc2){
 
+            // }
+            let total_prev_completion_percent = 0;
+            // for(let i = 0; i < doc.idx-1; i++){
+            //     total_prev_completion_percent += frm.doc.project_stage_table[i].percentage_of_completion;
+            // }
+            
+            if(frm.doc.project_stage_table[doc.idx-2]){
+                localStorage.setItem('prev_progress_entry',frm.doc.project_stage_table[doc.idx-2].progress_entry);
+
+                total_prev_completion_percent = frm.doc.project_stage_table[doc.idx-2].percentage_of_completion;
+            }
+            console.log("total",total_prev_completion_percent);
+            
             // Listen for clicks on the proforma_invoice link field
             $row.find('[data-fieldname="proforma_invoice"]').on('focus', function () {
                 var stage_name = doc.project_stage_defination;
@@ -140,7 +202,9 @@ frappe.ui.form.on("Project", {
                 localStorage.setItem('prev_project_name', project_name);
                 localStorage.setItem('customer_name', customer_name);
                 localStorage.setItem('percentage_of_completion', percentage_of_completion);
-                localStorage.setItem('project_stage_defination', stage_name);
+                localStorage.setItem('total_prev_completion_percent', total_prev_completion_percent);
+                
+                localStorage.setItem('project_stage_defination', "About Stage");
                 localStorage.setItem('project_amount', frm.doc.project_amount);
                 localStorage.setItem("retentation_percentage",frm.doc.retentation_percentage);
                 localStorage.setItem("advance_amount",frm.doc.advance_amount);

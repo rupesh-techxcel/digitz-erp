@@ -7,7 +7,11 @@
  "engine": "InnoDB",
  "field_order": [
   "description",
-  "amount"
+  "amount",
+  "tax",
+  "tax_rate",
+  "tax_amount",
+  "net_amount"
  ],
  "fields": [
   {
@@ -20,14 +24,43 @@
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Amount",
+   "label": "Gross Amount",
    "non_negative": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "tax.tax_rate",
+   "fieldname": "tax_rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Tax Rate"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Tax Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Net Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-10 13:55:30.764099",
+ "modified": "2024-08-13 14:20:31.214340",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Advance Entry Item",

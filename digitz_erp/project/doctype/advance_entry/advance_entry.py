@@ -10,6 +10,7 @@ class AdvanceEntry(Document):
         project = frappe.get_doc("Project", self.project)
 
         project.advance_entry = self.name
+        project.advance_amount = self.net_total
         project.save()
 
         default_advance_account = self.advance_account
@@ -44,9 +45,8 @@ class AdvanceEntry(Document):
             gl_posting_2.save()
 
             # frappe.msgprint("GL Posting's created successfully !")
-            
         else:
-            frappe.msgprint("Please Set The Default Advance Account In Company Settings.")
+            frappe.throw("Error: Please Set The Default Advance Account In Company Settings.")
 
 
 

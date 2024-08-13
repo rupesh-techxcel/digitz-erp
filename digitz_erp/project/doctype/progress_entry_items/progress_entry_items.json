@@ -194,7 +194,6 @@
   {
    "fieldname": "quotation_item_reference_no",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "Quotation Item Reference No"
   },
   {
@@ -209,7 +208,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-09 13:39:32.268965",
+ "modified": "2024-08-12 11:27:13.769198",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry Items",
