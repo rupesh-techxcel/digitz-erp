@@ -235,10 +235,14 @@ frappe.ui.form.on("Project", {
         if (data) {
             data = JSON.parse(data);
             console.log("project_data", data)
+            
             // Set the fields with the retrieved data
             frm.set_value('customer', data.customer);
             frm.set_value('sales_order', data.sales_order);
             frm.set_value("project_amount", data.project_amount);
+
+            console.log("data")
+            console.log(data)
 
 
             frm.refresh_field();

@@ -59,3 +59,11 @@ def merge_customer(current_customer, merge_customer):
         frappe.throw(_('An error occurred while merging the customers: {0}').format(str(e)))
 
     return True
+
+@frappe.whitelist()
+def get_customer_details(customer):
+    
+    customer_doc = frappe.get_doc('Customer', customer)
+    return customer_doc
+
+

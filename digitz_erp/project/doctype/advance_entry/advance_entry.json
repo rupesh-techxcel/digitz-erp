@@ -9,10 +9,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "project_section",
-  "project",
-  "stage_proforma_invoice",
-  "allocated_receipt_entry",
   "section_break_jexz",
   "naming_series",
   "customer",
@@ -22,29 +18,19 @@
   "customer_address",
   "tax_id",
   "column_break_6",
+  "project",
+  "salesman",
+  "salesman_code",
+  "default_cost_center",
+  "column_break_4",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "ship_to_location",
-  "location_to_print",
-  "salesman",
-  "salesman_code",
-  "warehouse",
-  "default_cost_center",
-  "column_break_4",
-  "price_list",
   "rate_includes_tax",
-  "update_stock",
-  "update_rates_in_price_list",
-  "created_from_tab_sale",
   "column_break_bufh",
   "company",
   "advance_account",
   "company_tax_id",
-  "lpo_no",
-  "lpo_date",
-  "payment_status",
-  "submitted_record",
   "accounts_section",
   "payment_mode",
   "mode",
@@ -92,16 +78,11 @@
   "terms_and_conditions",
   "references_tab",
   "data_53",
-  "auto_save_delivery_note",
-  "tab_sales",
   "sales_order",
-  "delivery_notes",
-  "delivery_notes_to_print",
   "address_line_1",
   "address_line_2",
   "area_name",
   "country",
-  "quotation",
   "receipt_schedule_tab",
   "receipt_schedule",
   "amended_from"
@@ -121,13 +102,16 @@
    "in_standard_filter": 1,
    "label": "Customer",
    "options": "Customer",
+   "read_only": 1,
    "reqd": 1
   },
   {
    "fetch_from": "customer.customer_name",
    "fieldname": "customer_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Customer Name",
    "read_only": 1
   },
@@ -182,20 +166,6 @@
    "label": "Edit Posting Date And Time"
   },
   {
-   "fieldname": "ship_to_location",
-   "fieldtype": "Link",
-   "label": "Ship To Location",
-   "options": "Customer Delivery Location"
-  },
-  {
-   "description": "This is a duplicate field for ship_to_location and getting saved from the server side. It is added because of 'Customer Delivery Location' is a child table for customer and cannot have access here",
-   "fieldname": "location_to_print",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Location To Print",
-   "read_only": 1
-  },
-  {
    "fieldname": "salesman",
    "fieldtype": "Link",
    "label": "Salesman",
@@ -209,13 +179,6 @@
    "label": "Salesman Code"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Warehouse",
-   "options": "Warehouse"
-  },
-  {
    "fieldname": "default_cost_center",
    "fieldtype": "Link",
    "label": "Default Cost Center",
@@ -226,36 +189,10 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Standard Selling",
-   "fieldname": "price_list",
-   "fieldtype": "Link",
-   "label": "Price List",
-   "options": "Price List"
-  },
-  {
    "default": "0",
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
    "label": "Rate includes tax"
-  },
-  {
-   "default": "0",
-   "fieldname": "update_stock",
-   "fieldtype": "Check",
-   "label": "Update Stock"
-  },
-  {
-   "default": "0",
-   "fieldname": "update_rates_in_price_list",
-   "fieldtype": "Check",
-   "label": "Update Rates In Price List"
-  },
-  {
-   "default": "0",
-   "fieldname": "created_from_tab_sale",
-   "fieldtype": "Check",
-   "label": "Invoice created from tab sale option",
-   "read_only": 1
   },
   {
    "fieldname": "column_break_bufh",
@@ -276,49 +213,11 @@
    "label": "Company Tax Id"
   },
   {
-   "fieldname": "lpo_no",
-   "fieldtype": "Data",
-   "in_preview": 1,
-   "label": "LPO No"
-  },
-  {
-   "fieldname": "lpo_date",
-   "fieldtype": "Date",
-   "label": "LPO Date"
-  },
-  {
-   "fieldname": "payment_status",
-   "fieldtype": "Data",
-   "in_filter": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Payment Status"
-  },
-  {
-   "default": "0",
-   "fieldname": "submitted_record",
-   "fieldtype": "Check",
-   "label": "Submitted Record"
-  },
-  {
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
    "options": "Project",
    "reqd": 1
-  },
-  {
-   "fieldname": "stage_proforma_invoice",
-   "fieldtype": "Link",
-   "label": "Stage Proforma Invoice",
-   "options": "Proforma Invoice",
-   "read_only": 1
-  },
-  {
-   "fieldname": "allocated_receipt_entry",
-   "fieldtype": "Data",
-   "label": "Allocated Receipt Entry",
-   "read_only": 1
   },
   {
    "fieldname": "accounts_section",
@@ -592,40 +491,11 @@
    "label": "Related Documents"
   },
   {
-   "default": "0",
-   "description": "This field is no longer using",
-   "fieldname": "auto_save_delivery_note",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Auto Save Delivery Note"
-  },
-  {
-   "fieldname": "tab_sales",
-   "fieldtype": "Link",
-   "label": "Tab Sales",
-   "options": "Tab Sales",
-   "read_only": 1
-  },
-  {
+   "fetch_from": "project.sales_order",
    "fieldname": "sales_order",
-   "fieldtype": "Link",
-   "label": "Sales Order",
-   "options": "Sales Order",
-   "read_only": 1
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "delivery_notes",
-   "fieldtype": "Table",
-   "label": "Delivery Notes",
-   "options": "Sales Invoice Delivery Notes",
-   "read_only": 1
-  },
-  {
-   "allow_on_submit": 1,
-   "fieldname": "delivery_notes_to_print",
    "fieldtype": "Data",
-   "label": "Delivery Notes To Print"
+   "label": "Sales Order",
+   "read_only": 1
   },
   {
    "fetch_from": "customer.address_line_1",
@@ -656,13 +526,6 @@
    "label": "Country"
   },
   {
-   "fieldname": "quotation",
-   "fieldtype": "Link",
-   "label": "Quotation",
-   "options": "Quotation",
-   "read_only": 1
-  },
-  {
    "fieldname": "receipt_schedule_tab",
    "fieldtype": "Tab Break",
    "label": "Receipt Schedule"
@@ -681,11 +544,6 @@
    "options": "Advance Entry",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "project_section",
-   "fieldtype": "Section Break",
-   "label": "Project"
   },
   {
    "fieldname": "advance_item_table",
@@ -722,7 +580,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-08-12 09:53:15.875414",
+ "modified": "2024-08-18 13:39:59.614046",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Advance Entry",

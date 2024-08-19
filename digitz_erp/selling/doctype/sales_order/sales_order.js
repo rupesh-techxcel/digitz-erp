@@ -1077,21 +1077,13 @@ frappe.ui.form.on("Sales Order",{
 
         if(!frm.is_new()){
             frm.add_custom_button(__('Create Project'), function() {
-                frappe.call({
-                    method: "digitz_erp.project.doctype.project.project.create_project_via_sales_order",
-                    args: { 
-                        sales_order_id: frm.doc.name,
-                    },
-                    callback: function(response){
-                        if(response.message){
-                             // Store the data in localStorage to pass it to the new Sales Order form
-                             localStorage.setItem('project_data', JSON.stringify(response.message));
-                             console.log("done")
-                             // Redirect to the new Quotation form
-                             frappe.set_route('Form', 'Project', 'new-project-flzdltgprq')
-                        }
-                    }
-                })
+                
+				frappe.new_doc("Project", {
+					"customer":frm.doc.customer,
+					"project_amount": frm.doc.net_amount,
+					"sales_order":frm.doc.name
+				});
+				
             },__("Project Actions"));
 
             frm.add_custom_button(__('Show Created Project'), function() {

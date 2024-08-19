@@ -10,58 +10,106 @@ frappe.ui.form.on("Advance Entry", {
         if(frm.is_new()){
             console.log("setup")
             let row = frm.add_child('advance_item_table');
-            row.description = "Advance amount for the project "
-            get_default_company_and_warehouse(frm);
-            // Refresh the field to show the new row
-            // frm.refresh_field('advance_item_table');
+
+            if (frm.doc.project) {
+                row.description = "Advance for the project " + frm.doc.project;
+            } else {
+                row.description = "Advance payment";
+            }
+
+            frm.trigger('get_default_company_and_warehouse');   
+
+            frm.add_fetch('customer', 'full_address', 'customer_address')
+		    frm.add_fetch('customer', 'salesman', 'salesman')
+		    frm.add_fetch('customer', 'tax_id', 'tax_id')
         }
     },
     onload(frm){
         console.log("onload")
     },
+    project(frm)
+    {
+        frm.clear_table('advance_item_table');
+        let row = frm.add_child('advance_item_table');
+        row.description = "Advance for the project " + frm.doc.project
+        frm.refresh_field('advance_item_table')
+        frm.trigger('get_customer_details')
+    },  
+    customer(frm)  
+    {
+        frm.trigger('get_customer_details')
+    },
+    get_customer_details(frm)
+    {
+        
+        frappe.call(
+        {
+            method: 'digitz_erp.api.customer_api.get_customer_details',
+            args: {
+                'customer': frm.doc.customer
+            },
+            callback: (r) => {
+                console.log("r")
+                console.log(r)
+                frm.set_value('customer_display_name',r.message.customer_name)
+                frm.refresh_field("customer_display_name");
+            }
+        });
+
+        frappe.call(
+            {
+                method: 'digitz_erp.accounts.doctype.gl_posting.gl_posting.get_party_balance',
+                args: {
+                    'party_type': 'Customer',
+                    'party': frm.doc.customer
+                },
+                callback: (r) => {
+                    console.log("r")
+                    console.log(r)
+                    frm.set_value('customer_balance',r.message)
+                    frm.refresh_field("customer_balance");
+                }
+            });
     
-});
+            frm.set_value('customer_display_name', frm.doc.customer)
+            frm.refresh_field("customer_display_name");
+    },
+    get_default_company_and_warehouse(frm) {
 
+		var default_company = ""
 
-function get_default_company_and_warehouse(frm) {
-    var default_company = ""
-    console.log("From Get Default Warehouse Method in the parent form")
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Global Settings',
+				'fieldname': 'default_company'
+			},
+			callback: (r) => {
 
-    frappe.call({
-        method: 'frappe.client.get_value',
-        args: {
-            'doctype': 'Global Settings',
-            'fieldname': 'default_company'
-        },
-        callback: (r) => {
-
-            default_company = r.message.default_company
-            frm.doc.company = r.message.default_company
-            frm.refresh_field("company");
-            frappe.call(
+				default_company = r.message.default_company
+				
+                frm.set_value("company",default_company)
+				
+				frappe.call(
                 {
                     method: 'frappe.client.get_value',
                     args: {
                         'doctype': 'Company',
                         'filters': { 'company_name': default_company },
-                        'fieldname': ['default_warehouse', 'rate_includes_tax']
+                        'fieldname': ['default_advance_received_account']
                     },
                     callback: (r2) => {
-                        console.log("Before assign default warehouse");
-                        console.log(r2.message.default_warehouse);
-                        frm.doc.warehouse = r2.message.default_warehouse;
-                        console.log(frm.doc.warehouse);
-                        frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-                        frm.refresh_field("warehouse");
-                        frm.refresh_field("rate_includes_tax");
+                        frm.doc.advance_account = r2.message.default_advance_received_account
                     }
                 }
+				)
+			}
+		})
 
-            )
-        }
-    })
-
-}
+	},
+    
+    
+});
 
 
 frappe.ui.form.on("Advance Entry Item",{

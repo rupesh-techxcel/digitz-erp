@@ -7,11 +7,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "lumpsum_amount",
   "warehouse",
   "item",
   "item_name",
   "display_name",
+  "lumpsum_amount",
   "qty",
   "unit",
   "rate",
@@ -165,9 +165,9 @@
   {
    "columns": 2,
    "fieldname": "display_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Display Name"
+   "label": "Display Name (Description)"
   },
   {
    "default": "0",
@@ -198,7 +198,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-08 11:03:45.604494",
+ "modified": "2024-08-16 12:40:37.507573",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation Item",

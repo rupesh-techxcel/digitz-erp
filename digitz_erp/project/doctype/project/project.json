@@ -150,7 +150,8 @@
    "fieldname": "project_stage_table",
    "fieldtype": "Table",
    "label": "Project Stage",
-   "options": "Project Stage Table"
+   "options": "Project Stage Table",
+   "read_only": 1
   },
   {
    "fieldname": "notes_section",
@@ -214,7 +215,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-08-13 14:10:58.297755",
+ "modified": "2024-08-17 14:53:59.459093",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

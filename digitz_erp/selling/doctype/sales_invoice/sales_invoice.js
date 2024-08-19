@@ -765,8 +765,6 @@ function process_delivery_note_items(frm, items) {
 }
 
 
-
-
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
 	frm.trigger("assign_defaults")
