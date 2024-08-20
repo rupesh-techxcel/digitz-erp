@@ -30,9 +30,6 @@ setup(frm){
 
 // Triggered when the form is refreshed
 refresh(frm) {
-    
-
-
     if(frm.is_new()){
         get_default_company_and_warehouse(frm)
     }
@@ -167,32 +164,32 @@ function fetch_sales_order_items(frm) {
 
           // Assigning values to the row fields
 
-          row.lumpsum_amount = item.lumpsum_amount;
-          row.rate_includes_tax = item.rate_includes_tax;
-          row.tax_excluded = item.tax_excluded;
-          row.discount_percentage = item.discount_percentage;
-          row.discount_amount = item.discount_amount;
-          row.warehouse = item.warehouse;
+          // row.lumpsum_amount = item.lumpsum_amount;
+          // row.rate_includes_tax = item.rate_includes_tax;
+          // row.tax_excluded = item.tax_excluded;
+          // row.discount_percentage = item.discount_percentage;
+          // row.discount_amount = item.discount_amount;
+          // row.warehouse = item.warehouse;
           row.item = item.item;
           row.item_name = item.item_name;
-          row.display_name = item.display_name;
-          row.qty = item.qty;
-          row.unit = item.unit;
-          row.rate = item.rate;
-          row.base_unit = item.base_unit;
-          row.qty_in_base_unit = item.qty_in_base_unit;
-          row.rate_in_base_unit = item.rate_in_base_unit;
-          row.conversion_factor = item.conversion_factor;
-          row.rate_excluded_tax = item.rate_excluded_tax;
+          // row.display_name = item.display_name;
+          // row.qty = item.qty;
+          // row.unit = item.unit;
+          // row.rate = item.rate;
+          // row.base_unit = item.base_unit;
+          // row.qty_in_base_unit = item.qty_in_base_unit;
+          // row.rate_in_base_unit = item.rate_in_base_unit;
+          // row.conversion_factor = item.conversion_factor;
+          // row.rate_excluded_tax = item.rate_excluded_tax;
           row.gross_amount = item.gross_amount;
-          row.tax = item.tax;
-          row.tax_rate = item.tax_rate;
+          // row.tax = item.tax;
+          // row.tax_rate = item.tax_rate;
           row.tax_amount = item.tax_amount;
           row.net_amount = item.net_amount;
-          row.unit_conversion_details = item.unit_conversion_details;
-          row.cost_center = item.cost_center;
-          row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
-          row.quotation_item_reference_no = item.quotation_item_reference_no;
+          // row.unit_conversion_details = item.unit_conversion_details;
+          // row.cost_center = item.cost_center;
+          // row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
+          // row.quotation_item_reference_no = item.quotation_item_reference_no;
 
           // Refresh the field to update the table
           frm.refresh_field("progress_entry_items");
@@ -226,34 +223,38 @@ function update_table_and_total(frm,r){
         // Create a new row in Progress Entry Items table
         const row = frm.add_child("progress_entry_items");
 
+        row.sales_order_amt = frm.doc.sales_order_net_total;
+
         // Assigning values to the row fields
-        row.completion_percentage = item.completion_percentage;
-        row.lumpsum_amount = item.lumpsum_amount;
-        row.rate_includes_tax = item.rate_includes_tax;
-        row.tax_excluded = item.tax_excluded;
-        row.discount_percentage = item.discount_percentage;
-        row.discount_amount = item.discount_amount;
-        row.warehouse = item.warehouse;
+        row.prev_completion = item.total_completion || 0;
+        row.total_completion = item.total_completion;
+        row.prev_amount = item.total_amount || 0;
+        // row.lumpsum_amount = item.lumpsum_amount;
+        // row.rate_includes_tax = item.rate_includes_tax;
+        // row.tax_excluded = item.tax_excluded;
+        // row.discount_percentage = item.discount_percentage;
+        // row.discount_amount = item.discount_amount;
+        // row.warehouse = item.warehouse;
         row.item = item.item;
         row.item_name = item.item_name;
-        row.display_name = item.display_name;
-        row.qty = item.qty;
-        row.unit = item.unit;
+        // row.display_name = item.display_name;
+        // row.qty = item.qty;
+        // row.unit = item.unit;
         row.rate = item.rate;
-        row.base_unit = item.base_unit;
-        row.qty_in_base_unit = item.qty_in_base_unit;
-        row.rate_in_base_unit = item.rate_in_base_unit;
-        row.conversion_factor = item.conversion_factor;
-        row.rate_excluded_tax = item.rate_excluded_tax;
+        // row.base_unit = item.base_unit;
+        // row.qty_in_base_unit = item.qty_in_base_unit;
+        // row.rate_in_base_unit = item.rate_in_base_unit;
+        // row.conversion_factor = item.conversion_factor;
+        // row.rate_excluded_tax = item.rate_excluded_tax;
         row.gross_amount = item.gross_amount;
-        row.tax = item.tax;
-        row.tax_rate = item.tax_rate;
+        // row.tax = item.tax;
+        // row.tax_rate = item.tax_rate;
         row.tax_amount = item.tax_amount;
         row.net_amount = item.net_amount;
-        row.unit_conversion_details = item.unit_conversion_details;
-        row.cost_center = item.cost_center;
-        row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
-        row.quotation_item_reference_no = item.quotation_item_reference_no;
+        // row.unit_conversion_details = item.unit_conversion_details;
+        // row.cost_center = item.cost_center;
+        // row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
+        // row.quotation_item_reference_no = item.quotation_item_reference_no;
 
         // Refresh the field to update the table
         frm.refresh_field("progress_entry_items");
@@ -280,12 +281,16 @@ function update_table_and_total(frm,r){
 
 
 frappe.ui.form.on("Progress Entry Items", {
-  completion_percentage(frm, cdt, cdn) {
+  progress_entry_items_add(frm,cdt,cdn){
+    let row = frappe.get_doc(cdt,cdn);
+    frappe.model.set_value(cdt,cdn,'sales_order_amt', frm.doc.sales_order_net_total);
+  },
+  prev_completion(frm, cdt, cdn) {
     let row = frappe.get_doc(cdt, cdn);
     console.log(row);
 
-    if (row.completion_percentage > 100) {
-      row.completion_percentage = 0;
+    if (row.prev_completion > 100) {
+      row.prev_completion = 0;
       frappe.msgprint({
         title: __("Validation Error"),
         indicator: "red",
@@ -294,6 +299,29 @@ frappe.ui.form.on("Progress Entry Items", {
     } else {
       update_progress(frm);
     }
+
+    frappe.model.set_value(cdt,cdn, 'prev_amount', ((row.net_amount * row.prev_completion)/100));
+
+    total_of_prev_and_curr_amount(frm);
+  },
+  total_completion(frm,cdt,cdn){
+    let row = frappe.get_doc(cdt, cdn);
+    console.log(row);
+
+    if (row.total_completion > 100) {
+      row.total_completion = 0;
+      frappe.msgprint({
+        title: __("Validation Error"),
+        indicator: "red",
+        message: __("Completion % can't be more than 100%"),
+      });
+    } else {
+      update_progress(frm);
+    }
+
+    frappe.model.set_value(cdt,cdn, 'total_amount', ((row.net_amount * row.total_completion)/100));
+
+    total_of_prev_and_curr_amount(frm);
   },
   progress_entry_items_delete(frm) {
     update_progress(frm);
@@ -304,7 +332,10 @@ function update_progress(frm) {
   let total_percentage = 0;
   let total_items = frm.doc.progress_entry_items.length;
   for (item of frm.doc.progress_entry_items) {
-    total_percentage += item.completion_percentage;
+    if(item.total_completion > 0){
+      total_percentage += item.total_completion;
+    }
+    console.log( item.total_completion)
   }
   frm.set_value("average_of_completion", total_percentage / total_items);
 }
@@ -349,3 +380,20 @@ function  get_default_company_and_warehouse(frm) {
     })
 
 }
+
+
+function total_of_prev_and_curr_amount(frm){
+  let net_prev_total = 0;
+  let net_total_amount = 0;
+  frm.doc.progress_entry_items.forEach(element => {
+    net_prev_total += element.prev_amount || 0;
+    net_total_amount += element.total_amount || 0;
+  });
+
+  frm.set_value('prev_total_amount', net_prev_total);
+  frm.set_value('current_total_amount', net_total_amount);
+
+  frm.refresh_fields('prev_total_amount','current_total_amount');
+}
+
+

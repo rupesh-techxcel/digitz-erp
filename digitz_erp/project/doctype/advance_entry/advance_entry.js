@@ -100,6 +100,8 @@ frappe.ui.form.on("Advance Entry", {
                     },
                     callback: (r2) => {
                         frm.doc.advance_account = r2.message.default_advance_received_account
+                        console.log(r2)
+
                     }
                 }
 				)
@@ -142,14 +144,16 @@ frappe.ui.form.on("Advance Entry Item",{
 function update_net_amount(frm,cdt,cdn){
     let row = frappe.get_doc(cdt,cdn);
     // frm.trigger('tax')
-    frappe.model.set_value(cdt,cdn,'net_amount',(row.amount + row.tax_amount))
+    let tax_amount = row.tax_amount || 0;
+    frappe.model.set_value(cdt,cdn,'net_amount',(row.amount + tax_amount))
 }
 function update_tax_amount(frm,cdt,cdn){
     let row = frappe.get_doc(cdt,cdn);
+    let tax_amount = 0;
         if(row.tax_rate){
-            let tax_amount = row.amount * row.tax_rate/100;
-            frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
+            tax_amount = row.amount * row.tax_rate/100;
         }
+        frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
 }
 function update_net_total(frm){
     let net_total = 0;

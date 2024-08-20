@@ -13,7 +13,7 @@ class Project(Document):
 
 @frappe.whitelist()
 def create_project_via_sales_order(sales_order_id):
-    print(sales_order_id)
+    #print(sales_order_id)
 
     sales_doc = frappe.get_doc("Sales Order", sales_order_id)
 

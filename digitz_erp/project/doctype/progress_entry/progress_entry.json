@@ -13,6 +13,8 @@
   "project",
   "column_break_zubf",
   "sales_order",
+  "column_break_xtqn",
+  "sales_order_net_total",
   "progress_entry_details_section",
   "is_prev_progress_exists",
   "previous_progress_entry",
@@ -59,6 +61,10 @@
   "item_table",
   "progress_entry_items",
   "average_of_completion",
+  "section_break_hgqy",
+  "prev_total_amount",
+  "column_break_wlra",
+  "current_total_amount",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
@@ -366,6 +372,7 @@
   {
    "fieldname": "section_break_25",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Totals"
   },
   {
@@ -648,6 +655,42 @@
    "fieldtype": "Link",
    "label": "Previous Progress Entry",
    "options": "Progress Entry"
+  },
+  {
+   "fieldname": "section_break_hgqy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "prev_total_amount",
+   "fieldtype": "Float",
+   "label": "Prev Total Amount",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "column_break_wlra",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "current_total_amount",
+   "fieldtype": "Float",
+   "label": "Current Total Amount",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "column_break_xtqn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "sales_order.net_total",
+   "fieldname": "sales_order_net_total",
+   "fieldtype": "Float",
+   "label": "Sales Order Net Total",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -662,7 +705,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-12 13:00:52.478572",
+ "modified": "2024-08-20 14:23:02.286570",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

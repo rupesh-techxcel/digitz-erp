@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:PB-{MM}-{YY}-{###}",
  "creation": "2024-08-14 11:45:39.363003",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -8,7 +9,11 @@
   "project",
   "items",
   "total_section",
-  "gross_total"
+  "gross_total",
+  "column_break_vwbq",
+  "tax_total",
+  "column_break_ggpt",
+  "net_total"
  ],
  "fields": [
   {
@@ -33,15 +38,42 @@
    "fieldtype": "Float",
    "label": "Gross Total",
    "non_negative": 1,
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Float",
+   "label": "Tax Total",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "net_total",
+   "fieldtype": "Float",
+   "label": "Net Total",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vwbq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ggpt",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-14 13:21:31.362512",
+ "modified": "2024-08-20 12:17:12.405849",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project Budget",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

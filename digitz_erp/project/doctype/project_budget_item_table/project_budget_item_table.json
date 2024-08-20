@@ -37,14 +37,13 @@
   {
    "columns": 1,
    "default": "0",
-   "depends_on": "eval: doc.lumpsum_amount == 0",
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty"
   },
   {
-   "depends_on": "eval: doc.lumpsum_amount == 0",
+   "default": "0",
    "fetch_from": "item.rate",
    "fieldname": "rate",
    "fieldtype": "Float",
@@ -56,11 +55,13 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0",
    "description": "Qty * Rate",
    "fieldname": "gross_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Gross Amount"
+   "label": "Gross Amount",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -75,21 +76,26 @@
    "options": "Tax"
   },
   {
+   "default": "0",
+   "fetch_from": "tax.tax_rate",
    "fieldname": "tax_rate",
    "fieldtype": "Int",
    "label": "Tax Rate"
   },
   {
    "columns": 1,
+   "default": "0",
    "fieldname": "tax_amount",
    "fieldtype": "Float",
-   "label": "Tax Amount"
+   "label": "Tax Amount",
+   "read_only": 1
   },
   {
    "fieldname": "net_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Net Amount"
+   "label": "Net Amount",
+   "read_only": 1
   },
   {
    "columns": 1,
@@ -104,7 +110,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-14 13:19:47.615701",
+ "modified": "2024-08-20 12:11:49.552965",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project Budget Item Table",
