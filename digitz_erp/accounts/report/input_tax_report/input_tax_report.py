@@ -5,7 +5,7 @@ import frappe
 
 def execute(filters=None):
     columns = get_columns()
-    print(columns)
+    #print(columns)
     data = get_data(filters)
     chart = []
     return columns, data, None, chart

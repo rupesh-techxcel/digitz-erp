@@ -286,7 +286,7 @@ def re_post_stock_ledgers(show_alert=False):
             # Loop through each 'Stock Ledger' record
             for ledger in stock_ledgers_with_same_date_and_time: 
                 
-                print(ledger['name'])
+                #print(ledger['name'])
                 
                 update_stock_ledger(ledger['name'], for_reposting=True)                
                 doc.last_processed_stock_ledger = ledger['name']

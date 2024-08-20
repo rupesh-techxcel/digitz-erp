@@ -117,7 +117,7 @@ class DeliveryNote(Document):
 
     def validate_item(self):
 
-        print("DN validate item")
+        #print("DN validate item")
 
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
@@ -263,7 +263,7 @@ class DeliveryNote(Document):
 
         frappe.db.commit()
 
-        print(sales_invoice_doc.name)
+        #print(sales_invoice_doc.name)
 
         si =  frappe.get_doc('Sales Invoice',sales_invoice_doc.name)
 
@@ -330,7 +330,7 @@ class DeliveryNote(Document):
 
         for docitem in self.items:
             maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
-            print('MAINTAIN STOCK :', maintain_stock)
+            #print('MAINTAIN STOCK :', maintain_stock)
             if(maintain_stock == 1):
 
                 posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
@@ -424,8 +424,8 @@ class DeliveryNote(Document):
                     new_stock_balance.insert()
 
                     # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                    # print("item_name")
-                    # print(item_name)
+                    # #print("item_name")
+                    # #print(item_name)
                     update_stock_balance_in_item(docitem.item)
                 else:
                     stock_recalc_voucher.append('records',{'item': docitem.item,
@@ -491,7 +491,7 @@ class DeliveryNote(Document):
         
         remarks = self.get_narration()
 
-        print("From insert gl records")
+        #print("From insert gl records")
 
         default_company = frappe.db.get_single_value("Global Settings", "default_company")
 
@@ -661,5 +661,5 @@ def get_stock_ledgers(delivery_note):
             "balance_qty": ledgers.balance_qty,
             "balance_value": ledgers.balance_value
         })
-    print(formatted_stock_ledgers)
+    #print(formatted_stock_ledgers)
     return formatted_stock_ledgers

@@ -9,7 +9,7 @@ class ItemPrice(Document):
  
 	def validate(self):
 		
-		print("from validate")
+		#print("from validate")
 
 		if(self.from_date and self.to_date):
 
@@ -19,7 +19,7 @@ class ItemPrice(Document):
 			WHERE item=%(item)s AND price_list=%(price_list)s AND from_date IS NOT NULL AND to_date IS NOT NULL AND name != %(name)s
 			""", {"item": self.item, "price_list": self.price_list, "name": self.name}, as_dict=1)
    
-			print(existing_records)
+			#print(existing_records)
    
 			for record_item_price in existing_records:
        
@@ -39,7 +39,7 @@ class ItemPrice(Document):
 				WHERE item=%(item)s AND price_list=%(price_list)s AND from_date IS NULL AND to_date IS NULL AND name != %(name)s
 			""", {"item": self.item, "price_list": self.price_list, "name": self.name})
 
-			print(prices)
+			#print(prices)
    
 			if(prices):
 					frappe.throw("Another ItemPrice with the same item/pricelist exist.")
@@ -47,7 +47,7 @@ class ItemPrice(Document):
 	def on_update(self):
      
 		item_to_update_price = frappe.get_doc("Item", self.item)
-		print(item_to_update_price)
+		#print(item_to_update_price)
 
 		if self.price_list == "Standard Buying":
 			if item_to_update_price.standard_buying_price != self.rate:

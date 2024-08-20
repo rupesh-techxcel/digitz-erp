@@ -16,10 +16,10 @@ def check_invoices_for_purchase_order(purchase_order):
         if purchase_invoice.docstatus != 2:  # In Frappe, docstatus 2 means cancelled
             return True
         else:
-            print("Invoice is cancelled.")
+            #print("Invoice is cancelled.")
             return False
     else:
-        print("No Purchase Invoice found for this Purchase Order.")
+        #print("No Purchase Invoice found for this Purchase Order.")
         return False
 
 # Before calling the below method it is supposed that the purchase order qty_purchased fiel 
@@ -59,7 +59,7 @@ def check_and_update_purchase_order_status(purchase_order_name):
             
         if excess_allocation:
             frappe.msgprint(f"Warning: Purchase Order {purchase_order_name} contains one or more items with excess allocation.")
-            print("message shown and continues...")
+            #print("message shown and continues...")
 
     except Exception:
         raise  # This will re-raise the last exception

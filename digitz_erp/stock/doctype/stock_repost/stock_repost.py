@@ -13,9 +13,9 @@ class StockRepost(Document):
 	@frappe.whitelist()
 	def stock_repost(self):        
 		try:
-			print("Stock repost starting..")
+			#print("Stock repost starting..")
 			re_post_stock_ledgers(show_alert=True)
-			print("stock repost completed")
+			#print("stock repost completed")
 		except Exception as e:
 			# Handle any other exception
 			frappe.log_error(frappe.get_traceback(), 'Unexpected Error Occurred')

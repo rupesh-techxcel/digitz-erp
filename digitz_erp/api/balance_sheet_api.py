@@ -103,7 +103,7 @@ def re_process_account_data(accounts):
 
 def update_account_balance_for_period(account_data, period):
     
-    print("")
+    #print("")
     
     
     

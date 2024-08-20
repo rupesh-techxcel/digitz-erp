@@ -118,7 +118,7 @@ class SalesInvoice(Document):
         self.do_postings_on_submit()
 
         # if(self.auto_generate_delivery_note):
-        #     print("submitting DO from sales_invoice")
+        #     #print("submitting DO from sales_invoice")
         #     self.submit_delivery_note()
 
     def do_postings_on_submit(self):

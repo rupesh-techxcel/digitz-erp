@@ -31,8 +31,8 @@ def get_delivery_note_exists(qtn_no):
 @frappe.whitelist()
 def check_references_created(quotation_name):
     
-    print("from check_reference_created")
-    print(quotation_name)
+    #print("from check_reference_created")
+    #print(quotation_name)
 
     sales_order_exists_for_quotation = frappe.db.exists("Sales Order", {"quotation": quotation_name,'docstatus': ('<', 2)})
 

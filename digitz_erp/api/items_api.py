@@ -1,9 +1,9 @@
 import frappe
 from frappe.utils import get_datetime
 
-@frappe.whitelist()
-def test_job():
-    print("hello from test job")
+# @frappe.whitelist()
+# def test_job():
+#     #print("hello from test job")
 
 
 @frappe.whitelist()
@@ -57,7 +57,7 @@ def get_item_valuation_rate(item, posting_date, posting_time):
 @frappe.whitelist()
 def get_stock_for_item(item, warehouse, posting_date, posting_time):
     
-		print("from get_stock_for_item")
+		#print("from get_stock_for_item")
 
 		posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  
 		

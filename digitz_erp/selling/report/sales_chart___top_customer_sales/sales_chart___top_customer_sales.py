@@ -7,8 +7,8 @@ def execute(filters=None):
 	columns, data = [], []
 	chart = get_chart_data(filters) 
 	columns = get_columns() 
-	print("chart")
-	print(chart)
+	#print("chart")
+	#print(chart)
 	data = get_data(filters)
 	return columns, data, None, chart
 
@@ -46,8 +46,8 @@ def get_chart_data(filters=None):
 	labels = []
 	chart = {}
 
-	print("chart data")
-	print(data)
+	#print("chart data")
+	#print(data)
 
 	if data:
 		for d in data:

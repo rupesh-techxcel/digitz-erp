@@ -109,8 +109,8 @@ def get_data(filters=None):
 
             account_type_data,total = get_account_type_period_wise_data(account["account_type"], period_list, account["cash_impact"], section_name)
             
-            print("total")
-            print(total)
+            #print("total")
+            #print(total)
         
             account_type_data.update(                
                 {

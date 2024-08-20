@@ -47,7 +47,7 @@ class PurchaseInvoice(Document):
 	def before_validate(self):
 		self.in_words = money_in_words(self.rounded_total,"AED")
 
-		print("before_validate")
+		#print("before_validate")
 		if not self.credit_purchase or self.credit_purchase  == False:
 
 			self.paid_amount = self.rounded_total
@@ -90,7 +90,7 @@ class PurchaseInvoice(Document):
 
 	def on_submit(self):
 
-		print("on_submit")
+		#print("on_submit")
 
 		init_document_posting_status(self.doctype, self.name)
 
@@ -111,7 +111,7 @@ class PurchaseInvoice(Document):
 		create_bank_reconciliation("Purchase Invoice", self.name)
 
 		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
-		# print(posting_status_doc)
+		# #print(posting_status_doc)
 		# posting_status_doc.posting_status = "Completed"
 		# posting_status_doc.save()
 
@@ -119,12 +119,12 @@ class PurchaseInvoice(Document):
 		self.update_supplier_prices()
 
 		update_posting_status(self.doctype, self.name, 'posting_status','Completed')
-		print("after status update")
+		#print("after status update")
 
 	def on_update(self):
-		print("on_update from pi")
+		#print("on_update from pi")
 
-		print(self.payment_mode)
+		#print(self.payment_mode)
 
 		if self.purchase_order:
 			self.update_purchase_order_quantities_on_update()
@@ -144,11 +144,11 @@ class PurchaseInvoice(Document):
 				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
 
-				print("po_item")
-				print(po_item)
+				#print("po_item")
+				#print(po_item)
 
-				print("total_used_qty_not_in_this_pi")
-				print(total_used_qty_not_in_this_pi)
+				#print("total_used_qty_not_in_this_pi")
+				#print(total_used_qty_not_in_this_pi)
 
 				if total_used_qty_not_in_this_pi:
 					po_item.qty_purchased_in_base_unit = total_used_qty_not_in_this_pi
@@ -158,8 +158,8 @@ class PurchaseInvoice(Document):
 				po_item.save()
 				po_reference_any = True
 
-		print("po_reference_any")
-		print(po_reference_any)
+		#print("po_reference_any")
+		#print(po_reference_any)
 
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
@@ -261,11 +261,11 @@ class PurchaseInvoice(Document):
 
 					new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
 
-					print("new_balance_qty")
-					print(new_balance_qty)
+					#print("new_balance_qty")
+					#print(new_balance_qty)
 
-					print("new_balance_value")
-					print(new_balance_value)
+					#print("new_balance_value")
+					#print(new_balance_value)
 
 					if new_balance_qty!=0:
 						valuation_rate = new_balance_value/new_balance_qty
@@ -397,7 +397,7 @@ class PurchaseInvoice(Document):
 		self.cancel_purchase()
 
 		if self.purchase_order:
-			print("Calling update po qties b4 cancel or delete")
+			#print("Calling update po qties b4 cancel or delete")
 			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
 			check_and_update_purchase_order_status(self.purchase_order)
 
@@ -407,8 +407,8 @@ class PurchaseInvoice(Document):
 		if(self.update_rates_in_price_list):
 			currency = get_default_currency()
 			for docitem in self.items:
-				print("docitem to update price")
-				print(docitem)
+				#print("docitem to update price")
+				#print(docitem)
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_item_price(item,self.price_list,currency,rate, self.posting_date)
@@ -571,8 +571,8 @@ class PurchaseInvoice(Document):
 		if not gl_narration:
 			gl_narration = "Purchase from {supplier}, Invoice No: {invoice_no}"
 
-		print("gl_narration")
-		print(gl_narration)
+		#print("gl_narration")
+		#print(gl_narration)
 
 		# Replace placeholders with actual values
 		narration = gl_narration.format(payment_mode=payment_mode, supplier_name=supplier, invoice_number=invoice_no)
@@ -586,8 +586,8 @@ class PurchaseInvoice(Document):
 	def insert_gl_records(self):
 
 		remarks = self.get_narration()
-		print("remarks")
-		print(remarks)
+		#print("remarks")
+		#print(remarks)
 
 		
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
@@ -722,7 +722,7 @@ class PurchaseInvoice(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
 
 @frappe.whitelist()

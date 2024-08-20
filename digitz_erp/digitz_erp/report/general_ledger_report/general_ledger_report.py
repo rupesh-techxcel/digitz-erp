@@ -19,7 +19,7 @@ def get_data(filters):
 	
 	# Filter for account, supplier and dates
 	if filters.get('account') and filters.get('supplier') and filters.get('from_date') and filters.get('to_date'):
-		print("case 1")
+		#print("case 1")
 		   
 		trans_data = frappe.db.sql("""
 			SELECT

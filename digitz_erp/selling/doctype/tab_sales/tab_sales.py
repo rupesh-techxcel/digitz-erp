@@ -73,7 +73,7 @@ class TabSales (Document):
 
         for docitem in self.items:
 
-            print(docitem.item)
+            #print(docitem.item)
 
             # previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
 
@@ -133,24 +133,24 @@ class TabSales (Document):
         #     sales_invoice_doc.delete()
         #     do_exists = 1
 
-        print("self.name")
-        print(self.name)
+        #print("self.name")
+        #print(self.name)
 
         sales_invoice = frappe.db.get_value('Sales Invoice',{'tab_sales': self.name}, ['name'])
 
-        print("sales_invoice")
-        print(sales_invoice)
+        #print("sales_invoice")
+        #print(sales_invoice)
 
         if(sales_invoice):
 
         # if frappe.db.exists('Sales Invoice', {'tab_sales': self.name}):
             sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})
 
-            print("sales invoice found")
-            print(sales_invoice)
+            #print("sales invoice found")
+            #print(sales_invoice)
             # sales_invoice = frappe.get_doc
             # delivery_note_doc.delete()
-            # print("delivery note deleted")
+            # #print("delivery note deleted")
 
             sales_invoice.customer = self.customer
             sales_invoice.customer_name = self.customer_name
@@ -278,13 +278,13 @@ class TabSales (Document):
     # def cancel_sales_invoice(self):
 
     #     sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})
-    #     print("tab_sales=>sales_invoice")
-    #     print(sales_invoice)
+    #     #print("tab_sales=>sales_invoice")
+    #     #print(sales_invoice)
     #     sales_invoice.cancel()
 
 @frappe.whitelist()
 def get_user_warehouse():
     user = frappe.session.user
     user_warehouse = frappe.db.get_value('User Warehouse', {'user': user}, 'warehouse')
-    print(user_warehouse)
+    #print(user_warehouse)
     return user_warehouse

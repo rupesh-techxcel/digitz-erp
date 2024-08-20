@@ -32,8 +32,8 @@ class Item(Document):
 	def update_standard_selling_price(self):
 
 		# unique_id = str(uuid.uuid4())
-		# print("unique_id crated")
-		# print(unique_id)
+		# #print("unique_id crated")
+		# #print(unique_id)
 		currency = get_default_currency()
 
 		if not frappe.db.exists("Item Price",{'item': self.item_code, 'price_list':'Standard Selling', 'currency':currency}):
@@ -104,8 +104,8 @@ class Item(Document):
 					item_price_to_update.save()
 					frappe.msgprint(f"Price list,'Standard Buying' updated for the item, {self.item_code}", alert= True)
 
-				# print("item_price_to_update")
-				# print(item_price_to_update)
+				# #print("item_price_to_update")
+				# #print(item_price_to_update)
 
 				# if(item_price_to_update.rate != self.standard_buying_price):
 				# 	sql = """

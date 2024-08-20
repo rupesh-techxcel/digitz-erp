@@ -34,7 +34,7 @@ def execute(filters=None):
 		data = get_data_datewise(filters)
 		columns = get_columns_date_wise()
 	else:
-		print("get_data")
+		#print("get_data")
 		data = get_data(filters)
 		
 	return columns, data
@@ -107,11 +107,11 @@ def get_data_datewise(filters):
 	warehouse = filters.get("warehouse")
 	show_all = filters.get("show_all")
  
-	print("get_data_datewise")
-	print("from_date")
-	print(from_date)
-	print("to_date")
-	print(to_date)
+	#print("get_data_datewise")
+	#print("from_date")
+	#print(from_date)
+	#print("to_date")
+	#print(to_date)
 
 	# Filter conditions
 	item_condition = f" AND item = '{item}'" if item else ""
@@ -153,8 +153,8 @@ def get_data_datewise(filters):
 
 	opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
  
-	print("opening_balance_data")
-	print(opening_balance_data)
+	#print("opening_balance_data")
+	#print(opening_balance_data)
  
 	item_opening_balances = {}
 	for opening_balance in opening_balance_data:		
@@ -437,16 +437,16 @@ def get_data_datewise(filters):
 		
 				if transfer_in_qty_row.item_code == item_code and ledger_date_str == transaction_date_str :
 					
-					print("item code matching")
-					print("transfer_in_qty_row.transfer_in_qty")
-					print(transfer_in_qty_row.transfer_in_qty)
+					#print("item code matching")
+					#print("transfer_in_qty_row.transfer_in_qty")
+					#print(transfer_in_qty_row.transfer_in_qty)
 
 					balance_qty += transfer_in_qty_row.transfer_in_qty
-					print("balance_qty")
-					print(balance_qty)
+					#print("balance_qty")
+					#print(balance_qty)
 					qty_in += transfer_in_qty_row.transfer_in_qty
-					print("qty_in")
-					print(qty_in)
+					#print("qty_in")
+					#print(qty_in)
 
 					if not transaction_value_exists:
 						transaction_value_exists = transfer_in_qty_row.transfer_in_qty !=0
@@ -483,11 +483,11 @@ def get_data(filters):
 	warehouse = filters.get("warehouse")
 	show_all = filters.get("show_all")
  
-	print("get_data")
-	print("from_date")
-	print(from_date)
-	print("to_date")
-	print(to_date)
+	#print("get_data")
+	#print("from_date")
+	#print(from_date)
+	#print("to_date")
+	#print(to_date)
 
 	# Filter conditions
 	item_condition = f" AND item = '{item}'" if item else ""
@@ -505,8 +505,8 @@ def get_data(filters):
     
 	items_data = frappe.db.sql(items_query, as_dict=1)
  
-	print("items_data")
-	print(items_data)
+	#print("items_data")
+	#print(items_data)
 	
 	# Fetch the opening quantity for all items based on the last record's balance quantity
 	opening_balance_query = f"""
@@ -532,8 +532,8 @@ def get_data(filters):
 
 	opening_balance_data = frappe.db.sql(opening_balance_query, as_dict=True)
  
-	print("opening_balance_data")
-	print(opening_balance_data)
+	#print("opening_balance_data")
+	#print(opening_balance_data)
  
 	item_opening_balances = {}
 	for opening_balance in opening_balance_data:		
@@ -765,16 +765,16 @@ def get_data(filters):
 			
 			if transfer_in_qty_row.item_code == item_code :
 				
-				print("item code matching")
-				print("transfer_in_qty_row.transfer_in_qty")
-				print(transfer_in_qty_row.transfer_in_qty)
+				#print("item code matching")
+				#print("transfer_in_qty_row.transfer_in_qty")
+				#print(transfer_in_qty_row.transfer_in_qty)
 
 				balance_qty += transfer_in_qty_row.transfer_in_qty
-				print("balance_qty")
-				print(balance_qty)
+				#print("balance_qty")
+				#print(balance_qty)
 				qty_in += transfer_in_qty_row.transfer_in_qty
-				print("qty_in")
-				print(qty_in)
+				#print("qty_in")
+				#print(qty_in)
 
 				if not transaction_value_exists:
 					transaction_value_exists = transfer_in_qty_row.transfer_in_qty !=0

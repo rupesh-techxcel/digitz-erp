@@ -91,7 +91,7 @@ class ReceiptEntry(Document):
 	def clean_deleted_allocations(self):
 
 		allocations = self.receipt_allocation
-		print('allocations :', allocations)
+		#print('allocations :', allocations)
 
 		if(allocations):
 			for allocation in allocations[:]:
@@ -156,13 +156,13 @@ class ReceiptEntry(Document):
 	def clean_deleted_allocations(self):
 
 		allocations = self.receipt_allocation
-		print("len(allocations)")
-		print(len(allocations))
+		#print("len(allocations)")
+		#print(len(allocations))
 
 		if(allocations):
 			for allocation in allocations[:]:
-				print("allocation.customer")
-				print(allocation.customer)
+				#print("allocation.customer")
+				#print(allocation.customer)
 				receipt_details = self.receipt_entry_details
 				allocation_exist = False
 				if(receipt_details):
@@ -198,10 +198,10 @@ class ReceiptEntry(Document):
 		if self.amount is not None:
 			amount = self.amount
 
-		print("amount")
-		print(amount)
-		print("total_amount_in_rows")
-		print(total_amount_in_rows)
+		#print("amount")
+		#print(amount)
+		#print("total_amount_in_rows")
+		#print(total_amount_in_rows)
 		if(amount != total_amount_in_rows):
 			frappe.throw("Mismatch in total amount. Please check the document inputs")
 
@@ -210,31 +210,31 @@ class ReceiptEntry(Document):
 		if self.allocated_amount is not None:
 			allocated_amount = self.allocated_amount
 
-		print("allocated_amount")
-		print(allocated_amount)
-		print("total_allocated_in_rows")
-		print(total_allocated_in_rows)
+		#print("allocated_amount")
+		#print(allocated_amount)
+		#print("total_allocated_in_rows")
+		#print(total_allocated_in_rows)
 		# Both values are not None, perform the comparison
 		# if allocated_amount != total_allocated_in_rows:
 			# frappe.throw("Mismatch in total allocated amount. Please check the document inputs")
 
 
 	def check_excess_allocation(self):
-		print("from check excces allocation")
+		#print("from check excces allocation")
 		allocations = self.receipt_allocation
 
 		if(allocations):
 			for allocation in allocations:
 				if(allocation.paying_amount>0):
 					is_new = self.is_new()
-					print("self.is_new()")
-					print(self.is_new())
+					#print("self.is_new()")
+					#print(self.is_new())
 
 					receipt_no = self.name
 					if self.is_new():
 						receipt_no = ""
-					print("receipt_no")
-					print(receipt_no)
+					#print("receipt_no")
+					#print(receipt_no)
 
 					if(allocation.reference_type == "Sales Invoice"):
 						previous_paid_amount = 0
@@ -248,7 +248,7 @@ class ReceiptEntry(Document):
 							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
 
 						if allocation.paying_amount > allocation.total_amount-previous_paid_amount:
-							print("throws error")
+							#print("throws error")
 							frappe.throw("Excess allocation for the invoice numer " + allocation.reference_name )
 
 	def on_update(self):
@@ -363,7 +363,7 @@ class ReceiptEntry(Document):
 
 	def insert_gl_records(self):
 
-		print("From insert gl records")
+		#print("From insert gl records")
 
 		# default_company = frappe.db.get_single_value(
 		# 	"Global Settings", "default_company")
@@ -451,7 +451,7 @@ class ReceiptEntry(Document):
 
 	def on_cancel(self):
 		cancel_bank_reconciliation("Receipt Entry", self.name)
-		print("from on cancel")
+		#print("from on cancel")
 		self.revert_documents_paid_amount_for_receipt()
 
 		delete_gl_postings_for_cancel_doc_type('Receipt Entry',self.name)
@@ -479,12 +479,12 @@ class ReceiptEntry(Document):
 		return account
 
 	def revert_documents_paid_amount_for_receipt(self):
-		print("onl here")
+		#print("onl here")
 		allocations = self.receipt_allocation
 		if(allocations):
 			for allocation in allocations:
-				print("allocation.reference_type")
-				print(allocation.reference_type)
+				#print("allocation.reference_type")
+				#print(allocation.reference_type)
 
 				if allocation.reference_type == "Sales Invoice":
 					if(allocation.paying_amount>0):

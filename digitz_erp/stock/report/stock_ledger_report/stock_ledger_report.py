@@ -36,10 +36,10 @@ def get_data(filters):
 		INNER JOIN
 			`tabItem` i ON i.name = sl.item
 	"""
-	print("filters")
-	print(filters)
-	print("filters.get('item'")
-	print(filters.get('item'))
+	#print("filters")
+	#print(filters)
+	#print("filters.get('item'")
+	#print(filters.get('item'))
 
 	# Constructing the WHERE clause based on filters
 	where_clause = ""
@@ -50,20 +50,20 @@ def get_data(filters):
 	if filters.get('warehouse'):
 		where_clause += f" AND sl.warehouse = '{filters['warehouse']}'"
 
-	print("where_clause")    
-	print(where_clause)
+	#print("where_clause")    
+	#print(where_clause)
 
 	# Finalizing the SQL query
 	sql = f"{base_query} WHERE 1=1 {where_clause} ORDER BY i.item_name, sl.posting_date"
 
-	print("sql")
-	print(sql)
+	#print("sql")
+	#print(sql)
 
 	# Executing the query
 	data = frappe.db.sql(sql, as_dict=True)
 
-	print("data")
-	print(data)
+	#print("data")
+	#print(data)
 
 	# Processing the data
 	last_item = ""
@@ -83,7 +83,7 @@ def get_data(filters):
 				LIMIT 1
 				""".format(item=dl.item_code,warehouse= dl.warehouse, date=dl.posting_date)
     
-			print(sql)
+			#print(sql)
    
 			result = frappe.db.sql(sql)
 
@@ -91,8 +91,8 @@ def get_data(filters):
 
 			dl.update({"opening_qty": round(opening_qty, 2)} if opening_qty else {"opening_qty": 0})
    
-			print("opening_qty")
-			print(opening_qty)			
+			#print("opening_qty")
+			#print(opening_qty)			
 		else:
 			dl.update({"opening_qty": round(last_qty, 2)})
 

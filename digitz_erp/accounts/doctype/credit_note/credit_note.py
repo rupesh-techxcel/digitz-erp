@@ -76,7 +76,7 @@ class CreditNote(Document):
 
 	def insert_gl_records(self):
 
-		print("from insert gl records")
+		#print("from insert gl records")
   
 		remarks = self.get_narration()
 
@@ -189,7 +189,7 @@ class CreditNote(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
 
 @frappe.whitelist()

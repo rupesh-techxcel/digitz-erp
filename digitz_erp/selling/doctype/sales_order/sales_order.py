@@ -160,7 +160,7 @@ def generate_do(sales_order_name):
 		'sales_order': sales_order_doc.name
 	})
 
-	print(delivery_note_doc)
+	#print(delivery_note_doc)
 
 	idx = 0
 
@@ -200,7 +200,7 @@ def generate_do(sales_order_name):
 	delivery_note_doc.insert()
 	frappe.db.commit()
 
-	print(delivery_note_doc)
+	#print(delivery_note_doc)
 
 	frappe.msgprint("Delivery Note generated successfully, in draft mode.",indicator="green", alert=True)
 	return delivery_note_doc.name

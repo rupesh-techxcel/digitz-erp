@@ -93,9 +93,9 @@ def execute(filters=None):
         {"label": "Pending Amount", "value": round(total_project_amount - sum(sales_invoice_net_totals),2)}
         ]
     else:
-        print()
-        print(project_totals)
-        print()
+        #print()
+        #print(project_totals)
+        #print()
         total_project_amount = 0 
         for p in project_totals.values():
             total_project_amount += p

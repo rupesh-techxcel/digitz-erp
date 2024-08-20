@@ -31,5 +31,5 @@ def get_all_bank_entries():
 			"settlement_date": bank_reconciliation.settlement_date
         }
         entries_list.append(entry)
-    print(entries_list)
+    #print(entries_list)
     return entries_list

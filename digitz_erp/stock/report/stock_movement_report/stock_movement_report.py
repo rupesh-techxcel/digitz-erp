@@ -136,8 +136,8 @@ def get_data(filters):
  
 	for dl in data:
    
-		print(dl['item'])
-		print(dl['warehouse'])
+		#print(dl['item'])
+		#print(dl['warehouse'])
 		result = frappe.db.sql("""
             SELECT
                 SUM(COALESCE(sl.qty_in, 0)) AS qty_in,
@@ -152,8 +152,8 @@ def get_data(filters):
                 sl.posting_date <= %s
         """, (dl['item'], dl['warehouse'], from_date_str, to_date_str), as_dict=True)
   
-		print("result")
-		print(result)
+		#print("result")
+		#print(result)
   
 		qty_in = result[0]['qty_in'] if result else 0
 		qty_out = result[0]['qty_out'] if result else 0
@@ -217,7 +217,7 @@ def get_data(filters):
 				
 	filtered_data = []
  
-	print(data)
+	#print(data)
 
 	# Iterate over each record and filter based on your conditions
 	for dl in data:

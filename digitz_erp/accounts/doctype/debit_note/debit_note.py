@@ -53,8 +53,8 @@ class DebitNote(Document):
 		
 		# Assign supplier, invoice_no, and remarks
 		supplier_name = self.supplier
-		print("supplier_name")
-		print(supplier_name)
+		#print("supplier_name")
+		#print(supplier_name)
 		remarks = self.remarks if self.remarks else ""
 		payment_mode = ""
 		if self.on_credit:
@@ -72,11 +72,11 @@ class DebitNote(Document):
 
 		# Replace placeholders with actual values
 		narration = gl_narration.format(supplier=supplier_name)  
-		print("supplier_name")
+		#print("supplier_name")
   
 
-		print("narration")
-		print(narration)
+		#print("narration")
+		#print(narration)
 	
 
 		# Append remarks if they are available
@@ -198,7 +198,7 @@ class DebitNote(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
 
 @frappe.whitelist()

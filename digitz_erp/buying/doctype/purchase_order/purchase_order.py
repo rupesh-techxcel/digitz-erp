@@ -43,7 +43,7 @@ class PurchaseOrder(Document):
 			self.paid_amount = self.rounded_total
 		else:
 			if self.is_new():
-				print("is new true")
+				#print("is new true")
 				self.paid_amount = 0
 
 		if self.is_new():
@@ -75,7 +75,7 @@ class PurchaseOrder(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
 
 @frappe.whitelist()
@@ -105,10 +105,10 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 	purchase_invoice.payment_mode = purchase_doc.payment_mode
 	purchase_invoice.payment_account = purchase_doc.payment_account
  
-	print("check credit options")
-	print(purchase_doc.credit_purchase)
-	print(purchase_doc.payment_mode)
-	print(purchase_doc.payment_account)
+	#print("check credit options")
+	#print(purchase_doc.credit_purchase)
+	#print(purchase_doc.payment_mode)
+	#print(purchase_doc.payment_account)
  
 	purchase_invoice.remarks = purchase_doc.remarks
 	purchase_invoice.reference_no = purchase_doc.reference_no
@@ -122,8 +122,8 @@ def generate_purchase_invoice_for_purchase_order(purchase_order):
 	purchase_invoice.paid_amount = purchase_doc.paid_amount
 	purchase_invoice.terms = purchase_doc.terms
 	purchase_invoice.terms_and_conditions = purchase_doc.terms_and_conditions
-	print("purchase_order")
-	print(purchase_order)
+	#print("purchase_order")
+	#print(purchase_order)
 	purchase_invoice.purchase_order = purchase_order
 
 	pending_item_exists = False

@@ -278,7 +278,7 @@ def generate_sales_order(quotation):
 	new_so = frappe.get_doc(sales_order).insert()
 	frappe.db.commit()
 	frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
-	print("new so created")
+	#print("new so created")
 	return new_so.name
 
 

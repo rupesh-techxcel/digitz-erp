@@ -112,8 +112,8 @@ class AdditionalExpenseEntry(Document):
 
 			tax_for_expense, expense_date = key.split('_')
 
-			print("tax_for_expense")
-			print(tax_for_expense)
+			#print("tax_for_expense")
+			#print(tax_for_expense)
 
 			tax = frappe.get_doc("Tax", tax_for_expense)
 
@@ -421,21 +421,21 @@ class AdditionalExpenseEntry(Document):
 				tax_amount = expense_entry.get("tax_amount")
 				expense_date = expense_entry.get("expense_date")
 
-				print("tax from get_tax_totals")
-				print(tax)
+				#print("tax from get_tax_totals")
+				#print(tax)
 
 				# Use the expense_date in the key along with tax, separated by an underscore
 				key = f"{tax}_{expense_date}"
-				print("key from get_tax_totals")
-				print(key)
+				#print("key from get_tax_totals")
+				#print(key)
 
 				if key in tax_dictionary:
 					tax_dictionary[key] += tax_amount
 				else:
 					tax_dictionary[key] = tax_amount
 
-		print("tax_dictionary")
-		print(tax_dictionary)
+		#print("tax_dictionary")
+		#print(tax_dictionary)
 		return tax_dictionary
 
 
@@ -456,8 +456,8 @@ class AdditionalExpenseEntry(Document):
 				frappe.log_error("Error deleting payment schedule: " + str(e))
 
 
-		print("self.payment_schedule")
-		print(self.payment_schedule)
+		#print("self.payment_schedule")
+		#print(self.payment_schedule)
 
 		for payment_schedule in self.payment_schedule:
 

@@ -30,7 +30,7 @@ def merge_customer(current_customer, merge_customer):
         for table, fields in tables_to_update.items():
             for field in fields:
                 
-                print(table)
+                #print(table)
                 
                 # Special handling for updating `customer_name` field
                 new_value = merge_customer_doc.customer_name if field == 'customer_name' else merge_customer_doc.name

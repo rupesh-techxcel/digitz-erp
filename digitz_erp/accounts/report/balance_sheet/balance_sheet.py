@@ -79,9 +79,9 @@ def get_data(filters=None):
     bs_accounts = get_accounts_data(from_date, to_date, period_list)    
         
     
-    print("accounts")
+    #print("accounts")
     
-    print(accounts)
+    #print(accounts)
     
     indices_to_remove = []
     

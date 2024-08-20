@@ -55,12 +55,12 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             """.format(customer, receipt_no)
 
             receipt_allocation_values = frappe.db.sql(receipt_allocation_query, as_dict=1)
-            print("receipt allocation values")
-            print(receipt_allocation_values)
+            #print("receipt allocation values")
+            #print(receipt_allocation_values)
 
         documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("documents_values")
-        print(documents_values)
+        #print("documents_values")
+        #print(documents_values)
 
         if receipt_allocation_values !=[]:
             #  Avoid duplicates before combine
@@ -119,12 +119,12 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             """.format(customer, receipt_no)
 
             receipt_allocation_values = frappe.db.sql(receipt_allocation_query, as_dict=1)
-            print("receipt allocation values")
-            print(receipt_allocation_values)
+            #print("receipt allocation values")
+            #print(receipt_allocation_values)
 
         documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("documents_values")
-        print(documents_values)
+        #print("documents_values")
+        #print(documents_values)
 
         if receipt_allocation_values !=[]:
             #  Avoid duplicates before combine
@@ -186,8 +186,8 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
 
         documents_values = frappe.db.sql(documents_query, as_dict=1)
         
-        print("documents_values")
-        print(documents_values)
+        #print("documents_values")
+        #print(documents_values)
        
         if receipt_allocation_values !=[]:
             #  Avoid duplicates before combine
@@ -225,12 +225,12 @@ def get_all_customer_pending_receipt_allocations_with_other_receipts(customer, r
 @frappe.whitelist()
 def get_all_customer_receipt_allocations(customer):
 
-    print(customer)
+    #print(customer)
 
     values = frappe.db.sql("""SELECT sales_invoice,parent,invoice_amount,paying_amount FROM `tabReceipt Allocation` ra left outer join `tabSales Invoice` si ON si.name= ra.sales_invoice WHERE ra.customer = '{}' AND (ra.docstatus= 1 or ra.docstatus=0) AND (si.paid_amount IS NULL OR si.paid_amount!=si.rounded_total) ORDER BY ra.sales_invoice """.format(customer),as_dict=1)
 
-    print("values")
-    print(values)
+    #print("values")
+    #print(values)
 
     return {'values': values}
 
