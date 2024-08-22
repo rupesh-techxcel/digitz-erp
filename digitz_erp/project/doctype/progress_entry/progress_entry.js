@@ -25,6 +25,7 @@ setup(frm){
       frm.set_value('previous_progress_entry', prev_progress_entry);
 
       localStorage.removeItem('prev_progress_entry')
+      localStorage.removeItem('current_project')
     }
 },
 
@@ -162,9 +163,10 @@ function fetch_sales_order_items(frm) {
           // Create a new row in Progress Entry Items table
           const row = frm.add_child("progress_entry_items");
 
+          row.sales_order_amt = r.message.net_total;
           // Assigning values to the row fields
 
-          // row.lumpsum_amount = item.lumpsum_amount;
+          // row.lumpsum_amount = item.lumpsum_0.000amount;
           // row.rate_includes_tax = item.rate_includes_tax;
           // row.tax_excluded = item.tax_excluded;
           // row.discount_percentage = item.discount_percentage;
@@ -181,11 +183,11 @@ function fetch_sales_order_items(frm) {
           // row.rate_in_base_unit = item.rate_in_base_unit;
           // row.conversion_factor = item.conversion_factor;
           // row.rate_excluded_tax = item.rate_excluded_tax;
-          row.gross_amount = item.gross_amount;
+          row.item_gross_amount = item.gross_amount;
           // row.tax = item.tax;
           // row.tax_rate = item.tax_rate;
-          row.tax_amount = item.tax_amount;
-          row.net_amount = item.net_amount;
+          row.item_tax_amount = item.tax_amount;
+          row.item_net_amount = item.net_amount;
           // row.unit_conversion_details = item.unit_conversion_details;
           // row.cost_center = item.cost_center;
           // row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
@@ -198,14 +200,14 @@ function fetch_sales_order_items(frm) {
           // row.custom_field = item.custom_field || default_value;
         });
 
-        frm.doc.gross_total = r.message.gross_total;
-        frm.doc.tax_total = r.message.tax_total;
-        frm.doc.net_total = r.message.net_total;
-        frm.doc.total_discount_in_line_items = r.message.total_discount_in_line_items;
-        frm.doc.additional_discount = r.message.additional_discount;
-        frm.doc.round_off = r.message.round_off;
-        frm.doc.rounded_total = r.message.rounded_total;
-        frm.doc.in_words = r.message.in_words;
+        // frm.doc.gross_total = r.message.gross_total;
+        // frm.doc.tax_total = r.message.tax_total;
+        // frm.doc.net_total = r.message.net_total;
+        // frm.doc.total_discount_in_line_items = r.message.total_discount_in_line_items;
+        // frm.doc.additional_discount = r.message.additional_discount;
+        // frm.doc.round_off = r.message.round_off;
+        // frm.doc.rounded_total = r.message.rounded_total;
+        // frm.doc.in_words = r.message.in_words;
         // Refresh the field to show the updated items
         frm.refresh_field("progress_entry_items");
         frm.refresh_fields()
@@ -228,7 +230,9 @@ function update_table_and_total(frm,r){
         // Assigning values to the row fields
         row.prev_completion = item.total_completion || 0;
         row.total_completion = item.total_completion;
+        row.total_amount = item.total_amount || 0;
         row.prev_amount = item.total_amount || 0;
+
         // row.lumpsum_amount = item.lumpsum_amount;
         // row.rate_includes_tax = item.rate_includes_tax;
         // row.tax_excluded = item.tax_excluded;
@@ -246,11 +250,15 @@ function update_table_and_total(frm,r){
         // row.rate_in_base_unit = item.rate_in_base_unit;
         // row.conversion_factor = item.conversion_factor;
         // row.rate_excluded_tax = item.rate_excluded_tax;
-        row.gross_amount = item.gross_amount;
+        row.item_gross_amount = item.item_gross_amount;
+        // row.gross_amount = item.gross_amount;
         // row.tax = item.tax;
         // row.tax_rate = item.tax_rate;
-        row.tax_amount = item.tax_amount;
-        row.net_amount = item.net_amount;
+        row.item_tax_amount = item.item_tax_amount;
+        // row.tax_amount = item.tax_amount;
+
+        row.item_net_amount = item.item_net_amount;
+        // row.net_amount = item.net_amount;
         // row.unit_conversion_details = item.unit_conversion_details;
         // row.cost_center = item.cost_center;
         // row.qty_sold_in_base_unit = item.qty_sold_in_base_unit;
@@ -265,14 +273,14 @@ function update_table_and_total(frm,r){
 
       frm.doc.average_of_completion = r.message.average_of_completion;
 
-      frm.doc.gross_total = r.message.gross_total;
-      frm.doc.tax_total = r.message.tax_total;
-      frm.doc.net_total = r.message.net_total;
-      frm.doc.total_discount_in_line_items = r.message.total_discount_in_line_items;
-      frm.doc.additional_discount = r.message.additional_discount;
-      frm.doc.round_off = r.message.round_off;
-      frm.doc.rounded_total = r.message.rounded_total;
-      frm.doc.in_words = r.message.in_words;
+      // frm.doc.gross_total = r.message.gross_total;
+      // frm.doc.tax_total = r.message.tax_total;
+      // frm.doc.net_total = r.message.net_total;
+      // frm.doc.total_discount_in_line_items = r.message.total_discount_in_line_items;
+      // frm.doc.additional_discount = r.message.additional_discount;
+      // frm.doc.round_off = r.message.round_off;
+      // frm.doc.rounded_total = r.message.rounded_total;
+      // frm.doc.in_words = r.message.in_words;
       // Refresh the field to show the updated items
       frm.refresh_field("progress_entry_items");
       frm.refresh_fields()
@@ -281,6 +289,7 @@ function update_table_and_total(frm,r){
 
 
 frappe.ui.form.on("Progress Entry Items", {
+
   progress_entry_items_add(frm,cdt,cdn){
     let row = frappe.get_doc(cdt,cdn);
     frappe.model.set_value(cdt,cdn,'sales_order_amt', frm.doc.sales_order_net_total);
@@ -319,13 +328,24 @@ frappe.ui.form.on("Progress Entry Items", {
       update_progress(frm);
     }
 
-    frappe.model.set_value(cdt,cdn, 'total_amount', ((row.net_amount * row.total_completion)/100));
+    // frappe.model.set_value(cdt,cdn, 'total_amount', ((row.net_amount * row.total_completion)/100));
+    frappe.model.set_value(cdt,cdn, 'current_completion', (row.total_completion - row.prev_completion));
 
-    total_of_prev_and_curr_amount(frm);
+    update_all_amount_of_line_item(frm,cdt,cdn);
+
+    // total_of_prev_and_curr_amount(frm);
   },
   progress_entry_items_delete(frm) {
     update_progress(frm);
+    update_total_amounts(frm);
   },
+  tax(frm,cdt,cdn){
+    update_all_amount_of_line_item(frm,cdt,cdn);
+  },
+  tax_rate(frm,cdt,cdn){
+    update_all_amount_of_line_item(frm,cdt,cdn);
+  }
+
 });
 
 function update_progress(frm) {
@@ -397,3 +417,53 @@ function total_of_prev_and_curr_amount(frm){
 }
 
 
+function update_all_amount_of_line_item(frm,cdt,cdn){
+  let row = frappe.get_doc(cdt, cdn);
+  if(row.current_completion > 0){
+    let gross_amount = (row.item_net_amount * row.current_completion)/100;
+    frappe.model.set_value(cdt,cdn,'gross_amount',gross_amount);
+
+    let tax_amount = 0;
+      if(row.tax && row.tax_rate){
+          tax_amount = (row.gross_amount * row.tax_rate)/100;
+      }
+      frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
+
+      frappe.model.set_value(cdt,cdn, 'net_amount',(row.gross_amount + row.tax_amount));
+
+      
+  }else{
+    frappe.model.set_value(cdt,cdn,'gross_amount',0);
+    frappe.model.set_value(cdt,cdn,'tax_amount',0);
+    frappe.model.set_value(cdt,cdn,'net_amount',0);
+  }
+
+  frappe.model.set_value(cdt,cdn, 'total_amount',(row.prev_amount + row.net_amount));
+
+
+  update_total_amounts(frm);
+}
+
+function update_tax_amount(frm,cdt,cdn){
+  let row = frappe.get_doc(cdt,cdn);
+  let tax_amount = 0;
+      if(row.tax_rate){
+          tax_amount = (row.item_net_amount * row.tax_rate)/100;
+      }
+      frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
+}
+
+function update_total_amounts(frm){
+  let gross_total = 0;
+  let tax_total = 0;
+  let net_total = 0;
+  frm.doc.progress_entry_items.forEach(element => {
+    gross_total += element.gross_amount;
+    tax_total += element.tax_amount;
+    net_total += element.net_amount;
+  });
+
+  frm.set_value('gross_total', gross_total);
+  frm.set_value('tax_total', tax_total);
+  frm.set_value('net_total', net_total);
+}

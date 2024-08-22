@@ -624,7 +624,7 @@
    "fieldname": "stage_proforma_invoice",
    "fieldtype": "Link",
    "label": "Stage Proforma Invoice",
-   "options": "Proforma Invoice",
+   "options": "Proforma Invoice OLD",
    "read_only": 1
   },
   {
@@ -703,7 +703,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-08-06 12:55:13.918451",
+ "modified": "2024-08-21 10:15:57.519869",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

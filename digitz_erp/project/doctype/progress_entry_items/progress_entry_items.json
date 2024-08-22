@@ -7,20 +7,35 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "item_and_completion_details",
   "prev_completion",
   "total_completion",
+  "current_completion",
   "item",
-  "item_name",
   "sales_order_amt",
   "column_break_11",
-  "gross_amount",
-  "tax_amount",
-  "net_amount",
+  "item_name",
+  "item_gross_amount",
+  "item_tax_amount",
+  "item_net_amount",
+  "section_break_ijht",
   "total_amount",
-  "prev_amount"
+  "column_break_swfb",
+  "prev_amount",
+  "tax_details_section",
+  "tax",
+  "column_break_wcat",
+  "tax_rate",
+  "column_break_bbwc",
+  "tax_amount",
+  "section_break_wppx",
+  "gross_amount",
+  "column_break_wdxi",
+  "net_amount"
  ],
  "fields": [
   {
+   "columns": 2,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -37,21 +52,21 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0",
    "fieldname": "gross_amount",
    "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Gross Amount"
+   "label": "Gross Amount",
+   "non_negative": 1,
+   "precision": "3"
   },
   {
+   "default": "0",
    "fieldname": "tax_amount",
    "fieldtype": "Float",
-   "label": "Tax Amount"
-  },
-  {
-   "fieldname": "net_amount",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Net Amount"
+   "label": "Tax Amount",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
   },
   {
    "columns": 1,
@@ -65,22 +80,31 @@
   {
    "fieldname": "sales_order_amt",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Sales Order Amt.",
    "non_negative": 1,
    "precision": "3"
   },
   {
+   "columns": 1,
+   "default": "0",
    "fieldname": "total_amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Total Amount",
+   "non_negative": 1,
    "precision": "3"
   },
   {
+   "columns": 1,
+   "default": "0",
    "fieldname": "prev_amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Prev Amount",
    "non_negative": 1,
-   "precision": "3"
+   "precision": "3",
+   "read_only": 1
   },
   {
    "columns": 1,
@@ -89,13 +113,101 @@
    "fieldname": "prev_completion",
    "fieldtype": "Percent",
    "in_list_view": 1,
-   "label": "Prev Completion %"
+   "label": "Prev Completion %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_gross_amount",
+   "fieldtype": "Float",
+   "label": "Item Gross Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_tax_amount",
+   "fieldtype": "Float",
+   "label": "Item Tax Amount",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "item_net_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Item Net Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_ijht",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_swfb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wppx",
+   "fieldtype": "Section Break",
+   "label": "Total"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fetch_from": "tax.tax_rate",
+   "fieldname": "tax_rate",
+   "fieldtype": "Float",
+   "label": "Tax Rate",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "item_and_completion_details",
+   "fieldtype": "Section Break",
+   "label": "Item & Completion Details"
+  },
+  {
+   "fieldname": "tax_details_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Details"
+  },
+  {
+   "fieldname": "column_break_wcat",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bbwc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wdxi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "net_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Amount",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "description": "(Total Completion - Prev Completion)",
+   "fieldname": "current_completion",
+   "fieldtype": "Percent",
+   "label": "Current Completion %",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-20 14:27:21.686453",
+ "modified": "2024-08-21 11:29:27.121352",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry Items",

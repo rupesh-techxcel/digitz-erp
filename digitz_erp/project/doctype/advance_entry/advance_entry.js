@@ -151,7 +151,7 @@ function update_tax_amount(frm,cdt,cdn){
     let row = frappe.get_doc(cdt,cdn);
     let tax_amount = 0;
         if(row.tax_rate){
-            tax_amount = row.amount * row.tax_rate/100;
+            tax_amount = (row.amount * row.tax_rate)/100;
         }
         frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
 }

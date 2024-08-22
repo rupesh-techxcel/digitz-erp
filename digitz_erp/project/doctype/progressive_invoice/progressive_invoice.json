@@ -6,8 +6,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "customer",
   "project",
+  "customer",
   "column_break_pcrr",
   "date",
   "section_break_rjkk",
@@ -18,6 +18,7 @@
  ],
  "fields": [
   {
+   "fetch_from": "project.customer",
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
@@ -53,12 +54,14 @@
    "fieldtype": "Section Break"
   },
   {
+   "fetch_from": "project.advance_amount",
    "fieldname": "advance_deducation",
    "fieldtype": "Float",
    "label": "Advance Deducation",
    "non_negative": 1
   },
   {
+   "fetch_from": "project.retentation_amt",
    "fieldname": "retentation_deducation",
    "fieldtype": "Float",
    "label": "Retentation Deducation",
@@ -67,7 +70,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-02 11:03:04.462250",
+ "modified": "2024-08-21 14:58:58.776725",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Invoice",

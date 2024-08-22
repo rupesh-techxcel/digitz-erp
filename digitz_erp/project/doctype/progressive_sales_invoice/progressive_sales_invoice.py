@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProformaInvoice(Document):
+class ProgressiveSalesInvoice(Document):
 	pass

@@ -100,6 +100,11 @@ frappe.ui.form.on('Purchase Order', {
                 }
             };
 		}
+
+		// frm.doc.items.forEach((item)=>{
+		// 	console.log("hello")
+		// 	frappe.model.trigger("item", item.doctype, item.name);
+		// })
 	},
 	assign_defaults(frm)
 	{
@@ -674,10 +679,13 @@ frappe.ui.form.on('Purchase Order Item', {
 					}
 
 					frm.refresh_field("items");
-
+					frm.trigger("make_taxes_and_totals");
 					//  Get current stock for the item in the warehouse
 				}
 			});
+
+
+			
 	},
 	tax_excluded(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);

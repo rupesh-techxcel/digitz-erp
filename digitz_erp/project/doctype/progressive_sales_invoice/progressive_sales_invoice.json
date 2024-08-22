@@ -3,21 +3,20 @@
  "allow_copy": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2024-08-08 14:36:52.514642",
+ "creation": "2024-08-21 14:30:18.443045",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "progress_entry_details_section",
+  "progress_entry",
   "project_details_section",
   "project",
   "column_break_zubf",
   "sales_order",
   "column_break_xtqn",
   "sales_order_net_total",
-  "progress_entry_details_section",
-  "is_prev_progress_exists",
-  "previous_progress_entry",
   "section_break_qxfb",
   "naming_series",
   "customer",
@@ -32,12 +31,6 @@
   "reference_no",
   "ship_to_location",
   "tax_id",
-  "column_break_4",
-  "price_list",
-  "rate_includes_tax",
-  "warehouse",
-  "salesman",
-  "salesman_code",
   "column_break_kscq",
   "company",
   "lpo_date",
@@ -110,14 +103,73 @@
   "address_line_2",
   "area_name",
   "country",
+  "column_break_4",
+  "price_list",
+  "rate_includes_tax",
+  "warehouse",
+  "salesman",
+  "salesman_code",
   "amended_from"
  ],
  "fields": [
   {
+   "fieldname": "progress_entry_details_section",
+   "fieldtype": "Section Break",
+   "label": "Progress Entry Details"
+  },
+  {
+   "bold": 1,
+   "fieldname": "progress_entry",
+   "fieldtype": "Link",
+   "label": "Progress Entry",
+   "options": "Progress Entry"
+  },
+  {
+   "fieldname": "project_details_section",
+   "fieldtype": "Section Break",
+   "label": "Project Details"
+  },
+  {
+   "fetch_from": "progress_entry.project",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_zubf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.sales_order",
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xtqn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "sales_order.net_total",
+   "fieldname": "sales_order_net_total",
+   "fieldtype": "Float",
+   "label": "Sales Order Net Total",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_qxfb",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "PE-.YYYY.-"
+   "options": "PSI-.YYYY.-"
   },
   {
    "fetch_from": "project.customer",
@@ -193,43 +245,6 @@
    "label": "Tax Id"
   },
   {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "Standard Selling",
-   "fieldname": "price_list",
-   "fieldtype": "Link",
-   "label": "Price List",
-   "options": "Price List"
-  },
-  {
-   "default": "0",
-   "fieldname": "rate_includes_tax",
-   "fieldtype": "Check",
-   "label": "Rate includes tax"
-  },
-  {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1
-  },
-  {
-   "fieldname": "salesman",
-   "fieldtype": "Link",
-   "label": "Salesman",
-   "options": "Employee"
-  },
-  {
-   "fetch_from": "salesman.employee_code",
-   "fieldname": "salesman_code",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Salesman Code"
-  },
-  {
    "fieldname": "column_break_kscq",
    "fieldtype": "Column Break"
   },
@@ -261,6 +276,12 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "sales_order_id",
+   "fieldtype": "Data",
+   "label": "Sales Order ID",
+   "read_only": 1
   },
   {
    "collapsible": 1,
@@ -349,6 +370,52 @@
    "options": "Sales Order New Item Details"
   },
   {
+   "fieldname": "progress_entry_items",
+   "fieldtype": "Table",
+   "label": "Progress Entry Items",
+   "options": "Progress Entry Items"
+  },
+  {
+   "fieldname": "average_of_completion",
+   "fieldtype": "Percent",
+   "label": "Average % Of Completion"
+  },
+  {
+   "fieldname": "section_break_hgqy",
+   "fieldtype": "Section Break",
+   "label": "Total Details"
+  },
+  {
+   "fieldname": "gross_total",
+   "fieldtype": "Float",
+   "label": "Gross Total",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "column_break_wlra",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Float",
+   "label": "Tax Total",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "column_break_qyse",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "net_total",
+   "fieldtype": "Float",
+   "label": "Net Total",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
    "fieldname": "section_break_29",
    "fieldtype": "Section Break",
    "hidden": 1
@@ -378,26 +445,22 @@
    "label": "Totals"
   },
   {
-   "fieldname": "gross_total",
-   "fieldtype": "Float",
+   "fieldname": "gross_total_1",
+   "fieldtype": "Currency",
    "label": "Gross Total",
-   "non_negative": 1,
-   "precision": "3"
+   "read_only": 1
   },
   {
-   "fieldname": "tax_total",
-   "fieldtype": "Float",
+   "fieldname": "tax_total_1",
+   "fieldtype": "Currency",
    "label": "Tax Total",
-   "non_negative": 1,
-   "precision": "3"
+   "read_only": 1
   },
   {
-   "bold": 1,
-   "fieldname": "net_total",
-   "fieldtype": "Float",
+   "fieldname": "net_total_1",
+   "fieldtype": "Currency",
    "label": "Net Total",
-   "non_negative": 1,
-   "precision": "3"
+   "read_only": 1
   },
   {
    "fieldname": "column_break_33",
@@ -595,116 +658,61 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Progress Entry",
+   "options": "Progressive Sales Invoice",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
   },
   {
-   "fieldname": "progress_entry_items",
-   "fieldtype": "Table",
-   "label": "Progress Entry Items",
-   "options": "Progress Entry Items"
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break",
+   "hidden": 1
   },
   {
-   "fieldname": "sales_order_id",
-   "fieldtype": "Data",
-   "label": "Sales Order ID",
-   "read_only": 1
-  },
-  {
-   "fieldname": "project_details_section",
-   "fieldtype": "Section Break",
-   "label": "Project Details"
-  },
-  {
-   "fieldname": "project",
+   "default": "Standard Selling",
+   "fieldname": "price_list",
    "fieldtype": "Link",
-   "label": "Project",
-   "options": "Project"
-  },
-  {
-   "fieldname": "average_of_completion",
-   "fieldtype": "Percent",
-   "label": "Average % Of Completion"
-  },
-  {
-   "fieldname": "column_break_zubf",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "project.sales_order",
-   "fieldname": "sales_order",
-   "fieldtype": "Link",
-   "label": "Sales Order",
-   "options": "Sales Order",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_qxfb",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "progress_entry_details_section",
-   "fieldtype": "Section Break",
-   "label": "Progress Entry Details"
+   "hidden": 1,
+   "label": "Price List",
+   "options": "Price List"
   },
   {
    "default": "0",
-   "fieldname": "is_prev_progress_exists",
+   "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
-   "label": "Previous Progress Entry Exists"
+   "hidden": 1,
+   "label": "Rate includes tax"
   },
   {
-   "depends_on": "eval: doc.is_prev_progress_exists == 1",
-   "fieldname": "previous_progress_entry",
+   "fieldname": "warehouse",
    "fieldtype": "Link",
-   "label": "Previous Progress Entry",
-   "options": "Progress Entry"
+   "hidden": 1,
+   "label": "Warehouse",
+   "options": "Warehouse"
   },
   {
-   "fieldname": "section_break_hgqy",
-   "fieldtype": "Section Break",
-   "label": "Total Details"
+   "fieldname": "salesman",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Salesman",
+   "options": "Employee"
   },
   {
-   "fieldname": "column_break_wlra",
-   "fieldtype": "Column Break"
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman Code"
   },
   {
-   "fieldname": "column_break_xtqn",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "sales_order.net_total",
-   "fieldname": "sales_order_net_total",
-   "fieldtype": "Float",
-   "label": "Sales Order Net Total",
-   "non_negative": 1,
-   "precision": "3",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_qyse",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "gross_total_1",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "tax_total_1",
-   "fieldtype": "Currency",
-   "label": "Tax Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "net_total_1",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Progressive Sales Invoice",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -719,10 +727,10 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-21 13:06:25.207352",
+ "modified": "2024-08-21 15:52:37.716151",
  "modified_by": "Administrator",
  "module": "Project",
- "name": "Progress Entry",
+ "name": "Progressive Sales Invoice",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
