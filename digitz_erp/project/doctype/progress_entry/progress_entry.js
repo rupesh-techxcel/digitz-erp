@@ -293,6 +293,33 @@ frappe.ui.form.on("Progress Entry Items", {
   progress_entry_items_add(frm,cdt,cdn){
     let row = frappe.get_doc(cdt,cdn);
     frappe.model.set_value(cdt,cdn,'sales_order_amt', frm.doc.sales_order_net_total);
+
+    frappe.call(
+      {
+        method:'digitz_erp.api.settings_api.get_default_tax',
+        async:false,
+        callback(r){
+            row.tax = r.message
+
+        frappe.call(
+          {
+          method: 'frappe.client.get_value',
+          args: {
+            'doctype': 'Tax',
+            'filters': { 'tax_name': row.tax },
+            'fieldname': ['tax_name', 'tax_rate']
+          },
+          callback: (r2) => {
+            row.tax_rate = r2.message.tax_rate;
+            frm.refresh_fields("progress_entry_items");
+          }
+          });
+
+        }
+      }
+    );
+
+  frm.refresh_fields("progress_entry_items");
   },
   prev_completion(frm, cdt, cdn) {
     let row = frappe.get_doc(cdt, cdn);

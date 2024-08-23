@@ -138,7 +138,40 @@ frappe.ui.form.on("Advance Entry Item",{
         update_net_amount(frm,cdt,cdn);
 
         update_net_total(frm);
-    }
+    },
+    advance_item_table_add(frm,cdt,cdn){
+    let row = frappe.get_doc(cdt, cdn);
+    frappe.call(
+			{
+				method:'digitz_erp.api.settings_api.get_default_tax',
+				async:false,
+				callback(r){
+          			row.tax = r.message
+
+				frappe.call(
+					{
+					method: 'frappe.client.get_value',
+					args: {
+						'doctype': 'Tax',
+						'filters': { 'tax_name': row.tax },
+						'fieldname': ['tax_name', 'tax_rate']
+					},
+					callback: (r2) => {
+						row.tax_rate = r2.message.tax_rate;
+						// frm.trigger("make_taxes_and_totals");
+                        frm.refresh_fields("advance_item_table");
+					}
+					});
+
+				}
+			}
+		);
+
+
+
+
+    frm.refresh_fields("advance_item_table");
+}
 })
 
 function update_net_amount(frm,cdt,cdn){

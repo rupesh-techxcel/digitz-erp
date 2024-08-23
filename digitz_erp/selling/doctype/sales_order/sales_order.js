@@ -608,8 +608,15 @@ frappe.ui.form.on("Sales Order", "onload", function (frm) {
 
 });
 
-frappe.ui.form.on('Sales Order Item', {
 
+
+
+
+
+
+
+
+frappe.ui.form.on('Sales Order Item', {
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
@@ -963,7 +970,41 @@ frappe.ui.form.on('Sales Order Item', {
 
 		console.log("from item_add")
 		let row = frappe.get_doc(cdt, cdn);
-		row.warehouse = frm.doc.warehouse
+		row.warehouse = frm.doc.warehouse;
+
+
+
+
+			frappe.call(
+					{
+						method:'digitz_erp.api.settings_api.get_default_tax',
+						async:false,
+						callback(r){
+							  row.tax = r.message
+		
+						frappe.call(
+							{
+							method: 'frappe.client.get_value',
+							args: {
+								'doctype': 'Tax',
+								'filters': { 'tax_name': row.tax },
+								'fieldname': ['tax_name', 'tax_rate']
+							},
+							callback: (r2) => {
+								row.tax_rate = r2.message.tax_rate;
+								// frm.trigger("make_taxes_and_totals");
+								frm.refresh_fields("items");
+							}
+							});
+		
+						}
+					}
+				);
+		
+		
+		
+		
+			frm.refresh_fields("items");
 
 		frm.trigger("make_taxes_and_totals");
 
