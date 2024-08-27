@@ -41,6 +41,27 @@ def get_stock_ledgers(voucher,voucher_no):
     return formatted_stock_ledgers
 
 @frappe.whitelist()
+def get_stock_ledgers_project(voucher,voucher_no):
+    project_stock_ledger = frappe.get_all("Project Stock Ledger",
+                                    filters={"voucher":voucher,"voucher_no": voucher_no},
+                                    fields=["name", "item","item_name", "project", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
+    formatted_project_stock_ledger = []
+    for ledgers in project_stock_ledger:
+        formatted_project_stock_ledger.append({
+            "stock_ledger": ledgers.name,
+            "item": ledgers.item,
+            "item_name":ledgers.item_name,
+            "project": ledgers.project,
+            "qty_in": ledgers.qty_in,
+            "qty_out": ledgers.qty_out,
+            "valuation_rate": ledgers.valuation_rate,
+            "balance_qty": ledgers.balance_qty,
+            "balance_value": ledgers.balance_value
+        })
+    
+    return formatted_project_stock_ledger
+
+@frappe.whitelist()
 def get_gl_postings(voucher,voucher_no):
     gl_postings = frappe.get_all("GL Posting",
                                   filters={"voucher_type":voucher,

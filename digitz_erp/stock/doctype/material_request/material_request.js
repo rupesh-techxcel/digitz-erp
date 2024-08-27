@@ -64,12 +64,12 @@ frappe.ui.form.on("Material Request", {
 
         frm.set_query("warehouse", "items", function (doc) {
 			return {
-				filters: { custom_company: doc.company },
+				filters: { company: doc.company },
 			};
 		});
         frm.set_query("set_warehouse",function(doc){
             return {
-                filters:{custom_company: doc.company},
+                filters:{company: doc.company},
             }
         })
 	},

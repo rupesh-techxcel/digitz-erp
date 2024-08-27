@@ -68,4 +68,18 @@ def get_stock_for_item(item, warehouse, posting_date, posting_time):
 		return previous_stock_balance.balance_qty
 
 
+@frappe.whitelist()
+def get_stock_for_item_project(item, project, posting_date, posting_time):
+    
+		#print("from get_stock_for_item")
+
+		posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))  
+		
+		previous_stock_balance = frappe.db.get_value('Project Stock Ledger', {'item': ['=', item], 'project':['=', project]
+			, 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],
+			order_by='posting_date desc', as_dict=True)  
+  
+		return previous_stock_balance.balance_qty
+
+
 
