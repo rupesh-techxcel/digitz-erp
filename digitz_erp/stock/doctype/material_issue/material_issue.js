@@ -391,8 +391,7 @@ let stock_ledgers = function (frm) {
                               '<th style="width: 10%;">Item Code</th>' +
 							  '<th style="width: 20%;">Item Name</th>' +
                               '<th style="width: 15%;">Project</th>' +
-                              '<th style="width: 10%;">Qty In</th>' +
-                              '<th style="width: 10%;">Qty Out</th>' +
+                              '<th style="width: 20%;">Consumed Qty</th>' +
                               '<th style="width: 15%;">Valuation Rate</th>' +
                               '<th style="width: 15%;">Balance Qty</th>' +
                               '<th style="width: 15%;">Balance Value</th>' +
@@ -406,8 +405,7 @@ let stock_ledgers = function (frm) {
                                `<td><a href="/app/item/${ledger.item}" target="_blank">${ledger.item}</a></td>` +
 							   `<td>${ledger.item_name}</td>` +
                                `<td>${ledger.project}</td>` +
-                               `<td>${ledger.qty_in}</td>` +
-                               `<td>${ledger.qty_out}</td>` +
+                               `<td>${ledger.consumed_qty}</td>` +
                                `<td>${ledger.valuation_rate}</td>` +
                                `<td>${ledger.balance_qty}</td>` +
                                `<td>${ledger.balance_value}</td>` +

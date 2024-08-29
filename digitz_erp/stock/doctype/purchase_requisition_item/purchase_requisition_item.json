@@ -8,7 +8,6 @@
  "engine": "InnoDB",
  "field_order": [
   "item_code",
-  "project",
   "item_name",
   "col_break1",
   "schedule_date",
@@ -78,13 +77,6 @@
    "reqd": 1,
    "search_index": 1,
    "width": "100px"
-  },
-  {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Project",
-   "options": "Project"
   },
   {
    "fetch_from": "item_code.item_name",
@@ -489,10 +481,10 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-22 11:07:46.751338",
+ "modified": "2024-08-29 09:04:36.440550",
  "modified_by": "Administrator",
  "module": "Stock",
- "name": "Material Request Item",
+ "name": "Purchase Requisition Item",
  "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [],

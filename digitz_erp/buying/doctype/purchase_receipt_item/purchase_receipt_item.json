@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2022-12-22 19:32:57.952466",
+ "creation": "2024-08-28 15:52:44.016045",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -38,11 +38,31 @@
  "fields": [
   {
    "columns": 1,
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "columns": 1,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Item",
    "options": "Item"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "columns": 2,
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Display Name"
   },
   {
    "columns": 1,
@@ -52,9 +72,12 @@
    "label": "Qty"
   },
   {
-   "fieldname": "conversion_factor",
-   "fieldtype": "Float",
-   "label": "Conversion Factor"
+   "columns": 1,
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Unit",
+   "options": "Unit"
   },
   {
    "columns": 1,
@@ -62,6 +85,64 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Rate"
+  },
+  {
+   "fieldname": "base_unit",
+   "fieldtype": "Data",
+   "label": "Base Unit"
+  },
+  {
+   "fieldname": "qty_in_base_unit",
+   "fieldtype": "Float",
+   "label": "Qty In Base Unit"
+  },
+  {
+   "fieldname": "rate_in_base_unit",
+   "fieldtype": "Currency",
+   "label": "Rate In Base Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate_excluded_tax",
+   "fieldtype": "Float",
+   "label": "Rate Excluded Tax"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "description": "Qty * Rate Excluded Tax",
+   "fieldname": "gross_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Gross Amount",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
   },
   {
    "fieldname": "tax_rate",
@@ -76,15 +157,6 @@
    "label": "Tax Amount"
   },
   {
-   "columns": 1,
-   "description": "Qty * Rate Excluded Tax",
-   "fieldname": "gross_amount",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Gross Amount",
-   "reqd": 1
-  },
-  {
    "default": "0",
    "fieldname": "discount_percentage",
    "fieldtype": "Percent",
@@ -97,58 +169,11 @@
    "label": "Discount Amount"
   },
   {
-   "fieldname": "rate_excluded_tax",
-   "fieldtype": "Float",
-   "label": "Rate Excluded Tax"
-  },
-  {
    "columns": 1,
    "fieldname": "net_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Net Amount"
-  },
-  {
-   "columns": 1,
-   "fieldname": "unit",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Unit",
-   "options": "Unit"
-  },
-  {
-   "fieldname": "base_unit",
-   "fieldtype": "Data",
-   "label": "Base Unit"
-  },
-  {
-   "columns": 1,
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Warehouse",
-   "options": "Warehouse"
-  },
-  {
-   "fieldname": "column_break_11",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "tax_excluded",
-   "fieldtype": "Check",
-   "label": "Tax Excluded"
-  },
-  {
-   "fieldname": "rate_in_base_unit",
-   "fieldtype": "Currency",
-   "label": "Rate In Base Unit",
-   "read_only": 1
-  },
-  {
-   "fieldname": "qty_in_base_unit",
-   "fieldtype": "Float",
-   "label": "Qty In Base Unit"
   },
   {
    "fieldname": "unit_conversion_details",
@@ -157,32 +182,11 @@
    "read_only": 1
   },
   {
-   "fieldname": "tax",
-   "fieldtype": "Link",
-   "label": "Tax",
-   "options": "Tax"
-  },
-  {
-   "fieldname": "section_break_23",
-   "fieldtype": "Section Break"
-  },
-  {
-   "columns": 2,
-   "fieldname": "display_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Display Name"
-  },
-  {
-   "fieldname": "item_name",
-   "fieldtype": "Data",
-   "label": "Item Name"
-  },
-  {
-   "default": "0",
-   "fieldname": "rate_includes_tax",
-   "fieldtype": "Check",
-   "label": "Rate Includes Tax",
+   "allow_on_submit": 1,
+   "fieldname": "qty_returned_in_base_unit",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Qty Returned ",
    "read_only": 1
   },
   {
@@ -192,12 +196,8 @@
    "options": "Cost Center"
   },
   {
-   "allow_on_submit": 1,
-   "fieldname": "qty_returned_in_base_unit",
-   "fieldtype": "Float",
-   "hidden": 1,
-   "label": "Qty Returned ",
-   "read_only": 1
+   "fieldname": "section_break_23",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "po_item_reference",
@@ -210,10 +210,10 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-29 08:53:41.321927",
+ "modified": "2024-08-28 15:52:44.016045",
  "modified_by": "Administrator",
  "module": "Buying",
- "name": "Purchase Invoice Item",
+ "name": "Purchase Receipt Item",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

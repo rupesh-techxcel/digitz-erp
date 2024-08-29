@@ -44,7 +44,7 @@ def get_stock_ledgers(voucher,voucher_no):
 def get_stock_ledgers_project(voucher,voucher_no):
     project_stock_ledger = frappe.get_all("Project Stock Ledger",
                                     filters={"voucher":voucher,"voucher_no": voucher_no},
-                                    fields=["name", "item","item_name", "project", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
+                                    fields=["name", "item","item_name", "project", "consumed_qty", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
     formatted_project_stock_ledger = []
     for ledgers in project_stock_ledger:
         formatted_project_stock_ledger.append({
@@ -56,7 +56,8 @@ def get_stock_ledgers_project(voucher,voucher_no):
             "qty_out": ledgers.qty_out,
             "valuation_rate": ledgers.valuation_rate,
             "balance_qty": ledgers.balance_qty,
-            "balance_value": ledgers.balance_value
+            "balance_value": ledgers.balance_value,
+            "consumed_qty": ledgers.consumed_qty
         })
     
     return formatted_project_stock_ledger

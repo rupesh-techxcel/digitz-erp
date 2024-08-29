@@ -11,52 +11,25 @@ frappe.ui.form.on('Purchase Order', {
 				console.log("frm.doc.name")
 				console.log(frm.doc.name)
 
-			frappe.call(
-			{
-				method: 'digitz_erp.api.purchase_order_api.check_invoices_for_purchase_order',
 
-				async: false,
-				args: {
-					'purchase_order': frm.doc.name
-				},
-				callback(pi_for_po_exists) {
-					console.log("po_exists.message")
-					console.log(pi_for_po_exists.message)
-
-					let create_pi = false
-
-					if (pi_for_po_exists.message == false)
-					{
-						create_pi = true
-					}
-					else if (frm.doc.order_status != "Completed")
-					{
-						create_pi = true
-					}
-
-					if(create_pi)
-					{
-						frm.add_custom_button('Create Purchase Invoice', () => {
-							frappe.call({
-								method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.generate_purchase_invoice_for_purchase_order',
-								args: {
-									purchase_order: frm.doc.name
+				frm.add_custom_button('Create Purchase Receipt', () => {
+									frappe.call({
+										method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.generate_purchase_receipt_for_purchase_order',
+										args: {
+											purchase_order: frm.doc.name
+										},
+										callback: function(r) {
+											frappe.show_alert({
+												message: __('The purchase receipt has been successfully generated and saved in draft mode.'),
+												indicator: 'green'
+											},3);
+											frm.reload_doc();
+											if(r.message !="No Pending Items")
+												frappe.set_route('Form', 'Purchase Receipt', r.message);
+										}
+									});
 								},
-								callback: function(r) {
-									frappe.show_alert({
-										message: __('The purchase invoice has been successfully generated and saved in draft mode.'),
-										indicator: 'green'
-									},3);
-									frm.reload_doc();
-									if(r.message !="No Pending Items")
-										frappe.set_route('Form', 'Purchase Invoice', r.message);
-								}
-							});
-						},
-						);
-					}
-				}
-			});
+					);
 			}
 	},
 	setup: function (frm) {
@@ -169,6 +142,13 @@ frappe.ui.form.on('Purchase Order', {
 					frm.refresh_field("price_list");
 				}
 			});
+
+
+
+		for(item of frm.doc.items){
+			// console.log(item.doctype,item.name)
+			update_item_row(frm,item.doctype,item.name);
+		}
 	},
 	edit_posting_date_and_time(frm) {
 
@@ -190,6 +170,12 @@ frappe.ui.form.on('Purchase Order', {
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
+
+		frm.doc.items.forEach((item)=>{
+			item.warehouse = frm.doc.warehouse
+		})
+
+		frm.refresh_fields('items');
 	},
 	additional_discount(frm) {
 		frm.trigger("make_taxes_and_totals");
@@ -254,8 +240,8 @@ frappe.ui.form.on('Purchase Order', {
 						callback: (r2) => {
 							console.log("Before assign default warehouse");
 							console.log(r2.message.default_warehouse);
-							frm.doc.warehouse = r2.message.default_warehouse;
-							console.log(frm.doc.warehouse);
+							// frm.doc.warehouse = r2.message.default_warehouse;
+							// console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
@@ -515,7 +501,168 @@ frappe.ui.form.on("Purchase Order", "onload", function (frm) {
 frappe.ui.form.on('Purchase Order Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
-	item(frm, cdt, cdn) {
+	item(frm,cdt,cdn){
+		update_item_row(frm,cdt,cdn)
+	},
+	tax_excluded(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+
+		if (row.tax_excluded) {
+			row.tax = "";
+			row.tax_rate = 0;
+			frm.refresh_field("items");
+			frm.trigger("make_taxes_and_totals");
+		}
+	},
+	tax(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+
+		if (!row.tax_excluded) //For tax excluded, tax and rate already adjusted
+		{
+			frappe.call(
+				{
+					method: 'frappe.client.get_value',
+					args: {
+						'doctype': 'Tax',
+						'filters': { 'tax_name': row.tax },
+						'fieldname': ['tax_name', 'tax_rate']
+					},
+					callback: (r2) => {
+						row.tax_rate = r2.message.tax_rate;
+						frm.refresh_field("items");
+						frm.trigger("make_taxes_and_totals");
+					}
+				});
+		}
+	},
+	qty(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	},
+	rate(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	},
+	rate_includes_tax(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	},
+	unit(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+
+		console.log("Item");
+		console.log(row.item);
+
+		//  frappe.call(
+		//  	{
+		//  		method:'frappe.client.get_valuelist',
+		//  		args:{
+		//  		'doctype':'Item Unit',
+		//  		'filters':{'parent': row.item},
+		//  		'fieldname':['unit','conversion_factor']
+		//  		},
+		//  		callback:(r2)=>
+		//  		{
+		//  			console.log(r2.message);
+		//  		}
+		//  	});
+
+		console.log(row.item);
+
+		frappe.call(
+			{
+				method: 'digitz_erp.api.items_api.get_item_uom',
+				async: false,
+				args: {
+					item: row.item,
+					unit: row.unit
+				},
+				callback(r) {
+					if (r.message.length == 0) {
+						frappe.msgprint("Invalid unit, Unit does not exists for the item.");
+						row.unit = row.base_unit;
+						row.conversion_factor = 1;
+					}
+					else {
+						console.log(r.message[0].conversion_factor);
+						row.conversion_factor = r.message[0].conversion_factor;
+						row.rate = row.rate_in_base_unit * row.conversion_factor;
+						//row.rate = row.rate * row.conversion_factor;
+						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
+						//() => {
+						//row.qty = row.qty/ row.conversion_factor;
+						//})
+					}
+					frm.trigger("make_taxes_and_totals");
+
+					frm.refresh_field("items");
+				}
+
+			}
+		);
+	},
+	discount_percentage(frm, cdt, cdn) {
+		let row = frappe.get_doc(cdt, cdn);
+		console.log("from discount_percentage")
+		console.log("Gross Amount %f", row.gross_amount);
+
+
+		var discount_percentage = row.discount_percentage;
+
+		console.log("Percentage %s", row.discount_percentage);
+
+		if (row.discount_percentage > 0) {
+			console.log("Apply Discount Percentage")
+			var discount = row.gross_amount * (row.discount_percentage / 100);
+			row.discount_amount = discount;
+		}
+		else {
+			row.discount_amount = 0;
+			row.discount_percentage = 0;
+		}
+
+		frm.trigger("make_taxes_and_totals");
+		frm.refresh_field("items");
+	},
+	discount_amount(frm, cdt, cdn) {
+		console.log("from discount_amount")
+
+		let row = frappe.get_doc(cdt, cdn);
+		var discount = row.discount_amount;
+
+		if (row.discount_amount > 0) {
+			var discount_percentage = discount * 100 / row.gross_amount;
+			row.discount_percentage = discount_percentage;
+		}
+		else {
+			row.discount_amount = 0;
+			row.discount_percentage = 0;
+		}
+
+		frm.trigger("make_taxes_and_totals");
+
+		frm.refresh_field("items");
+	},
+	warehouse(frm, cdt, cdn) {
+
+		let row = frappe.get_doc(cdt, cdn);
+		frm.item = row.item
+		frm.warehouse = row.warehouse
+		frm.trigger("get_item_stock_balance");
+	},
+	items_add(frm, cdt, cdn) {
+
+		let row = frappe.get_doc(cdt, cdn);
+		row.warehouse = frm.doc.warehouse
+
+		frm.trigger("make_taxes_and_totals");
+
+	},
+	items_remove(frm, cdt, cdn) {
+		frm.trigger("make_taxes_and_totals");
+	}
+});
+
+
+function update_item_row(frm,cdt,cdn){
+
 		var child = locals[cdt][cdn];
 		if (frm.doc.default_cost_center) {
 			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
@@ -686,159 +833,4 @@ frappe.ui.form.on('Purchase Order Item', {
 
 
 			
-	},
-	tax_excluded(frm, cdt, cdn) {
-		let row = frappe.get_doc(cdt, cdn);
-
-		if (row.tax_excluded) {
-			row.tax = "";
-			row.tax_rate = 0;
-			frm.refresh_field("items");
-			frm.trigger("make_taxes_and_totals");
-		}
-	},
-	tax(frm, cdt, cdn) {
-		let row = frappe.get_doc(cdt, cdn);
-
-		if (!row.tax_excluded) //For tax excluded, tax and rate already adjusted
-		{
-			frappe.call(
-				{
-					method: 'frappe.client.get_value',
-					args: {
-						'doctype': 'Tax',
-						'filters': { 'tax_name': row.tax },
-						'fieldname': ['tax_name', 'tax_rate']
-					},
-					callback: (r2) => {
-						row.tax_rate = r2.message.tax_rate;
-						frm.refresh_field("items");
-						frm.trigger("make_taxes_and_totals");
-					}
-				});
-		}
-	},
-	qty(frm, cdt, cdn) {
-		frm.trigger("make_taxes_and_totals");
-	},
-	rate(frm, cdt, cdn) {
-		frm.trigger("make_taxes_and_totals");
-	},
-	rate_includes_tax(frm, cdt, cdn) {
-		frm.trigger("make_taxes_and_totals");
-	},
-	unit(frm, cdt, cdn) {
-		let row = frappe.get_doc(cdt, cdn);
-
-		console.log("Item");
-		console.log(row.item);
-
-		//  frappe.call(
-		//  	{
-		//  		method:'frappe.client.get_valuelist',
-		//  		args:{
-		//  		'doctype':'Item Unit',
-		//  		'filters':{'parent': row.item},
-		//  		'fieldname':['unit','conversion_factor']
-		//  		},
-		//  		callback:(r2)=>
-		//  		{
-		//  			console.log(r2.message);
-		//  		}
-		//  	});
-
-		console.log(row.item);
-
-		frappe.call(
-			{
-				method: 'digitz_erp.api.items_api.get_item_uom',
-				async: false,
-				args: {
-					item: row.item,
-					unit: row.unit
-				},
-				callback(r) {
-					if (r.message.length == 0) {
-						frappe.msgprint("Invalid unit, Unit does not exists for the item.");
-						row.unit = row.base_unit;
-						row.conversion_factor = 1;
-					}
-					else {
-						console.log(r.message[0].conversion_factor);
-						row.conversion_factor = r.message[0].conversion_factor;
-						row.rate = row.rate_in_base_unit * row.conversion_factor;
-						//row.rate = row.rate * row.conversion_factor;
-						//frappe.confirm('Rate converted for the unit selected. Do you want to convert the qty as well ?',
-						//() => {
-						//row.qty = row.qty/ row.conversion_factor;
-						//})
-					}
-					frm.trigger("make_taxes_and_totals");
-
-					frm.refresh_field("items");
-				}
-
-			}
-		);
-	},
-	discount_percentage(frm, cdt, cdn) {
-		let row = frappe.get_doc(cdt, cdn);
-		console.log("from discount_percentage")
-		console.log("Gross Amount %f", row.gross_amount);
-
-
-		var discount_percentage = row.discount_percentage;
-
-		console.log("Percentage %s", row.discount_percentage);
-
-		if (row.discount_percentage > 0) {
-			console.log("Apply Discount Percentage")
-			var discount = row.gross_amount * (row.discount_percentage / 100);
-			row.discount_amount = discount;
-		}
-		else {
-			row.discount_amount = 0;
-			row.discount_percentage = 0;
-		}
-
-		frm.trigger("make_taxes_and_totals");
-		frm.refresh_field("items");
-	},
-	discount_amount(frm, cdt, cdn) {
-		console.log("from discount_amount")
-
-		let row = frappe.get_doc(cdt, cdn);
-		var discount = row.discount_amount;
-
-		if (row.discount_amount > 0) {
-			var discount_percentage = discount * 100 / row.gross_amount;
-			row.discount_percentage = discount_percentage;
-		}
-		else {
-			row.discount_amount = 0;
-			row.discount_percentage = 0;
-		}
-
-		frm.trigger("make_taxes_and_totals");
-
-		frm.refresh_field("items");
-	},
-	warehouse(frm, cdt, cdn) {
-
-		let row = frappe.get_doc(cdt, cdn);
-		frm.item = row.item
-		frm.warehouse = row.warehouse
-		frm.trigger("get_item_stock_balance");
-	},
-	items_add(frm, cdt, cdn) {
-
-		let row = frappe.get_doc(cdt, cdn);
-		row.warehouse = frm.doc.warehouse
-
-		frm.trigger("make_taxes_and_totals");
-
-	},
-	items_remove(frm, cdt, cdn) {
-		frm.trigger("make_taxes_and_totals");
-	}
-});
+}

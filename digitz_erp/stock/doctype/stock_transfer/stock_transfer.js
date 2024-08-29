@@ -85,7 +85,7 @@ frappe.ui.form.on('Stock Transfer', {
 						},
 						callback: (r2) => {
 							console.log(r2);
-							frm.doc.source_warehouse = r2.message.default_warehouse;
+							// frm.doc.source_warehouse = r2.message.default_warehouse;
 							frm.refresh_field("source_warehouse");
 						}
 					}
@@ -190,6 +190,20 @@ frappe.ui.form.on('Stock Transfer', {
 					frm.refresh_field("item_units");
 				}
 			})
+		},
+		source_warehouse(frm){
+			frm.doc.items.forEach((item)=>{
+				item.source_warehouse = frm.doc.source_warehouse
+			})
+	
+			frm.refresh_fields('items');
+		},
+		target_warehouse(frm){
+			frm.doc.items.forEach((item)=>{
+				item.target_warehouse = frm.doc.target_warehouse
+			})
+	
+			frm.refresh_fields('items');
 		}
 });
 

@@ -9,7 +9,9 @@
   "item",
   "item_name",
   "posting_date",
+  "warehouse",
   "project",
+  "consumed_qty",
   "qty_in",
   "incoming_rate",
   "qty_out",
@@ -56,13 +58,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "qty_in",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Consumed Qty",
-   "read_only": 1
-  },
-  {
    "fieldname": "incoming_rate",
    "fieldtype": "Float",
    "label": "Incoming Rate",
@@ -78,6 +73,7 @@
   {
    "fieldname": "outgoing_rate",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Outgoing Rate",
    "read_only": 1
   },
@@ -191,12 +187,35 @@
    "label": "Project",
    "options": "Project",
    "read_only": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consumed_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Consumed Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty_in",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Qty In",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-27 15:48:27.447793",
+ "modified": "2024-08-29 09:59:02.866787",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Project Stock Ledger",

@@ -1,12 +1,12 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Material Request", {
+frappe.ui.form.on("Purchase Requisition", {
     setup(frm) {
         frm.trigger('get_default_company_and_warehouse');
     },
 	refresh(frm) {
-        if(!frm.is_new()){
+        if(!frm.is_new() && frm.doc.docstatus==1){
             // if(frm.doc.material_request_type == "Stock Transfer"){
             //     frm.add_custom_button(__("Stock Transfer"),()=>{
             //         console.log("Stock Transfer");
@@ -18,11 +18,13 @@ frappe.ui.form.on("Material Request", {
                     console.log(frm.doc.items)
                     frappe.new_doc("Purchase Order", {}, po =>{
                         po.items = [];
+                        po.warehouse = frm.doc.set_warehouse;
                         frm.doc.items.forEach(item => {
 
                             let po_item = frappe.model.add_child(po, 'items');
                             po_item.item = item.item_code;
                             po_item.qty = item.qty;
+                            po_item.warehouse = frm.doc.set_warehouse
 
                              // Fetch additional fields from the Item master
                             frappe.db.get_value('Item', item.item_code, ['item_name', 'standard_buying_price','base_unit'], (r) => {
@@ -56,6 +58,41 @@ frappe.ui.form.on("Material Request", {
                                     // po_item.base_unit = "CAN";
                                 }
                             });
+
+                            frm.refresh_fields("items");
+                        });
+                    })
+                },__("Action"));   
+            }
+            if(frm.doc.material_request_type == "Stock Transfer"){
+                frm.add_custom_button(__("Stock Transfer"),()=>{
+                    console.log("Stock Transfer");
+                    console.log(frm.doc.items)
+                    frappe.new_doc("Stock Transfer", {}, so =>{
+                        so.items = [];
+                        so.source_warehouse = frm.doc.set_from_warehouse;
+                        so.target_warehouse = frm.doc.set_warehouse;
+                        frm.doc.items.forEach(item => {
+
+                            let so_item = frappe.model.add_child(so, 'items');
+                            so_item.item = item.item_code;
+                            so_item.qty = item.qty;
+                            so.source_warehouse = frm.doc.set_from_warehouse;
+                            so.target_warehouse = frm.doc.set_warehouse;
+
+                             // Fetch additional fields from the Item master
+                            frappe.db.get_value('Item', item.item_code, ['item_name', 'standard_buying_price','base_unit'], (r) => {
+                                if (r) {
+                                    so_item.item_code = item.item_code;
+                                    so_item.item_name = r.item_name;
+                                    so_item.display_name = r.item_name;
+                                    so_item.qty = item.qty;
+                                    so_item.rate = r.standard_buying_price;
+                                    so_item.net_amount = so_item.rate * so_item.qty;
+                                }
+                            });
+
+                            frm.refresh_fields("items");
                         });
                     })
                 },__("Action"));   
@@ -112,7 +149,7 @@ frappe.ui.form.on("Material Request", {
 
 
 
-frappe.ui.form.on("Material Request Item", {
+frappe.ui.form.on("Purchase Requisition Item", {
     item_code(frm,cdt,cdn){
         row = frappe.get_doc(cdt,cdn);
         item = frappe.get_doc("Item", row.item_code);

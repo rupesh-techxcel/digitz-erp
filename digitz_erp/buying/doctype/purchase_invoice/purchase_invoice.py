@@ -71,7 +71,7 @@ class PurchaseInvoice(Document):
 						frappe.throw("Voucher with same time already exists.")
 
 	def validate(self):
-		self.validate_supplier_inv_no()
+		# self.validate_supplier_inv_no()
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
 
