@@ -318,6 +318,7 @@ frappe.ui.form.on('Purchase Order', {
 
 				console.log("entry.tax_amount")
 				console.log(entry.tax_amount)
+				console.log("entry.tax_rate",entry.tax_rate)
 
 				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
@@ -720,7 +721,10 @@ function update_item_row(frm,cdt,cdn){
 								},
 								callback: (r2) => {
 									row.tax = r2.message.tax_name;
-									row.tax_rate = r2.message.tax_rate
+									row.tax_rate = r2.message.tax_rate;
+									// console.log("ajay", row.tax,row.tax_rate,(row.tax_rate * row.gross_amount), row.gross_amount)
+									frm.trigger("make_taxes_and_totals");
+										frm.refresh_field("items");
 								}
 
 							})
@@ -824,9 +828,9 @@ function update_item_row(frm,cdt,cdn){
 								}
 							});
 					}
-
-					frm.refresh_field("items");
 					frm.trigger("make_taxes_and_totals");
+					frm.refresh_field("items");
+					
 					//  Get current stock for the item in the warehouse
 				}
 			});

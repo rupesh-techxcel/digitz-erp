@@ -305,7 +305,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "depends_on": "eval: doc.items != undefined || doc.items.length>0",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -560,7 +559,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval: doc.item_table != undefined && doc.item_table.length>0 && doc.quotation_id != undefined && doc.quotation_id != \"\"",
    "fieldname": "item_table",
    "fieldtype": "Table",
    "label": "Item Table",
@@ -595,7 +593,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-18 10:35:14.602862",
+ "modified": "2024-08-29 12:49:24.376539",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

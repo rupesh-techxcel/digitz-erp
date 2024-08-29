@@ -1166,6 +1166,14 @@ frappe.ui.form.on("Sales Order",{
 				frappe.set_route('List', 'Progress Entry', { 'sales_order_id': frm.doc.name });
 			},__("Progress Entry"));
         }
+
+		if(frm.doc.item_table.length <= 0){
+			frm.set_df_property('item_table','hidden',1);
+		}
+
+		if(frm.doc.items.length == 0){
+			frm.set_df_property('items','hidden',1);
+		}
     },
     // make_taxes_and_total(frm){
 	// 	if(frm.doc.item_table.length>0){
@@ -1197,6 +1205,10 @@ frappe.ui.form.on("Sales Order",{
 								row[key] = item[key]
 							}
 						});
+
+						
+						
+						
 					// }else{
 						// frm.set_df_property('item_table','hidden',1)
 					// }
@@ -1209,6 +1221,8 @@ frappe.ui.form.on("Sales Order",{
 								row[key] = item[key]
 							}
 						})
+
+						
 					// }else{
 					// 	frm.set_df_property('item_table','hidden',1)
 					// }
@@ -1227,6 +1241,7 @@ frappe.ui.form.on("Sales Order",{
 				localStorage.removeItem('sales_order_data');
 				console.log("removed data",localStorage.getItem('sales_order_data'))
                 frm.trigger("make_taxes_and_totals");
+				localStorage.clear()
 			}
 		})
     },
