@@ -334,7 +334,7 @@ frappe.ui.form.on('Quotation', {
 
 				// console.log(frm.doc.items)
 				// for(item in frm.doc.items){
-					gross_total += entry.gross_amount;entry.tax_amount;
+					gross_total += entry.gross_amount;
 					tax_total += entry.tax_amount;
 					net_total += entry.net_amount + entry.tax_amount;
 				// }

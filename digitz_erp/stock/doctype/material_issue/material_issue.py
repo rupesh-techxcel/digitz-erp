@@ -65,7 +65,7 @@ class MaterialIssue(Document):
     def on_submit(self):
         for row in self.items:
             item_code = row.item
-            warehouse = row.warehouse
+            warehouse = self.warehouse
             qty = row.qty  # Quantity to be deducted
             rate = row.rate
             unit = row.base_unit

@@ -13,9 +13,9 @@ class AdvanceEntry(Document):
         project.advance_amount = self.net_total
         project.save()
 
-        default_advance_account = self.advance_account
         company = frappe.get_doc('Company', self.company)
-        if(default_advance_account):
+        default_advance_account = self.advance_account or company.default_advance_received_account
+        if(default_advance_account):    
             # Determine the Debit and Credit accounts based on payment type
             payment_account = self.payment_account
 

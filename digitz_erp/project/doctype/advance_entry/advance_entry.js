@@ -10,18 +10,21 @@ frappe.ui.form.on("Advance Entry", {
         if(frm.is_new()){
             console.log("setup")
             let row = frm.add_child('advance_item_table');
+            
+                    if (frm.doc.project) {
+                        row.description = "Advance for the project " + frm.doc.project;
+                    } else {
+                        row.description = "Advance payment";
+                    }
+        
+                    frm.trigger('get_default_company_and_warehouse');   
+        
+                    frm.add_fetch('customer', 'full_address', 'customer_address')
+                    frm.add_fetch('customer', 'salesman', 'salesman')
+                    frm.add_fetch('customer', 'tax_id', 'tax_id')
 
-            if (frm.doc.project) {
-                row.description = "Advance for the project " + frm.doc.project;
-            } else {
-                row.description = "Advance payment";
-            }
-
-            frm.trigger('get_default_company_and_warehouse');   
-
-            frm.add_fetch('customer', 'full_address', 'customer_address')
-		    frm.add_fetch('customer', 'salesman', 'salesman')
-		    frm.add_fetch('customer', 'tax_id', 'tax_id')
+                    frm.refresh_fields('advance_item_table')
+            
         }
     },
     onload(frm){
@@ -115,16 +118,6 @@ frappe.ui.form.on("Advance Entry", {
 
 
 frappe.ui.form.on("Advance Entry Item",{
-    amount(frm,cdt,cdn){
-        let row = frappe.get_doc(cdt,cdn);
-        if(row.tax_rate){
-            let tax_amount = row.amount * row.tax_rate/100;
-            frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
-        }
-        update_net_amount(frm,cdt,cdn)
-        // frm.trigger('tax');
-        update_net_total(frm);
-    },
     advance_item_table_remove(frm){
         update_net_total(frm);
     },
@@ -141,6 +134,7 @@ frappe.ui.form.on("Advance Entry Item",{
     },
     advance_item_table_add(frm,cdt,cdn){
     let row = frappe.get_doc(cdt, cdn);
+    console.log("clll")
     frappe.call(
 			{
 				method:'digitz_erp.api.settings_api.get_default_tax',
@@ -166,6 +160,50 @@ frappe.ui.form.on("Advance Entry Item",{
 				}
 			}
 		);
+
+
+
+
+    frm.refresh_fields("advance_item_table");
+},
+amount(frm, cdt, cdn){
+    let row = frappe.get_doc(cdt, cdn);
+
+    // frappe.call(
+	// 		{
+	// 			method:'digitz_erp.api.settings_api.get_default_tax',
+	// 			async:false,
+	// 			callback(r){
+    //       			row.tax = r.message
+
+	// 			frappe.call(
+	// 				{
+	// 				method: 'frappe.client.get_value',
+	// 				args: {
+	// 					'doctype': 'Tax',
+	// 					'filters': { 'tax_name': row.tax },
+	// 					'fieldname': ['tax_name', 'tax_rate']
+	// 				},
+	// 				callback: (r2) => {
+	// 					row.tax_rate = r2.message.tax_rate;
+	// 					// frm.trigger("make_taxes_and_totals");
+    //                     frm.refresh_fields("advance_item_table");
+
+                        if(row.tax_rate){
+                            let tax_amount = row.amount * row.tax_rate/100;
+                            frappe.model.set_value(cdt,cdn,'tax_amount',tax_amount);
+                        }
+                        update_net_amount(frm,cdt,cdn)
+                        // frm.trigger('tax');
+                        update_net_total(frm);
+					// }
+					// });
+
+		// 		}
+		// 	}
+		// );
+
+        
 
 
 

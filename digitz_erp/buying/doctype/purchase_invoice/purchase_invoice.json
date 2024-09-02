@@ -24,6 +24,7 @@
   "supplier_inv_no",
   "supplier_inv_date",
   "purchase_order",
+  "purchase_receipt",
   "do_no",
   "column_break_kkhx",
   "company",
@@ -448,6 +449,12 @@
   {
    "fieldname": "column_break_frqn",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_receipt",
+   "fieldtype": "Link",
+   "label": "Purchase Receipt",
+   "options": "Purchase Receipt"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -465,7 +472,7 @@
    "table_fieldname": "invoices"
   }
  ],
- "modified": "2024-04-24 18:03:34.342639",
+ "modified": "2024-08-29 15:37:14.638818",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",

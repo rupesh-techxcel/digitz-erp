@@ -465,18 +465,11 @@
  "is_submittable": 1,
  "links": [
   {
-   "link_doctype": "Payment Entry",
-   "link_fieldname": "reference_name"
-  },
-  {
-   "is_child_table": 1,
-   "link_doctype": "Purchase Return Invoices",
-   "link_fieldname": "purchase_invoice",
-   "parent_doctype": "Purchase Return",
-   "table_fieldname": "invoices"
+   "link_doctype": "Purchase Invoice",
+   "link_fieldname": "purchase_receipt"
   }
  ],
- "modified": "2024-08-29 08:22:03.111304",
+ "modified": "2024-08-29 15:39:44.701279",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt",

@@ -1015,6 +1015,32 @@ let create_custom_buttons = function(frm){
 		}, 'Postings');
 		}
 	}
+
+	if(!frm.is_new() && frm.doc.docstatus==1){
+		frm.add_custom_button('Create Material Issue', ()=>{
+			frappe.new_doc("Material Issue",{},(mi)=>{
+				mi.warehouse = frm.doc.warehouse;
+				let net_total = 0;
+				frm.doc.items.forEach((pi_row)=>{
+					let mi_item = frappe.model.add_child(mi, 'items');
+					mi_item.item = pi_row.item;
+					mi_item.item_name = pi_row.item_name;
+					mi_item.display_name = pi_row.display_name;
+					mi_item.qty = pi_row.qty;
+					mi_item.unit = pi_row.unit;
+					mi_item.base_unit = pi_row.base_unit;
+					mi_item.rate = pi_row.rate;
+					mi_item.qty_in_base_unit = pi_row.qty_in_base_unit;
+					mi_item.rate_in_base_unit = pi_row.rate_in_base_unit;
+					mi_item.conversion_factor = pi_row.conversion_factor;
+					mi_item.net_amount = (pi_row.rate * pi_row.qty);
+
+					net_total+=mi_item.net_amount;
+				});
+				mi.net_total = net_total;
+			});
+		},'Actions');
+	}
 }
 
 let general_ledgers = function (frm) {

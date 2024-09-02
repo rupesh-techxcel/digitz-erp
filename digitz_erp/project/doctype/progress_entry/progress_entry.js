@@ -12,21 +12,23 @@ validate(frm){
     }
 },
 setup(frm){
-  let project = localStorage.getItem("current_project");
-  let prev_progress_entry = localStorage.getItem("prev_progress_entry");
+  // let project = localStorage.getItem("current_project");
+  // let prev_progress_entry = localStorage.getItem("prev_progress_entry");
 
-  // localStorage.clear();
-    if(project){
-      frm.set_value("project", project);
-    }
+  // // localStorage.clear();
+  //   if(project){
+  //     frm.set_value("project", project);
+  //   }
 
-    if(prev_progress_entry){
-      frm.set_value('is_prev_progress_exists',1);
-      frm.set_value('previous_progress_entry', prev_progress_entry);
+  //   if(prev_progress_entry){
+  //     frm.set_value('is_prev_progress_exists',1);
+  //     frm.set_value('previous_progress_entry', prev_progress_entry);
 
-      localStorage.removeItem('prev_progress_entry')
-      localStorage.removeItem('current_project')
-    }
+  //     localStorage.removeItem('prev_progress_entry')
+  //     localStorage.removeItem('current_project')
+    // }
+  
+  
 },
 
 // Triggered when the form is refreshed
@@ -44,6 +46,25 @@ refresh(frm) {
             }
         };
     });
+
+    frappe.call(
+      {
+        method: 'frappe.client.get_value',
+        args: {
+          'doctype': 'Tax',
+          'filters': { 'tax_name': r.message.tax },
+          'fieldname': ['tax_name', 'tax_rate']
+        },
+        callback: (r2) => {
+  
+          for(row in frm.doc.progress_entry_items){
+  
+            row.tax = r2.message.tax_name;
+            row.tax_rate = r2.message.tax_rate
+          }
+        }
+  
+      })
     // Optionally, add custom buttons or actions here if needed
   },
   project(frm){
@@ -301,8 +322,7 @@ frappe.ui.form.on("Progress Entry Items", {
         callback(r){
             row.tax = r.message
 
-        frappe.call(
-          {
+        frappe.call({
           method: 'frappe.client.get_value',
           args: {
             'doctype': 'Tax',
@@ -313,7 +333,7 @@ frappe.ui.form.on("Progress Entry Items", {
             row.tax_rate = r2.message.tax_rate;
             frm.refresh_fields("progress_entry_items");
           }
-          });
+        });
 
         }
       }
@@ -343,6 +363,33 @@ frappe.ui.form.on("Progress Entry Items", {
   total_completion(frm,cdt,cdn){
     let row = frappe.get_doc(cdt, cdn);
     console.log(row);
+
+    if(!row.tax){
+      frappe.call(
+        {
+          method:'digitz_erp.api.settings_api.get_default_tax',
+          async:false,
+          callback(r){
+              row.tax = r.message
+  
+          frappe.call(
+            {
+            method: 'frappe.client.get_value',
+            args: {
+              'doctype': 'Tax',
+              'filters': { 'tax_name': row.tax },
+              'fieldname': ['tax_name', 'tax_rate']
+            },
+            callback: (r2) => {
+              row.tax_rate = r2.message.tax_rate;
+              frm.refresh_fields("progress_entry_items");
+              update_all_amount_of_line_item(frm,cdt,cdn);
+            }
+            });
+  
+          }
+        })
+    }
 
     if (row.total_completion > 100) {
       row.total_completion = 0;

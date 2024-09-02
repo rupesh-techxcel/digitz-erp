@@ -561,6 +561,7 @@
   {
    "fieldname": "item_table",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Item Table",
    "options": "Sales Order New Item Details"
   },
@@ -593,7 +594,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-29 12:49:24.376539",
+ "modified": "2024-09-01 08:19:18.912443",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

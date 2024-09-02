@@ -212,9 +212,17 @@
   {
    "link_doctype": "Warehouse",
    "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Timesheet",
+   "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Task",
+   "link_fieldname": "project"
   }
  ],
- "modified": "2024-08-26 09:09:13.164962",
+ "modified": "2024-08-29 17:04:13.962710",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

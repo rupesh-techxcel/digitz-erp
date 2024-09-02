@@ -429,6 +429,7 @@
   {
    "fieldname": "item_table",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "Item Table",
    "options": "Quotation New Item Details",
    "read_only": 1
@@ -450,7 +451,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-08-08 11:54:30.444290",
+ "modified": "2024-08-31 08:01:23.256297",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

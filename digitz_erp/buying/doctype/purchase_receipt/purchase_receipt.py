@@ -54,7 +54,7 @@ def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 	purchase_invoice.terms_and_conditions = purchase_doc.terms_and_conditions
 	#print("purchase_receipt")
 	#print(purchase_receipt)
-	# purchase_invoice.purchase_receipt = purchase_receipt
+	purchase_invoice.purchase_receipt = purchase_receipt
 	purchase_invoice.purchase_order = purchase_doc.purchase_order
 
 	# pending_item_exists = False

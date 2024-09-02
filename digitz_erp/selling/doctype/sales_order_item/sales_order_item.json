@@ -12,6 +12,7 @@
   "item",
   "item_name",
   "display_name",
+  "item_group",
   "qty",
   "unit",
   "rate",
@@ -154,10 +155,11 @@
    "read_only": 1
   },
   {
+   "fetch_from": "item.description",
    "fieldname": "display_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Display Name"
+   "label": "Display Name (Description)"
   },
   {
    "default": "0",
@@ -167,6 +169,7 @@
    "read_only": 1
   },
   {
+   "fetch_from": "item.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "label": "Item Name"
@@ -195,12 +198,19 @@
    "fieldname": "lumpsum_amount",
    "fieldtype": "Check",
    "label": "Lumpsum Amount"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-08 11:57:57.590844",
+ "modified": "2024-08-31 13:11:45.551007",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order Item",
