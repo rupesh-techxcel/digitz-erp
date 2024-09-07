@@ -10,7 +10,8 @@
  "field_order": [
   "item_group_name",
   "parent_group",
-  "image"
+  "image",
+  "description"
  ],
  "fields": [
   {
@@ -29,12 +30,17 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "label": "Image"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-21 06:25:42.247201",
+ "modified": "2024-09-05 09:48:04.152860",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Group",

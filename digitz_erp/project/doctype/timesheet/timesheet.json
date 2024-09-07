@@ -17,15 +17,17 @@
   "column_break_3",
   "status",
   "parent_project",
+  "start_date",
+  "end_date",
   "employee_detail",
   "employee",
   "employee_name",
   "department",
   "column_break_9",
   "user",
-  "start_date",
-  "end_date",
   "section_break_5",
+  "planning_id",
+  "planning",
   "timesheet_tasks",
   "working_hours",
   "total_hours",
@@ -124,6 +126,7 @@
   {
    "fieldname": "employee_detail",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Employee Detail"
   },
   {
@@ -184,9 +187,9 @@
   {
    "fieldname": "timesheet_tasks",
    "fieldtype": "Table",
+   "hidden": 1,
    "label": "TimeSheet Tasks",
-   "options": "Timesheet Task",
-   "reqd": 1
+   "options": "Timesheet Task"
   },
   {
    "fieldname": "working_hours",
@@ -315,13 +318,25 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "planning_id",
+   "fieldtype": "Link",
+   "label": "Planning ID",
+   "options": "Planning"
+  },
+  {
+   "fieldname": "planning",
+   "fieldtype": "Table",
+   "label": "Planning",
+   "options": "PlanningChildDC"
   }
  ],
  "icon": "fa fa-clock-o",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-08-29 16:43:24.354230",
+ "modified": "2024-09-06 13:25:36.713646",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Timesheet",

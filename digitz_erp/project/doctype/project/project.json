@@ -220,9 +220,13 @@
   {
    "link_doctype": "Task",
    "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Planning",
+   "link_fieldname": "project"
   }
  ],
- "modified": "2024-08-29 17:04:13.962710",
+ "modified": "2024-09-06 13:20:52.246421",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",
