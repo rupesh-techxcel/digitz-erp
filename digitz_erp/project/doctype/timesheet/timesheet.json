@@ -19,6 +19,7 @@
   "parent_project",
   "start_date",
   "end_date",
+  "shift",
   "employee_detail",
   "employee",
   "employee_name",
@@ -170,6 +171,7 @@
    "default": "Today",
    "fieldname": "start_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Start Date",
    "print_hide": 1
@@ -177,6 +179,7 @@
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "End Date",
    "print_hide": 1
   },
@@ -330,13 +333,19 @@
    "fieldtype": "Table",
    "label": "Planning",
    "options": "PlanningChildDC"
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "label": "Shift",
+   "options": "Shift"
   }
  ],
  "icon": "fa fa-clock-o",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-09-06 13:25:36.713646",
+ "modified": "2024-09-09 18:57:27.736569",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Timesheet",

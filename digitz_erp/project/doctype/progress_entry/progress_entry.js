@@ -1,6 +1,7 @@
 // Copyright (c) 2024, Rupesh P and contributors
 // For license information, please see license.txt
 frappe.ui.form.on("Progress Entry", {
+
   // Triggered after the form is loaded
 //   onload(frm) {
 //     // Set up custom handlers after the form is fully loaded
@@ -33,6 +34,10 @@ setup(frm){
 
 // Triggered when the form is refreshed
 refresh(frm) {
+      frm.fields_dict['progress_entry_items'].grid.grid_rows.forEach(function(row) {
+          update_total_completion_readonly(frm, row.doc);
+      });
+
     if(frm.is_new()){
         get_default_company_and_warehouse(frm)
     }
@@ -310,6 +315,10 @@ function update_table_and_total(frm,r){
 
 
 frappe.ui.form.on("Progress Entry Items", {
+  prev_completion: function(frm, cdt, cdn) {
+    var row = locals[cdt][cdn];
+    update_total_completion_readonly(frm, row);
+  },
 
   progress_entry_items_add(frm,cdt,cdn){
     let row = frappe.get_doc(cdt,cdn);
@@ -540,4 +549,20 @@ function update_total_amounts(frm){
   frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
   frm.set_value('net_total', net_total);
+}
+
+
+
+
+
+
+function update_total_completion_readonly(frm, row) {
+  if (row.prev_completion === 100) {
+      frm.set_df_property('progress_entry_items', 'total_completion', 'read_only', 1, row.name);
+      if (row.total_completion !== 100) {
+          frappe.model.set_value(row.doctype, row.name, 'total_completion', 100);
+      }
+  } else {
+      frm.set_df_property('progress_entry_items', 'total_completion', 'read_only', 0, row.name);
+  }
 }

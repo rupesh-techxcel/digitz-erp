@@ -29,6 +29,9 @@ frappe.ui.form.on("Timesheet", {
 frappe.ui.form.on('Timesheet', {
     refresh: function(frm) {
         toggle_planning_table(frm);
+        frm.add_custom_button(('Mark Attendance'), function(){
+            mark_attendance_automatically(frm);
+        })
     },
     planning_id: function(frm) {
         toggle_planning_table(frm);
@@ -50,6 +53,7 @@ frappe.ui.form.on('Timesheet', {
                             planning.table_mjoz.forEach(function(plan) {
                                 let row = frm.add_child('planning');
                                 row.employee = plan.employee;
+                                row.shift= plan.shift;
                                 row.start_time = plan.start_time;
                                 row.end_time = plan.end_time;
                                 row.task= plan.task;
@@ -80,12 +84,87 @@ frappe.ui.form.on('Timesheet', {
 function toggle_planning_table(frm) {
     if (!frm.doc.planning_id) {
         frm.get_field('planning').grid.wrapper.hide();
-        console.log("Planning table hidden");
     } else {
         frm.get_field('planning').grid.wrapper.show();
-        console.log("Planning table shown");
     }
     frm.refresh_field('planning');
 }
 
 
+function mark_attendance_automatically(frm){
+    all_rows(frm)
+}
+
+// function all_rows(frm){
+//     frm.doc.planning.forEach(function(row){
+//         frappe.call({
+//             method:'digitz_erp.project.doctype.timesheet.timesheet.create_Attendance',
+//             args:{
+//                 employee:row.employee,
+//                 shift: frm.doc.shift
+//             },
+//             callback: function(r){
+//                 if(r.message){
+//                     frappe.msgprint("Done")
+//                 }
+//             }
+//         })
+//         // frappe.new_doc('Attendance',{
+//         //     employee: row.employee,
+//         //     shift: frm.doc.shift,
+//         // });
+//     })
+// }
+function all_rows(frm) {
+    frm.doc.planning.forEach(function(row) {
+      if (row.employee) {
+        if (row.is_present) {
+          frappe.call({
+            method: "frappe.desk.form.save.savedocs",
+            args: {
+              doc: {
+                doctype: "Attendance",
+                employee: row.employee,
+                shift: frm.doc.shift,
+                attendance_status: "Present",
+                attendance_start_time: row.start_time,
+                attendance_end_time:row.end_time,
+              },
+              action: "Submit"
+            },
+            callback: function(r) {
+              if (!r.exc) {
+                console.log('Attendance submitted for employee:', row.employee);
+              } else {
+                console.error('Failed to submit attendance for employee:', row.employee);
+              }
+            }
+          });
+        } else {
+          frappe.call({
+            method: "frappe.desk.form.save.savedocs",
+            args: {
+              doc: {
+                doctype: "Attendance",
+                employee: row.employee,
+                shift: frm.doc.shift,
+                attendance_start_time: frappe.datetime.now_time(),
+                attendance_end_time:frappe.datetime.now_time(),
+                attendance_status: "Absent"
+              },
+              action: "Save"
+            },
+            callback: function(r) {
+              if (!r.exc) {
+                console.log('Attendance submitted for employee:', row.employee);
+              } else {
+                console.error('Failed to submit attendance for employee:', row.employee);
+              }
+            }
+          });
+        }
+      } else {
+        console.error('Employee field is missing for a row in the planning table.');
+      }
+    });
+  }
