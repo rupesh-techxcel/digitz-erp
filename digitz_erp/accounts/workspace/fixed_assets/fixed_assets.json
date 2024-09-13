@@ -108,6 +108,7 @@
    "link_to": "Asset Depreciation Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Asset Depreciation Schedule",
    "type": "Link"
   },
   {
@@ -118,10 +119,11 @@
    "link_to": "Asset Book Value Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Asset",
    "type": "Link"
   }
  ],
- "modified": "2024-04-10 18:24:34.897437",
+ "modified": "2024-09-13 15:31:04.044676",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Fixed Assets",
@@ -152,7 +154,7 @@
   }
  ],
  "roles": [],
- "sequence_id": 10.0,
+ "sequence_id": 12.0,
  "shortcuts": [],
  "title": "Fixed Assets"
 }

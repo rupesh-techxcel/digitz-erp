@@ -108,6 +108,7 @@
    "link_to": "Sales Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
    "type": "Link"
   },
   {
@@ -118,6 +119,7 @@
    "link_to": "Sales Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
    "type": "Link"
   },
   {
@@ -128,6 +130,7 @@
    "link_to": "Sales Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
    "type": "Link"
   },
   {
@@ -138,6 +141,7 @@
    "link_to": "Delivery Note Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Delivery Note",
    "type": "Link"
   },
   {
@@ -148,6 +152,7 @@
    "link_to": "Delivery Note Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Delivery Note",
    "type": "Link"
   },
   {
@@ -158,6 +163,7 @@
    "link_to": "Delivery Note Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Delivery Note",
    "type": "Link"
   },
   {
@@ -168,6 +174,7 @@
    "link_to": "Sales Return Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Return",
    "type": "Link"
   },
   {
@@ -178,6 +185,7 @@
    "link_to": "Sales Return Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
    "type": "Link"
   },
   {
@@ -188,6 +196,7 @@
    "link_to": "Sales Return Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Return",
    "type": "Link"
   },
   {
@@ -207,6 +216,7 @@
    "link_to": "Quotation Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Quotation",
    "type": "Link"
   },
   {
@@ -217,6 +227,7 @@
    "link_to": "Quotation Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Quotation",
    "type": "Link"
   },
   {
@@ -227,6 +238,7 @@
    "link_to": "Quotation Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Quotation",
    "type": "Link"
   },
   {
@@ -237,6 +249,7 @@
    "link_to": "Sales Order Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Order",
    "type": "Link"
   },
   {
@@ -247,6 +260,7 @@
    "link_to": "Sales Order Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Order",
    "type": "Link"
   },
   {
@@ -257,6 +271,7 @@
    "link_to": "Sales Order Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Order",
    "type": "Link"
   },
   {
@@ -267,10 +282,11 @@
    "link_to": "Customer Transaction Ageing Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Customer",
    "type": "Link"
   }
  ],
- "modified": "2024-04-10 12:53:41.619603",
+ "modified": "2024-09-13 15:31:03.010973",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -280,7 +296,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 4.0,
+ "sequence_id": 5.0,
  "shortcuts": [
   {
    "color": "Grey",

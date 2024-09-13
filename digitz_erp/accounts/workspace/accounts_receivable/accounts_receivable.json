@@ -17,7 +17,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Outstanding Reports",
-   "link_count": 1,
+   "link_count": 2,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -30,10 +30,22 @@
    "link_to": "Customer Statement Of Account",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Transaction Ageing Report",
+   "link_count": 0,
+   "link_to": "Customer Transaction Ageing Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Customer",
    "type": "Link"
   }
  ],
- "modified": "2024-04-10 12:53:41.897417",
+ "modified": "2024-09-13 15:31:03.667013",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Receivable",
@@ -49,7 +61,7 @@
   }
  ],
  "roles": [],
- "sequence_id": 7.0,
+ "sequence_id": 8.0,
  "shortcuts": [
   {
    "color": "Grey",

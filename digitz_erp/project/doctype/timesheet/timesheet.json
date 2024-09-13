@@ -17,6 +17,7 @@
   "column_break_3",
   "status",
   "parent_project",
+  "service",
   "start_date",
   "end_date",
   "shift",
@@ -339,13 +340,22 @@
    "fieldtype": "Link",
    "label": "Shift",
    "options": "Shift"
+  },
+  {
+   "fetch_from": "parent_project.service",
+   "fieldname": "service",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Service",
+   "options": "Project",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-clock-o",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-09-09 18:57:27.736569",
+ "modified": "2024-09-12 12:13:36.971356",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Timesheet",

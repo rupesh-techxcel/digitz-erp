@@ -39,6 +39,7 @@
    "link_to": "Purchase Order Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Order",
    "type": "Link"
   },
   {
@@ -49,6 +50,7 @@
    "link_to": "Purchase Order Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Order",
    "type": "Link"
   },
   {
@@ -59,6 +61,7 @@
    "link_to": "Purchase Order Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Order",
    "type": "Link"
   },
   {
@@ -127,6 +130,7 @@
    "link_to": "Purchase Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Link"
   },
   {
@@ -137,6 +141,7 @@
    "link_to": "Purchase Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Link"
   },
   {
@@ -147,6 +152,7 @@
    "link_to": "Purchase Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Link"
   },
   {
@@ -157,6 +163,7 @@
    "link_to": "Purchase Return Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Return",
    "type": "Link"
   },
   {
@@ -167,6 +174,7 @@
    "link_to": "Purchase Return Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Return",
    "type": "Link"
   },
   {
@@ -177,10 +185,11 @@
    "link_to": "Purchase Return Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Return",
    "type": "Link"
   }
  ],
- "modified": "2024-04-10 12:53:41.512223",
+ "modified": "2024-09-13 15:31:02.808996",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Buying",

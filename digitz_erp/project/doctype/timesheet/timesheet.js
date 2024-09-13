@@ -3,7 +3,15 @@
 
 frappe.ui.form.on("Timesheet", {
 	refresh(frm) {
-        
+    frm.set_query("task", "planning", function (doc, cdt, cdn) {
+      var d = locals[cdt][cdn]
+
+      return {
+          "filters": {
+              "service": frm.doc.service || ""
+          }
+      }
+  })
 	},
     onload(frm){
         if(frm.is_new())
@@ -31,7 +39,7 @@ frappe.ui.form.on('Timesheet', {
         toggle_planning_table(frm);
         frm.add_custom_button(('Mark Attendance'), function(){
             mark_attendance_automatically(frm);
-        })
+        });
     },
     planning_id: function(frm) {
         toggle_planning_table(frm);
@@ -77,18 +85,21 @@ frappe.ui.form.on('Timesheet', {
             });
         } else {
             console.log("Planning ID cleared");
+            frm.clear_table('planning');
+            frm.refresh_field('planning');
         }
     }
 });
 
 function toggle_planning_table(frm) {
-    if (!frm.doc.planning_id) {
-        frm.get_field('planning').grid.wrapper.hide();
-    } else {
-        frm.get_field('planning').grid.wrapper.show();
-    }
-    frm.refresh_field('planning');
+  if (frm.doc.planning_id) {
+      frm.get_field('planning').grid.wrapper.show();
+  } else {
+      frm.get_field('planning').grid.wrapper.show();
+  }
+  frm.refresh_field('planning');
 }
+
 
 
 function mark_attendance_automatically(frm){

@@ -12,6 +12,7 @@
   "type",
   "is_group",
   "is_template",
+  "service",
   "column_break0",
   "status",
   "priority",
@@ -69,6 +70,7 @@
    "bold": 1,
    "fieldname": "project",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_global_search": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -378,13 +380,19 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Template Task"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Link",
+   "label": "Service",
+   "options": "Service"
   }
  ],
  "icon": "fa fa-check",
  "is_tree": 1,
  "links": [],
  "max_attachments": 5,
- "modified": "2024-08-29 17:06:24.590943",
+ "modified": "2024-09-12 12:17:03.133815",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Task",

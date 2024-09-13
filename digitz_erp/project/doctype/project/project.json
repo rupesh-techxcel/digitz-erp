@@ -14,6 +14,7 @@
   "expected_start_date",
   "expected_end_date",
   "priority",
+  "service",
   "customer_details_section",
   "customer",
   "sales_order",
@@ -197,6 +198,12 @@
    "fieldname": "section_break_snci",
    "fieldtype": "Section Break",
    "label": "Progress Details Section"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Link",
+   "label": "Service",
+   "options": "Service"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -226,7 +233,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-09-06 13:20:52.246421",
+ "modified": "2024-09-11 13:43:30.689419",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

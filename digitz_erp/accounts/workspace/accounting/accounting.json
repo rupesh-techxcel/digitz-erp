@@ -35,6 +35,7 @@
    "link_to": "Chart Of Accounts",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Account",
    "type": "Link"
   },
   {
@@ -222,6 +223,7 @@
    "link_to": "Trial Balance",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -232,6 +234,7 @@
    "link_to": "Profit and Loss Statement",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -242,6 +245,7 @@
    "link_to": "Balance Sheet",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -252,6 +256,7 @@
    "link_to": "Cash Flow Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -262,6 +267,7 @@
    "link_to": "General Ledger Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -272,6 +278,7 @@
    "link_to": "Account Ledger Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -282,6 +289,7 @@
    "link_to": "Account Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "GL Posting",
    "type": "Link"
   },
   {
@@ -301,6 +309,7 @@
    "link_to": "Customer Statement Of Account",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
    "type": "Link"
   },
   {
@@ -311,6 +320,7 @@
    "link_to": "Supplier Statement Of Account",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Link"
   },
   {
@@ -321,6 +331,7 @@
    "link_to": "Consolidated Tax Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Sales Invoice",
    "type": "Link"
   },
   {
@@ -331,6 +342,7 @@
    "link_to": "Payment Allocation Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Payment Entry",
    "type": "Link"
   },
   {
@@ -341,6 +353,7 @@
    "link_to": "Receipt Allocation Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Receipt Entry",
    "type": "Link"
   },
   {
@@ -351,6 +364,7 @@
    "link_to": "Payment Schedule Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Payment Schedule",
    "type": "Link"
   },
   {
@@ -361,10 +375,11 @@
    "link_to": "Receipt Schedule Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Receipt Schedule",
    "type": "Link"
   }
  ],
- "modified": "2024-04-29 16:30:26.310667",
+ "modified": "2024-09-13 15:31:03.204194",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
@@ -374,7 +389,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 5.0,
+ "sequence_id": 6.0,
  "shortcuts": [],
  "title": "Accounting"
 }
