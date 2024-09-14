@@ -248,6 +248,7 @@ function fetch_sales_order_items(frm) {
 
 function update_table_and_total(frm,r){
     r.message.progress_entry_items.forEach(function (item) {
+      if (item.prev_completion != 100) {
         // Create a new row in Progress Entry Items table
         const row = frm.add_child("progress_entry_items");
 
@@ -295,10 +296,14 @@ function update_table_and_total(frm,r){
 
         // Optionally, adjust fields if necessary
         // row.custom_field = item.custom_field || default_value;
+      }
       });
 
-      frm.doc.average_of_completion = r.message.average_of_completion;
-
+      frm.doc.average_of_completion = r.message.average_of_completion
+      if ( frm.doc.average_of_completion == 100)
+      {
+      frappe.msgprint("The Average Completion is Already 100%");
+      }
       // frm.doc.gross_total = r.message.gross_total;
       // frm.doc.tax_total = r.message.tax_total;
       // frm.doc.net_total = r.message.net_total;
