@@ -248,7 +248,7 @@ function fetch_sales_order_items(frm) {
 
 function update_table_and_total(frm,r){
     r.message.progress_entry_items.forEach(function (item) {
-      if (item.prev_completion != 100) {
+      if (item.total_completion != 100) {
         // Create a new row in Progress Entry Items table
         const row = frm.add_child("progress_entry_items");
 
