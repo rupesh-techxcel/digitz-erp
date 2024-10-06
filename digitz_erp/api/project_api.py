@@ -28,7 +28,7 @@ def check_project_for_so(so_id):
     else:
         #print("No Project found for this Purchase Order.")
         so = frappe.get_doc("Sales Order", so_id)
-        quotation = frappe.get_doc("Quotation", so.quotation_id)
+        quotation = frappe.get_doc("Quotation", so.quotation)
         project_name = ""
         if(quotation and quotation.custom_estimation_id):
             estimation = frappe.get_doc("Estimation", quotation.custom_estimation_id)

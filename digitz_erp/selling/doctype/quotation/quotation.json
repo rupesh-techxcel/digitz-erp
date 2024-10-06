@@ -32,6 +32,10 @@
   "salesman_code",
   "column_break_giic",
   "company",
+  "project_name",
+  "project_short_name",
+  "enquiry",
+  "based_on",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -69,6 +73,7 @@
   "terms_and_conditions",
   "tab_break_50",
   "data_53",
+  "boq",
   "address_line_1",
   "address_line_2",
   "area_name",
@@ -433,6 +438,39 @@
    "label": "Item Table",
    "options": "Quotation New Item Details",
    "read_only": 1
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.based_on==\"Enquiry\"",
+   "fieldname": "enquiry",
+   "fieldtype": "Link",
+   "label": "Enquiry",
+   "mandatory_depends_on": "eval:doc.based_on==\"Enquiry\"",
+   "options": "Enquiry"
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Link",
+   "label": "BOQ",
+   "options": "BOQ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "based_on",
+   "fieldtype": "Select",
+   "label": "Based On",
+   "options": "Enquiry\nOther",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -451,7 +489,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-08-31 08:01:23.256297",
+ "modified": "2024-10-06 10:37:51.651007",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

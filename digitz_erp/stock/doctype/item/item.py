@@ -9,13 +9,23 @@ from digitz_erp.api.item_price_api import update_item_price
 from frappe import _
 
 class Item(Document):
-
+    	
 	def validate(self):
-		if self.is_new():
-			return
-		if self.base_unit != frappe.db.get_value("Item", self.item_code, "base_unit"):
-			self.check_stock_ledgers_for_base_unit_change()
+     
+		if not self.is_new():
+			if self.base_unit != frappe.db.get_value("Item", self.item_code, "base_unit"):
+				self.check_stock_ledgers_for_base_unit_change()
+   
+   
+		default_company = frappe.db.get_single_value(
+			"Global Settings", "default_company")
+  
+		company_default = frappe.get_value("Company", default_company, ['default_product_expense_account'], as_dict=1)
 
+		if not company_default.default_product_expense_account:
+			frappe.throw("'Default Product Expense Account' is not configured for the company.")
+       
+   
 	def check_stock_ledgers_for_base_unit_change(self):
 		base_unit = self.base_unit
 		existing_stock_ledgers = frappe.db.get_all("Stock Ledger", filters={"item": self.item_code}, fields=["name", "unit"])
@@ -27,6 +37,10 @@ class Item(Document):
 		
 		if not self.description:
 			self.description = self.item_name
+   
+		if self.item_type == "Fixed Asset" and self.maintain_stock:
+			self.maintain_stock = False
+			frappe.msgprint("Maintaining stock for fixed assets is not applicable. It has been set to false.",alert=True)
 
 
 	def update_standard_selling_price(self):

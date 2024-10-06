@@ -1,27 +1,30 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{type}",
- "creation": "2024-08-14 12:03:05.079092",
+ "autoname": "field:territory_name",
+ "creation": "2024-10-05 20:29:15.453597",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "type"
+  "territory_name"
  ],
  "fields": [
   {
-   "fieldname": "type",
+   "fieldname": "territory_name",
    "fieldtype": "Data",
-   "label": "Type"
+   "in_list_view": 1,
+   "label": "Name",
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-14 12:05:52.494933",
+ "modified": "2024-10-05 20:31:38.927807",
  "modified_by": "Administrator",
- "module": "Project",
- "name": "Budget Type",
- "naming_rule": "Expression",
+ "module": "Digitz ERP",
+ "name": "Territory",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

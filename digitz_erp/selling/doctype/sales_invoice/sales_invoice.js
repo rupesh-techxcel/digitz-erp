@@ -1333,51 +1333,51 @@ frappe.ui.form.on("Sales Invoice",{
     refresh(frm){
         // frm.set_df_property('custom_item_table', 'hidden', 1);
 
-        frm.add_custom_button(__('Allocate'), function() {
-            // Define the dialog
-            let d = new frappe.ui.Dialog({
-                title: 'Allocate Receipt Entry',
-                fields: [
-                    {
-                        label: 'Receipt Entry',
-                        fieldname: 'receipt_entry',
-                        fieldtype: 'Link',
-                        options: 'Receipt Entry',
-                        get_query: function() {
-                            return {
-                                filters: [
-                                    ['advance_payment', '=', 1],
-                                    ['project', '=', frm.doc.project],
-                                    ['customer', '=', frm.doc.customer]
-                                ]
-                            };
-                        }
-                    }
-                ],
-                primary_action: function(data) {
-                    console.log('Selected Receipt Entry:', data.receipt_entry);
+        // frm.add_custom_button(__('Allocate'), function() {
+        //     // Define the dialog
+        //     let d = new frappe.ui.Dialog({
+        //         title: 'Allocate Receipt Entry',
+        //         fields: [
+        //             {
+        //                 label: 'Receipt Entry',
+        //                 fieldname: 'receipt_entry',
+        //                 fieldtype: 'Link',
+        //                 options: 'Receipt Entry',
+        //                 get_query: function() {
+        //                     return {
+        //                         filters: [
+        //                             ['advance_payment', '=', 1],
+        //                             ['project', '=', frm.doc.project],
+        //                             ['customer', '=', frm.doc.customer]
+        //                         ]
+        //                     };
+        //                 }
+        //             }
+        //         ],
+        //         primary_action: function(data) {
+        //             console.log('Selected Receipt Entry:', data.receipt_entry);
 
-                    frappe.call({
-                        method: 'digitz_erp.accounts.doctype.receipt_entry.receipt_entry.receipt_allocation_updates',
-                        args:{
-                            receipt_entry_id: data.receipt_entry,
-                            sales_inv_id: frm.doc.name
-                        },
-                        callback: function(response){
-                            if(response.message){
+        //             frappe.call({
+        //                 method: 'digitz_erp.accounts.doctype.receipt_entry.receipt_entry.receipt_allocation_updates',
+        //                 args:{
+        //                     receipt_entry_id: data.receipt_entry,
+        //                     sales_inv_id: frm.doc.name
+        //                 },
+        //                 callback: function(response){
+        //                     if(response.message){
 
-                            }
-                        }
-                    })
+        //                     }
+        //                 }
+        //             })
 
-                    d.hide();
-                },
-                primary_action_label: __('Allocate')
-            });
+        //             d.hide();
+        //         },
+        //         primary_action_label: __('Allocate')
+        //     });
 
-            // Show the dialog
-            d.show();
-        });
+        //     // Show the dialog
+        //     d.show();
+        // });
     },
     make_taxes_and_totals(frm){
 		if(frm.doc.project){

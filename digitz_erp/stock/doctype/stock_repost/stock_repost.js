@@ -8,9 +8,6 @@ frappe.ui.form.on("Stock Repost", {
             frm.call("stock_repost")
         });
 
-        // frm.add_custom_button('GL Repost', () => {
-        //     frm.call("do_repost")
-        // });
 
 	},
 });

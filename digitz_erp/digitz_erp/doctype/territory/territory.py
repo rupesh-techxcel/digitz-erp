@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProjectBudgetItemTable(Document):
+class Territory(Document):
 	pass

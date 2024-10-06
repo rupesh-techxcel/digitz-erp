@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProjectBudget(Document):
+class Prospect(Document):
 	pass

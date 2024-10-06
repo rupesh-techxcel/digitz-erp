@@ -267,8 +267,7 @@ def generate_sales_order(quotation):
 	sales_order['posting_date'] = quotation_doc.posting_date
 	sales_order['posting_time'] = quotation_doc.posting_time
 	sales_order["quotation"] = quotation_doc.name
-	sales_order["quotation_id"] = quotation
-
+	
 	sales_order['docstatus'] = 0
 
 	for item in sales_order['items']:

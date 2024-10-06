@@ -34,7 +34,6 @@
   "lpo_no",
   "order_status",
   "default_cost_center",
-  "quotation_id",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -552,13 +551,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "quotation_id",
-   "fieldtype": "Link",
-   "label": "Quotation ID",
-   "options": "Quotation",
-   "read_only": 1
-  },
-  {
    "fieldname": "item_table",
    "fieldtype": "Table",
    "hidden": 1,
@@ -594,7 +586,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-09-01 08:19:18.912443",
+ "modified": "2024-10-05 20:06:31.819024",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

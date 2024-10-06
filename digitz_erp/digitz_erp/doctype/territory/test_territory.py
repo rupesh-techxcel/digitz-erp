@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestProjectBudget(FrappeTestCase):
+class TestTerritory(FrappeTestCase):
 	pass

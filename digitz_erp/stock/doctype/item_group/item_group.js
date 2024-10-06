@@ -5,4 +5,16 @@ frappe.ui.form.on('Item Group', {
 	// refresh: function(frm) {
 
 	// }
+
+	setup:function(frm)
+	{
+		frm.set_query("default_expense_account", function () {
+			return {
+				"filters": {
+					"root_type":"Expense",
+					"is_group":0
+				}
+			};
+		});
+	}
 });

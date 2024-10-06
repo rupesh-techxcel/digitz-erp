@@ -10,6 +10,7 @@
   "customer_name",
   "customer_group",
   "tax_id",
+  "prospect",
   "section_break_4",
   "salesman",
   "salesman_name",
@@ -253,11 +254,17 @@
    "fieldtype": "Link",
    "label": "Default Currency",
    "options": "Currency"
+  },
+  {
+   "fieldname": "prospect",
+   "fieldtype": "Link",
+   "label": "Prospect",
+   "options": "Prospect"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-29 17:00:02.651860",
+ "modified": "2024-10-05 21:54:15.553242",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

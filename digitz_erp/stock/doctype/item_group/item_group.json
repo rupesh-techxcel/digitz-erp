@@ -10,8 +10,10 @@
  "field_order": [
   "item_group_name",
   "parent_group",
+  "description",
+  "column_break_itzn",
   "image",
-  "description"
+  "default_expense_account"
  ],
  "fields": [
   {
@@ -35,12 +37,22 @@
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "column_break_itzn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_expense_account",
+   "fieldtype": "Link",
+   "label": "Default Expense Account",
+   "options": "Account"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-05 09:48:04.152860",
+ "modified": "2024-10-05 14:49:28.854247",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Group",

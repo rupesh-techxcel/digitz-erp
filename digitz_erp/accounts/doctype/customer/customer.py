@@ -5,7 +5,44 @@ import frappe
 from frappe.model.document import Document
 
 class Customer(Document):
-	pass
+    
+    def update_enquiries_for_prospect(prospect, customer_name):
+        """
+        Update all enquiries with the given prospect to link them to the newly created customer.
+        
+        :param prospect: The prospect field value from the Customer document.
+        :param customer_name: The name of the newly created Customer.
+        """
+        if not prospect:
+            return
+
+        # Fetch all enquiries that belong to the prospect and have lead_type="Prospect"
+        enquiries = frappe.get_all("Enquiry", filters={
+            "prospect": prospect,
+            "lead_type": "Prospect",
+            "customer": ["is", None]  # Ensures only enquiries without a linked customer are updated
+        }, fields=["name"])
+
+        # Update each enquiry's customer field
+        for enquiry in enquiries:
+            enquiry_doc = frappe.get_doc("Enquiry", enquiry.name)
+            enquiry_doc.customer = customer_name
+            enquiry_doc.save()
+
+        # Commit changes to the database
+        frappe.db.commit()
+
+        frappe.msgprint(f"Updated {len(enquiries)} enquiries linked to the prospect '{prospect}' with the customer '{customer_name}'", alert=True)
+    
+    def on_update(self):
+        """
+        on_update hook for the Customer doctype.
+        Calls the method to update enquiries when a customer is created from a prospect.
+        """
+        # Ensure the customer is being created for the first time
+        if self.is_new():
+            # Call the separate method to update enquiries for the prospect
+            update_enquiries_for_prospect(doc.prospect, doc.name)
 
 @frappe.whitelist()
 def merge_customer(current_customer, merge_customer):

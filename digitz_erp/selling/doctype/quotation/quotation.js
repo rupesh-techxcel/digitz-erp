@@ -73,9 +73,6 @@ frappe.ui.form.on('Quotation', {
 					alreadyUsed = false
 				}
 
-				console.log("alreadyused")
-				console.log(alreadyUsed)
-
 				//Have a button to create delivery note in case delivery note is not integrated with SI
 				if (!alreadyUsed) {
 
@@ -178,6 +175,14 @@ frappe.ui.form.on('Quotation', {
 				"filters": {
 					"disabled": 0,
 					"status": ["!=", "On Boarding"]
+				}
+			};
+		});
+
+		frm.set_query("enquiry", function() {
+			return {
+				"filters": {					
+					"customer": frm.doc.customer
 				}
 			};
 		});
