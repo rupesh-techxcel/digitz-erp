@@ -28,6 +28,8 @@
   "warehouse",
   "salesman",
   "salesman_code",
+  "project_name_from_boq",
+  "project_short_name_from_boq",
   "column_break_kscq",
   "company",
   "lpo_date",
@@ -568,6 +570,16 @@
    "fieldtype": "Currency",
    "label": "Net Total",
    "read_only": 1
+  },
+  {
+   "fieldname": "project_name_from_boq",
+   "fieldtype": "Data",
+   "label": "Project Name (from BOQ)"
+  },
+  {
+   "fieldname": "project_short_name_from_boq",
+   "fieldtype": "Data",
+   "label": "Project Short Name (from BOQ)"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -586,7 +598,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-05 20:06:31.819024",
+ "modified": "2024-10-09 15:24:09.298938",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

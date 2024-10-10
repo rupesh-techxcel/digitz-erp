@@ -8,7 +8,7 @@ def execute(filters=None):
     columns = [
         {"fieldname": "name", "label": "Project ID", "fieldtype": "Data", "width": 120},
         {"fieldname": "docstatus", "label": "Docstatus", "fieldtype": "Int", "width": 120},
-        {"fieldname": "name1", "label": "Project Name", "fieldtype": "Data", "width": 120},
+        {"fieldname": "project_name", "label": "Project Name", "fieldtype": "Data", "width": 120},
         {"fieldname": "retentation_percentage", "label": "Retention Percentage", "fieldtype": "Percent", "width": 120},
         {"fieldname": "retentation_amt", "label": "Retention Amount", "fieldtype": "Currency", "width": 120},
         {"fieldname": "expected_start_date", "label": "Expected Start Date", "fieldtype": "Date", "width": 120},
@@ -19,7 +19,7 @@ def execute(filters=None):
         {"fieldname": "priority", "label": "Priority", "fieldtype": "Data", "width": 120},
         {"fieldname": "advance_entry", "label": "Advance Entry", "fieldtype": "Currency", "width": 120},
         {"fieldname": "amount_after_retentation", "label": "Amount After Retention", "fieldtype": "Currency", "width": 120},
-        {"fieldname": "project_stage_defination", "label": "Project Stage Definition", "fieldtype": "Data", "width": 120},
+       
         {"fieldname": "percentage_of_completion", "label": "Percentage of Completion", "fieldtype": "Percent", "width": 120},
         {"fieldname": "proforma_invoice", "label": "Proforma Invoice", "fieldtype": "Data", "width": 120},
         {"fieldname": "sales_invoice", "label": "Sales Invoice", "fieldtype": "Data", "width": 120},
@@ -36,7 +36,7 @@ def execute(filters=None):
         SELECT
             p.name,
             p.docstatus,
-            p.name1,
+            p.project_name,
             p.retentation_percentage,
             p.retentation_amt,
             p.expected_start_date,
@@ -46,8 +46,7 @@ def execute(filters=None):
             p.project_delivery_date,
             p.priority,
             p.advance_entry,
-            p.amount_after_retentation,
-            pst.project_stage_defination,
+            p.amount_after_retentation,            
             pst.percentage_of_completion,
             pst.proforma_invoice,
             pst.sales_invoice,
@@ -123,7 +122,7 @@ def execute(filters=None):
     }
 
     for row in data:
-        chart_data["data"]["labels"].append(row["name1"] or "")
+        chart_data["data"]["labels"].append(row["project_name"] or "")
         chart_data["data"]["datasets"][0]["values"].append(row["percentage_of_completion"] or 0)
         chart_data["data"]["datasets"][1]["values"].append(row["project_amount"] or 0)
 

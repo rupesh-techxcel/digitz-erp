@@ -2,20 +2,20 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Project", {
-    name1(frm) {
+    project_name(frm) {
         frm.set_query("proforma_invoice", "project_stage_table", function (doc, cdt, cdn) {
             var d = locals[cdt][cdn]
 
             return {
                 "filters": {
-                    "project": frm.doc.name1
+                    "project": frm.doc.project_name
                 }
             }
         })
     },
     onload_post_render: function(frm) {
         // Add a custom button to the child table
-        frm.fields_dict['project_stage_table'].grid.add_custom_button('Create PE', function() {
+        frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
             // Custom logic for your button
             // frappe.msgprint('Custom button clicked!');
             if(frm.doc.project_stage_table.length < 1){
@@ -54,6 +54,8 @@ frappe.ui.form.on("Project", {
     refresh(frm) {
         localStorage.setItem("current_project", frm.doc.name)
 
+        refresh_progress_entries(frm);
+
         // if(frm.is_new()){
         //     frm.set_df_property("advance_entry","read_only",1)
         // }else{
@@ -81,7 +83,7 @@ frappe.ui.form.on("Project", {
 
             return {
                 "filters": {
-                    "project": frm.doc.name1
+                    "project": frm.doc.project_name
                 }
             }
         })
@@ -90,7 +92,7 @@ frappe.ui.form.on("Project", {
 
             return {
                 "filters": {
-                    "project": frm.doc.name1,
+                    "project": frm.doc.project_name,
                     "progress_entry": d.progress_entry || ""
                 }
             }
@@ -100,7 +102,7 @@ frappe.ui.form.on("Project", {
 
             return {
                 "filters": {
-                    "project": frm.doc.name1,
+                    "project": frm.doc.project_name,
                     "progress_entry": d.progress_entry || ""
                 }
             }
@@ -333,3 +335,35 @@ function print_msg() {
         indicator: 'red'
     }, 2);
 }
+
+function refresh_progress_entries(frm) {
+    frappe.call({
+        method: 'digitz_erp.api.project_api.get_progress_entries_by_project',
+        args: {
+            project_name: frm.doc.name
+        },
+        callback: function(response) {
+            if (response.message) {
+                console.log(response.message);
+
+                // Clear and refill the progress_stages table
+                frm.clear_table('project_stage_table');  // Use 'frm' instead of 'cur_frm' for consistency
+                response.message.forEach(entry => {
+                    let row = frm.add_child('project_stage_table');
+                    row.progress_entry = entry.name;  // Assuming 'progress_entry' is a link field to 'Progress Entry'
+                    row.posting_date = entry.posting_date,
+                    row.percentage_of_completion = entry.total_completion_percentage,
+                    row.proforma_invoice = entry.proforma_invoice
+                    row.sales_invoice = entry.progressive_sales_invoice
+                    row.net_total = entry.net_total
+                });
+                frm.refresh_field('project_stage_table');
+
+                console.log("frm.doc.project_stage_table")
+                console.log(frm.doc.project_stage_table)
+            }
+        }
+    });
+}
+
+

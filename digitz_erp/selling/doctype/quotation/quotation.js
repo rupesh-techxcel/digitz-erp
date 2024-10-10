@@ -182,7 +182,8 @@ frappe.ui.form.on('Quotation', {
 		frm.set_query("enquiry", function() {
 			return {
 				"filters": {					
-					"customer": frm.doc.customer
+					"customer": frm.doc.customer,
+					"docstatus":1
 				}
 			};
 		});

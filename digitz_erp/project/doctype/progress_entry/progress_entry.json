@@ -57,10 +57,8 @@
   "remarks",
   "column_break_kjrk",
   "section_break_19",
-  "items",
-  "item_table",
   "progress_entry_items",
-  "average_of_completion",
+  "total_completion_percentage",
   "section_break_hgqy",
   "gross_total",
   "column_break_wlra",
@@ -333,22 +331,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "depends_on": "eval: doc.items != undefined || doc.items.length>0",
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Items",
-   "options": "Sales Order Item"
-  },
-  {
-   "depends_on": "eval: doc.item_table != undefined && doc.item_table.length>0 && doc.quotation_id != undefined && doc.quotation_id != \"\"",
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Item Table",
-   "options": "Sales Order New Item Details"
-  },
-  {
    "fieldname": "section_break_29",
    "fieldtype": "Section Break",
    "hidden": 1
@@ -444,7 +426,6 @@
    "fieldtype": "HTML"
   },
   {
-   "depends_on": "eval: (doc.item_table != undefined ) && (doc.item_table.length > 0)",
    "fieldname": "total_details_section",
    "fieldtype": "Section Break",
    "hidden": 1,
@@ -601,6 +582,7 @@
    "search_index": 1
   },
   {
+   "description": "Input the 'Total Completion Percentage' to indicate the most recent progress of the project.",
    "fieldname": "progress_entry_items",
    "fieldtype": "Table",
    "label": "Progress Entry Items",
@@ -622,11 +604,6 @@
    "fieldtype": "Link",
    "label": "Project",
    "options": "Project"
-  },
-  {
-   "fieldname": "average_of_completion",
-   "fieldtype": "Percent",
-   "label": "Average % Of Completion"
   },
   {
    "fieldname": "column_break_zubf",
@@ -705,21 +682,17 @@
    "fieldtype": "Currency",
    "label": "Net Total",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Completion Percentage",
+   "precision": "0"
   }
  ],
  "index_web_pages_for_search": 1,
- "is_submittable": 1,
- "links": [
-  {
-   "link_doctype": "Delivery Note",
-   "link_fieldname": "sales_order"
-  },
-  {
-   "link_doctype": "Sales Invoice",
-   "link_fieldname": "sales_order"
-  }
- ],
- "modified": "2024-08-21 13:06:25.207352",
+ "links": [],
+ "modified": "2024-10-10 08:58:30.942412",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

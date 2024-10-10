@@ -39,7 +39,7 @@ frappe.ui.form.on("Progressive Sales Invoice", {
                         frm.refresh_fields('progress_entry_items');
                     });
 
-                    frm.set_value('average_of_completion', progress_entry.average_of_completion);
+                    frm.set_value('total_completion_percentage', progress_entry.total_completion_percentage);
                     frm.set_value('gross_total', progress_entry.gross_total);
                     frm.set_value('tax_total', progress_entry.tax_total);
                     frm.set_value('net_total', progress_entry.net_total);

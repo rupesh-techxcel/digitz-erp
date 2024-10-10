@@ -255,30 +255,40 @@ def generate_delivery_note(quotation):
 
 @frappe.whitelist()
 def generate_sales_order(quotation):
-		
-	quotation_doc =frappe.get_doc('Quotation',quotation)
+    quotation_doc = frappe.get_doc('Quotation', quotation)
 
-	check_references_created(quotation)
-	sales_order = quotation_doc.__dict__
-	sales_order['doctype'] = 'Sales Order'
-	# delivery_note['against_sales_invoice'] = delivery_note['name']
-	# delivery_note['name'] = delivery_note_name
-	sales_order['naming_series'] = ""
-	sales_order['posting_date'] = quotation_doc.posting_date
-	sales_order['posting_time'] = quotation_doc.posting_time
-	sales_order["quotation"] = quotation_doc.name
-	
-	sales_order['docstatus'] = 0
+    # Function to check if references are already created (assumed to be a custom function)
+    check_references_created(quotation)
 
-	for item in sales_order['items']:
-		item.doctype = "Sales Order Item"
-		item.quotation_item_reference_no = item.name
-		item._meta = ""
+    # Create a copy of the Quotation doc fields into a new Sales Order dictionary
+    sales_order = quotation_doc.as_dict()  # Use as_dict to get a clean dictionary representation
+    sales_order['doctype'] = 'Sales Order'
+    sales_order['naming_series'] = ""
+    sales_order['posting_date'] = quotation_doc.posting_date
+    sales_order['posting_time'] = quotation_doc.posting_time
+    sales_order["quotation"] = quotation_doc.name
 
-	new_so = frappe.get_doc(sales_order).insert()
-	frappe.db.commit()
-	frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
-	#print("new so created")
-	return new_so.name
+    # Handling project fields with fallback to None
+    sales_order['project_name_from_boq'] = quotation_doc.get('project_name', None)
+    sales_order['project_short_name_from_boq'] = quotation_doc.get('project_short_name', None)
+
+    # Set document status to draft
+    sales_order['docstatus'] = 0
+
+    # Adjusting each item in the items list
+    for item in sales_order['items']:
+        item['doctype'] = "Sales Order Item"
+        item['quotation_item_reference_no'] = item['name']
+        item['_meta'] = ""  # Clean meta data
+
+    # Insert the new Sales Order into the database
+    new_so = frappe.get_doc(sales_order).insert()
+    frappe.db.commit()
+
+    # Notify the user about the successful creation
+    frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
+
+    return new_so.name
+
 
 

@@ -5,9 +5,37 @@ frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
 		
 		var pending_items_exists = false
+		
 
-		if(frm.doc.docstatus == 1)
+		if(frm.doc.docstatus == 1 && frm.doc.project_name_from_boq !=undefined)
 		{
+			frappe.call({
+                method: 'digitz_erp.api.sales_order_api.check_project_exists',
+                args: {
+                    sales_order: frm.doc.name
+                },
+                callback: function(r) {
+                    if (!r.message) {
+                        frm.add_custom_button(__('Create Project'), function() {
+                            frappe.call({
+                                method: 'digitz_erp.api.sales_order_api.create_project_from_sales_order',
+                                args: {
+                                    sales_order: frm.doc.name
+                                },
+                                callback: function(r) {
+                                    if (r.message) {
+                                        // Sync the returned project document to load it in the UI
+                                        frappe.model.sync([r.message]);
+                                        // Set the route to the newly created Project
+                                        frappe.set_route("Form", "Project", r.message.name);
+                                    }
+                                }
+                            });
+                        }, __('Create'));
+                    }
+                }
+            });
+
 			frappe.call(
 			{
 				method: 'digitz_erp.api.sales_order_api.check_pending_items_exists',
@@ -67,7 +95,7 @@ frappe.ui.form.on('Sales Order', {
 							}
 						}
 
-					})});
+					})}, __('Create'));
 				}	
 
 				if (allow_sales_invoice_creation== true)
@@ -86,7 +114,7 @@ frappe.ui.form.on('Sales Order', {
 							}
 						}
 	
-					})});
+					})}, __('Create'));
 				}
 				
 			}
@@ -111,87 +139,6 @@ frappe.ui.form.on('Sales Order', {
 				});
 			} );
 		}
-
-
-		if(frm.doc.docstatus==1){
-
-			frappe.call({
-				method: "digitz_erp.api.project_api.check_project_for_so",
-				async: false,
-				args: {
-				  so_id: frm.doc.name,
-				},
-				callback(r) {
-				  console.log("Project Exists message");
-				  console.log(r);
-		
-				  let create_pro = false;
-		
-				  if (r.message.is_exists == false) {
-					create_pro = true;
-				  }
-				  
-				  if (create_pro) {
-					frm.add_custom_button(__('Create Project'), function() {
-						frappe.new_doc("Project", {
-								"name1": r.message.project_name,
-								"customer":frm.doc.customer,
-								"project_amount": frm.doc.net_amount,
-								"sales_order":frm.doc.name
-							});
-							
-						},__("Project Actions"));
-				  }
-				},
-			  });
-		
-
-            
-
-            frm.add_custom_button(__('Show Created Project'), function() {
-                // Redirect to BOQ list view with filters applied
-                frappe.set_route('List', 'Project', {'sales_order' : frm.doc.name} );
-            },__("Project Actions"));
-
-			frm.add_custom_button(__("Create Progress Entry"), function(){
-				frappe.db.get_value('Project', {'sales_order': frm.doc.name}, 'name').then(r =>{
-					console.log("r",r)
-				frappe.new_doc("Progress Entry",{}, pe =>{
-					pe.customer = frm.doc.customer;
-					pe.company = frm.doc.company;
-					pe.project = r.message.name;
-					pe.warehouse = frm.doc.warehouse;
-					pe.sales_order_id = frm.doc.name;
-
-					frm.doc.items.forEach(item =>{
-						let row =  frappe.model.add_child(pe, 'progress_entry_items');
-
-						for(i in item){
-							row[i] = item[i]
-						}
-						
-					})
-
-					// pe.gross_total = frm.doc.gross_total;
-					// pe.net_total = frm.doc.net_total;
-					// pe.tax_total = frm.doc.tax_total;
-
-					// pe.total_discount_in_line_items = frm.doc.total_discount_in_line_items;
-					// pe.additional_discount = frm.doc.additional_discount;
-					// pe.rounded_total = frm.doc.rounded_total;
-					// pe.in_words = frm.doc.in_words;
-					// let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${pe.net_total}</div>`;
-					// pe.total_big = displayHtml;
-				})
-			})
-			},__("Progress Entry"));
-			
-
-			
-			frm.add_custom_button(__("Show Created Progress Entry"), function(){
-				frappe.set_route('List', 'Progress Entry', { 'sales_order_id': frm.doc.name });
-			},__("Progress Entry"));
-        }
 
 		update_total_big_display(frm);
 	},

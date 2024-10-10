@@ -1,30 +1,33 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:name1",
+ "autoname": "field:project_name",
  "creation": "2024-07-01 14:50:14.136177",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "name1",
+  "project_name",
+  "project_short_name",
   "project_type",
-  "project_delivery_date",
-  "status",
   "column_break_juec",
   "expected_start_date",
   "expected_end_date",
+  "column_break_llof",
   "priority",
   "service",
+  "column_break_chgg",
+  "project_delivery_date",
+  "status",
   "customer_details_section",
   "customer",
   "sales_order",
   "column_break_nzbm",
   "advance_entry",
   "advance_amount",
-  "section_break_pgei",
+  "column_break_wszi",
   "retentation_percentage",
   "retentation_amt",
-  "column_break_tlzb",
+  "column_break_nqui",
   "amount_after_retentation",
   "project_amount",
   "section_break_updt",
@@ -38,14 +41,6 @@
  ],
  "fields": [
   {
-   "fieldname": "name1",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Project Name",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
    "fieldname": "project_delivery_date",
    "fieldtype": "Date",
    "label": "Project Delivery Date"
@@ -53,6 +48,7 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
    "options": "\nOpen\nCompleted\nCancelled"
   },
@@ -64,12 +60,14 @@
    "bold": 1,
    "fieldname": "expected_start_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Expected Start Date"
   },
   {
    "bold": 1,
    "fieldname": "expected_end_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Expected End Date"
   },
   {
@@ -81,7 +79,7 @@
   {
    "fieldname": "customer_details_section",
    "fieldtype": "Section Break",
-   "label": "Customer Details"
+   "label": "Details"
   },
   {
    "fieldname": "customer",
@@ -106,10 +104,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_pgei",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "retentation_percentage",
    "fieldtype": "Percent",
    "label": "Retentation Percentage",
@@ -121,10 +115,6 @@
    "label": "Retentation Amount",
    "non_negative": 1,
    "precision": "2"
-  },
-  {
-   "fieldname": "column_break_tlzb",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "amount_after_retentation",
@@ -184,8 +174,8 @@
    "options": "Progress Entry"
   },
   {
-   "fetch_from": "progress_entry.average_of_completion",
-   "fieldname": "average__of_completion",
+   "fetch_from": "progress_entry.total_completion_percentage",
+   "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
    "label": "Average % Of Completion",
    "read_only": 1
@@ -204,6 +194,37 @@
    "fieldtype": "Link",
    "label": "Service",
    "options": "Service"
+  },
+  {
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Short Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_llof",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_chgg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wszi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nqui",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -233,7 +254,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-09-11 13:43:30.689419",
+ "modified": "2024-10-09 21:56:20.694178",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

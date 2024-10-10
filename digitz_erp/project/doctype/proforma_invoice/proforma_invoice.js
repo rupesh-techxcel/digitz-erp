@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Proforma Invoice", {
-	setup(frm) {
+	onload(frm) {
        frm.trigger('get_default_company_and_warehouse');
 	},
     progress_entry(frm){
@@ -15,6 +15,9 @@ frappe.ui.form.on("Proforma Invoice", {
             callback: function(response) {
                 let progress_entry = response.message;
                 if(progress_entry){
+
+                    console.log("progress_entry")
+                    console.log(progress_entry)
                     // console.log(progress_entry.progress_entry_items);
                     progress_entry.progress_entry_items.forEach(element => {
                         let row = {
@@ -39,7 +42,7 @@ frappe.ui.form.on("Proforma Invoice", {
                         frm.refresh_fields('progress_entry_items');
                     });
 
-                    frm.set_value('average_of_completion', progress_entry.average_of_completion);
+                    frm.set_value('total_completion_percentage', progress_entry.total_completion_percentage);
                     frm.set_value('gross_total', progress_entry.gross_total);
                     frm.set_value('tax_total', progress_entry.tax_total);
                     frm.set_value('net_total', progress_entry.net_total);

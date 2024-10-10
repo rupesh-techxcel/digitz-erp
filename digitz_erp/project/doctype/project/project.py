@@ -12,7 +12,7 @@ class Project(Document):
         self.project_amount = net_total
 
     def before_insert(self):
-        warehouse_name = f"{self.name1} - Warehouse"
+        warehouse_name = f"{self.project_name} - Warehouse"
 
         exists = frappe.db.exists('Warehouse',warehouse_name)
 
@@ -20,14 +20,14 @@ class Project(Document):
             frappe.throw(f"Warehouse with name, {warehouse_name} already exist. Try With Some Other Name !")
 
     def after_insert(self):
-        warehouse_name = f"{self.name1} - Warehouse"
+        warehouse_name = f"{self.project_name} - Warehouse"
         global_settings = frappe.get_doc("Global Settings")
 
         warehouse = frappe.get_doc({
                 'doctype': 'Warehouse',
                 'warehouse_name': warehouse_name,
                 'company': global_settings.default_company,
-                'project': self.name1
+                'project': self.project_name
             })
 
         warehouse.save()   

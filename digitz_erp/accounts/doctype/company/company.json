@@ -73,7 +73,8 @@
   "system_tab",
   "material_receipt_integrated_with_purchase",
   "delivery_note_integrated_with_sales_invoice",
-  "use_custom_item_group_description_in_estimation"
+  "use_custom_item_group_description_in_estimation",
+  "overheads_based_on_percentage"
  ],
  "fields": [
   {
@@ -465,11 +466,17 @@
    "fieldname": "use_percentage_for_overheads_in_estimate",
    "fieldtype": "Check",
    "label": "Use percentage for overheads in estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "overheads_based_on_percentage",
+   "fieldtype": "Check",
+   "label": "Estimate Overheads calculation based on percentage"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-06 18:38:28.916178",
+ "modified": "2024-10-08 11:09:07.166779",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

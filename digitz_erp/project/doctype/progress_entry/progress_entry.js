@@ -74,16 +74,16 @@ refresh(frm) {
   },
   project(frm){
     frm.set_value('progress_entry_items',[]);
+        //     doctype: "Project",
+        //     filters: { name: frm.doc.project },
+        //     fieldname: "sales_order",
+        //   },`
+        //   callback: function (r) {`
     if (frm.doc.project && frm.doc.is_prev_progress_exists == 0) {
         // Fetch the Sales Order linked to this project
         // frappe.call({
         //   method: "frappe.client.get_value",
         //   args: {
-        //     doctype: "Project",
-        //     filters: { name: frm.doc.project },
-        //     fieldname: "sales_order",
-        //   },
-        //   callback: function (r) {
         //     if (r.message && r.message.sales_order) {
         //       frm.set_value("sales_order", r.message.sales_order);
         //       fetch_sales_order_items(frm);
@@ -94,7 +94,7 @@ refresh(frm) {
         //     }
         //   },
         // });
-        frm.set_value("average_of_completion",0);
+        frm.set_value("total_completion_percentage",0);
         if(frm.doc.sales_order){
           fetch_sales_order_items(frm);
         }
@@ -102,7 +102,7 @@ refresh(frm) {
     else{
         
 
-        frm.set_value("average_of_completion",0);
+        frm.set_value("total_completion_percentage",0);
         frm.set_value("gross_total","");
         frm.set_value("tax_total","");
         frm.set_value("net_total","");
@@ -135,9 +135,7 @@ refresh(frm) {
                 },
               });
         }else{
-            if(frm.doc.previous_progress_entry == frm.doc.name){
-                frappe.throw(`Choose a valid Progress Entry !`);
-            }
+          
         }
     }
   },
@@ -299,10 +297,10 @@ function update_table_and_total(frm,r){
       }
       });
 
-      frm.doc.average_of_completion = r.message.average_of_completion
-      if ( frm.doc.average_of_completion == 100)
+      frm.doc.total_completion_percentage = r.message.total_completion_percentage
+      if ( frm.doc.total_completion_percentage == 100)
       {
-      frappe.msgprint("The Average Completion is Already 100%");
+      frappe.msgprint("The Completion Percentage is already 100%");
       }
       // frm.doc.gross_total = r.message.gross_total;
       // frm.doc.tax_total = r.message.tax_total;
@@ -316,8 +314,6 @@ function update_table_and_total(frm,r){
       frm.refresh_field("progress_entry_items");
       frm.refresh_fields()
 }
-
-
 
 frappe.ui.form.on("Progress Entry Items", {
   prev_completion: function(frm, cdt, cdn) {
@@ -437,16 +433,30 @@ frappe.ui.form.on("Progress Entry Items", {
 });
 
 function update_progress(frm) {
-  let total_percentage = 0;
-  let total_items = frm.doc.progress_entry_items.length;
-  for (item of frm.doc.progress_entry_items) {
-    if(item.total_completion > 0){
-      total_percentage += item.total_completion;
+  let total_weighted_completion = 0;
+  let total_item_net_amount = 0;
+  
+  // Iterate through progress_entry_items
+  for (let item of frm.doc.progress_entry_items) {
+    // Sum up item_net_amount for all items
+    total_item_net_amount += item.item_net_amount;
+
+    // Calculate weighted completion only if total_completion is greater than 0
+    if (item.total_completion > 0) {
+      total_weighted_completion += (item.total_completion / 100) * item.item_net_amount; // Convert percentage to actual amount
     }
-    console.log( item.total_completion)
   }
-  frm.set_value("average_of_completion", total_percentage / total_items);
+
+  // Calculate average completion percentage based on item_net_amount
+  let average_completion = total_item_net_amount > 0 ? (total_weighted_completion / total_item_net_amount) * 100 : 0;
+
+  let rounded_completion = Math.round(average_completion);
+
+  // Set the average value in the form
+  frm.set_value("total_completion_percentage", rounded_completion);
 }
+
+
 
 
 function  get_default_company_and_warehouse(frm) {

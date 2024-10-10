@@ -53,7 +53,7 @@
   "items",
   "item_table",
   "progress_entry_items",
-  "average_of_completion",
+  "total_completion_percentage",
   "section_break_hgqy",
   "gross_total",
   "column_break_wlra",
@@ -410,9 +410,9 @@
    "options": "Progress Entry Items"
   },
   {
-   "fieldname": "average_of_completion",
+   "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
-   "label": "Average % Of Completion"
+   "label": "Total Completion Percentage"
   },
   {
    "fieldname": "section_break_hgqy",
@@ -727,7 +727,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-21 15:53:20.546554",
+ "modified": "2024-10-10 10:07:32.162817",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

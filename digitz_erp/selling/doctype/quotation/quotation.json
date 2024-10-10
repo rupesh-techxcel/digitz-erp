@@ -47,7 +47,6 @@
   "column_break_fomo",
   "section_break_19",
   "items",
-  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_iwxfb",
@@ -432,14 +431,6 @@
    "label": "In Words"
   },
   {
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Item Table",
-   "options": "Quotation New Item Details",
-   "read_only": 1
-  },
-  {
    "fieldname": "project_name",
    "fieldtype": "Data",
    "label": "Project Name"
@@ -455,6 +446,7 @@
    "fieldname": "enquiry",
    "fieldtype": "Link",
    "label": "Enquiry",
+   "link_filters": "[]",
    "mandatory_depends_on": "eval:doc.based_on==\"Enquiry\"",
    "options": "Enquiry"
   },
@@ -489,7 +481,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-06 10:37:51.651007",
+ "modified": "2024-10-09 15:17:09.128438",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

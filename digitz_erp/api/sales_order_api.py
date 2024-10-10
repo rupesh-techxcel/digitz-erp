@@ -261,3 +261,32 @@ def get_sales_order_items_pending(sales_orders):
             items.append(so_item)
 
     return items
+
+@frappe.whitelist()
+def check_project_exists(sales_order):
+    # Check if any Project exists with a reference to the Sales Order
+    project_exists = frappe.db.exists('Project', {'sales_order': sales_order})
+    return project_exists
+
+@frappe.whitelist()
+def create_project_from_sales_order(sales_order):
+    # Get the Sales Order document
+    sales_order_doc = frappe.get_doc('Sales Order', sales_order)
+
+    # Check if a project already exists
+    if frappe.db.exists('Project', {'sales_order': sales_order_doc.name}):
+        frappe.throw("A Project is already created for this Sales Order.")
+
+    # Create a new Project document without saving it
+    project_doc = frappe.new_doc('Project')
+    
+    # Set the project name and short name from the Sales Order's fields
+    project_doc.project_name = sales_order_doc.get('project_name_from_boq')
+    project_doc.project_short_name = sales_order_doc.get('project_short_name_from_boq')
+    
+    # Reference the Sales Order
+    project_doc.sales_order = sales_order_doc.name
+    project_doc.customer = sales_order_doc.customer
+    project_doc.project_amount = sales_order_doc.net_total
+    # Return the document as a dictionary
+    return project_doc.as_dict()

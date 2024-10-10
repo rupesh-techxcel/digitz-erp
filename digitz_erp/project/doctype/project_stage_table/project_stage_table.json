@@ -7,9 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "progress_entry",
-  "date_of_creation",
-  "project_stage_defination",
-  "schedule_of_project",
+  "posting_date",
   "percentage_of_completion",
   "proforma_invoice",
   "sales_invoice",
@@ -17,24 +15,12 @@
  ],
  "fields": [
   {
-   "fieldname": "project_stage_defination",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Project Stage Defination"
-  },
-  {
-   "fieldname": "schedule_of_project",
-   "fieldtype": "Date",
-   "hidden": 1,
-   "label": "Schedule Of Project"
-  },
-  {
    "columns": 1,
-   "fetch_from": "progress_entry.average_of_completion",
+   "fetch_from": "progress_entry.total_completion_percentage",
    "fieldname": "percentage_of_completion",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Average Of Completion",
+   "label": "Completion Percentage",
    "precision": "2",
    "read_only": 1
   },
@@ -71,17 +57,17 @@
   },
   {
    "fetch_from": "progress_entry.posting_date",
-   "fieldname": "date_of_creation",
+   "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Date Of Creation",
+   "label": "Date",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-21 14:47:52.619747",
+ "modified": "2024-10-10 08:45:43.022346",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project Stage Table",
