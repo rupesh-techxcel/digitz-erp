@@ -469,7 +469,6 @@ frappe.ui.form.on('Sales Invoice', {
 			}
     });
 
-
 	},
 	get_default_company_and_warehouse(frm) {
 

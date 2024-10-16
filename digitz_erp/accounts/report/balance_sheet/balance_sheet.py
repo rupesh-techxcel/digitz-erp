@@ -15,22 +15,6 @@ def execute(filters=None):
     # chart = get_chart_data(filters)
     return columns, data, None, None, summary
 
-def get_chart_data(filters=None):
-    data = get_data(filters)
-    datasets = []
-    values = []
-    labels = ['Asset', 'Liability', 'Provisional Profit/Loss']
-    for d in data:
-        if d.get('account') == 'Total Asset (Debit)':
-            values.append(d.get('amount'))
-        if d.get('account') == 'Total Liability (Credit)':
-            values.append(d.get('amount'))
-        if d.get('account') == 'Provisional Profit/Loss':
-            values.append(d.get('amount'))
-    datasets.append({'values': values})
-    chart = {"data": {"labels": labels, "datasets": datasets}, "type": "bar"}
-    chart["fieldtype"] = "Currency"
-    return chart
 
 def get_data(filters=None):
     
@@ -197,6 +181,23 @@ def get_data(filters=None):
     
         
     return data,columns,summary_data
+
+def get_chart_data(filters=None):
+    data = get_data(filters)
+    datasets = []
+    values = []
+    labels = ['Asset', 'Liability', 'Provisional Profit/Loss']
+    for d in data:
+        if d.get('account') == 'Total Asset (Debit)':
+            values.append(d.get('amount'))
+        if d.get('account') == 'Total Liability (Credit)':
+            values.append(d.get('amount'))
+        if d.get('account') == 'Provisional Profit/Loss':
+            values.append(d.get('amount'))
+    datasets.append({'values': values})
+    chart = {"data": {"labels": labels, "datasets": datasets}, "type": "bar"}
+    chart["fieldtype"] = "Currency"
+    return chart
 
 def get_columns(period_list):
     columns = [

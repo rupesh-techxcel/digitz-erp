@@ -21,22 +21,20 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Completion Percentage",
-   "precision": "2",
+   "precision": "0",
    "read_only": 1
   },
   {
    "fieldname": "proforma_invoice",
-   "fieldtype": "Link",
+   "fieldtype": "Read Only",
    "in_list_view": 1,
-   "label": "Proforma Invoice",
-   "options": "Proforma Invoice"
+   "label": "Proforma Invoice"
   },
   {
    "fieldname": "sales_invoice",
-   "fieldtype": "Link",
+   "fieldtype": "Read Only",
    "in_list_view": 1,
-   "label": "Sales Invoice",
-   "options": "Progressive Sales Invoice"
+   "label": "Sales Invoice"
   },
   {
    "columns": 1,
@@ -50,10 +48,8 @@
   },
   {
    "fieldname": "progress_entry",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Progress Entry",
-   "options": "Progress Entry"
+   "fieldtype": "Read Only",
+   "label": "Progress Entry"
   },
   {
    "fetch_from": "progress_entry.posting_date",
@@ -67,7 +63,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-10 08:45:43.022346",
+ "modified": "2024-10-12 17:09:28.113653",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project Stage Table",

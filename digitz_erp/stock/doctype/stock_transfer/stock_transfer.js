@@ -4,9 +4,7 @@
 frappe.ui.form.on('Stock Transfer', {
 
 	refresh: function(frm) {
-		create_custom_buttons(frm)
-
-		
+		create_custom_buttons(frm)		
 	},
 
 	setup:function(frm)

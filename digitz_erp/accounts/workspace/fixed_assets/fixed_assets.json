@@ -123,7 +123,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-09-13 15:31:04.044676",
+ "modified": "2024-10-12 10:40:44.347237",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Fixed Assets",
@@ -154,7 +154,7 @@
   }
  ],
  "roles": [],
- "sequence_id": 12.0,
+ "sequence_id": 13.0,
  "shortcuts": [],
  "title": "Fixed Assets"
 }

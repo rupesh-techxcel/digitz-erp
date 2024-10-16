@@ -16,41 +16,46 @@ frappe.ui.form.on("Project", {
     onload_post_render: function(frm) {
         // Add a custom button to the child table
         frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
-            // Custom logic for your button
-            // frappe.msgprint('Custom button clicked!');
-            if(frm.doc.project_stage_table.length < 1){
-                frappe.new_doc("Progress Entry",{}, pe=>{
+            // If no project stages are present, create a new progress entry
+            if (frm.doc.project_stage_table.length < 1) {
+                frappe.new_doc("Progress Entry", {}, function(pe) {
                     pe.project = frm.doc.name;
                 });
-            }
-            else{
-                let last_idx = frm.doc.project_stage_table.length - 1;
-                let process_entry_id = frm.doc.project_stage_table[last_idx].progress_entry;
-                
-                if(frm.doc.project_stage_table.length >= 1 && process_entry_id){
-                    frappe.new_doc("Progress Entry",{}, pe=>{
-                        pe.project = frm.doc.name;
-                        pe.previous_progress_entry = process_entry_id;
-                        pe.is_prev_progress_exists = 1;
-                    });
-                }
-                else if(frm.doc.project_stage_table.length == 1){
-                    frappe.new_doc("Progress Entry",{}, pe=>{
-                        pe.project = frm.doc.name;
-                    });
-                }else{
-                    frappe.msgprint(`Previos Progress Entry Not Exists For Row Number ${last_idx+1}. Remove The Last Row.`);
-                }
-                // if(process_entry_id){
-                //     frappe.new_doc("Progress Entry",{}, pe=>{
-                //         pe.project = frm.doc.name;
-                //         pe.previous_progress_entry = process_entry_id;
-                //         pe.is_prev_progress_exists = 1;
-                //     });
-                // }
+            } 
+            // If project stages exist, handle accordingly
+            else {
+                frappe.call({
+                    method: 'digitz_erp.api.project_api.get_last_progress_entry', // Update this with the actual path
+                    args: {
+                        project_name: frm.doc.name
+                    },
+                    callback: function(r) {
+                        if (r.message) {
+                            // If the last progress entry exists, create a new progress entry with previous entry details
+                            let process_entry_id = r.message;
+    
+                            frappe.new_doc("Progress Entry", {}, function(pe) {
+                                pe.project = frm.doc.name;
+                                pe.previous_progress_entry = process_entry_id;
+                                pe.is_prev_progress_exists = 1;
+                            });
+                        } 
+                        // If only one row in project_stage_table, create a new progress entry without linking to previous
+                        else if (frm.doc.project_stage_table.length == 1) {
+                            frappe.new_doc("Progress Entry", {}, function(pe) {
+                                pe.project = frm.doc.name;
+                            });
+                        } 
+                        // Show a message if conditions aren't met for progress entry creation
+                        else {
+                            frappe.msgprint(__('No progress entries found, and conditions not met for auto-creation.'));
+                        }
+                    }
+                });
             }
         });
     },
+    
     refresh(frm) {
         localStorage.setItem("current_project", frm.doc.name)
 
@@ -326,16 +331,6 @@ frappe.ui.form.on("Project", {
     }
 });
 
-
-
-
-function print_msg() {
-    frappe.show_alert({
-        message: __('Please Enter Stage Name'),
-        indicator: 'red'
-    }, 2);
-}
-
 function refresh_progress_entries(frm) {
     frappe.call({
         method: 'digitz_erp.api.project_api.get_progress_entries_by_project',
@@ -344,26 +339,38 @@ function refresh_progress_entries(frm) {
         },
         callback: function(response) {
             if (response.message) {
-                console.log(response.message);
 
-                // Clear and refill the progress_stages table
-                frm.clear_table('project_stage_table');  // Use 'frm' instead of 'cur_frm' for consistency
+                console.log(response.message)
+                
+                // Clear and refill the project_stage_table
+                frm.clear_table('project_stage_table');
                 response.message.forEach(entry => {
                     let row = frm.add_child('project_stage_table');
-                    row.progress_entry = entry.name;  // Assuming 'progress_entry' is a link field to 'Progress Entry'
-                    row.posting_date = entry.posting_date,
-                    row.percentage_of_completion = entry.total_completion_percentage,
-                    row.proforma_invoice = entry.proforma_invoice
-                    row.sales_invoice = entry.progressive_sales_invoice
-                    row.net_total = entry.net_total
-                });
-                frm.refresh_field('project_stage_table');
+                    
+                    // Progress Entry Link (always exists)
+                    row.progress_entry = entry.name;
 
-                console.log("frm.doc.project_stage_table")
-                console.log(frm.doc.project_stage_table)
+                    row.proforma_invoice = entry.proforma_invoice ;  // Use the Read-only field to display link                    
+                    
+                    row.sales_invoice = entry.progressive_sales_invoice;  // Use the Read-only field to display link
+
+                    // Other Fields
+                    row.posting_date = entry.posting_date;
+                    row.percentage_of_completion = entry.total_completion_percentage;
+                    row.net_total = entry.net_total;
+                    
+
+                    console.log(row)
+
+                });
+
+                // Refresh the child table to reflect the changes
+                frm.refresh_field('project_stage_table');
             }
         }
     });
 }
+
+
 
 

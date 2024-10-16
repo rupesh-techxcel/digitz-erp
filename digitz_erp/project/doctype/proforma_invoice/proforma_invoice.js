@@ -4,6 +4,12 @@
 frappe.ui.form.on("Proforma Invoice", {
 	onload(frm) {
        frm.trigger('get_default_company_and_warehouse');
+       
+       if(frm.is_new())
+       {
+            progress_entry(frm)
+       }
+            
 	},
     progress_entry(frm){
         frappe.call({

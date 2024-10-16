@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestProformaInvoiceOLD(FrappeTestCase):
+class TestMaterialRequest(FrappeTestCase):
 	pass

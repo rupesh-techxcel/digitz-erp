@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestProgressiveInvoice(FrappeTestCase):
+class TestBudgetItem(FrappeTestCase):
 	pass

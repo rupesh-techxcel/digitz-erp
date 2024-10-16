@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-14 15:22:28.726823",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_behm",
+  "budget_against",
+  "amended_from",
+  "column_break_gwyb",
+  "company",
+  "fiscal_year",
+  "project",
+  "column_break_vrmg",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_vvmj",
+  "section_break_wqtj",
+  "table_biem"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_behm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Budget",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Project",
+   "fieldname": "budget_against",
+   "fieldtype": "Select",
+   "label": "Budget Against",
+   "options": "Company\nProject"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Project\"",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "mandatory_depends_on": "eval:doc.budget_against == \"Project\"",
+   "options": "Project"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Company\"",
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "mandatory_depends_on": "eval:doc.budget_against == \"Company\"",
+   "options": "Fiscal Year"
+  },
+  {
+   "fieldname": "column_break_gwyb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Datetime",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "column_break_vrmg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vvmj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wqtj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "table_biem",
+   "fieldtype": "Table",
+   "options": "Budget Detail"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-10-14 16:46:38.842949",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Budget",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

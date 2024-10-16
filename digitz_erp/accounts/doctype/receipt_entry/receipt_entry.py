@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice ,get_allocations_for_sales_return, get_allocations_for_credit_note
+from digitz_erp.api.receipt_entry_api import get_allocations_for_sales_invoice ,get_allocations_for_sales_return, get_allocations_for_credit_note,get_allocations_for_progressive_sales_invoice
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
@@ -239,6 +239,10 @@ class ReceiptEntry(Document):
 					if(allocation.reference_type == "Sales Invoice"):
 						previous_paid_amount = 0
 						allocations_exists = get_allocations_for_sales_invoice(allocation.reference_name, receipt_no)
+      
+					if(allocation.reference_type == "Progressive Sales Invoice"):
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_progressive_sales_invoice(allocation.reference_name, receipt_no)
 
 					if(allocation.reference_type == "Sales Return"):
 						previous_paid_amount = 0
@@ -254,6 +258,7 @@ class ReceiptEntry(Document):
 	def on_update(self):
 
 		self.update_sales_invoices()
+		self.update_progressive_sales_invoices()
 		self.update_sales_return()
 		self.update_credit_note()
 
@@ -309,6 +314,39 @@ class ReceiptEntry(Document):
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Partial"})
 					elif round(invoice_amount,2) == round(invoice_total,2):
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
+
+	def update_progressive_sales_invoices(self):
+		
+		allocations = self.receipt_allocation
+
+		if(allocations):
+			for allocation in allocations:
+
+				if allocation.reference_type != "Progressive Sales Invoice":
+					continue
+
+				if(allocation.paying_amount>0):
+
+					receipt_no = self.name
+					if self.is_new():
+						receipt_no = ""
+
+					previous_paid_amount = 0
+					allocations_exists = get_allocations_for_progressive_sales_invoice(allocation.reference_name, receipt_no)
+
+					for existing_allocation in allocations_exists:
+						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+
+					invoice_total = previous_paid_amount + allocation.paying_amount
+
+					frappe.db.set_value("Progressive Sales Invoice", allocation.reference_name, {'paid_amount': invoice_total})
+
+					invoice_amount = frappe.db.get_value("Progressive Sales Invoice", allocation.reference_name,["rounded_total"])
+					if(round(invoice_amount,2) > round(invoice_total,2)):
+						frappe.db.set_value("Progressive Sales Invoice", allocation.reference_name, {'payment_status': "Partial"})
+					elif round(invoice_amount,2) == round(invoice_total,2):
+						frappe.db.set_value("Progressive Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
+
 
 
 	def update_sales_return(self):
@@ -500,6 +538,20 @@ class ReceiptEntry(Document):
 						total_paid_Amount = previous_paid_amount
 						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
       
+				if allocation.reference_type == "Progressive Sales Invoice":
+					if(allocation.paying_amount>0):
+						receipt_no = self.name
+						if self.is_new():
+							receipt_no = ""
+
+						previous_paid_amount = 0
+						allocations_exists = get_allocations_for_progressive_sales_invoice(allocation.reference_name, receipt_no)
+						for existing_allocation in allocations_exists:
+							previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+
+						total_paid_Amount = previous_paid_amount
+						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'paid_amount': total_paid_Amount})
+
 				if allocation.reference_type == "Sales Return":
 					if(allocation.paying_amount>0):
 						receipt_no = self.name

@@ -45,7 +45,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-09-13 15:31:03.667013",
+ "modified": "2024-10-12 10:40:43.998476",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Receivable",
@@ -61,7 +61,7 @@
   }
  ],
  "roles": [],
- "sequence_id": 8.0,
+ "sequence_id": 7.0,
  "shortcuts": [
   {
    "color": "Grey",

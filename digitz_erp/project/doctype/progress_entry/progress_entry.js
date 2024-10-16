@@ -2,44 +2,26 @@
 // For license information, please see license.txt
 frappe.ui.form.on("Progress Entry", {
 
-  // Triggered after the form is loaded
-//   onload(frm) {
-//     // Set up custom handlers after the form is fully loaded
-//     setup_custom_handlers(frm);
-// },
 validate(frm){
     if(frm.doc.previous_progress_entry == frm.doc.name){
         frappe.throw("Choose a valid Progress Entry !")
     }
 },
 setup(frm){
-  // let project = localStorage.getItem("current_project");
-  // let prev_progress_entry = localStorage.getItem("prev_progress_entry");
-
-  // // localStorage.clear();
-  //   if(project){
-  //     frm.set_value("project", project);
-  //   }
-
-  //   if(prev_progress_entry){
-  //     frm.set_value('is_prev_progress_exists',1);
-  //     frm.set_value('previous_progress_entry', prev_progress_entry);
-
-  //     localStorage.removeItem('prev_progress_entry')
-  //     localStorage.removeItem('current_project')
-    // }
+ 
   
   
 },
 
 // Triggered when the form is refreshed
 refresh(frm) {
-      frm.fields_dict['progress_entry_items'].grid.grid_rows.forEach(function(row) {
-          update_total_completion_readonly(frm, row.doc);
-      });
-
+  
     if(frm.is_new()){
         get_default_company_and_warehouse(frm)
+
+        frm.fields_dict['progress_entry_items'].grid.grid_rows.forEach(function(row) {
+          update_total_completion_readonly(frm, row.doc);
+      });
     }
 
     frm.set_query('previous_progress_entry', function() {
@@ -52,25 +34,67 @@ refresh(frm) {
         };
     });
 
-    frappe.call(
-      {
-        method: 'frappe.client.get_value',
-        args: {
-          'doctype': 'Tax',
-          'filters': { 'tax_name': r.message.tax },
-          'fieldname': ['tax_name', 'tax_rate']
-        },
-        callback: (r2) => {
+    frappe.call({
+      method: 'digitz_erp.api.project_api.check_proforma_invoice',
+      args: {
+          progress_entry: frm.doc.name
+      },
+      callback: function(response) {
+          if (!response.message) {  // If no Proforma Invoice exists
+              frm.add_custom_button(__('Create Proforma Invoice'), function() {
+                  
+                  // Load the 'Proforma Invoice' doctype and open a new form with pre-filled values
+                  frappe.model.with_doctype('Proforma Invoice', function() {
+                      let doc = frappe.model.get_new_doc('Proforma Invoice');
+                      
+                      // Set the pre-filled values
+                      doc.progress_entry = frm.doc.name;
+                      doc.customer = frm.doc.customer;  
+                      doc.company = frm.doc.company;
+                      
+                      // Optionally set other fields from 'Progress Entry'
+                      // doc.some_field = frm.doc.some_field;
   
-          for(row in frm.doc.progress_entry_items){
+                      // Redirect to the new Proforma Invoice form
+                      frappe.set_route('Form', 'Proforma Invoice', doc.name);
+                  });
   
-            row.tax = r2.message.tax_name;
-            row.tax_rate = r2.message.tax_rate
+              });  // Add a button with primary styling
           }
+      }
+  });
+
+  frappe.call({
+    method: 'digitz_erp.api.project_api.check_progressive_invoice',
+    args: {
+        progress_entry: frm.doc.name
+    },
+    callback: function(response) {
+        if (!response.message) {  // If no Proforma Invoice exists
+            frm.add_custom_button(__('Create Progressive Invoice'), function() {
+                
+                // Load the 'Proforma Invoice' doctype and open a new form with pre-filled values
+                frappe.model.with_doctype('Progressive Sales Invoice', function() {
+                    let doc = frappe.model.get_new_doc('Progressive Sales Invoice');
+                    
+                    // Set the pre-filled values
+                    doc.progress_entry = frm.doc.name;
+                    doc.customer = frm.doc.customer;  
+                    doc.company = frm.doc.company;
+                    
+                    // Optionally set other fields from 'Progress Entry'
+                    // doc.some_field = frm.doc.some_field;
+
+                    // Redirect to the new Proforma Invoice form
+                    frappe.set_route('Form', 'Progressive Sales Invoice', doc.name);
+                });
+
+            });  // Add a button with primary styling
         }
+      }
+  });
   
-      })
-    // Optionally, add custom buttons or actions here if needed
+
   },
   project(frm){
     frm.set_value('progress_entry_items',[]);
@@ -249,12 +273,15 @@ function update_table_and_total(frm,r){
       if (item.total_completion != 100) {
         // Create a new row in Progress Entry Items table
         const row = frm.add_child("progress_entry_items");
-
+        
         row.sales_order_amt = frm.doc.sales_order_net_total;
 
         // Assigning values to the row fields
+        console.log("item.total_completion")
+        console.log(item.total_completion)
+        
         row.prev_completion = item.total_completion || 0;
-        row.total_completion = item.total_completion;
+        // row.total_completion = item.total_completion;
         row.total_amount = item.total_amount || 0;
         row.prev_amount = item.total_amount || 0;
 
@@ -456,9 +483,6 @@ function update_progress(frm) {
   frm.set_value("total_completion_percentage", rounded_completion);
 }
 
-
-
-
 function  get_default_company_and_warehouse(frm) {
     var default_company = ""
     console.log("From Get Default Warehouse Method in the parent form")
@@ -566,18 +590,18 @@ function update_total_amounts(frm){
   frm.set_value('net_total', net_total);
 }
 
-
-
-
-
-
 function update_total_completion_readonly(frm, row) {
+
+  console.log(row.prev_completion)
+
   if (row.prev_completion === 100) {
       frm.set_df_property('progress_entry_items', 'total_completion', 'read_only', 1, row.name);
       if (row.total_completion !== 100) {
           frappe.model.set_value(row.doctype, row.name, 'total_completion', 100);
       }
   } else {
+
       frm.set_df_property('progress_entry_items', 'total_completion', 'read_only', 0, row.name);
+      frappe.model.set_value(row.doctype, row.name, 'prev_completion', row.total_completion);
   }
 }

@@ -31,7 +31,8 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "cost_center"
+  "cost_center",
+  "mr_item_reference"
  ],
  "fields": [
   {
@@ -189,12 +190,19 @@
    "hidden": 1,
    "label": "Qty Purchased",
    "read_only": 1
+  },
+  {
+   "fieldname": "mr_item_reference",
+   "fieldtype": "Link",
+   "label": "MR Item Reference",
+   "options": "Material Request Item",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-22 10:58:32.162636",
+ "modified": "2024-10-14 10:49:46.979420",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

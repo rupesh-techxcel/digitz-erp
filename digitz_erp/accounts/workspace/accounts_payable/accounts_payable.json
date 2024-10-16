@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"vtIdvCBXvL\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounts Payable</span>\",\"col\":12}},{\"id\":\"h5tHxzdCWi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Entry\",\"col\":3}},{\"id\":\"LpcwwHr3Ae\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"LXbh6rMup4\",\"type\":\"card\",\"data\":{\"card_name\":\"Supplier Outstanding\",\"col\":4}},{\"id\":\"SvsPmwMsMv\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Payment Entry\",\"col\":4}}]",
+ "content": "[{\"id\":\"vtIdvCBXvL\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounts Payable</span>\",\"col\":12}},{\"id\":\"h5tHxzdCWi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Entry\",\"col\":3}},{\"id\":\"LpcwwHr3Ae\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"P5s1fV12r2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier Statement Of Account\",\"col\":3}},{\"id\":\"SvsPmwMsMv\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Payment Entry\",\"col\":4}}]",
  "creation": "2024-02-06 13:25:44.608347",
  "custom_blocks": [],
  "docstatus": 0,
@@ -12,29 +12,8 @@
  "indicator_color": "green",
  "is_hidden": 0,
  "label": "Accounts Payable",
- "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Supplier Outstanding",
-   "link_count": 1,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Supplier Statement Of Account",
-   "link_count": 0,
-   "link_to": "Supplier Statement Of Account",
-   "link_type": "Report",
-   "onboard": 0,
-   "report_ref_doctype": "Purchase Invoice",
-   "type": "Link"
-  }
- ],
- "modified": "2024-09-13 15:31:03.599778",
+ "links": [],
+ "modified": "2024-10-12 10:40:43.952872",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Payable",
@@ -54,8 +33,15 @@
    "role": "Administrator"
   }
  ],
- "sequence_id": 7.0,
+ "sequence_id": 6.0,
  "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Supplier Statement Of Account",
+   "link_to": "Supplier Statement Of Account",
+   "type": "Report"
+  },
   {
    "color": "Grey",
    "doc_view": "List",

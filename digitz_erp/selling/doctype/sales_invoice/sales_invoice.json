@@ -41,7 +41,6 @@
   "submitted_record",
   "project_stage_details_section",
   "project",
-  "stage_proforma_invoice",
   "allocated_receipt_entry",
   "accounts_section",
   "credit_sale",
@@ -621,13 +620,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "stage_proforma_invoice",
-   "fieldtype": "Link",
-   "label": "Stage Proforma Invoice",
-   "options": "Proforma Invoice OLD",
-   "read_only": 1
-  },
-  {
    "fieldname": "allocated_receipt_entry",
    "fieldtype": "Data",
    "label": "Allocated Receipt Entry",
@@ -704,7 +696,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-09-13 07:43:27.706947",
+ "modified": "2024-10-13 09:47:47.479903",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

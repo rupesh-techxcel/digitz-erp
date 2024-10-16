@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class PurchaseRequisition(Document):
+class MaterialRequestItem(Document):
 	pass

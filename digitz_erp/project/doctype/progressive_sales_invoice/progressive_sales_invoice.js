@@ -3,8 +3,9 @@
 
 frappe.ui.form.on("Progressive Sales Invoice", {
 	setup(frm) {
-       frm.trigger('get_default_company_and_warehouse');
+       
 	},
+
     progress_entry(frm){
         frappe.call({
             method:"frappe.client.get",
@@ -82,4 +83,131 @@ frappe.ui.form.on("Progressive Sales Invoice", {
 		})
 
 	},
+    credit_sale(frm) {
+
+		set_default_payment_mode(frm);
+
+		fill_receipt_schedule(frm,refresh= true)
+	},
+    assign_defaults(frm)
+	{
+		if(frm.is_new())
+		{
+			frm.trigger("get_default_company_and_warehouse");
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+				if (r && r.default_credit_sale === 1) {
+						frm.set_value('credit_sale', 1);
+				}
+			});
+
+			set_default_payment_mode(frm);
+		}
+
+	},
 });
+
+frappe.ui.form.on("Progressive Sales Invoice", "onload", function (frm) {
+
+	frm.trigger("assign_defaults")
+	fill_receipt_schedule(frm);
+
+});
+
+function set_default_payment_mode(frm)
+{
+	if(frm.doc.credit_sale == 0){
+        frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
+
+			if (r && r.default_payment_mode_for_sales) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+    }
+	else{
+
+		frm.set_value('payment_mode', '');
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
+}
+
+function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
+{
+
+
+	if(refresh)
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+
+	console.log("fill_receipt_schedule")
+	console.log(frm.doc.credit_sale)
+
+	if (frm.doc.credit_sale) {
+
+		console.log("credit sale")
+		console.log(frm.doc.rounded_total)
+
+		var postingDate = frm.doc.posting_date;
+		var creditDays = frm.doc.credit_days;
+		var roundedTotal = frm.doc.rounded_total;
+
+		if (!frm.doc.receipt_schedule) {
+			frm.doc.receipt_schedule = [];
+		}
+
+		var receiptRow = null;
+
+		row_count = 0;
+		// Check if a Payment Schedule row already exists
+		frm.doc.receipt_schedule.forEach(function(row) {
+			if (row){
+				receiptRow = row;
+				if(refresh || refresh_credit_days)
+				{
+					receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+				}
+
+				row_count++;
+
+			}
+		});
+
+		//If there is no row exits create one with the relevant values
+		if (!receiptRow) {
+			// Calculate receipt schedule and add a new row
+			receiptRow = frappe.model.add_child(frm.doc, "Receipt Schedule", "receipt_schedule");
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			receiptRow.payment_mode = "Cash"
+			receiptRow.amount = frm.doc.rounded_total;
+			refresh_field("receipt_schedule");
+			console.log("here 1")
+		}
+		else if (row_count==1)
+		{
+			//If there is only one row update the amount. If there is more than one row that means there is manual
+			//entry and	user need to manage it by themself
+			receiptRow.payment_mode = "Cash"
+			receiptRow.amount = frm.doc.rounded_total;
+			refresh_field("receipt_schedule");
+			console.log("here 2")
+		}
+
+		//Update date based on credit_days if there is a credit days change or change in the credit_sales checkbox
+		if(refresh || refresh_credit_days)
+			receiptRow.date = creditDays ? frappe.datetime.add_days(postingDate, creditDays) : postingDate;
+			refresh_field("receipt_schedule");
+	}
+	else
+	{
+		frm.doc.receipt_schedule = [];
+		refresh_field("receipt_schedule");
+	}
+}

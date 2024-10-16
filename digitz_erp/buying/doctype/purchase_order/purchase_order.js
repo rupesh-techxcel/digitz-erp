@@ -497,6 +497,15 @@ frappe.ui.form.on("Purchase Order", "onload", function (frm) {
 
 	frm.trigger("assign_defaults")
 
+	 //When purchase order created from Material Request,client side ensure that the item method is calling for each method
+	 if (frm.is_new()) {
+		// Iterate through all the items in the Purchase Order
+		frm.doc.items.forEach(function(item) {
+			// Call the update_item_row method for each item in the child table
+			update_item_row(frm, item.doctype, item.name);
+		});
+	}
+
 });
 
 frappe.ui.form.on('Purchase Order Item', {

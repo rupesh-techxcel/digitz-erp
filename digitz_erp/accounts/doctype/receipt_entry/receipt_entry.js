@@ -320,18 +320,13 @@ allocations: function(frm, cdt, cdn)
 	const row = locals[cdt][cdn];
 	let child_table_control	;
 
-	if(row.receipt_type != "Customer" || (!row.reference_type) ||  row.reference_type == "" ||  (!row.customer))
+	if(row.receipt_type != "Customer" || (!row.reference_type) ||  row.reference_type == "On Account" ||  (!row.customer))
 	{
 		frappe.throw("Invalid criteria for allocations.")
 	}
 
 	const selected_customer = row.customer
 	const selected_reference_type = row.reference_type
-
-	console.log("selected customer")
-	console.log(selected_customer)
-	console.log("selected reference_type")
-	console.log(selected_reference_type)
 
 	//Allocations are restricted with only one per supplier. So verify that there is no other
 	//row exists with allocation for the selected_supplier
@@ -538,11 +533,12 @@ allocations: function(frm, cdt, cdn)
 				for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
 
 					var allocation = allocations[idx2];
+					
 					console.log("allocation")
 					console.log(allocation)
 
 					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
-					if((allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return") || (allocation.reference_type == "Credit Note" && selected_reference_type!="Credit Note"))
+					if((allocation.reference_type == "Progressive Sales Invoice" && selected_reference_type!="Progressive Sales Invoice")||(allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return") || (allocation.reference_type == "Credit Note" && selected_reference_type!="Credit Note"))
 					{
 						console.log("hitted continue")
 						continue;

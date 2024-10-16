@@ -94,3 +94,32 @@ def get_purchase_order_due_dates():
         })
 
     return data
+
+@frappe.whitelist()
+def create_purchase_order_from_material_request(material_request):
+    material_request_doc = frappe.get_doc("Material Request", material_request)
+
+    # Create new Purchase Order document
+    po = frappe.new_doc("Purchase Order")
+
+    # Set basic fields from Material Request
+    po.project = material_request_doc.project
+    po.warehouse = material_request_doc.target_warehouse
+    po.company = material_request_doc.company
+    po.due_date = material_request_doc.schedule_date
+    po.material_request = material_request_doc.name
+
+    # Add items where approved_quantity > 0
+    for item in material_request_doc.items:
+        if item.approved_quantity > 0:
+            po_item = po.append("items", {})
+            po_item.item = item.item
+            po_item.item_name = item.item_name
+            po_item.display_name = item.description            
+            po_item.qty = item.approved_quantity
+            po_item.unit = item.unit
+            po_item.warehouse = item.target_warehouse
+            po_item.mr_item_reference = item.name
+
+    # Return the unsaved document (as a dict) to the client
+    return po.as_dict()

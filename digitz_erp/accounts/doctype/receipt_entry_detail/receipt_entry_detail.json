@@ -88,11 +88,12 @@
    "read_only": 1
   },
   {
+   "default": "Sales Invoice",
    "fieldname": "reference_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Reference Type",
-   "options": "\nSales Invoice\nSales Return\nCredit Note"
+   "options": "On Account\nSales Invoice\nSales Return\nCredit Note\nProgressive Sales Invoice"
   },
   {
    "fieldname": "cost_center",
@@ -104,7 +105,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-02 08:42:15.455981",
+ "modified": "2024-10-13 11:26:44.103365",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry Detail",

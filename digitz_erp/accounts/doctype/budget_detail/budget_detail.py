@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProgressEntryItem(Document):
+class BudgetDetail(Document):
 	pass

@@ -71,6 +71,74 @@ def get_customer_pending_documents(customer, reference_type, receipt_no):
             return combined_values
         else:
             return documents_values
+    
+    if reference_type == 'Progressive Sales Invoice':
+
+        # Sales Invoice Query , only consider committed sales invoices but for payment allocations with draft and committed statuses.
+
+        # Get all pending receipts for the customer
+        documents_query = """
+            SELECT
+                customer,
+                'Progressive Sales Invoice' as reference_type,
+                name as reference_name,
+                CONCAT(COALESCE(reference_no, ''), ' ', DATE_FORMAT(posting_date, '%Y-%m-%d')) as reference_no,
+                posting_date,
+                paid_amount,
+                rounded_total as invoice_amount,
+                rounded_total - paid_amount as balance_amount
+            FROM
+                `tabProgressive Sales Invoice`
+            WHERE
+                customer = '{0}'
+                AND docstatus = 1
+                AND credit_sale = 1
+                AND rounded_total > paid_amount
+        """.format(customer)
+
+        # Additional Query for Receipt Allocation (if receipt_no is not None)
+        receipt_allocation_values = []
+        if receipt_no != "":
+             # receipt_allocation_query to include the existing allocations for this receipt, irrespective of qty is pending
+            receipt_allocation_query = """
+                SELECT
+                    si.customer,
+                    si.name as reference_name,
+                    'Sales Invoice' as reference_type,                    
+                    CONCAT(COALESCE(si.reference_no, ''), ' ', DATE_FORMAT(si.posting_date, '%Y-%m-%d')) as reference_no,                    
+                    si.posting_date,
+                    si.paid_amount,
+                    si.rounded_total as invoice_amount,
+                    si.rounded_total - si.paid_amount as balance_amount
+                FROM
+                    `tabProgressive Sales Invoice` si
+                JOIN
+                    `tabReceipt Allocation` ra ON si.name = ra.reference_name and ra.reference_type='Sales Invoice'
+                WHERE
+                    si.customer = '{0}'
+                    AND si.docstatus = 1
+                    AND si.credit_sale = 1
+                    AND ra.parent = '{1}'
+                    AND (ra.docstatus = 0 or ra.docstatus = 1)
+            """.format(customer, receipt_no)
+
+            receipt_allocation_values = frappe.db.sql(receipt_allocation_query, as_dict=1)
+            #print("receipt allocation values")
+            #print(receipt_allocation_values)
+
+        documents_values = frappe.db.sql(documents_query, as_dict=1)
+        #print("documents_values")
+        #print(documents_values)
+
+        if receipt_allocation_values !=[]:
+            #  Avoid duplicates before combine
+            documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [ra['reference_name'] for ra in receipt_allocation_values]]
+
+            # Combine Results
+            combined_values = documents_values + receipt_allocation_values
+            return combined_values
+        else:
+            return documents_values
 
     elif reference_type == 'Sales Return':
         documents_query = """
@@ -209,6 +277,11 @@ def get_all_customer_pending_receipt_allocations_with_other_receipts(customer, r
         values = frappe.db.sql("""SELECT distinct ra.reference_name,ra.parent as receipt_no,si.rounded_total as invoice_amount,ra.paying_amount FROM `tabReceipt Allocation` ra inner join `tabSales Invoice` si ON si.name= ra.reference_name and ra.reference_type='Sales Invoice' WHERE ra.customer = '{0}' AND ra.parent!='{1}' AND si.docstatus=1 AND (ra.docstatus= 1 or ra.docstatus=0) AND ((si.paid_amount<si.rounded_total) or si.name in (select distinct reference_name from `tabReceipt Allocation` where reference_type='Sales Invoice' and parent='{1}')) ORDER BY ra.reference_name """.format(customer, receipt_no),as_dict=1)
                 
         return {'values': values}
+    
+    elif reference_type == 'Progressive Sales Invoice':
+        values = frappe.db.sql("""SELECT distinct ra.reference_name,ra.parent as receipt_no,si.rounded_total as invoice_amount,ra.paying_amount FROM `tabReceipt Allocation` ra inner join `tabProgressive Sales Invoice` si ON si.name= ra.reference_name and ra.reference_type='Progressive Sales Invoice' WHERE ra.customer = '{0}' AND ra.parent!='{1}' AND si.docstatus=1 AND (ra.docstatus= 1 or ra.docstatus=0) AND ((si.paid_amount<si.rounded_total) or si.name in (select distinct reference_name from `tabReceipt Allocation` where reference_type='Sales Invoice' and parent='{1}')) ORDER BY ra.reference_name """.format(customer, receipt_no),as_dict=1)
+                
+        return {'values': values}
 
     elif reference_type == 'Sales Return':
         values = frappe.db.sql("""SELECT distinct ra.reference_name,ra.parent as receipt_no,sr.rounded_total as invoice_amount,ra.paying_amount FROM `tabReceipt Allocation` ra inner join `tabSales Return` sr ON sr.name= ra.reference_name and ra.reference_type='Sales Return' WHERE ra.customer = '{0}' AND ra.parent!='{1}' AND sr.docstatus=1 AND (ra.docstatus= 1 or ra.docstatus=0) AND ((sr.paid_amount<sr.rounded_total) or sr.name in (select distinct reference_name from `tabReceipt Allocation` where reference_type='Sales Return' and parent='{1}')) ORDER BY ra.reference_name """.format(customer, receipt_no),as_dict=1)
@@ -250,6 +323,15 @@ def get_allocations_for_sales_invoice(sales_invoice_no, receipt_no):
         # Note that the parent!{0} means it fetches the allocations for the invoice not in the current payment entry but from the other existing payment entries
 
         return frappe.db.sql("""SELECT ra.reference_name,ra.parent as receipt_no,si.rounded_total as invoice_amount,ra.paying_amount FROM `tabReceipt Allocation` ra inner join `tabSales Invoice` si ON si.name= ra.reference_name AND ra.reference_type='Sales Invoice' WHERE ra.reference_name = '{0}' AND ra.parent!='{1}' AND (ra.docstatus= 1 or ra.docstatus = 0) AND si.docstatus=1 ORDER BY ra.reference_name """.format(sales_invoice_no, receipt_no),as_dict=1)
+
+@frappe.whitelist()
+def get_allocations_for_progressive_sales_invoice(sales_invoice_no, receipt_no):
+    if(receipt_no ==""):
+        return frappe.db.sql("""SELECT ra.reference_name,ra.parent as receipt_no,si.rounded_total as invoice_amount,ra.paying_amount FROM `tabReceipt Allocation` ra inner join `tabProgressive Sales Invoice` si ON si.name= ra.reference_name AND ra.reference_type='Sales Invoice' WHERE ra.reference_name = '{0}' AND (ra.docstatus= 1 or ra.docstatus = 0) AND si.docstatus=1 ORDER BY ra.reference_name """.format(sales_invoice_no),as_dict=1)
+    else:
+        # Note that the parent!{0} means it fetches the allocations for the invoice not in the current payment entry but from the other existing payment entries
+
+        return frappe.db.sql("""SELECT ra.reference_name,ra.parent as receipt_no,si.rounded_total as invoice_amount,ra.paying_amount FROM `tabReceipt Allocation` ra inner join `tabProgressive Sales Invoice` si ON si.name= ra.reference_name AND ra.reference_type='Sales Invoice' WHERE ra.reference_name = '{0}' AND ra.parent!='{1}' AND (ra.docstatus= 1 or ra.docstatus = 0) AND si.docstatus=1 ORDER BY ra.reference_name """.format(sales_invoice_no, receipt_no),as_dict=1)
 
 @frappe.whitelist()
 def get_allocations_for_sales_return(sales_invoice_no, receipt_no):

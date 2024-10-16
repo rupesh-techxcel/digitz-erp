@@ -44,8 +44,6 @@ def get_accounts_data(from_date, to_date, period_list):
             accounts[d.parent_account][period["key"]] = accounts[d.parent_account].get(period["key"], 0) + balance
                 
             update_parent_accounts_recursive(d.parent_account, accounts, d.account_name,balance, period)
-            
-    
     
     return accounts
 
@@ -100,11 +98,4 @@ def re_process_account_data(accounts):
         data.append(account_data)
     
     return data
-
-def update_account_balance_for_period(account_data, period):
-    
-    #print("")
-    
-    
-    
     

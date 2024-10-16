@@ -49,7 +49,6 @@
   "column_break_kjrk",
   "section_break_19",
   "items",
-  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
@@ -89,6 +88,7 @@
   "tab_break_50",
   "data_53",
   "quotation",
+  "boq",
   "address_line_1",
   "address_line_2",
   "area_name",
@@ -553,13 +553,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Item Table",
-   "options": "Sales Order New Item Details"
-  },
-  {
    "fieldname": "amount",
    "fieldtype": "HTML",
    "label": "Amount"
@@ -580,6 +573,12 @@
    "fieldname": "project_short_name_from_boq",
    "fieldtype": "Data",
    "label": "Project Short Name (from BOQ)"
+  },
+  {
+   "fetch_from": "quotation.boq",
+   "fieldname": "boq",
+   "fieldtype": "Data",
+   "label": "BOQ"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -598,7 +597,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-09 15:24:09.298938",
+ "modified": "2024-10-16 08:54:40.593635",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

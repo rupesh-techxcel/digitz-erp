@@ -71,6 +71,47 @@ class PurchaseOrder(Document):
 						frappe.throw("Same item canot use in multiple rows with the same display name.")
 				idx2= idx2 + 1
 			idx = idx + 1
+   
+	def on_update(self):
+     
+		if self.purchase_order:
+			self.update_material_request_quantities_on_update()			
+     
+	def on_cancel(self):
+    
+		if self.material_request:
+			#print("Calling update po qties b4 cancel or delete")
+			self.update_material_request_quantities_on_update(forDeleteOrCancel=True)
+	
+	def on_trash(self):
+     
+		if self.material_request:
+			self.update_material_request_quantities_on_update(forDeleteOrCancel=True)
+	
+	def update_material_request_quantities_on_update(self, forDeleteOrCancel=False):
+
+		po_reference_any = False
+
+		for item in self.items:
+			if not item.po_item_reference:
+				continue
+			else:
+				# Get total purchase invoice qty for the po_item_reference other than in the current purchase invoice.
+				total_purchased_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Order Item` pinvi inner join `tabPurchase Order` pinv on pinvi.parent= pinv.name WHERE pinvi.mr_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.mr_item_reference, self.name))[0][0]
+				po_item = frappe.get_doc("Material Request Item", item.mr_item_reference)
+
+				# Get Total returned quantity for the po_item, since there can be multiple purchase invoice line items for the same po_item_reference and which could be returned from the purchase invoices as well.
+
+				total_qty_purchased = (total_purchased_qty_not_in_this_pi if total_purchased_qty_not_in_this_pi else 0) 
+
+				po_item.qty_purchased_in_base_unit = total_qty_purchased + (item.qty_in_base_unit if not forDeleteOrCancel else 0)
+
+				po_item.save()
+				po_reference_any = True
+
+		if(po_reference_any):
+			frappe.msgprint("Purchased Qty of items in the corresponding material request updated successfully", indicator= "green", alert= True)
+
 
 @frappe.whitelist()
 def get_default_payment_mode():

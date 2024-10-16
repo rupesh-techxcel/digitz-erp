@@ -20,7 +20,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "price_list",
-  "default_cost_center",
+  "project",
   "column_break_10",
   "do_no",
   "warehouse",
@@ -66,7 +66,9 @@
   "terms",
   "terms_and_conditions",
   "section_break_27",
-  "amended_from"
+  "amended_from",
+  "references_tab",
+  "material_request"
  ],
  "fields": [
   {
@@ -382,12 +384,6 @@
    "label": "Update Rates in price list"
   },
   {
-   "fieldname": "default_cost_center",
-   "fieldtype": "Link",
-   "label": "Default Cost Center",
-   "options": "Cost Center"
-  },
-  {
    "fieldname": "supplier_balance",
    "fieldtype": "Currency",
    "label": "Supplier Balance",
@@ -397,6 +393,24 @@
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "references_tab",
+   "fieldtype": "Tab Break",
+   "label": "References"
+  },
+  {
+   "fieldname": "material_request",
+   "fieldtype": "Link",
+   "label": "Material Request",
+   "options": "Material Request",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
@@ -406,7 +420,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-04-22 11:54:45.395464",
+ "modified": "2024-10-14 10:26:16.508457",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

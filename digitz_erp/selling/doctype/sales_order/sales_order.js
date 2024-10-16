@@ -1043,10 +1043,7 @@ frappe.ui.form.on('Sales Order Item', {
 	lumpsum_amount(frm,cdt,cdn){
 		update_row(frm,cdt,cdn);
 	},
-
-
 });
-
 
 function update_row(frm,cdt,cdn){
 	let row = frappe.get_doc(cdt,cdn);
@@ -1058,29 +1055,9 @@ function update_row(frm,cdt,cdn){
 		frappe.model.set_value(cdt,cdn,'qty', 0);
 		frappe.model.set_value(cdt,cdn,'net_amount', row.gross_amount + tax_amount); 
 		frm.trigger("make_taxes_and_totals");
-	}
-	
+	}	
 }
 
-
-frappe.ui.form.on('Sales Order New Item Details', {
-    qty: function(frm, cdt, cdn) {
-        let row = frappe.get_doc(cdt, cdn);
-        if (row.qty && row.rate) {
-            let amt = row.qty * row.rate;
-            frappe.model.set_value(cdt, cdn, 'amount', amt);
-			update_total_big_display_1(frm)
-        }
-    },
-    rate: function(frm, cdt, cdn) {
-        let row = frappe.get_doc(cdt, cdn);
-        if (row.qty && row.rate) {
-            let amt = row.qty * row.rate;
-            frappe.model.set_value(cdt, cdn, 'amount', amt);
-			update_total_big_display_1(frm)
-        }
-    },
-});
 
 
 

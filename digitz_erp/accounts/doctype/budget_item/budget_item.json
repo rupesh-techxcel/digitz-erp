@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:budget_item",
+ "creation": "2024-10-14 14:41:55.474340",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "budget_item",
+  "account",
+  "disabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "label": "Account",
+   "link_filters": "[[\"Account\",\"root_type\",\"=\",\"Expense\"],[\"Account\",\"is_group\",\"=\",0]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "budget_item",
+   "fieldtype": "Data",
+   "label": "Budget Item",
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-10-14 16:50:51.444515",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Budget Item",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
