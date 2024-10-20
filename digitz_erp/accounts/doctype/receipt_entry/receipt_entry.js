@@ -380,6 +380,10 @@ allocations: function(frm, cdt, cdn)
 	
 	client_method = "digitz_erp.api.receipt_entry_api.get_customer_pending_documents";
 	
+
+	console.log("selected_reference_type")
+	console.log(selected_reference_type)
+
 	frappe.call({
 		method: client_method,
 		args: {
@@ -678,6 +682,7 @@ allocations: function(frm, cdt, cdn)
 					row_allocation.balance_amount = element.balance_amount
 					totalPay = totalPay + element.paying_amount
 					row_allocation.receipt_entry_detail = frm.doc.receipt_entry_details[row.idx]
+					
 
 					cur_frm.add_child('receipt_allocation', row_allocation);
 

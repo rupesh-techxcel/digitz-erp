@@ -16,6 +16,7 @@
   "column_break_xtqn",
   "sales_order_net_total",
   "column_break_ivtt",
+  "company",
   "progress_entry_details_section",
   "is_prev_progress_exists",
   "previous_progress_entry",
@@ -43,12 +44,10 @@
   "salesman",
   "salesman_code",
   "column_break_kscq",
-  "company",
   "lpo_date",
   "lpo_no",
   "order_status",
   "default_cost_center",
-  "sales_order_id",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -62,24 +61,16 @@
   "column_break_kjrk",
   "section_break_19",
   "progress_entry_items",
-  "section_break_hgqy",
-  "column_break_ygse",
-  "total_completion_percentage",
-  "column_break_cnkh",
-  "gross_total",
-  "column_break_wlra",
-  "tax_total",
-  "column_break_qyse",
-  "net_total",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
   "column_break_ywbh",
-  "section_break_25",
-  "gross_total_1",
-  "tax_total_1",
-  "net_total_1",
+  "section_break_hgqy",
+  "column_break_ejhs",
+  "gross_total",
+  "tax_total",
+  "net_total",
   "column_break_33",
   "total_discount_in_line_items",
   "additional_discount",
@@ -87,19 +78,9 @@
   "round_off",
   "rounded_total",
   "in_words",
-  "total_details_section",
-  "gross_total_copy",
-  "tax_total_copy",
-  "net_total_copy",
-  "column_break_pjwt",
-  "total_discount_in_line_items_copy",
-  "additional_discount_copy",
-  "column_break_wnka",
-  "round_off_copy",
-  "rounded_total_copy",
-  "in_words_copy",
-  "column_break_euvi",
-  "amount",
+  "column_break_ygse",
+  "total_big",
+  "total_completion_percentage",
   "tab_break_50",
   "data_53",
   "quotation",
@@ -353,32 +334,25 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_25",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Totals"
-  },
-  {
    "fieldname": "gross_total",
    "fieldtype": "Currency",
    "label": "Gross Total",
-   "non_negative": 1,
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
    "fieldname": "tax_total",
    "fieldtype": "Currency",
    "label": "Tax Total",
-   "non_negative": 1,
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
-   "bold": 1,
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "label": "Net Total",
-   "non_negative": 1,
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_33",
@@ -387,12 +361,14 @@
   {
    "fieldname": "total_discount_in_line_items",
    "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
+   "label": "Total Discount In Line Items",
+   "precision": "2"
   },
   {
    "fieldname": "additional_discount",
    "fieldtype": "Currency",
-   "label": "Additional Discount"
+   "label": "Additional Discount",
+   "precision": "2"
   },
   {
    "fieldname": "column_break_xkzu",
@@ -409,86 +385,13 @@
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
    "label": "Rounded Total",
+   "precision": "2",
    "read_only": 1
   },
   {
    "fieldname": "in_words",
    "fieldtype": "Data",
    "label": "In Words"
-  },
-  {
-   "fieldname": "total_details_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Total Details"
-  },
-  {
-   "default": "0",
-   "fieldname": "gross_total_copy",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "tax_total_copy",
-   "fieldtype": "Currency",
-   "label": "Tax Total",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "net_total_copy",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_pjwt",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_discount_in_line_items_copy",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
-  },
-  {
-   "fieldname": "additional_discount_copy",
-   "fieldtype": "Currency",
-   "label": "Additional Discount"
-  },
-  {
-   "fieldname": "column_break_wnka",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "round_off_copy",
-   "fieldtype": "Float",
-   "label": "Round Off",
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "rounded_total_copy",
-   "fieldtype": "Currency",
-   "label": "Rounded Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "in_words_copy",
-   "fieldtype": "Data",
-   "label": "In Words"
-  },
-  {
-   "fieldname": "column_break_euvi",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "HTML",
-   "label": "Amount"
   },
   {
    "fieldname": "tab_break_50",
@@ -552,12 +455,6 @@
    "options": "Progress Entry Items"
   },
   {
-   "fieldname": "sales_order_id",
-   "fieldtype": "Data",
-   "label": "Sales Order ID",
-   "read_only": 1
-  },
-  {
    "fieldname": "project_details_section",
    "fieldtype": "Section Break",
    "label": "Project Details"
@@ -608,10 +505,6 @@
    "label": "Statistics"
   },
   {
-   "fieldname": "column_break_wlra",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_xtqn",
    "fieldtype": "Column Break"
   },
@@ -625,28 +518,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_qyse",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "gross_total_1",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "tax_total_1",
-   "fieldtype": "Currency",
-   "label": "Tax Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "net_total_1",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
-  },
-  {
    "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
    "label": "Project Completion Percentage",
@@ -654,10 +525,6 @@
   },
   {
    "fieldname": "column_break_ygse",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_cnkh",
    "fieldtype": "Column Break"
   },
   {
@@ -675,6 +542,14 @@
   {
    "fieldname": "column_break_hgdc",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ejhs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -688,7 +563,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-10-12 19:16:39.524467",
+ "modified": "2024-10-19 10:52:24.419683",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

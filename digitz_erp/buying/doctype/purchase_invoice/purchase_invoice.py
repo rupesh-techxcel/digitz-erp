@@ -35,13 +35,14 @@ class PurchaseInvoice(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
-
-		# Add one second to the datetime object
-		new_datetime = datetime_object + timedelta(seconds=1)
-
-		# Extract the new time as a string
-		self.posting_time = new_datetime.strftime('%H:%M:%S')
+		 # Correct format to handle fractional seconds
+		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S.%f')
+		
+		# Add 1 second
+		datetime_object += timedelta(seconds=1)
+		
+		# Update posting time with the incremented second
+		self.posting_time = datetime_object.time()
 
 
 	def before_validate(self):

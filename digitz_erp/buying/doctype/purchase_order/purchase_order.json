@@ -15,31 +15,34 @@
   "supplier_address",
   "tax_id",
   "column_break_6",
-  "company",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
   "price_list",
-  "project",
+  "rate_includes_tax",
   "column_break_10",
-  "do_no",
   "warehouse",
   "order_status",
   "due_date",
-  "rate_includes_tax",
+  "project",
+  "material_request",
+  "column_break_qeth",
+  "company",
+  "do_no",
   "supplier_inv_no",
   "accounts_section",
   "credit_purchase",
   "credit_days",
-  "payment_terms",
   "payment_mode",
   "mode",
   "payment_account",
   "column_break_24",
-  "remarks",
+  "payment_terms",
+  "column_break_hrld",
   "reference_no",
   "reference_date",
-  "column_break_hrld",
+  "column_break_rgod",
+  "remarks",
   "section_break_19",
   "items",
   "section_break_29",
@@ -62,13 +65,14 @@
   "rounded_total",
   "paid_amount",
   "in_words",
+  "column_break_xkte",
+  "total_big",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
   "section_break_27",
   "amended_from",
-  "references_tab",
-  "material_request"
+  "references_tab"
  ],
  "fields": [
   {
@@ -406,11 +410,26 @@
    "label": "References"
   },
   {
+   "fieldname": "column_break_qeth",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rgod",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "material_request",
    "fieldtype": "Link",
    "label": "Material Request",
-   "options": "Material Request",
-   "read_only": 1
+   "options": "Material Request"
+  },
+  {
+   "fieldname": "column_break_xkte",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
   }
  ],
  "is_submittable": 1,
@@ -418,9 +437,13 @@
   {
    "link_doctype": "Purchase Invoice",
    "link_fieldname": "purchase_order"
+  },
+  {
+   "link_doctype": "Purchase Receipt",
+   "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-10-14 10:26:16.508457",
+ "modified": "2024-10-17 12:05:35.019420",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

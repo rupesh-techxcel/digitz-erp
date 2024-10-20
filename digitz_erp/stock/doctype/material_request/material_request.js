@@ -44,32 +44,49 @@ frappe.ui.form.on("Material Request", {
 		}
     },
 	refresh(frm) {
-        if(!frm.is_new() && (frm.doc.docstatus == 1)){
-            if(frm.doc.material_request_type == "Stock Transfer"){
-                frm.add_custom_button(__("Stock Transfer"),()=>{
+        if (!frm.is_new() && frm.doc.docstatus == 1) {
+    
+            // For Stock Transfer type
+            if (frm.doc.material_request_type == "Stock Transfer") {
+                frm.add_custom_button(__("Stock Transfer"), () => {
                     console.log("Stock Transfer");
-                },__("Action"));   
+                }, __("Action"));
             }
+    
+            // For Purchase type, check if there are pending items
             if (frm.doc.material_request_type == "Purchase") {
-                frm.add_custom_button(__("Purchase Order"), () => {
-            
-                    frappe.call({
-                        method: "digitz_erp.api.purchase_order_api.create_purchase_order_from_material_request",
-                        args: {
-                            material_request: frm.doc.name
-                        },
-                        callback: function(r) {
-                            if (r.message) {
-                                // Open the Purchase Order in the UI without saving it
-                                let po_doc = frappe.model.sync([r.message])[0];
-                                frappe.set_route("Form", "Purchase Order", po_doc.name);
-                            }
+    
+                frappe.call({
+                    method: "digitz_erp.api.purchase_order_api.check_pending_items_in_material_request",
+                    args: {
+                        mr_no: frm.doc.name
+                    },
+                    callback: function(r) {
+                        if (r.message === true) {  // Check if server-side method returned True
+                            frm.add_custom_button(__("Create Purchase Order"), () => {
+    
+                                frappe.call({
+                                    method: "digitz_erp.api.purchase_order_api.create_purchase_order_from_material_request",
+                                    args: {
+                                        material_request: frm.doc.name
+                                    },
+                                    callback: function(r) {
+                                        if (r.message) {
+                                            // Open the Purchase Order in the UI without saving it
+                                            let po_doc = frappe.model.sync([r.message])[0];
+                                            frappe.set_route("Form", "Purchase Order", po_doc.name);
+                                        }
+                                    }
+                                });
+    
+                            });
                         }
-                    });
+                    }
                 });
-            }            
-        }       
-	},
+    
+            }
+        }
+    },    
     edit_posting_date_and_time(frm)
     {
         if (frm.doc.edit_posting_date_and_time == 1) {
@@ -110,11 +127,7 @@ frappe.ui.form.on("Material Request", {
 
 							frm.doc.warehouse = r2.message.default_warehouse;
 							
-							frm.refresh_field("warehouse");
-							
-							
-
-
+							frm.refresh_field("warehouse");							
 
 						}
 					}
@@ -191,6 +204,7 @@ frappe.ui.form.on('Material Request Item', {
         row.source_warehouse = frm.doc.source_warehouse;
         row.target_warehouse = frm.doc.target_warehouse;
         row.project = frm.doc.project
+        row.schedule_date = frm.doc.schedule_date
     
         // Refresh the items table to reflect the changes
         frm.refresh_field("items");

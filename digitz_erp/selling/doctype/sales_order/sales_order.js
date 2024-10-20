@@ -4,10 +4,9 @@
 frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
 		
-		var pending_items_exists = false
-		
+		var pending_items_exists = false		
 
-		if(frm.doc.docstatus == 1 && frm.doc.project_name_from_boq !=undefined)
+		if(frm.doc.docstatus == 1)
 		{
 			frappe.call({
                 method: 'digitz_erp.api.sales_order_api.check_project_exists',

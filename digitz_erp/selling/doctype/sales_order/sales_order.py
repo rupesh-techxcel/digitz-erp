@@ -12,8 +12,7 @@ class SalesOrder(Document):
 	 
 	def before_validate(self):
 		self.in_words = money_in_words(self.net_total,"AED")
-		self.in_words_copy = money_in_words(self.net_total_copy,"AED")
-
+		
 		if self.is_new():
 			for item in self.items:
 				item.qty_sold_in_base_unit = 0

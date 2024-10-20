@@ -13,7 +13,7 @@ class MaterialRequest(Document):
 
 		any_approved_qty = False
 		for item in self.items:  # Replace 'items' with the actual child table field name
-			if item.approved_quantity > 0:  # Replace 'approved_qty' with the actual field name in the child table
+			if item.qty_approved > 0:  # Replace 'approved_qty' with the actual field name in the child table
 				any_approved_qty = True
 				break
 

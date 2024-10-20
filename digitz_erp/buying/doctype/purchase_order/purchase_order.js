@@ -11,26 +11,79 @@ frappe.ui.form.on('Purchase Order', {
 				console.log("frm.doc.name")
 				console.log(frm.doc.name)
 
+				frappe.call({
+                    method: "digitz_erp.api.purchase_order_api.check_pending_items_in_purchase_order",
+                    args: {
+                        po_no: frm.doc.name
+                    },
+                    callback: function(r) {
+                        if (r.message === true) {  // Check if server-side method returned True
 
-				frm.add_custom_button('Create Purchase Receipt', () => {
-									frappe.call({
-										method: 'digitz_erp.buying.doctype.purchase_order.purchase_order.generate_purchase_receipt_for_purchase_order',
-										args: {
-											purchase_order: frm.doc.name
+							let create_pr = false
+
+							if (frm.doc.order_status != "Completed")
+							{
+								create_pr = true
+							}
+
+							if(create_pr)
+							{
+								frm.add_custom_button('Create Purchase Receipt', () => {
+											frappe.call({
+												method: 'digitz_erp.api.purchase_order_api.create_purchase_receipt_for_purchase_order',
+												args: {
+													purchase_order: frm.doc.name
+												},
+												callback: function(r) {
+
+													console.log("purchase receipt client side")
+													console.log(r.message)
+													if (r.message) {
+														// Open the Purchase Order in the UI without saving it
+														let pr_doc = frappe.model.sync([r.message])[0];
+														console.log("pr_doc")
+														console.log(pr_doc)
+														frappe.set_route("Form", "Purchase Receipt", pr_doc.name);
+													}
+												}										
+											});
 										},
-										callback: function(r) {
-											frappe.show_alert({
-												message: __('The purchase receipt has been successfully generated and saved in draft mode.'),
-												indicator: 'green'
-											},3);
-											frm.reload_doc();
-											if(r.message !="No Pending Items")
-												frappe.set_route('Form', 'Purchase Receipt', r.message);
-										}
-									});
-								},
-					);
+									);
+								}
+
+								let create_pi = false
+
+								if (frm.doc.order_status != "Completed")
+								{
+									create_pi = true
+								}
+	
+								if(create_pi)
+								{
+									frm.add_custom_button('Create Purchase Invoice', () => {
+										frappe.call({
+											method: 'digitz_erp.api.purchase_order_api.create_purchase_invoice_for_purchase_order',
+											args: {
+												purchase_order: frm.doc.name
+											},
+											callback: function(r) {
+												let pr_doc = frappe.model.sync([r.message])[0];
+												frappe.set_route("Form", "Purchase Invoice", pr_doc.name);
+											}
+										});
+									},
+									);
+								}
+							}
+
+							
+						}}
+					
+					);	
+
 			}
+
+			update_total_big_display(frm)
 	},
 	setup: function (frm) {
 
@@ -81,12 +134,30 @@ frappe.ui.form.on('Purchase Order', {
 	},
 	assign_defaults(frm)
 	{
+		console.log("assign_defaults")
+
+		
+
 		if(frm.is_new())
 		{
 			// frm.clear_table('items');
 
-			frm.trigger("get_default_company_and_warehouse")
+			console.log("material request checking")
 
+			if(frm.doc.material_request != undefined){
+				frm.doc.items.forEach(function(item) {
+					// Call the update_item_row method for each item in the child table
+					update_item_row(frm, item.doctype, item.name);
+				});
+			}
+			else
+			{
+				console.log("table cleared")
+				frm.clear_table('items');
+			}
+
+			frm.trigger("get_default_company_and_warehouse")
+			
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
 
 				console.log("assign defualts")
@@ -99,6 +170,10 @@ frappe.ui.form.on('Purchase Order', {
 			});
 
 			set_default_payment_mode(frm);
+
+			// Iterate through all the items in the Purchase Order
+			
+			
 		}
 	},
 	validate:function(frm){
@@ -240,7 +315,7 @@ frappe.ui.form.on('Purchase Order', {
 						callback: (r2) => {
 							console.log("Before assign default warehouse");
 							console.log(r2.message.default_warehouse);
-							// frm.doc.warehouse = r2.message.default_warehouse;
+							frm.doc.warehouse = r2.message.default_warehouse;
 							// console.log(frm.doc.warehouse);
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
@@ -492,19 +567,12 @@ function set_default_payment_mode(frm)
 }
 
 
-
 frappe.ui.form.on("Purchase Order", "onload", function (frm) {
 
 	frm.trigger("assign_defaults")
 
 	 //When purchase order created from Material Request,client side ensure that the item method is calling for each method
-	 if (frm.is_new()) {
-		// Iterate through all the items in the Purchase Order
-		frm.doc.items.forEach(function(item) {
-			// Call the update_item_row method for each item in the child table
-			update_item_row(frm, item.doctype, item.name);
-		});
-	}
+	 
 
 });
 
@@ -678,12 +746,6 @@ function update_item_row(frm,cdt,cdn){
 			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
 		}
 
-		if (typeof (frm.doc.supplier) == "undefined") {
-			frappe.msgprint("Select Supplier.")
-			row.item = "";
-			return;
-		}
-
 		let row = frappe.get_doc(cdt, cdn);
 
 		let doc = frappe.model.get_value("", row.item);
@@ -846,4 +908,18 @@ function update_item_row(frm,cdt,cdn){
 
 
 			
+}
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
 }

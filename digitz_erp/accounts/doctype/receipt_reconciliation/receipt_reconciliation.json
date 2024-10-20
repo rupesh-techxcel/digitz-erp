@@ -1,0 +1,213 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-10-19 15:33:37.496779",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_iv56",
+  "naming_series",
+  "amended_from",
+  "column_break_akcw",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_hwnw",
+  "column_break_psam",
+  "company",
+  "section_break_srbk",
+  "customer",
+  "column_break_gmpw",
+  "column_break_dtur",
+  "column_break_kxdd",
+  "section_break_ezxt",
+  "column_break_adcq",
+  "receipts",
+  "column_break_jpdd",
+  "invoices",
+  "section_break_xhew",
+  "column_break_hiok",
+  "column_break_wdrm",
+  "column_break_hpbf",
+  "auto_allocate",
+  "column_break_otrd",
+  "allocate",
+  "column_break_pfow",
+  "clear_allocations"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_iv56",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Receipt Reconciliation",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "RREC-.#####.-.MM.-.YYYY."
+  },
+  {
+   "fieldname": "column_break_akcw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "column_break_hwnw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_psam",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_srbk",
+   "fieldtype": "Section Break",
+   "label": "Filter By"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_gmpw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dtur",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kxdd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ezxt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "invoices",
+   "fieldtype": "Table",
+   "label": "Invoices",
+   "options": "Receipt Reconciliation Invoice"
+  },
+  {
+   "fieldname": "column_break_adcq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receipts",
+   "fieldtype": "Table",
+   "label": "Receipts",
+   "options": "Receipt Reconciliation Receipt"
+  },
+  {
+   "columns": 6,
+   "fieldname": "column_break_jpdd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_allocate",
+   "fieldtype": "Button",
+   "label": "Auto Allocate"
+  },
+  {
+   "fieldname": "allocate",
+   "fieldtype": "Button",
+   "label": "Allocate"
+  },
+  {
+   "fieldname": "section_break_xhew",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_hiok",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wdrm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hpbf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_otrd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pfow",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "clear_allocations",
+   "fieldtype": "Button",
+   "label": "Clear Allocations"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-10-20 10:02:47.573150",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Receipt Reconciliation",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

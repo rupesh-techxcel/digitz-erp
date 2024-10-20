@@ -39,8 +39,8 @@
   "lpo_date",
   "lpo_no",
   "order_status",
+  "payment_status",
   "default_cost_center",
-  "sales_order_id",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -56,20 +56,10 @@
   "remarks",
   "section_break_19",
   "progress_entry_items",
-  "section_break_hgqy",
-  "total_completion_percentage",
-  "column_break_vgns",
+  "section_break_25",
   "gross_total",
-  "column_break_wlra",
   "tax_total",
   "net_total",
-  "paid_amount",
-  "column_break_qyse",
-  "total_big",
-  "section_break_25",
-  "gross_total_1",
-  "tax_total_1",
-  "net_total_1",
   "column_break_33",
   "total_discount_in_line_items",
   "additional_discount",
@@ -77,6 +67,9 @@
   "round_off",
   "rounded_total",
   "in_words",
+  "column_break_xfiy",
+  "total_big",
+  "total_completion_percentage",
   "tab_break_50",
   "data_53",
   "quotation",
@@ -262,12 +255,6 @@
    "options": "Cost Center"
   },
   {
-   "fieldname": "sales_order_id",
-   "fieldtype": "Data",
-   "label": "Sales Order ID",
-   "read_only": 1
-  },
-  {
    "collapsible": 1,
    "fieldname": "accounts_section",
    "fieldtype": "Section Break",
@@ -349,63 +336,9 @@
    "precision": "0"
   },
   {
-   "fieldname": "section_break_hgqy",
-   "fieldtype": "Section Break",
-   "label": "Total Details"
-  },
-  {
-   "fieldname": "gross_total",
-   "fieldtype": "Float",
-   "label": "Gross Total",
-   "non_negative": 1,
-   "precision": "3"
-  },
-  {
-   "fieldname": "column_break_wlra",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "tax_total",
-   "fieldtype": "Float",
-   "label": "Tax Total",
-   "non_negative": 1,
-   "precision": "3"
-  },
-  {
-   "fieldname": "column_break_qyse",
-   "fieldtype": "Column Break"
-  },
-  {
-   "bold": 1,
-   "fieldname": "net_total",
-   "fieldtype": "Float",
-   "label": "Net Total",
-   "non_negative": 1,
-   "precision": "3"
-  },
-  {
    "fieldname": "section_break_25",
    "fieldtype": "Section Break",
-   "hidden": 1,
    "label": "Totals"
-  },
-  {
-   "fieldname": "gross_total_1",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "tax_total_1",
-   "fieldtype": "Currency",
-   "label": "Tax Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "net_total_1",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
   },
   {
    "fieldname": "column_break_33",
@@ -436,6 +369,7 @@
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
    "label": "Rounded Total",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -549,10 +483,6 @@
    "search_index": 1
   },
   {
-   "fieldname": "column_break_vgns",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_nkmh",
    "fieldtype": "Column Break"
   },
@@ -579,11 +509,6 @@
    "options": "Sales Receipt Schedule"
   },
   {
-   "fieldname": "paid_amount",
-   "fieldtype": "Currency",
-   "label": "Paid Amount"
-  },
-  {
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date",
@@ -592,6 +517,37 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "column_break_xfiy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gross_total",
+   "fieldtype": "Currency",
+   "label": "Gross Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Currency",
+   "label": "Tax Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Data",
+   "label": "Payment Status",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -606,7 +562,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-13 11:00:23.613592",
+ "modified": "2024-10-19 14:00:33.892092",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

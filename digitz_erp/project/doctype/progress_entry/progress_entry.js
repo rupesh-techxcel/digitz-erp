@@ -94,7 +94,6 @@ refresh(frm) {
       }
   });
   
-
   },
   project(frm){
     frm.set_value('progress_entry_items',[]);
@@ -340,6 +339,8 @@ function update_table_and_total(frm,r){
       // Refresh the field to show the updated items
       frm.refresh_field("progress_entry_items");
       frm.refresh_fields()
+
+      update_total_amounts(frm);
 }
 
 frappe.ui.form.on("Progress Entry Items", {
@@ -588,6 +589,52 @@ function update_total_amounts(frm){
   frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
   frm.set_value('net_total', net_total);
+
+  // Round Off
+
+  frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
+    console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
+    if (data && data.do_not_apply_round_off_in_si == 1) {
+      frm.doc.rounded_total = frm.doc.net_total;
+      frm.refresh_field('rounded_total');				
+    }
+    else {
+     if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
+       frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
+       frm.doc.rounded_total = Math.round(frm.doc.net_total);
+       frm.refresh_field('round_off');
+       frm.refresh_field('rounded_total');				 
+     }
+     else{
+
+      frm.doc.rounded_total = frm.doc.net_total;
+      frm.refresh_field("rounded_total");
+
+      console.log(frm.doc.net_total)
+      console.log(frm.doc.rounded_total)
+      
+      
+     }
+   }
+   
+  });
+
+  update_total_big_display(frm)  
+}
+
+
+function update_total_big_display(frm) {
+
+	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
 }
 
 function update_total_completion_readonly(frm, row) {

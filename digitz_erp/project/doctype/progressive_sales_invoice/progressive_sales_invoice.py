@@ -120,6 +120,24 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.remarks = remarks
 			gl_doc.insert()
 			idx +=1
+   
+		if self.round_off != 0.00:
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Sales Invoice"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = default_accounts.round_off_account
+
+			if self.rounded_total > self.net_total:
+				gl_doc.credit_amount = abs(self.round_off)
+			else:
+				gl_doc.debit_amount = abs(self.round_off)
+			
+			gl_doc.remarks = remarks
+			gl_doc.insert()
+			idx +=1
 			
 	def insert_payment_postings(self):
 		

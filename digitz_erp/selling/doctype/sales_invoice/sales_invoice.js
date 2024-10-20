@@ -11,6 +11,17 @@ frappe.ui.form.on('Sales Invoice', {
 
 
 		update_total_big_display(frm);
+		
+        frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
+            var child = locals[cdt][cdn];
+            return {
+                filters: {
+                    
+                    'item_type':['not in', ['Labour']]
+                }
+            };
+        };
+    
 
 	 },
 	 setup: function (frm) {
@@ -435,9 +446,7 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.refresh_field("net_total");
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
-		frm.refresh_field("rounded_total");
-
-		
+		frm.refresh_field("rounded_total");		
 
 		update_total_big_display(frm);
 
@@ -1377,12 +1386,7 @@ frappe.ui.form.on("Sales Invoice",{
         //     // Show the dialog
         //     d.show();
         // });
-    },
-    make_taxes_and_totals(frm){
-		if(frm.doc.project){
-			update_total_big_display_1(frm);
-		}
-    },
+    },    
     setup(frm){
         let prev_customer = localStorage.getItem("prev_customer");
         let prev_project = localStorage.getItem("prev_project");
@@ -1447,22 +1451,3 @@ frappe.ui.form.on("Sales Invoice",{
 })
 
 
-
-
-function update_total_big_display_1(frm) {
-
-	// let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
-	let netTotal=0;
-	frm.doc.item_table.forEach((e)=>{
-			netTotal+= e.amount;
-	})
-    netTotal = netTotal.toFixed(2);
-    // Add 'AED' prefix and format net_total for display
-
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
-
-    frm.set_value("net_total",netTotal);
-    // Directly update the HTML content of the 'total_big' field
-	frm.fields_dict['total_big'].$wrapper.html(displayHtml);
-
-}

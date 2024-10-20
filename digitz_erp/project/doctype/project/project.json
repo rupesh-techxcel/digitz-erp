@@ -125,7 +125,7 @@
    "precision": "2"
   },
   {
-   "fetch_from": "sales_order.net_total_copy",
+   "fetch_from": "sales_order.net_total",
    "fieldname": "project_amount",
    "fieldtype": "Float",
    "label": "Project Amount",
@@ -268,7 +268,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-10-12 15:04:16.749074",
+ "modified": "2024-10-19 14:37:15.859730",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

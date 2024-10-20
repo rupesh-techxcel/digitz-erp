@@ -139,7 +139,8 @@ frappe.ui.form.on('Purchase Receipt', {
 		if(frm.is_new())
 		{
 			// Remove the initial blank item row
-			frm.clear_table('items');
+			if (frm.doc.purchase_order== undefined)
+				frm.clear_table('items');
 
 			frm.trigger("get_default_company_and_warehouse");
 

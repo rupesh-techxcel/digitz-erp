@@ -234,8 +234,13 @@
  ],
  "icon": "fa fa-ticket",
  "is_submittable": 1,
- "links": [],
- "modified": "2024-10-14 08:52:32.367119",
+ "links": [
+  {
+   "link_doctype": "Purchase Order",
+   "link_fieldname": "material_request"
+  }
+ ],
+ "modified": "2024-10-17 19:31:24.758414",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",

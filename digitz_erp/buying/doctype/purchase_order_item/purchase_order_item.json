@@ -187,7 +187,6 @@
    "allow_on_submit": 1,
    "fieldname": "qty_purchased_in_base_unit",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Qty Purchased",
    "read_only": 1
   },
@@ -202,7 +201,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-14 10:49:46.979420",
+ "modified": "2024-10-17 12:23:02.910724",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

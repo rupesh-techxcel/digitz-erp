@@ -15,7 +15,7 @@
   "project",
   "column_break_wqim",
   "qty",
-  "approved_quantity",
+  "qty_approved",
   "unit",
   "conversion_factor",
   "column_break_czey",
@@ -119,11 +119,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "approved_quantity",
-   "fieldtype": "Float",
-   "label": "Approved Quantity"
-  },
-  {
    "fieldname": "column_break_czey",
    "fieldtype": "Column Break"
   },
@@ -150,15 +145,21 @@
    "options": "Warehouse"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "qty_purchased_in_base_unit",
    "fieldtype": "Float",
    "label": "Qty Purchased"
+  },
+  {
+   "fieldname": "qty_approved",
+   "fieldtype": "Float",
+   "label": "Quantity Approved"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-14 10:40:45.215873",
+ "modified": "2024-10-17 10:40:20.421115",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",
