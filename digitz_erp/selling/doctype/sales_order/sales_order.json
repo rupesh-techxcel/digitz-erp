@@ -75,10 +75,6 @@
   "data_53",
   "quotation",
   "boq",
-  "address_line_1",
-  "address_line_2",
-  "area_name",
-  "country",
   "amended_from"
  ],
  "fields": [
@@ -112,34 +108,6 @@
    "fieldname": "customer_address",
    "fieldtype": "Small Text",
    "label": "Address"
-  },
-  {
-   "fetch_from": "customer.address_line_1",
-   "fieldname": "address_line_1",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 1"
-  },
-  {
-   "fetch_from": "customer.address_line_2",
-   "fieldname": "address_line_2",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 2"
-  },
-  {
-   "fetch_from": "customer.area_name",
-   "fieldname": "area_name",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Area Name"
-  },
-  {
-   "fetch_from": "customer.country",
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Country"
   },
   {
    "fieldname": "column_break_6",
@@ -475,16 +443,15 @@
    "label": "Project Short Name (from BOQ)"
   },
   {
-   "fetch_from": "quotation.boq",
-   "fieldname": "boq",
-   "fieldtype": "Data",
-   "label": "BOQ"
-  },
-  {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
    "label": "Paid Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Read Only",
+   "label": "BOQ"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -503,7 +470,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-19 14:15:50.026049",
+ "modified": "2024-10-22 15:49:52.196935",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

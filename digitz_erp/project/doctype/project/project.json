@@ -22,6 +22,7 @@
   "customer_details_section",
   "customer",
   "sales_order",
+  "boq",
   "column_break_nzbm",
   "advance_entry",
   "advance_amount",
@@ -231,6 +232,12 @@
    "fieldname": "progress_entry_link",
    "fieldtype": "HTML",
    "label": "Progress Entry"
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Data",
+   "label": "BOQ",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -268,7 +275,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-10-19 14:37:15.859730",
+ "modified": "2024-10-22 19:01:29.283904",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

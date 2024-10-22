@@ -84,10 +84,7 @@
   "tab_break_50",
   "data_53",
   "quotation",
-  "address_line_1",
-  "address_line_2",
-  "area_name",
-  "country",
+  "boq",
   "amended_from"
  ],
  "fields": [
@@ -410,34 +407,6 @@
    "options": "Quotation"
   },
   {
-   "fetch_from": "customer.address_line_1",
-   "fieldname": "address_line_1",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 1"
-  },
-  {
-   "fetch_from": "customer.address_line_2",
-   "fieldname": "address_line_2",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 2"
-  },
-  {
-   "fetch_from": "customer.area_name",
-   "fieldname": "area_name",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Area Name"
-  },
-  {
-   "fetch_from": "customer.country",
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Country"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -550,6 +519,13 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "fetch_from": "project.boq",
+   "fieldname": "boq",
+   "fieldtype": "Link",
+   "label": "BOQ",
+   "options": "BOQ"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -563,7 +539,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-10-19 10:52:24.419683",
+ "modified": "2024-10-22 19:14:28.863151",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

@@ -72,11 +72,6 @@
   "terms_and_conditions",
   "tab_break_50",
   "data_53",
-  "boq",
-  "address_line_1",
-  "address_line_2",
-  "area_name",
-  "country",
   "amended_from"
  ],
  "fields": [
@@ -331,7 +326,6 @@
   {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
-   "hidden": 1,
    "label": "References"
   },
   {
@@ -347,26 +341,6 @@
    "options": "Quotation",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "address_line_1",
-   "fieldtype": "Data",
-   "label": "Address Line 1"
-  },
-  {
-   "fieldname": "address_line_2",
-   "fieldtype": "Data",
-   "label": "Address Line 2"
-  },
-  {
-   "fieldname": "area_name",
-   "fieldtype": "Data",
-   "label": "Area Name"
-  },
-  {
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "label": "Country"
   },
   {
    "fieldname": "customer_display_name",
@@ -451,13 +425,6 @@
    "options": "Enquiry"
   },
   {
-   "fieldname": "boq",
-   "fieldtype": "Link",
-   "label": "BOQ",
-   "options": "BOQ",
-   "read_only": 1
-  },
-  {
    "fieldname": "based_on",
    "fieldtype": "Select",
    "label": "Based On",
@@ -481,7 +448,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-09 15:17:09.128438",
+ "modified": "2024-10-22 15:15:41.066048",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

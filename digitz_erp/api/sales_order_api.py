@@ -288,5 +288,6 @@ def create_project_from_sales_order(sales_order):
     project_doc.sales_order = sales_order_doc.name
     project_doc.customer = sales_order_doc.customer
     project_doc.project_amount = sales_order_doc.net_total
+    project_doc.boq = sales_order_doc.boq
     # Return the document as a dictionary
     return project_doc.as_dict()

@@ -176,9 +176,9 @@ class ReceiptReconciliation(Document):
 
 	def update_sales_invoices(self):
 		
-		for invoice in self.invoices
+		for invoice in self.invoices:
 
-			if invoice.allocated_amount > 0
+			if invoice.allocated_amount > 0:
 
 				allocations = get_allocations_for_sales_invoice(invoice.invoice_no, invoice.receipt_no)
 		
@@ -262,7 +262,7 @@ class ReceiptReconciliation(Document):
 						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
 
 					total_paid_Amount = previous_paid_amount
-					if invoice.reference_type == "Sales Invoice"
+					if invoice.reference_type == "Sales Invoice":
 						frappe.db.set_value("Sales Invoice", invoice.invoice_no, {'paid_amount': total_paid_Amount})
-					else 
+					else :
 						frappe.db.set_value("Progressive Sales Invoice", invoice.invoice_no, {'paid_amount': total_paid_Amount})
