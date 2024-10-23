@@ -62,9 +62,9 @@
   "column_break_yzqc",
   "round_off",
   "rounded_total",
-  "in_words",
   "column_break_ufpf",
   "total_big",
+  "in_words",
   "section_break_33",
   "taxes",
   "terms_and_conditions_section",
@@ -448,7 +448,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-22 15:15:41.066048",
+ "modified": "2024-10-23 09:40:32.072433",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

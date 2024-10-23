@@ -61,7 +61,9 @@
   "default_asset_location",
   "column_break_zaxv",
   "rate_includes_tax",
+  "estimate",
   "use_percentage_for_overheads_in_estimate",
+  "use_generic_items_for_material_and_labour",
   "advance_payments_section",
   "default_advance_received_account",
   "column_break_bggm",
@@ -80,11 +82,13 @@
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
+   "in_list_view": 1,
    "label": "Address"
   },
   {
    "fieldname": "phone",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Phone"
   },
   {
@@ -148,7 +152,7 @@
   {
    "fieldname": "company_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Company Name",
    "reqd": 1,
    "unique": 1
@@ -156,6 +160,7 @@
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Email",
    "options": "Email"
   },
@@ -472,11 +477,22 @@
    "fieldname": "overheads_based_on_percentage",
    "fieldtype": "Check",
    "label": "Estimate Overheads calculation based on percentage"
+  },
+  {
+   "fieldname": "estimate",
+   "fieldtype": "Heading",
+   "label": "Estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_generic_items_for_material_and_labour",
+   "fieldtype": "Check",
+   "label": "Use generic items as default for material and labour"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-08 11:09:07.166779",
+ "modified": "2024-10-23 19:24:05.347320",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

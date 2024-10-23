@@ -657,12 +657,11 @@ function set_default_payment_mode(frm)
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let rounded_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
-
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${rounded_total}</div>`;
 
     // Directly update the HTML content of the 'total_big' field
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);

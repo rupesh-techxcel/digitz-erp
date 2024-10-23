@@ -181,3 +181,7 @@ def get_gl_narration(document_type):
     
     narration =frappe.get_value("GL Narration",{"doc_type":document_type},['narration'])
     return narration
+
+@frappe.whitelist()
+def show_a_message(msg):
+    frappe.msgprint(msg, alert=True)

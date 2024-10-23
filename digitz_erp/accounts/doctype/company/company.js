@@ -20,7 +20,9 @@ frappe.ui.form.on('Company', {
 		   console.log("Tax excluded?");
 		   console.log(frm.doc.tax_excluded);
 		   frm.doc.tax ="";
+		   frm.doc.tax_account = ""
 		   frm.refresh_field("tax");
+		   frm.refresh_field("tax_account");
 	   }
 	}
 

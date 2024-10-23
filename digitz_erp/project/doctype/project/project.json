@@ -15,7 +15,6 @@
   "progress_entry_link",
   "column_break_llof",
   "priority",
-  "service",
   "column_break_chgg",
   "project_delivery_date",
   "status",
@@ -37,17 +36,23 @@
   "column_break_xcaf",
   "section_break_snci",
   "project_stage_table",
+  "section_break_bqvt",
+  "project_average_completion",
+  "column_break_xifp",
+  "column_break_bmbi",
+  "column_break_umep",
   "notes_section",
-  "notes",
-  "total_completion_percentage"
+  "notes"
  ],
  "fields": [
   {
    "fieldname": "project_delivery_date",
    "fieldtype": "Date",
-   "label": "Project Delivery Date"
+   "label": "Project Delivery Date",
+   "reqd": 1
   },
   {
+   "default": "Open",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -63,14 +68,16 @@
    "fieldname": "expected_start_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Expected Start Date"
+   "label": "Expected Start Date",
+   "reqd": 1
   },
   {
    "bold": 1,
    "fieldname": "expected_end_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Expected End Date"
+   "label": "Expected End Date",
+   "reqd": 1
   },
   {
    "fieldname": "priority",
@@ -167,7 +174,8 @@
    "fieldname": "project_type",
    "fieldtype": "Select",
    "label": "Project Type",
-   "options": "\nSupply\nService\nBoth"
+   "options": "\nSupply\nService\nSupply and Service\nOther",
+   "reqd": 1
   },
   {
    "fieldname": "progress_entry",
@@ -176,26 +184,14 @@
    "options": "Progress Entry"
   },
   {
-   "fetch_from": "progress_entry.total_completion_percentage",
-   "fieldname": "total_completion_percentage",
-   "fieldtype": "Percent",
-   "label": "Average % Of Completion",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_xcaf",
    "fieldtype": "Column Break"
   },
   {
+   "description": "\nFirst, generate progress entries using the 'Create Progress Entry' button, and then you can create the 'Proforma Invoice' and 'Sales Invoice' within the progress entry.",
    "fieldname": "section_break_snci",
    "fieldtype": "Section Break",
    "label": "Progress Details Section"
-  },
-  {
-   "fieldname": "service",
-   "fieldtype": "Link",
-   "label": "Service",
-   "options": "Service"
   },
   {
    "fieldname": "project_short_name",
@@ -238,6 +234,29 @@
    "fieldtype": "Data",
    "label": "BOQ",
    "read_only": 1
+  },
+  {
+   "fetch_from": "progress_entry.total_completion_percentage",
+   "fieldname": "project_average_completion",
+   "fieldtype": "Percent",
+   "label": "Project Average Completion",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_bqvt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_xifp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bmbi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_umep",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -275,7 +294,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-10-22 19:01:29.283904",
+ "modified": "2024-10-23 10:10:09.905444",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

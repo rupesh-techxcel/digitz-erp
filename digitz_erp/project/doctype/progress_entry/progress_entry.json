@@ -13,8 +13,10 @@
   "project",
   "column_break_zubf",
   "sales_order",
+  "sales_order_date",
   "column_break_xtqn",
   "sales_order_net_total",
+  "boq_total",
   "column_break_ivtt",
   "company",
   "progress_entry_details_section",
@@ -28,25 +30,17 @@
   "customer",
   "customer_name",
   "customer_display_name",
+  "column_break_kscq",
   "customer_balance",
   "customer_address",
+  "tax_id",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "reference_no",
-  "ship_to_location",
-  "tax_id",
   "column_break_4",
-  "price_list",
   "rate_includes_tax",
-  "warehouse",
   "salesman",
-  "salesman_code",
-  "column_break_kscq",
-  "lpo_date",
-  "lpo_no",
-  "order_status",
   "default_cost_center",
   "accounts_section",
   "credit_sale",
@@ -85,7 +79,9 @@
   "data_53",
   "quotation",
   "boq",
-  "amended_from"
+  "lpo_no",
+  "amended_from",
+  "lpo_date"
  ],
  "fields": [
   {
@@ -152,17 +148,6 @@
    "label": "Edit Posting Date And Time"
   },
   {
-   "fieldname": "reference_no",
-   "fieldtype": "Data",
-   "label": "Reference No"
-  },
-  {
-   "fieldname": "ship_to_location",
-   "fieldtype": "Link",
-   "label": "Ship To Location",
-   "options": "Customer Delivery Location"
-  },
-  {
    "fieldname": "tax_id",
    "fieldtype": "Data",
    "label": "Tax Id"
@@ -172,37 +157,17 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Standard Selling",
-   "fieldname": "price_list",
-   "fieldtype": "Link",
-   "label": "Price List",
-   "options": "Price List"
-  },
-  {
    "default": "0",
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
    "label": "Rate includes tax"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1
-  },
-  {
+   "fetch_from": "sales_order.salesman",
    "fieldname": "salesman",
    "fieldtype": "Link",
    "label": "Salesman",
    "options": "Employee"
-  },
-  {
-   "fetch_from": "salesman.employee_code",
-   "fieldname": "salesman_code",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Salesman Code"
   },
   {
    "fieldname": "column_break_kscq",
@@ -216,20 +181,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "lpo_date",
-   "fieldtype": "Date",
-   "label": "LPO Date"
-  },
-  {
+   "fetch_from": "sales_order.lpo_no",
    "fieldname": "lpo_no",
    "fieldtype": "Data",
    "label": "LPO No"
-  },
-  {
-   "fieldname": "order_status",
-   "fieldtype": "Select",
-   "label": "Order Status",
-   "options": "Pending\nPartial\nCompleted"
   },
   {
    "fieldname": "default_cost_center",
@@ -401,6 +356,7 @@
    "label": "Related Documents"
   },
   {
+   "fetch_from": "sales_order.quotation",
    "fieldname": "quotation",
    "fieldtype": "Link",
    "label": "Quotation",
@@ -523,11 +479,27 @@
   {
    "fetch_from": "project.boq",
    "fieldname": "boq",
-   "fieldtype": "Link",
-   "label": "BOQ",
-   "options": "BOQ"
+   "fieldtype": "Data",
+   "label": "BOQ"
+  },
+  {
+   "fieldname": "boq_total",
+   "fieldtype": "Currency",
+   "label": "BOQ Total"
+  },
+  {
+   "fieldname": "sales_order_date",
+   "fieldtype": "Date",
+   "label": "Sales Order Date"
+  },
+  {
+   "fetch_from": "sales_order.lpo_date",
+   "fieldname": "lpo_date",
+   "fieldtype": "Date",
+   "label": "LPO Date"
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [
   {
@@ -539,7 +511,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-10-22 19:14:28.863151",
+ "modified": "2024-10-23 12:17:05.562880",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",
