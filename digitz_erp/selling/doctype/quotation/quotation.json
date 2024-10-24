@@ -36,6 +36,7 @@
   "project_short_name",
   "enquiry",
   "based_on",
+  "test",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -65,8 +66,6 @@
   "column_break_ufpf",
   "total_big",
   "in_words",
-  "section_break_33",
-  "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
@@ -297,17 +296,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "taxes",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Taxes",
-   "options": "Purchase Invoice Tax"
-  },
-  {
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
    "label": "Terms And Conditions"
@@ -401,7 +389,7 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
@@ -430,6 +418,11 @@
    "label": "Based On",
    "options": "Enquiry\nOther",
    "reqd": 1
+  },
+  {
+   "fieldname": "test",
+   "fieldtype": "Data",
+   "label": "Test"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -448,7 +441,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-23 09:40:32.072433",
+ "modified": "2024-10-24 17:43:50.668472",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

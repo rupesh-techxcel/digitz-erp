@@ -67,9 +67,9 @@
   "column_break_xkzu",
   "round_off",
   "rounded_total",
-  "in_words",
   "column_break_mtin",
   "total_big",
+  "in_words",
   "total_completion_percentage",
   "tab_break_50",
   "data_53",
@@ -348,14 +348,13 @@
   },
   {
    "fieldname": "section_break_19",
-   "fieldtype": "Section Break",
-   "hidden": 1
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "progress_entry_items",
    "fieldtype": "Table",
    "label": "Progress Entry Items",
-   "options": "Progress Entry Items"
+   "options": "Progress Entry Item"
   },
   {
    "fieldname": "total_completion_percentage",
@@ -424,7 +423,7 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
@@ -551,7 +550,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-19 10:59:34.447140",
+ "modified": "2024-10-24 19:21:30.595343",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

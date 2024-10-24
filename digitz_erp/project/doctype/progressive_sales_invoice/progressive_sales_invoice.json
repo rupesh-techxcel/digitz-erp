@@ -84,8 +84,7 @@
   "salesman",
   "salesman_code",
   "amended_from",
-  "receipt_schedule_tab",
-  "table_yfun"
+  "receipt_schedule_tab"
  ],
  "fields": [
   {
@@ -327,7 +326,7 @@
    "fieldname": "progress_entry_items",
    "fieldtype": "Table",
    "label": "Progress Entry Items",
-   "options": "Progress Entry Items"
+   "options": "Progress Entry Item"
   },
   {
    "fieldname": "total_completion_percentage",
@@ -504,11 +503,6 @@
    "label": "Receipt Schedule"
   },
   {
-   "fieldname": "table_yfun",
-   "fieldtype": "Table",
-   "options": "Sales Receipt Schedule"
-  },
-  {
    "fieldname": "reference_date",
    "fieldtype": "Date",
    "label": "Reference Date",
@@ -562,7 +556,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-19 14:00:33.892092",
+ "modified": "2024-10-24 08:30:34.425225",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

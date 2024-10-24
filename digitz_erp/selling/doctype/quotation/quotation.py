@@ -9,9 +9,8 @@ from frappe.utils import money_in_words
 class Quotation(Document):
 
 	def before_validate(self):
-		if self.rounded_total is not None:
+		if self.rounded_total>0:
 			self.in_words = money_in_words(self.rounded_total, "AED")
-		
   
 	@frappe.whitelist()
 	def generate_quotation(self):

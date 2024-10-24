@@ -10,18 +10,14 @@ frappe.ui.form.on("Progress Entry", {
 
   refresh(frm) {
     if (frm.is_new()) {
-      get_default_company_and_warehouse(frm);
-      frm.fields_dict['progress_entry_items'].grid.grid_rows.forEach(function (row) {
-        update_total_completion_readonly(frm, row.doc);
-      });
+        get_default_company_and_warehouse(frm)      
     }
 
     frm.set_query('previous_progress_entry', function () {
       return {
         filters: {
           name: ['!=', frm.doc.name],
-          project: frm.doc.project,
-          sales_order: frm.doc.sales_order
+          project: frm.doc.project          
         }
       };
     });
@@ -62,7 +58,7 @@ frappe.ui.form.on("Progress Entry", {
       }
     });
   },
-
+ 
   project(frm) {
     frm.set_value('progress_entry_items', []);
     if (frm.doc.project && frm.doc.is_prev_progress_exists === 0) {
@@ -92,7 +88,7 @@ frappe.ui.form.on("Progress Entry", {
           callback(r) {
             if (r.message && r.message.progress_entry_items) {
               frm.set_value('progress_entry_items', []);
-              update_table_and_total(frm, r);
+              update_from_previous_progress_entry(frm, r);
             } else {
               frappe.msgprint(
                 __("No Items Are In Previous Progress Entry, " + frm.doc.previous_progress_entry + ".")
@@ -131,59 +127,217 @@ function fetch_sales_order_items(frm) {
           row.sales_order_amt = r.message.net_total;
           row.item = item.item;
           row.item_name = item.item_name;
-          // row.item_gross_amount = item.gross_amount;
-          // row.item_tax_amount = item.tax_amount;
-          row.item_net_amount = item.net_amount;
+          //Just copying the tax related configurations from the sales order, for reference
+          row.rate_includes_tax = item.rate_includes_tax
+          row.tax_excluded = item.tax_excluded
+          row.tax = item.tax
+          row.tax_rate = item.tax_rate       
+
+          row.item_tax_amount = item.tax_amount;
+          row.item_gross_amount = item.gross_amount;
+          row.item_net_amount = item.net_amount         
+          
         });
+
         frm.refresh_field("progress_entry_items");
+
       } else {
+
         frappe.msgprint(__("No items found for the selected Sales Order."));
       }
     }
   });
 }
 
-function update_table_and_total(frm, r) {
+function update_from_previous_progress_entry(frm, r) {
+
+  // Ensure progress entry and its items exist
+  if (!r.message || !r.message || !r.message.progress_entry_items) {
+    frappe.msgprint(__("No valid data found for the previous progress entry."));
+    return;
+  }
+
+  // Set previous completion percentage from the previous progress entry
+  frm.set_value("previous_completion_percentage", r.message.total_completion_percentage);
+
+  // Loop through each progress entry item and copy data to the current form
   r.message.progress_entry_items.forEach(function (item) {
     if (item.total_completion !== 100) {
       let row = frm.add_child("progress_entry_items");
+      
       row.sales_order_amt = frm.doc.sales_order_net_total;
       row.prev_completion = item.total_completion || 0;
       row.total_amount = item.total_amount || 0;
       row.prev_amount = item.total_amount || 0;
       row.item = item.item;
       row.item_name = item.item_name;
-      row.rate = item.rate;
-      // row.item_gross_amount = item.item_gross_amount;
-      // row.item_tax_amount = item.item_tax_amount;
+      
+      // Copy tax configurations from the previous progress entry
+      row.rate_includes_tax = item.rate_includes_tax;
+      row.tax_excluded = item.tax_excluded;
+      row.tax = item.tax;
+      row.tax_rate = item.tax_rate;
+
       row.item_net_amount = item.item_net_amount;
-      frm.refresh_field("progress_entry_items");
+      row.item_gross_amount = item.item_gross_amount;
+      row.item_tax_amount = item.item_tax_amount;
     }
   });
+
+  // Refresh the field after setting new rows
+  frm.refresh_field("progress_entry_items");
+
+  // Set total completion percentage and alert if it's already 100%
+  // frm.set_value("total_completion_percentage", r.message.total_completion_percentage);
   
-  frm.doc.total_completion_percentage = r.message.total_completion_percentage;
   if (frm.doc.total_completion_percentage === 100) {
-    frappe.msgprint("The Completion Percentage is already 100%");
+    frappe.msgprint(__("The Completion Percentage is already 100%."));
   }
-  update_total_amounts(frm);
 }
 
-frappe.ui.form.on("Progress Entry Items", {
-  prev_completion(frm, cdt, cdn) {
-    let row = locals[cdt][cdn];
-    update_total_completion_readonly(frm, row);
-  },
 
-  progress_entry_items_add(frm, cdt, cdn) {
+frappe.ui.form.on("Progress Entry Item", {
+ 
+  total_completion(frm,cdt,cdn){
+
     let row = frappe.get_doc(cdt, cdn);
-    frappe.model.set_value(cdt, cdn, 'sales_order_amt', frm.doc.sales_order_net_total);
+    console.log(row);    
 
-    frappe.call({
-      method: 'digitz_erp.api.settings_api.get_default_tax',
-      async: false,
-      callback(r) {
-        row.tax = r.message;
-      }
-    });
-  }
+    if (row.total_completion > 100) {
+      row.total_completion = 0;
+      frappe.msgprint({
+        title: __("Validation Error"),
+        indicator: "red",
+        message: __("Completion % can't be more than 100%"),
+      });
+    } else {       
+        row.current_completion = (row.total_completion - row.prev_completion);        
+        console.log("current completion",row.current_completion)
+        update_progress(frm)
+        make_taxes_and_totals(frm,cdt,cdn);      
+    }
+  },
 });
+
+function update_progress(frm) {
+  let total_weighted_completion = 0;
+  let total_item_net_amount = 0;
+  
+  // Iterate through progress_entry_items
+  for (let item of frm.doc.progress_entry_items) {
+    // Sum up item_net_amount for all items
+    total_item_net_amount += item.item_net_amount;
+
+    // Calculate weighted completion only if total_completion is greater than 0
+    if (item.total_completion > 0) {
+      total_weighted_completion += (item.total_completion / 100) * item.item_net_amount; // Convert percentage to actual amount
+    }
+  }
+
+  // Calculate average completion percentage based on item_net_amount
+  let average_completion = total_item_net_amount > 0 ? (total_weighted_completion / total_item_net_amount) * 100 : 0;
+
+  let rounded_completion = Math.round(average_completion);
+
+  // Set the average value in the form
+  frm.set_value("total_completion_percentage", rounded_completion);
+}
+
+function make_taxes_and_totals(frm){
+
+  // Tax configurations are using from the previous progress entry. So only consider taking the portion based on the current_completion
+  frm.doc.progress_entry_items.forEach(row => {
+  
+      if(row.current_completion > 0){
+
+        row.gross_amount = (row.item_gross_amount * row.current_completion)/100;
+        row.net_amount = (row.item_net_amount * row.current_completion)/100;
+        row.tax_amount = row.item_tax_amount>0? (row.item_tax_amount * row.current_completion)/100:0
+          
+      }else{
+       
+        row.gross_amount = 0
+        row.tax_amount = 0
+        row.net_amount = 0
+      }
+
+      row.total_amount = row.prev_amount + row.net_amount
+      
+    })
+      
+    
+    frm.refresh_field("progress_entry_items")
+    update_total_amounts(frm);
+    
+
+  }
+
+function update_total_amounts(frm){
+
+  let gross_total = 0;
+  let tax_total = 0;
+  let net_total = 0;
+  frm.doc.progress_entry_items.forEach(element => {
+    gross_total += element.gross_amount;
+    tax_total += element.tax_amount;
+    net_total += element.net_amount;
+  });
+
+  console.log("gross_total",gross_total)
+  console.log("tax_total",tax_total)
+  console.log("net_total",net_total)
+
+  frm.set_value('gross_total', gross_total);
+  frm.set_value('tax_total', tax_total);
+  frm.set_value('net_total', net_total);
+
+  frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
+    console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
+    if (data && data.do_not_apply_round_off_in_si == 1) {
+      frm.doc.rounded_total = frm.doc.net_total;
+      frm.refresh_field('rounded_total');				
+    }
+    else {
+     if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
+       
+       frm.set_value('round_off',Math.round(frm.doc.net_total) - frm.doc.net_total)	
+       frm.set_value('rounded_total',Math.round(frm.doc.net_total))		 
+     }
+     else{
+
+      frm.set_value('rounded_total',frm.doc.net_total) 
+
+     }
+   }
+   
+   console.log("rounded_total",frm.doc.rounded_total)  
+   update_total_big_display(frm)  
+
+  });
+
+  
+}
+
+function update_total_big_display(frm) {
+
+	let display_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
+
+    // Add 'AED' prefix and format net_total for display
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${display_total}</div>`;
+
+
+    // Directly update the HTML content of the 'total_big' field
+    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
+    frm.refresh_field('total_big');
+
+}
+
+function get_default_company_and_warehouse(frm) {
+  frappe.call({
+    method: 'frappe.client.get_value',
+    args: { doctype: 'Global Settings', fieldname: 'default_company' },
+    callback: r => frm.set_value('company', r.message.default_company)
+  });
+}

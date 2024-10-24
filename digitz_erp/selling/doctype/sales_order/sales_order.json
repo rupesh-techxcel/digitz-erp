@@ -425,7 +425,7 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
@@ -470,7 +470,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-22 15:49:52.196935",
+ "modified": "2024-10-24 17:44:59.782242",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

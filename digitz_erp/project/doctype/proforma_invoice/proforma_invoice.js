@@ -3,12 +3,9 @@
 
 frappe.ui.form.on("Proforma Invoice", {
 	onload(frm) {
-       frm.trigger('get_default_company_and_warehouse');
-       
-       if(frm.is_new())
-       {
-            progress_entry(frm)
-       }                   
+
+       frm.trigger('get_default_company_and_warehouse');       
+                         
 	},
     refresh(frm)
 	{
@@ -35,15 +32,13 @@ frappe.ui.form.on("Proforma Invoice", {
                         let row = {
                             "prev_completion": element.prev_completion,
                             "total_completion": element.total_completion,
-                            "current_completion": element.current_completion,
-                            "total_amount": element.total_amount,
+                            "current_completion": element.current_completion,                            
                             "prev_amount": element.prev_amount,
                             "tax": element.tax,
                             "tax_rate": element.tax_rate,
                             "tax_amount": element.tax_amount,
                             "gross_amount": element.gross_amount,
-                            "net_amount": element.net_amount,
-                            "sales_order_amt": element.sales_order_amt,
+                            "net_amount": element.net_amount,                            
                             "item": element.item,
                             "item_name": element.item_name,
                             "item_gross_amount": element.item_gross_amount,
@@ -51,6 +46,7 @@ frappe.ui.form.on("Proforma Invoice", {
                             "item_net_amount": element.item_net_amount
                         };
                         frm.add_child('progress_entry_items', row);
+                        console.log("row added from progress invoice")
                         frm.refresh_fields('progress_entry_items');
                     });
 
@@ -131,7 +127,7 @@ frappe.ui.form.on("Proforma Invoice", {
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let netTotal = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 

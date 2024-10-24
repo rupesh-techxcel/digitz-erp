@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProgressEntryItems(Document):
+class ProgressEntryItem(Document):
 	pass

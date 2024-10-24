@@ -75,6 +75,7 @@
   "column_break_ygse",
   "total_big",
   "total_completion_percentage",
+  "previous_completion_percentage",
   "tab_break_50",
   "data_53",
   "quotation",
@@ -130,6 +131,7 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date",
    "read_only": 1
   },
@@ -137,7 +139,6 @@
    "default": "Now",
    "fieldname": "posting_time",
    "fieldtype": "Time",
-   "in_list_view": 1,
    "label": "Posting Time",
    "read_only": 1
   },
@@ -203,7 +204,6 @@
    "default": "0",
    "fieldname": "credit_sale",
    "fieldtype": "Check",
-   "in_standard_filter": 1,
    "label": "Credit Sale"
   },
   {
@@ -336,6 +336,7 @@
   {
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Rounded Total",
    "precision": "2",
    "read_only": 1
@@ -377,7 +378,7 @@
    "fieldname": "progress_entry_items",
    "fieldtype": "Table",
    "label": "Progress Entry Items",
-   "options": "Progress Entry Items"
+   "options": "Progress Entry Item"
   },
   {
    "fieldname": "project_details_section",
@@ -387,6 +388,8 @@
   {
    "fieldname": "project",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Project",
    "options": "Project"
   },
@@ -398,6 +401,7 @@
    "fetch_from": "project.sales_order",
    "fieldname": "sales_order",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Sales Order",
    "options": "Sales Order",
    "read_only": 1
@@ -445,6 +449,7 @@
   {
    "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
+   "in_list_view": 1,
    "label": "Project Completion Percentage",
    "precision": "0"
   },
@@ -497,6 +502,12 @@
    "fieldname": "lpo_date",
    "fieldtype": "Date",
    "label": "LPO Date"
+  },
+  {
+   "fieldname": "previous_completion_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Previous Completion Percentage"
   }
  ],
  "in_create": 1,
@@ -511,7 +522,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-10-23 12:17:05.562880",
+ "modified": "2024-10-24 20:22:43.504228",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",
