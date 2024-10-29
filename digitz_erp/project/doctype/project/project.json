@@ -36,11 +36,6 @@
   "column_break_xcaf",
   "section_break_snci",
   "project_stage_table",
-  "section_break_bqvt",
-  "project_average_completion",
-  "column_break_xifp",
-  "column_break_bmbi",
-  "column_break_umep",
   "notes_section",
   "notes"
  ],
@@ -234,29 +229,6 @@
    "fieldtype": "Data",
    "label": "BOQ",
    "read_only": 1
-  },
-  {
-   "fetch_from": "progress_entry.total_completion_percentage",
-   "fieldname": "project_average_completion",
-   "fieldtype": "Percent",
-   "label": "Project Average Completion",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_bqvt",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_xifp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_bmbi",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_umep",
-   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -294,7 +266,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-10-23 10:10:09.905444",
+ "modified": "2024-10-24 20:53:33.723331",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

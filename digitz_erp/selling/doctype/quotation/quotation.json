@@ -36,7 +36,6 @@
   "project_short_name",
   "enquiry",
   "based_on",
-  "test",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -71,7 +70,8 @@
   "terms_and_conditions",
   "tab_break_50",
   "data_53",
-  "amended_from"
+  "amended_from",
+  "boq"
  ],
  "fields": [
   {
@@ -420,9 +420,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "test",
+   "fieldname": "boq",
    "fieldtype": "Data",
-   "label": "Test"
+   "label": "BOQ",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -441,7 +442,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-24 17:43:50.668472",
+ "modified": "2024-10-26 11:38:05.354772",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

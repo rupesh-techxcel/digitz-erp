@@ -41,16 +41,7 @@ frappe.ui.form.on("Project", {
     },
 
     refresh(frm) {
-        refresh_progress_entries(frm);
-
-        if (!frm.is_new()) {
-            frm.add_custom_button(__('Create Advance Entry'), function() {
-                frappe.new_doc('Advance Entry', {}, ae => {
-                    ae.customer = frm.doc.customer;
-                    ae.project = frm.doc.name;
-                });
-            }, __("Actions"));
-        }
+        refresh_progress_entries(frm);        
     },
 
     setup(frm) {
@@ -137,10 +128,9 @@ function refresh_progress_entries(frm) {
                     total_completion_percentage += row.percentage_of_completion;
                     progress_count++;
                 });
-
-                frm.doc.project_average_completion = total_completion_percentage / progress_count;
+                
                 frm.refresh_field('project_stage_table');
-                frm.refresh_field('project_average_completion');
+                
             }
         }
     });

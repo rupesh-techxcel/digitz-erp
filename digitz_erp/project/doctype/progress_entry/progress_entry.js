@@ -10,7 +10,11 @@ frappe.ui.form.on("Progress Entry", {
 
   refresh(frm) {
     if (frm.is_new()) {
-        get_default_company_and_warehouse(frm)      
+        get_default_company_and_warehouse(frm)
+    }
+    else
+    {
+      update_total_big_display(frm)
     }
 
     frm.set_query('previous_progress_entry', function () {
@@ -61,44 +65,87 @@ frappe.ui.form.on("Progress Entry", {
  
   project(frm) {
     frm.set_value('progress_entry_items', []);
+    
     if (frm.doc.project && frm.doc.is_prev_progress_exists === 0) {
-      frm.set_value("total_completion_percentage", 0);
-      if (frm.doc.sales_order) {
-        fetch_sales_order_items(frm);
-      }
-    } else {
-      frm.set_value("total_completion_percentage", 0);
-      frm.set_value("gross_total", "");
-      frm.set_value("tax_total", "");
-      frm.set_value("net_total", "");
-      frm.set_value("total_discount_in_line_items", "");
-      frm.set_value("additional_discount", "");
-      frm.set_value("round_off", "");
-      frm.set_value("rounded_total", "");
-      frm.set_value("in_words", "");
-      frm.refresh_field("progress_entry_items");
+        frm.set_value("total_completion_percentage", 0);
 
-      if (frm.doc.previous_progress_entry && frm.doc.previous_progress_entry !== frm.doc.name) {
-        frappe.call({
-          method: "frappe.client.get",
-          args: {
-            doctype: "Progress Entry",
-            name: frm.doc.previous_progress_entry
-          },
-          callback(r) {
-            if (r.message && r.message.progress_entry_items) {
-              frm.set_value('progress_entry_items', []);
-              update_from_previous_progress_entry(frm, r);
-            } else {
-              frappe.msgprint(
-                __("No Items Are In Previous Progress Entry, " + frm.doc.previous_progress_entry + ".")
-              );
-            }
-          }
-        });
-      }
+        if (frm.doc.sales_order) {
+            // Fetch sales order and check if BOQ exists
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "Sales Order",
+                    name: frm.doc.sales_order
+                },
+                callback(r) {
+                    if (r.message) {
+                        // Check if there is a BOQ linked in the Sales Order
+                        if (r.message.boq) {
+                            fetch_boq_items(frm, r.message.boq);
+                        } else {
+                            // If no BOQ exists, fall back to Sales Order items
+                            fetch_sales_order_items(frm);
+                        }
+                    } else {
+                        frappe.msgprint(__("No items found for the selected Sales Order."));
+                    }
+                }
+            });
+        }
+    } else {
+        frm.set_value("total_completion_percentage", 0);
+        frm.set_value("gross_total", "");
+        frm.set_value("tax_total", "");
+        frm.set_value("net_total", "");
+        frm.set_value("total_discount_in_line_items", "");
+        frm.set_value("additional_discount", "");
+        frm.set_value("round_off", "");
+        frm.set_value("rounded_total", "");
+        frm.set_value("in_words", "");
+        frm.refresh_field("progress_entry_items");
+
+        if (frm.doc.previous_progress_entry && frm.doc.previous_progress_entry !== frm.doc.name) {
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "Progress Entry",
+                    name: frm.doc.previous_progress_entry
+                },
+                callback(r) {
+                    if (r.message && r.message.progress_entry_items) {
+                        // Check if the total completion percentage is below 100
+                        if (r.message.total_completion_percentage < 100) {
+                            update_from_previous_progress_entry(frm, r);
+
+                            // If previous progress entry exists, check for amendments
+                            if (frm.doc.sales_order) {
+                                frappe.call({
+                                    method: "frappe.client.get",
+                                    args: {
+                                        doctype: "Sales Order",
+                                        name: frm.doc.sales_order
+                                    },
+                                    callback(r) {
+                                        if (r.message && r.message.boq) {
+                                            // Check for BOQ Amendments after the progress entry date
+                                            check_boq_amendments_after_progress(frm, r.message.boq);
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            frappe.msgprint(__("The previous progress entry is already 100% completed."));
+                        }
+                    } else {
+                        frappe.msgprint(
+                            __("No Items Are In Previous Progress Entry, " + frm.doc.previous_progress_entry + ".")
+                        );
+                    }
+                }
+            });
+        }
     }
-  },
+},
 
   is_prev_progress_exists(frm) {
     if (frm.doc.is_prev_progress_exists === 0) {
@@ -146,6 +193,90 @@ function fetch_sales_order_items(frm) {
         frappe.msgprint(__("No items found for the selected Sales Order."));
       }
     }
+  });
+}
+
+function check_boq_amendments_after_progress(frm, boq_name) {
+  frappe.call({
+      method: "frappe.client.get_list",
+      args: {
+          doctype: "BOQ Amendment",
+          filters: {
+              boq: boq_name,
+              posting_date: [">", frm.doc.last_progress_entry_date]  // Assuming `last_progress_entry_date` is available
+          },
+          order_by: "posting_date asc",
+          limit_page_length: 1
+      },
+      callback(r) {
+          if (r.message && r.message.length > 0) {
+              // Fetch items from the latest BOQ Amendment after the last progress entry
+              fetch_boq_amendment_items(frm, r.message[0].name);
+          } else {
+              // No relevant BOQ Amendment found; continue with previous Progress Entry data
+              frappe.msgprint(__("No BOQ Amendments found after the last Progress Entry."));
+          }
+      }
+  });
+}
+
+function fetch_boq_amendment_items(frm, amendment_name) {
+  frappe.call({
+      method: "frappe.client.get",
+      args: {
+          doctype: "BOQ Amendment",
+          name: amendment_name
+      },
+      callback(r) {
+          if (r.message && r.message.items) {
+              frm.clear_table("progress_entry_items");
+              r.message.items.forEach(function (item) {
+                  let row = frm.add_child("progress_entry_items");
+                  row.item = item.item;
+                  row.item_name = item.item_name;
+                  row.quantity = item.quantity;
+                  row.rate = item.rate;
+                  row.amount = item.amount;
+                  row.tax_rate = item.tax_rate;
+                  row.tax_amount = item.tax_amount;
+                  row.gross_amount = item.gross_amount;
+                  row.net_amount = item.net_amount;
+              });
+              frm.refresh_field("progress_entry_items");
+          } else {
+              frappe.msgprint(__("No items found in the linked BOQ Amendment."));
+          }
+      }
+  });
+}
+
+function fetch_boq_items(frm, boq_name) {
+  frappe.call({
+      method: "frappe.client.get",
+      args: {
+          doctype: "BOQ",
+          name: boq_name
+      },
+      callback(r) {
+          if (r.message && r.message.items) {
+              frm.clear_table("progress_entry_items");
+              r.message.items.forEach(function (item) {
+                  let row = frm.add_child("progress_entry_items");
+                  row.item = item.item;
+                  row.item_name = item.item_name;
+                  row.quantity = item.quantity;
+                  row.rate = item.rate;
+                  row.amount = item.amount;
+                  row.tax_rate = item.tax_rate;
+                  row.tax_amount = item.tax_amount;
+                  row.gross_amount = item.gross_amount;
+                  row.net_amount = item.net_amount;
+              });
+              frm.refresh_field("progress_entry_items");
+          } else {
+              frappe.msgprint(__("No items found in the linked BOQ."));
+          }
+      }
   });
 }
 

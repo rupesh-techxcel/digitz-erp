@@ -71,11 +71,11 @@
   "column_break_xkzu",
   "round_off",
   "rounded_total",
-  "in_words",
+  "previous_completion_percentage",
   "column_break_ygse",
   "total_big",
+  "in_words",
   "total_completion_percentage",
-  "previous_completion_percentage",
   "tab_break_50",
   "data_53",
   "quotation",
@@ -343,7 +343,7 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
@@ -522,7 +522,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-10-24 20:22:43.504228",
+ "modified": "2024-10-24 20:50:04.608069",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",
