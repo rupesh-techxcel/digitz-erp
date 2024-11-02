@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class TimesheetTask(Document):
+class TaskTemplateDetail(Document):
 	pass

@@ -52,6 +52,7 @@ def get_item_valuation_rate(item, posting_date, posting_time):
 	if(previous_ledger_valuation_rate):
 		return previous_ledger_valuation_rate.valuation_rate
 	else:
+		frappe.msgprint("Valuation rate not found for this item. Please enter a rate", alert=True)
 		return 0
 
 @frappe.whitelist()

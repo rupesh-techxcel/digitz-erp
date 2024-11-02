@@ -37,7 +37,11 @@
   "section_break_snci",
   "project_stage_table",
   "notes_section",
-  "notes"
+  "notes",
+  "employees_tab",
+  "employees",
+  "tasks_tab",
+  "tasks"
  ],
  "fields": [
   {
@@ -229,6 +233,28 @@
    "fieldtype": "Data",
    "label": "BOQ",
    "read_only": 1
+  },
+  {
+   "fieldname": "employees_tab",
+   "fieldtype": "Tab Break",
+   "label": "Employees"
+  },
+  {
+   "fieldname": "employees",
+   "fieldtype": "Table",
+   "label": "Employees",
+   "options": "Project Employee"
+  },
+  {
+   "fieldname": "tasks_tab",
+   "fieldtype": "Tab Break",
+   "label": "Tasks"
+  },
+  {
+   "fieldname": "tasks",
+   "fieldtype": "Table",
+   "label": "Tasks",
+   "options": "Project Task"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -239,18 +265,6 @@
   },
   {
    "link_doctype": "Progress Entry",
-   "link_fieldname": "project"
-  },
-  {
-   "link_doctype": "Timesheet",
-   "link_fieldname": "project"
-  },
-  {
-   "link_doctype": "Task",
-   "link_fieldname": "project"
-  },
-  {
-   "link_doctype": "Planning",
    "link_fieldname": "project"
   },
   {
@@ -266,7 +280,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-10-24 20:53:33.723331",
+ "modified": "2024-10-29 17:57:07.655591",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

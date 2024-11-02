@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class PlanningChildDC(Document):
+class ProjectTask(Document):
 	pass

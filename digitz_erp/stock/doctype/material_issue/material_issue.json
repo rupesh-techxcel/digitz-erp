@@ -9,15 +9,17 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
-  "warehouse",
+  "link_yhzv",
   "project",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
   "column_break_24",
-  "company",
   "remarks",
+  "warehouse",
+  "column_break_zwhn",
+  "company",
   "section_break_19",
   "items",
   "section_break_29",
@@ -170,7 +172,7 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
-   "label": "Warehouse",
+   "label": "From Warehouse",
    "options": "Warehouse",
    "reqd": 1
   },
@@ -179,14 +181,23 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
-   "options": "Project",
-   "read_only": 1
+   "options": "Project"
+  },
+  {
+   "fieldname": "link_yhzv",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "options": "Work Order"
+  },
+  {
+   "fieldname": "column_break_zwhn",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-08-27 14:04:02.610488",
+ "modified": "2024-11-02 21:18:16.139210",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Issue",

@@ -1,34 +1,32 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:title",
- "creation": "2024-08-29 16:52:24.778144",
+ "creation": "2024-10-29 17:41:57.179447",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "title",
-  "description"
+  "template_name",
+  "task_template_details"
  ],
  "fields": [
   {
-   "fieldname": "title",
+   "fieldname": "template_name",
    "fieldtype": "Data",
-   "label": "Title",
-   "unique": 1
+   "label": "Template Name"
   },
   {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
+   "fieldname": "task_template_details",
+   "fieldtype": "Table",
+   "label": "Task Template Details",
+   "options": "Task Template Detail"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-29 16:53:11.674323",
+ "modified": "2024-10-29 17:44:10.577915",
  "modified_by": "Administrator",
  "module": "Project",
- "name": "Task Type",
- "naming_rule": "By fieldname",
+ "name": "Task Template",
  "owner": "Administrator",
  "permissions": [
   {
