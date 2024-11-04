@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class ExpenseEntry(Document):
 
@@ -14,13 +15,9 @@ class ExpenseEntry(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
-		# Add one second to the datetime object
-		new_datetime = datetime_object + timedelta(seconds=1)
-
-		# Extract the new time as a string
-		self.posting_time = new_datetime.strftime('%H:%M:%S')
 
 	def before_validate(self):
 

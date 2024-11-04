@@ -1,9 +1,75 @@
 # Copyright (c) 2024, Rupesh P and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
-
+from datetime import datetime
 
 class Budget(Document):
-	pass
+
+	def validate(self):
+     
+		self.check_for_overlapping_budget()     
+    
+	def before_insert(self):
+     
+		if not self.budget_name: #If the user manually input name then skip this logic
+			# Define prefixes for different `budget_against` types
+			prefixes = {
+				"Project": "PROJ",
+				"Company": "COMP",
+				"Cost Center": "CST-CTR"
+			}
+
+			# Determine the prefix based on the `budget_against` field
+			prefix = prefixes.get(self.budget_against)
+
+			# Extract the relevant entity based on the `budget_against` type
+			if self.budget_against == "Project":
+				entity = self.project_short_name  # Assuming `project` is the field name for Project
+			elif self.budget_against == "Company":
+				entity = self.company  # Assuming `company` is the field name for Company
+			elif self.budget_against == "Cost Center":
+				entity = self.cost_center  # Assuming `cost_center` is the field name for Cost Center
+			else:
+				frappe.throw("Invalid 'Budget Against' value for Budget.")
+
+			# Convert from_date and to_date from string to datetime if needed
+			from_date = datetime.strptime(self.from_date, "%Y-%m-%d") if isinstance(self.from_date, str) else self.from_date
+			to_date = datetime.strptime(self.to_date, "%Y-%m-%d") if isinstance(self.to_date, str) else self.to_date
+
+			# Format dates for inclusion in the name in 'DD-MM-YYYY' format
+			formatted_from_date = from_date.strftime("%d-%m-%Y")
+			formatted_to_date = to_date.strftime("%d-%m-%Y")
+
+			# Construct the custom name
+			self.name = f"{prefix}-{entity}-{formatted_from_date}-to-{formatted_to_date}"
+
+			# Log the generated name for debugging purposes
+			frappe.logger().debug(f"Generated custom name for Budget: {self.name}")
+   
+	def check_for_overlapping_budget(doc):
+		"""
+		Check for overlapping budget periods based on 'budget_against' type.
+		"""
+		# Get the budget's from_date and to_date
+		from_date = getdate(doc.from_date)
+		to_date = getdate(doc.to_date)
+
+		# Construct a query to find overlapping budgets
+		overlapping_budgets = frappe.db.sql("""
+			SELECT name FROM `tabBudget`
+			WHERE
+				budget_against = %s
+				AND name != %s
+				AND (
+					(from_date <= %s AND to_date >= %s) OR
+					(from_date <= %s AND to_date >= %s) OR
+					(from_date >= %s AND to_date <= %s)
+				)
+		""", (doc.budget_against, doc.name, to_date, from_date, from_date, to_date, from_date, to_date))
+
+		# If any overlapping budget records are found, raise an error
+		if overlapping_budgets:
+			frappe.throw(f"An overlapping budget exists for {doc.budget_against} from {from_date} to {to_date}. "
+							"Please adjust the date range to avoid conflicts.")

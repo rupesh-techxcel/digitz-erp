@@ -2,6 +2,7 @@ import frappe
 from frappe.utils import add_days, add_months, cint, cstr, flt, formatdate, get_first_day, getdate
 import math
 from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
 
 
 @frappe.whitelist()
@@ -10,6 +11,31 @@ def get_default_company():
     default_company = frappe.db.get_single_value("Global Settings",'default_company')    
     
     return default_company
+
+
+@frappe.whitelist()
+def add_seconds_to_time(time_str, seconds=1):
+    """
+    Adds a specified number of seconds to a time string.
+    
+    Parameters:
+        time_str (str): The time string in '%H:%M:%S' or '%H:%M:%S.%f' format.
+        seconds (int): The number of seconds to add. Default is 1 second.
+
+    Returns:
+        str: The new time string in '%H:%M:%S' format.
+    """
+    # Try parsing with milliseconds format first, then fall back to seconds-only format
+    try:
+        datetime_object = datetime.strptime(time_str, '%H:%M:%S.%f')
+    except ValueError:
+        datetime_object = datetime.strptime(time_str, '%H:%M:%S')
+    
+    # Add the specified number of seconds
+    new_datetime = datetime_object + timedelta(seconds=seconds)
+    
+    # Return the new time as a string without milliseconds
+    return new_datetime.strftime('%H:%M:%S')
 
 @frappe.whitelist()
 def get_default_currency():

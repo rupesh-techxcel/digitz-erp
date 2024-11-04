@@ -18,6 +18,7 @@ from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_g
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from frappe import throw, _
 from frappe.utils import money_in_words
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class PurchaseInvoice(Document):
 
@@ -35,15 +36,8 @@ class PurchaseInvoice(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		 # Correct format to handle fractional seconds
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S.%f')
-		
-		# Add 1 second
-		datetime_object += timedelta(seconds=1)
-		
-		# Update posting time with the incremented second
-		self.posting_time = datetime_object.time()
-
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
 	def before_validate(self):
 		self.in_words = money_in_words(self.rounded_total,"AED")

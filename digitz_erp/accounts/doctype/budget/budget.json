@@ -1,24 +1,36 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:budget_name",
  "creation": "2024-10-14 15:22:28.726823",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_behm",
+  "budget_name",
   "budget_against",
   "amended_from",
   "column_break_gwyb",
-  "company",
   "fiscal_year",
   "project",
+  "project_short_name",
+  "cost_center",
+  "from_date",
+  "to_date",
   "column_break_vrmg",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
   "column_break_vvmj",
-  "section_break_wqtj",
-  "table_biem"
+  "company",
+  "section_break_lfob",
+  "budget_items",
+  "section_break_lakh",
+  "column_break_imss",
+  "column_break_dpvt",
+  "column_break_dgrv",
+  "column_break_hgfj",
+  "total_budget_amount"
  ],
  "fields": [
   {
@@ -40,7 +52,7 @@
    "fieldname": "budget_against",
    "fieldtype": "Select",
    "label": "Budget Against",
-   "options": "Company\nProject"
+   "options": "Company\nProject\nCost Center"
   },
   {
    "fieldname": "company",
@@ -78,7 +90,7 @@
   {
    "default": "Now",
    "fieldname": "posting_time",
-   "fieldtype": "Datetime",
+   "fieldtype": "Time",
    "label": "Posting Time",
    "read_only": 1
   },
@@ -97,22 +109,84 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_wqtj",
+   "depends_on": "eval:doc.budget_against == \"Cost Center\"",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "project.project_short_name",
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name",
+   "read_only": 1
+  },
+  {
+   "description": "Leave this field blank to generate the name automatically while saving",
+   "fieldname": "budget_name",
+   "fieldtype": "Data",
+   "label": "Budget Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_lfob",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "table_biem",
+   "fieldname": "budget_items",
    "fieldtype": "Table",
-   "options": "Budget Detail"
+   "label": "Budget Items",
+   "options": "Budget Item"
+  },
+  {
+   "fieldname": "section_break_lakh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_imss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dpvt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dgrv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hgfj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_budget_amount",
+   "fieldtype": "Currency",
+   "label": "Total Budget Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-14 16:46:38.842949",
+ "modified": "2024-11-04 15:01:32.449347",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

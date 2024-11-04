@@ -9,6 +9,7 @@ from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_
 from datetime import datetime,timedelta
 from frappe.utils import get_datetime
 from frappe.utils import money_in_words
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class PurchaseOrder(Document):
 
@@ -59,21 +60,8 @@ class PurchaseOrder(Document):
 	from datetime import datetime
 
 	def Set_Posting_Time_To_Next_Second(self):
-		# Extract the time with fractional seconds
-		time_string = str(self.posting_time)
-		
-		# Check if fractional seconds are present
-		if '.' in time_string:
-			datetime_object = datetime.strptime(time_string, '%H:%M:%S.%f')
-		else:
-			datetime_object = datetime.strptime(time_string, '%H:%M:%S')
-
-		# Add one second to the time
-		next_second_time = datetime_object.replace(second=datetime_object.second + 1)
-		
-		# Set the posting time to the updated time (keeping the fractional part)
-		self.posting_time = next_second_time.time()
-
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
 	def validate_items(self):
 

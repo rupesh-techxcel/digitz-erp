@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class BudgetDetail(Document):
+class BudgetReferenceType(Document):
 	pass

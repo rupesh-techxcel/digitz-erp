@@ -16,7 +16,7 @@ from digitz_erp.api.document_posting_status_api import (
     update_posting_status,
 )
 from frappe import throw, _
-
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class StockTransfer(Document):
     def validate(self):
@@ -47,15 +47,11 @@ class StockTransfer(Document):
             },
         )
         return possible_invalid
-
+    
     def Set_Posting_Time_To_Next_Second(self):
-        datetime_object = datetime.strptime(str(self.posting_time), "%H:%M:%S")
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
-        # Add one second to the datetime object
-        new_datetime = datetime_object + timedelta(seconds=1)
-
-        # Extract the new time as a string
-        self.posting_time = new_datetime.strftime("%H:%M:%S")
 
     def before_validate(self):
 

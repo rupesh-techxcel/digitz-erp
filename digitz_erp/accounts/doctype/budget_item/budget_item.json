@@ -1,58 +1,62 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:budget_item",
- "creation": "2024-10-14 14:41:55.474340",
+ "creation": "2024-11-04 07:58:33.214189",
  "doctype": "DocType",
+ "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "budget_item",
-  "account",
-  "disabled"
+  "budget_against",
+  "reference_type",
+  "link_field_hidden",
+  "reference_value",
+  "budget_amount"
  ],
  "fields": [
   {
-   "fieldname": "account",
+   "fieldname": "budget_against",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Budget Against",
+   "options": "Purchase\nExpense"
+  },
+  {
+   "fieldname": "reference_type",
    "fieldtype": "Link",
-   "label": "Account",
-   "link_filters": "[[\"Account\",\"root_type\",\"=\",\"Expense\"],[\"Account\",\"is_group\",\"=\",0]]",
-   "options": "Account"
+   "in_list_view": 1,
+   "label": "Reference Type",
+   "options": "Budget Reference Type"
   },
   {
-   "fieldname": "budget_item",
-   "fieldtype": "Data",
-   "label": "Budget Item",
-   "unique": 1
+   "fieldname": "reference_value",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Reference Value",
+   "options": "link_field_hidden"
   },
   {
-   "default": "0",
-   "fieldname": "disabled",
-   "fieldtype": "Check",
-   "label": "Disabled"
+   "fieldname": "link_field_hidden",
+   "fieldtype": "Link",
+   "label": "Link Field HIdden",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "budget_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Budget Amount",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
+ "istable": 1,
  "links": [],
- "modified": "2024-10-14 16:50:51.444515",
+ "modified": "2024-11-04 14:57:53.856307",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget Item",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

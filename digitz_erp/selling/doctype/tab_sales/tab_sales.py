@@ -7,6 +7,7 @@ from frappe.utils import now
 from frappe.model.document import Document
 from datetime import datetime,timedelta
 from digitz_erp.api.settings_api import get_default_company
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 
 class TabSales (Document):
@@ -14,20 +15,12 @@ class TabSales (Document):
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Tab Sales', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
-
+        
     def Set_Posting_Time_To_Next_Second(self):
-
-        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
-
-        # Add one second to the datetime object
-        new_datetime = datetime_object + timedelta(seconds=1)
-
-        # Extract the new time as a string
-        self.posting_time = new_datetime.strftime('%H:%M:%S')
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
     def before_validate(self):
-
-       
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
         # posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
