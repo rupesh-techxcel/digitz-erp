@@ -1,41 +1,46 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:template_name",
- "creation": "2024-10-29 17:41:57.179447",
+ "autoname": "field:team",
+ "creation": "2024-11-10 20:27:01.921928",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "template_name",
-  "task_template_details",
-  "disabled"
+  "team",
+  "disabled",
+  "section_break_urck",
+  "template_details"
  ],
  "fields": [
   {
-   "fieldname": "template_name",
+   "fieldname": "team",
    "fieldtype": "Data",
-   "label": "Template Name",
+   "label": "Team",
    "unique": 1
-  },
-  {
-   "fieldname": "task_template_details",
-   "fieldtype": "Table",
-   "label": "Task Template Details",
-   "options": "Task Template Detail"
   },
   {
    "default": "0",
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "section_break_urck",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "template_details",
+   "fieldtype": "Table",
+   "label": "Project Team Template Details",
+   "options": "Project Team Template Detail"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-10 20:25:45.832748",
+ "modified": "2024-11-10 20:48:24.480506",
  "modified_by": "Administrator",
  "module": "Project",
- "name": "Task Template",
+ "name": "Project Team Template",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [

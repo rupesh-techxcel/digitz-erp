@@ -100,6 +100,83 @@ frappe.ui.form.on("Project", {
                 frm.set_value("amount_after_retentation", net_total - amt);
             }
         });
+    },
+    team_template:function(frm)
+    {
+
+        if(frm.doc.team_template)
+        {
+            frm.clear_table('employees')
+        }
+
+        frappe.call({
+            method: 'frappe.client.get',
+            args: {
+                doctype: 'Project Team Template',
+                name: frm.doc.team_template
+            },
+            callback: function (r) {
+                console.log("r")
+                console.log(r)
+                if (r.message && r.message.template_details) {
+                    let template_employees = r.message.template_details;
+
+                    
+                    // Loop through each task in the template and add it to the project_tasks child table
+                    template_employees.forEach(function (template_employee) {
+                        let new_employee = frm.add_child('employees');
+                        new_employee.employee = template_employee.employee; // Assuming Task Template has a 'task_name' field
+                        
+                    });
+
+                    // Refresh the child table to show populated tasks
+                    frm.refresh_field('employees');
+                }
+            }
+        })
+
+    },
+    task_template: function (frm) {
+        if (frm.doc.task_template) {
+
+            console.log("doc.task_template")
+            console.log(frm.doc.task_template)
+
+            // Clear existing project tasks
+            frm.clear_table('tasks');
+            
+            // Fetch tasks from the selected Task Template
+            frappe.call({
+                method: 'frappe.client.get',
+                args: {
+                    doctype: 'Task Template',
+                    name: frm.doc.task_template
+                },
+                callback: function (r) {
+                    console.log("r")
+                    console.log(r)
+                    if (r.message && r.message.task_template_details) {
+                        let template_tasks = r.message.task_template_details;
+
+                        console.log("task_templates")
+                        console.log(template_tasks)
+                        
+                        // Loop through each task in the template and add it to the project_tasks child table
+                        template_tasks.forEach(function (template_task) {
+                            let new_task = frm.add_child('tasks');
+                            new_task.task = template_task.task; // Assuming Task Template has a 'task_name' field
+                            // new_task.task_description = task.task_description; // Assuming Task Template has a 'task_description' field
+                            // new_task.start_date = task.start_date; // Assuming Task Template has a 'start_date' field
+                            // new_task.end_date = task.end_date; // Assuming Task Template has an 'end_date' field
+                            // Add any additional fields from Task Template as needed
+                        });
+
+                        // Refresh the child table to show populated tasks
+                        frm.refresh_field('tasks');
+                    }
+                }
+            });
+        }
     }
 });
 

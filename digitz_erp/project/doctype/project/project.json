@@ -39,8 +39,12 @@
   "notes_section",
   "notes",
   "employees_tab",
+  "team_template",
+  "section_break_eaqi",
   "employees",
   "tasks_tab",
+  "task_template",
+  "section_break_xjll",
   "tasks"
  ],
  "fields": [
@@ -255,6 +259,28 @@
    "fieldtype": "Table",
    "label": "Tasks",
    "options": "Project Task"
+  },
+  {
+   "fieldname": "task_template",
+   "fieldtype": "Link",
+   "label": "Task Template",
+   "link_filters": "[[\"Task Template\",\"disabled\",\"=\",0]]",
+   "options": "Task Template"
+  },
+  {
+   "fieldname": "section_break_xjll",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "team_template",
+   "fieldtype": "Link",
+   "label": "Team Template",
+   "link_filters": "[[\"Project Team Template\",\"disabled\",\"=\",0]]",
+   "options": "Project Team Template"
+  },
+  {
+   "fieldname": "section_break_eaqi",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -276,7 +302,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-04 16:13:04.947045",
+ "modified": "2024-11-10 20:33:16.590388",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",
