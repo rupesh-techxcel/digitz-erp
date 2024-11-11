@@ -1,0 +1,230 @@
+import frappe
+
+@frappe.whitelist()
+def after_install():
+    insert_accounts()
+    create_default_warehouse()
+    create_cash_payment_mode()
+    create_demo_company()   
+    create_budget_reference_types() 
+
+def insert_accounts():
+    # List of dictionaries representing account data in hierarchical order
+    accounts = [
+        {"account_name": "Accounts", "is_group": 1, "parent_account": "", "account_type": "", "root_type": "", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Asset", "is_group": 1, "parent_account": "Accounts", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": "Cr"},
+        {"account_name": "Current Assets", "is_group": 1, "parent_account": "Asset", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": "Dr"},
+        {"account_name": "Bank Accounts", "is_group": 1, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "RAK BANK", "is_group": 0, "parent_account": "Bank Accounts", "account_type": "Bank", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Cash Accounts", "is_group": 1, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": "Cr"},
+        {"account_name": "Main Cash", "is_group": 0, "parent_account": "Cash Accounts", "account_type": "Cash", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Stock In Hand", "is_group": 0, "parent_account": "Current Assets", "account_type": "Stock", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Trade Receivable", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Fixed Assets", "is_group": 1, "parent_account": "Asset", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Investments", "is_group": 1, "parent_account": "Asset", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Expense", "is_group": 1, "parent_account": "Accounts", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Direct Expense", "is_group": 1, "parent_account": "Expense", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Cost Of Goods Sold Account", "is_group": 0, "parent_account": "Direct Expense", "account_type": "Cost Of Goods Sold", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Indirect Expense", "is_group": 1, "parent_account": "Expense", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Operating Expenses", "is_group": 1, "parent_account": "Indirect Expense", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Stock Received But Not Billed", "is_group": 0, "parent_account": "Operating Expenses", "account_type": "Stock Received But Not Billed", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Stock Adjustment A/c", "is_group": 0, "parent_account": "Operating Expenses", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Miscellaneous Expenses", "is_group": 1, "parent_account": "Indirect Expense", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Round Off", "is_group": 0, "parent_account": "Miscellaneous Expenses", "account_type": "Round Off", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Income", "is_group": 1, "parent_account": "Accounts", "account_type": "", "root_type": "Income", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Direct Income", "is_group": 1, "parent_account": "Income", "account_type": "", "root_type": "Income", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Sales Account", "is_group": 0, "parent_account": "Direct Income", "account_type": "", "root_type": "Income", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Indirect Income", "is_group": 1, "parent_account": "Income", "account_type": "", "root_type": "Income", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Liability", "is_group": 1, "parent_account": "Accounts", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": "Dr"},
+        {"account_name": "Capital Account", "is_group": 1, "parent_account": "Liability", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Current Liability", "is_group": 1, "parent_account": "Liability", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": "Dr"},
+        {"account_name": "Duties & Taxes", "is_group": 1, "parent_account": "Current Liability", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": "Dr"},
+        {"account_name": "UAE VAT @ 5 %", "is_group": 0, "parent_account": "Duties & Taxes", "account_type": "Duties and Taxes", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Trade Payable", "is_group": 0, "parent_account": "Current Liability", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Customer Advances", "is_group": 0, "parent_account": "Current Liability", "account_type": "Unearned Revenue", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
+    ]
+
+    for account_data in accounts:
+        # Ensure the parent account exists
+        if account_data["parent_account"]:
+            if not frappe.db.exists("Account", account_data["parent_account"]):
+                print(f"Parent account not found for {account_data['account_name']}. Skipping.")
+                continue
+        
+        # Check if the account already exists to avoid duplicates
+        if not frappe.db.exists("Account", account_data["account_name"]):
+            # Create and insert the new account record
+            account = frappe.get_doc({
+                "doctype": "Account",
+                "account_name": account_data["account_name"],
+                "is_group": account_data["is_group"],
+                "parent_account": account_data["parent_account"],
+                "account_type": account_data["account_type"],
+                "root_type": account_data["root_type"],
+                "balance": account_data["balance"],
+                "balance_dr_cr": account_data["balance_dr_cr"],
+            })
+            account.insert(ignore_permissions=True)
+            frappe.db.commit()
+            print(f"Inserted: {account_data['account_name']}")
+        else:
+            print(f"Account already exists: {account_data['account_name']}")
+
+# Run the function to insert accounts
+insert_accounts()
+
+def create_demo_company():
+    # Check if company already exists to avoid duplicates
+    if not frappe.db.exists("Company", "DEMO COMPANY"):
+        # Create new Company document
+        company = frappe.get_doc({
+            "doctype": "Company",
+            "company_name": "DEMO COMPANY",
+            "default_currency": "AED",
+            "default_payable_account": "Trade Payable",
+            "default_receivable_account": "Trade Receivable",
+            "stock_received_but_not_billed": "Stock Received But Not Billed",
+            "default_inventory_account": "Stock In Hand",
+            "round_off_account": "Round Off",
+            "default_income_account": "Sales Account",
+            "cost_of_goods_sold_account": "Cost Of Goods Sold Account",
+            "stock_adjustment_account": "Stock Adjustment A/c",
+            "creation": "2022-12-31 09:00:37.024371",
+            "owner": "Administrator",
+            "country": "United Arab Emirates",                       
+            "perdiod_closing_mode": 'Yearly',
+            "use_customer_last_price": 1,
+            "use_supplier_last_price": 1,
+            "update_price_list_price_with_sales_invoice": 1,
+            "update_price_list_price_with_purchase_invoice": 1,
+            "allow_negative_stock": 1,
+            "default_warehouse": "Default Warehouse",
+            "rules_for_prices": "Default Selling Price List : Standard Selling Default Buying Price List : Standard Buying Use Default price LIst when customer or supplier price not available: Yes",
+            "maintain_stock": 1,
+            "update_stock_in_sales_invoice": 1,
+            "tax_excluded": 0,
+            "tax_type": "VAT",
+            "tax": "UAE VAT - 5%",
+            "tax_account": "UAE VAT @ 5 %",
+            "do_not_apply_round_off_in_si": 0,
+            "default_product_expense_account": "Cost Of Goods Sold Account",
+            "default_payment_mode_for_purchase": "Cash",
+            "default_payment_mode_for_sales": "Cash",
+            "default_credit_purchase": 0,
+            "default_credit_sale": 0,
+            "default_asset_location": "",
+            "rate_includes_tax": 0,
+            "use_percentage_for_overheads_in_estimate": 1,
+            "use_generic_items_for_material_and_labour": 1,
+            "default_advance_received_account": "Customer Advances",
+            "default_advance_paid_account": "",
+            "supplier_terms": "",
+            "customer_terms": "",
+            "material_receipt_integrated_with_purchase": 1,
+            "use_custom_item_group_description_in_estimation": 1,
+            "overheads_based_on_percentage": 1
+        })
+        
+        # Insert document into database
+        company.insert()
+        frappe.db.commit()
+        print("DEMO COMPANY created successfully!")
+    else:
+        print("DEMO COMPANY already exists.")
+
+def create_default_warehouse():
+    """Create a warehouse named 'Default Warehouse' if it doesn't exist."""
+    warehouse_name = "Default Warehouse"
+    
+    # Check if the warehouse already exists
+    if not frappe.db.exists("Warehouse", warehouse_name):
+        # Create the Default Warehouse
+        warehouse = frappe.get_doc({
+            "doctype": "Warehouse",
+            "warehouse_name": warehouse_name,
+            "is_group": 0  # Set to 0 to indicate it's a non-group warehouse
+        })
+        
+        # Insert the warehouse into the database
+        warehouse.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Warehouse '{warehouse_name}' created successfully.")
+    else:
+        print(f"Warehouse '{warehouse_name}' already exists.")
+       
+def create_cash_payment_mode():
+     
+    payment_mode = "Cash"
+    
+    # Check if the payment mode is already set to 'Cash' and the account is not 'Main Cash'
+    if not frappe.db.exists("Payment Mode", payment_mode):
+        # Create a new Payment Mode if it doesn't exist
+        payment = frappe.get_doc({
+            "doctype": "Payment Mode",
+            "payment_mode": payment_mode,
+            "mode": "Cash",
+            "account": "Main Cash"
+        })
+        
+        # Insert the payment mode into the database
+        payment.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+def create_budget_reference_types():
+    
+    reference_type = "Account Group"
+    
+    if not frappe.db.exists("Budget Reference Type", reference_type):
+        # Create a new Payment Mode if it doesn't exist
+        budget_reference_type = frappe.get_doc({
+            "doctype": "Budget Reference Type",
+            "reference_type": reference_type,
+            "budget_against": "Expense"        
+        })
+    
+        # Insert the payment mode into the database
+        budget_reference_type.insert(ignore_permissions=True)
+        frappe.db.commit()
+    
+    reference_type = "Account"
+    
+    if not frappe.db.exists("Budget Reference Type", reference_type):
+        # Create a new Payment Mode if it doesn't exist
+        budget_reference_type = frappe.get_doc({
+            "doctype": "Budget Reference Type",
+            "reference_type": reference_type,
+            "budget_against": "Expense"        
+        })
+    
+        # Insert the payment mode into the database
+        budget_reference_type.insert(ignore_permissions=True)
+        frappe.db.commit()
+    
+    reference_type = "Item Group"
+    
+    if not frappe.db.exists("Budget Reference Type", reference_type):
+        # Create a new Payment Mode if it doesn't exist
+        budget_reference_type = frappe.get_doc({
+            "doctype": "Budget Reference Type",
+            "reference_type": reference_type,
+            "budget_against": "Purchase"        
+        })
+    
+        # Insert the payment mode into the database
+        budget_reference_type.insert(ignore_permissions=True)
+        frappe.db.commit()
+    
+    reference_type = "Item"
+    
+    if not frappe.db.exists("Budget Reference Type", reference_type):
+        # Create a new Payment Mode if it doesn't exist
+        budget_reference_type = frappe.get_doc({
+            "doctype": "Budget Reference Type",
+            "reference_type": reference_type,
+            "budget_against": "Purchase"        
+        })
+    
+        # Insert the payment mode into the database
+        budget_reference_type.insert(ignore_permissions=True)
+        frappe.db.commit()
+    
