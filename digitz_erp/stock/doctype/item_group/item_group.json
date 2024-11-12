@@ -9,7 +9,6 @@
  "engine": "InnoDB",
  "field_order": [
   "item_group_name",
-  "parent_group",
   "description",
   "column_break_itzn",
   "image",
@@ -23,14 +22,6 @@
    "in_standard_filter": 1,
    "label": "Item Group Name",
    "unique": 1
-  },
-  {
-   "fieldname": "parent_group",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Parent Group",
-   "options": "Item Group"
   },
   {
    "fieldname": "image",
@@ -58,7 +49,7 @@
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-11 15:40:24.796999",
+ "modified": "2024-11-12 12:36:39.291061",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Group",

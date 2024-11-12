@@ -55,11 +55,12 @@
    "reqd": 1
   },
   {
-   "default": "All Customer Groups",
+   "default": "Default Customer Group",
    "fieldname": "customer_group",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer Group",
+   "link_filters": "[[\"Customer Group\",\"disabled\",\"=\",0]]",
    "options": "Customer Group",
    "reqd": 1
   },
@@ -264,7 +265,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-05 21:54:15.553242",
+ "modified": "2024-11-12 12:42:50.714211",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

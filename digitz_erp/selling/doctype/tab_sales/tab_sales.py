@@ -17,8 +17,8 @@ class TabSales (Document):
         return possible_invalid
         
     def Set_Posting_Time_To_Next_Second(self):
-		# Add 12 seconds to self.posting_time and update it
-		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
+        # Add 12 seconds to self.posting_time and update it
+        self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
     def before_validate(self):
 

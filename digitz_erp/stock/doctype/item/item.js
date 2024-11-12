@@ -98,37 +98,37 @@ frappe.ui.form.on('Item', {
 	},
 	validate: function(frm)
 	{
-		console.log("validate event");
-		console.log("Base Unit");
-		console.log(frm.doc.base_unit);
+		// console.log("validate event");
+		// console.log("Base Unit");
+		// console.log(frm.doc.base_unit);
 
-		var baseUnitFound = false;
+		// var baseUnitFound = false;
 
-		try
-		{
-		frm.doc.units.forEach(function(entry) {
-			if(frm.doc.base_unit == entry.unit)
-			{
-				baseUnitFound= true;
-			}
-		});
-		}
-		catch(err)
-		{
+		// try
+		// {
+		// frm.doc.units.forEach(function(entry) {
+		// 	if(frm.doc.base_unit == entry.unit)
+		// 	{
+		// 		baseUnitFound= true;
+		// 	}
+		// });
+		// }
+		// catch(err)
+		// {
 
-		}
-		console.log("baseUnitFound");
-		console.log(baseUnitFound);
+		// }
+		// console.log("baseUnitFound");
+		// console.log(baseUnitFound);
 
-		if(!baseUnitFound)
-		{
-			var baseuom = frm.add_child("units");
-			baseuom.unit = frm.doc.base_unit;
-			baseuom.conversion_factor = 1;
-			baseuom.parent = frm.doc.item;
-			console.log("Base UOM")
-			console.log(baseuom);
-		}
+		// if(!baseUnitFound)
+		// {
+		// 	var baseuom = frm.add_child("units");
+		// 	baseuom.unit = frm.doc.base_unit;
+		// 	baseuom.conversion_factor = 1;
+		// 	baseuom.parent = frm.doc.item;
+		// 	console.log("Base UOM")
+		// 	console.log(baseuom);
+		// }
 	},
 	before_save: function(frm)
 	{

@@ -63,7 +63,7 @@ fixtures = ["Custom Field", "Custom DocPerm"]
 # ------------
 
 # before_install = "digitz_erp.install.before_install"
-# after_install = "digitz_erp.install.after_install"
+after_install = "digitz_erp.api.install_api.after_install"
 
 # Uninstallation
 # ------------

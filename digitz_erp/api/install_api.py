@@ -6,7 +6,12 @@ def after_install():
     create_default_warehouse()
     create_cash_payment_mode()
     create_demo_company()   
-    create_budget_reference_types() 
+    create_budget_reference_types()
+    create_default_item_group()
+    create_default_supplier_group()
+    create_default_customer_group()    
+    create_tax()
+    create_default_base_unit()
 
 def insert_accounts():
     # List of dictionaries representing account data in hierarchical order
@@ -151,6 +156,63 @@ def create_default_warehouse():
         print(f"Warehouse '{warehouse_name}' created successfully.")
     else:
         print(f"Warehouse '{warehouse_name}' already exists.")
+
+def create_default_item_group():
+    """Create a Item Group named 'Default Item Group' if it doesn't exist."""
+    item_group_name = "Default Item Group"
+
+    # Check if the warehouse already exists
+    if not frappe.db.exists("Item Group", item_group_name):
+        # Create the Default Warehouse
+        item_group = frappe.get_doc({
+            "doctype": "Item Group",
+            "item_group_name": item_group_name            
+        })
+        
+        # Insert the itemgroup into the database
+        item_group.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Item Group '{item_group_name}' created successfully.")
+    else:
+        print(f"Item Group '{item_group_name}' already exists.")
+
+def create_default_supplier_group():
+    """Create a Supplier Group named 'Default Item Group' if it doesn't exist."""
+    supplier_group_name = "Default Supplier Group"
+
+    # Check if the warehouse already exists
+    if not frappe.db.exists("Supplier Group", supplier_group_name):
+        # Create the Default Warehouse
+        supplier_group = frappe.get_doc({
+            "doctype": "Supplier Group",
+            "supplier_group_name": supplier_group_name            
+        })
+        
+        # Insert the itemgroup into the database
+        supplier_group.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Supplier Group '{supplier_group_name}' created successfully.")
+    else:
+        print(f"Supplier Group '{supplier_group_name}' already exists.")
+
+def create_default_customer_group():
+    """Create a Customer Group named 'Default Item Group' if it doesn't exist."""
+    customer_group_name = "Default Customer Group"
+
+    # Check if the warehouse already exists
+    if not frappe.db.exists("Customer Group", customer_group_name):
+        # Create the Default Warehouse
+        customer_group = frappe.get_doc({
+            "doctype": "Customer Group",
+            "customer_group_name": customer_group_name            
+        })
+        
+        # Insert the itemgroup into the database
+        customer_group.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Customer Group '{customer_group_name}' created successfully.")
+    else:
+        print(f"Customer Group '{customer_group_name}' already exists.")
        
 def create_cash_payment_mode():
      
@@ -169,6 +231,46 @@ def create_cash_payment_mode():
         # Insert the payment mode into the database
         payment.insert(ignore_permissions=True)
         frappe.db.commit()
+        print(f"Payment mode '{payment_mode}' created successfully.")
+
+def create_tax():
+        
+    tax_name = "UAE VAT - 5%"
+
+    # Check if the payment mode is already set to 'Cash' and the account is not 'Main Cash'
+    if not frappe.db.exists("Tax", tax_name):
+        # Create a new Payment Mode if it doesn't exist
+        tax = frappe.get_doc({
+            "doctype": "Tax",
+            "tax_name":tax_name,            
+            "tax_type": "VAT",
+            "tax_rate": 5,
+            "applied_on":"Product Or Service",
+            "account" : "UAE VAT @ 5 %"            
+        })
+        
+        # Insert the payment mode into the database
+        tax.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Tax '{tax_name}' created successfully.")    
+
+def create_default_base_unit():
+    
+    unit_name = "PCS"
+
+    # Check if the payment mode is already set to 'Cash' and the account is not 'Main Cash'
+    if not frappe.db.exists("Unit", unit_name):
+        # Create a new Payment Mode if it doesn't exist
+        unit_doc = frappe.get_doc({
+            "doctype": "Unit",
+            "unit":unit_name
+        })
+        
+        # Insert the payment mode into the database
+        unit_doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Default Unit '{unit_name}' created successfully.")   
+
 
 def create_budget_reference_types():
     

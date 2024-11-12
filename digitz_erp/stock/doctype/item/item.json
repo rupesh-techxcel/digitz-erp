@@ -32,13 +32,13 @@
   "item_valuation_rate",
   "stock_value",
   "section_break_20",
-  "units",
   "disabled",
-  "tab_break_14",
+  "units",
   "customer_rates",
   "supplier_prices_tab",
   "supplier_rates",
-  "do_not_update_price"
+  "do_not_update_price",
+  "tab_break_14"
  ],
  "fields": [
   {
@@ -64,7 +64,7 @@
    "options": "Unit"
   },
   {
-   "default": "All Item Groups",
+   "default": "Default Item Group",
    "fieldname": "item_group",
    "fieldtype": "Link",
    "in_filter": 1,
@@ -146,13 +146,6 @@
    "label": "Supplier Prices"
   },
   {
-   "description": "For multiple units, adjust the conversion factor based on the quantity of units corresponding to the base unit. For instance, if a box holds 10 pieces of an item, then the conversion factor listed in the row for the 'Box' unit ought to be 10.",
-   "fieldname": "units",
-   "fieldtype": "Table",
-   "label": "Units",
-   "options": "Item Unit"
-  },
-  {
    "fieldname": "stock_balance",
    "fieldtype": "Float",
    "label": "Stock Balance(Base Unit)"
@@ -231,11 +224,17 @@
    "fieldname": "use_as_default_for_labour_in_estimate",
    "fieldtype": "Check",
    "label": "Use as default for labour in the estimate"
+  },
+  {
+   "fieldname": "units",
+   "fieldtype": "Table",
+   "label": "Units",
+   "options": "Item Unit"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-23 18:19:45.412518",
+ "modified": "2024-11-12 12:39:11.536553",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

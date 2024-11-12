@@ -9,7 +9,7 @@ from digitz_erp.api.item_price_api import update_item_price
 from frappe import _
 
 class Item(Document):
-    	
+    		
 	def validate(self):
      
 		if not self.is_new():
@@ -34,6 +34,25 @@ class Item(Document):
 				frappe.throw("Cannot change base unit as it's being used in stock ledgers.")
     
 	def before_validate(self):
+     
+		base_unit_exists = False
+		# Loop through the rows in the child table 'Item Unit'
+		for row in self.units:
+			# Check if there is already a row with the base_unit
+			if row.unit == self.base_unit:
+				base_unit_exists = True
+				break
+		
+		# If base_unit does not exist, add it with conversion factor 1
+		if not base_unit_exists:
+			self.append("units", {
+				"unit": self.base_unit,
+				"conversion_factor": 1
+			})	
+
+			frappe.msgprint("Added an Item Unit entry for the base unit with a conversion factor of 1.", alert=1)
+	
+
 		
 		if not self.description:
 			self.description = self.item_name
@@ -41,7 +60,6 @@ class Item(Document):
 		if self.item_type == "Fixed Asset" and self.maintain_stock:
 			self.maintain_stock = False
 			frappe.msgprint("Maintaining stock for fixed assets is not applicable. It has been set to false.",alert=True)
-
 
 	def update_standard_selling_price(self):
 
