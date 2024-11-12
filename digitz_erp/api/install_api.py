@@ -12,6 +12,7 @@ def after_install():
     create_default_customer_group()    
     create_tax()
     create_default_base_unit()
+    create_default_price_lists()
 
 def insert_accounts():
     # List of dictionaries representing account data in hierarchical order
@@ -134,8 +135,28 @@ def create_demo_company():
         company.insert()
         frappe.db.commit()
         print("DEMO COMPANY created successfully!")
+        
+        set_default_company_in_global_settings("DEMO COMPANY")
     else:
         print("DEMO COMPANY already exists.")
+        
+def set_default_company_in_global_settings(company_name):
+    # Check if the specified company exists
+    if not frappe.db.exists("Company", company_name):
+        print(f"Error: Company '{company_name}' does not exist. Please provide a valid company name.")
+        return
+
+    # Fetch the Global Defaults single doctype
+    global_defaults = frappe.get_single("Global Settings")
+
+    # Set the default company if it's not set or needs updating
+    if global_defaults.default_company != company_name:
+        global_defaults.default_company = company_name
+        global_defaults.save(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Success: Default company set to '{company_name}' in Global Defaults.")
+    else:
+        print(f"Info: The default company is already set to '{company_name}' in Global Defaults.")
 
 def create_default_warehouse():
     """Create a warehouse named 'Default Warehouse' if it doesn't exist."""
@@ -287,6 +308,7 @@ def create_budget_reference_types():
         # Insert the payment mode into the database
         budget_reference_type.insert(ignore_permissions=True)
         frappe.db.commit()
+        print(f"Budget reference Type '{reference_type}' created successfully.")
     
     reference_type = "Account"
     
@@ -301,6 +323,7 @@ def create_budget_reference_types():
         # Insert the payment mode into the database
         budget_reference_type.insert(ignore_permissions=True)
         frappe.db.commit()
+        print(f"Budget reference Type, '{reference_type}' created successfully.")
     
     reference_type = "Item Group"
     
@@ -315,6 +338,7 @@ def create_budget_reference_types():
         # Insert the payment mode into the database
         budget_reference_type.insert(ignore_permissions=True)
         frappe.db.commit()
+        print(f"Budget reference Type, '{reference_type}' created successfully.")
     
     reference_type = "Item"
     
@@ -329,4 +353,38 @@ def create_budget_reference_types():
         # Insert the payment mode into the database
         budget_reference_type.insert(ignore_permissions=True)
         frappe.db.commit()
+        print(f"Budget reference Type, '{reference_type}' created successfully.")
+        
+def create_default_price_lists():
+    
+    price_list_name = "Standard Buying"
+    
+    if not frappe.db.exists("Price List", price_list_name):
+        # Create a new Price List if it doesn't exist
+        price_list = frappe.get_doc({
+            "doctype": "Price List",
+            "price_list_name": price_list_name,
+            "is_buying": 1       
+        })
+    
+        # Insert the price list into the database
+        price_list.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Default Price List, '{price_list_name}' created successfully.")
+        
+    price_list_name = "Standard Selling"
+    
+    if not frappe.db.exists("Price List", price_list_name):
+        # Create a new Price List if it doesn't exist
+        price_list = frappe.get_doc({
+            "doctype": "Price List",
+            "price_list_name": price_list_name,
+            "is_selling": 1       
+        })
+    
+        # Insert the price list into the database
+        price_list.insert(ignore_permissions=True)
+        frappe.db.commit()
+        
+        print(f"Default Price List, '{price_list_name}' created successfully.")
     

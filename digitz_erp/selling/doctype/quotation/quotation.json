@@ -34,8 +34,8 @@
   "company",
   "project_name",
   "project_short_name",
-  "enquiry",
   "based_on",
+  "enquiry",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -442,7 +442,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-26 11:38:05.354772",
+ "modified": "2024-11-12 20:41:43.624752",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
