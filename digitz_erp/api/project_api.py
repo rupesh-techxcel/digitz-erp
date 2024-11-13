@@ -102,3 +102,18 @@ def get_last_progress_entry(project_name):
     
     # Return the name of the last progress entry, or None if no entries found
     return last_progress_entry
+
+@frappe.whitelist()
+def get_sales_order_for_project(project_name):
+    # Check if the project exists and fetch the linked sales order
+    project = frappe.get_doc("Project", project_name)
+    if project.sales_order:
+        return {
+            "status": "success",
+            "sales_order": project.sales_order
+        }
+    else:
+        return {
+            "status": "failed",
+            "message": "No Sales Order linked to the specified project."
+        }

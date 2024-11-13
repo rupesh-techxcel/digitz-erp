@@ -18,6 +18,7 @@
   "column_break_chgg",
   "project_delivery_date",
   "status",
+  "disabled",
   "customer_details_section",
   "customer",
   "sales_order",
@@ -281,6 +282,12 @@
   {
    "fieldname": "section_break_eaqi",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -302,7 +309,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-10 20:33:16.590388",
+ "modified": "2024-11-13 17:44:38.392578",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

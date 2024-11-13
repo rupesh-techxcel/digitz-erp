@@ -9,36 +9,33 @@ frappe.ui.form.on("Proforma Invoice", {
 	},
     refresh(frm)
 	{
-		if(!frm.is_new())
-			{
-			update_total_big_display(frm);
-			}
+		
 	},
-    progress_entry(frm){
+    progress_entry(frm) {
         frappe.call({
-            method:"frappe.client.get",
-            args:{
+            method: "frappe.client.get",
+            async: false,
+            args: {
                 doctype: "Progress Entry",
                 name: frm.doc.progress_entry,
             },
             callback: function(response) {
                 let progress_entry = response.message;
-                if(progress_entry){
-
-                    console.log("progress_entry")
-                    console.log(progress_entry)
-                    // console.log(progress_entry.progress_entry_items);
+                if (progress_entry) {
+                    console.log("Fetched Progress Entry:", progress_entry);
+    
                     progress_entry.progress_entry_items.forEach(element => {
                         let row = {
                             "prev_completion": element.prev_completion,
                             "total_completion": element.total_completion,
-                            "current_completion": element.current_completion,                            
+                            "current_completion": element.current_completion,
                             "prev_amount": element.prev_amount,
+                            "total_amount": element.total_amount,
                             "tax": element.tax,
                             "tax_rate": element.tax_rate,
                             "tax_amount": element.tax_amount,
                             "gross_amount": element.gross_amount,
-                            "net_amount": element.net_amount,                            
+                            "net_amount": element.net_amount,
                             "item": element.item,
                             "item_name": element.item_name,
                             "item_gross_amount": element.item_gross_amount,
@@ -46,48 +43,38 @@ frappe.ui.form.on("Proforma Invoice", {
                             "item_net_amount": element.item_net_amount
                         };
                         frm.add_child('progress_entry_items', row);
-                        console.log("row added from progress invoice")
-                        frm.refresh_fields('progress_entry_items');
                     });
-
+    
+                    frm.refresh_field('progress_entry_items');
+    
+                    // Set totals
                     frm.set_value('total_completion_percentage', progress_entry.total_completion_percentage);
                     frm.set_value('gross_total', progress_entry.gross_total);
                     frm.set_value('tax_total', progress_entry.tax_total);
                     frm.set_value('net_total', progress_entry.net_total);
-
-
-                    frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
-                        console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
-                        if (data && data.do_not_apply_round_off_in_si == 1) {
-                          frm.doc.rounded_total = frm.doc.net_total;
-                          frm.refresh_field('rounded_total');				
-                        }
-                        else {
-                         if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
-                           frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-                           frm.doc.rounded_total = Math.round(frm.doc.net_total);
-                           frm.refresh_field('round_off');
-                           frm.refresh_field('rounded_total');				 
-                         }
-                         else{
-                    
-                          frm.doc.rounded_total = frm.doc.net_total;
-                          frm.refresh_field("rounded_total");
-                    
-                          console.log(frm.doc.net_total)
-                          console.log(frm.doc.rounded_total)
-                          
-                          
-                         }
-                       }
-                       
-                      });
-                    
-                      update_total_big_display(frm)  
+    
+                    frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si')
+                        .then(data => {
+                            if (data && data.message.do_not_apply_round_off_in_si === 1) {
+                                frm.set_value('rounded_total', frm.doc.net_total);
+                            } else {
+                                if (frm.doc.net_total !== Math.round(frm.doc.net_total)) {
+                                    frm.set_value('round_off', Math.round(frm.doc.net_total) - frm.doc.net_total);
+                                    frm.set_value('rounded_total', Math.round(frm.doc.net_total));
+                                } else {
+                                    frm.set_value('rounded_total', frm.doc.net_total);
+                                }
+                            }
+                            console.log("Net Total:", frm.doc.net_total);
+                            console.log("Rounded Total:", frm.doc.rounded_total);
+                            update_total_big_display(frm);
+                            frm.refresh_fields();
+                        });
                 }
             }
-        })
-    },    
+        });
+    },
+      
     get_default_company_and_warehouse(frm) {
 
 		var default_company = ""
@@ -127,14 +114,18 @@ frappe.ui.form.on("Proforma Invoice", {
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(0);
+	let display_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+    console.log("display_total", display_total)
+
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${display_total}</div>`;
 
 
     // Directly update the HTML content of the 'total_big' field
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);
+
+    frm.refresh_field('total_big');
 
 }

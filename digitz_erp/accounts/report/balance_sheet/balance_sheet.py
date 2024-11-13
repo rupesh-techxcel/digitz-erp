@@ -11,10 +11,11 @@ from digitz_erp.api.settings_api import get_period_list
 def execute(filters=None):
     # columns = get_columns()
     data,columns,summary = get_data(filters)
-        
+    
+    print(data)
+    
     # chart = get_chart_data(filters)
     return columns, data, None, None, summary
-
 
 def get_data(filters=None):
     

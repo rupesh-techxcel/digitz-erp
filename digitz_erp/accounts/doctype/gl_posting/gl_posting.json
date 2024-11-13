@@ -20,7 +20,9 @@
   "party_type",
   "party",
   "remarks",
-  "is_for_cogs"
+  "is_for_cogs",
+  "project",
+  "cost_center"
  ],
  "fields": [
   {
@@ -105,12 +107,24 @@
    "fieldname": "is_for_cogs",
    "fieldtype": "Check",
    "label": "Is For COGS"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-13 10:18:08.087217",
+ "modified": "2024-11-13 17:41:14.694775",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "GL Posting",

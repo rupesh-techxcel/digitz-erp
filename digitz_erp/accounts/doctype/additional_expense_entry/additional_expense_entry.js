@@ -525,6 +525,9 @@ let general_ledgers = function (frm) {
                               '<th style="width: 15%;">Credit Amount</th>' +
                               '<th style="width: 25%;">Against Account</th>' +
                               '<th style="width: 25%;">Remarks</th>' +
+							  '<th style="width: 25%;">Project</th>' +
+							  '<th style="width: 25%;">Cost Center</th>' +
+							  '<th style="width: 25%;">Party</th>' +
                               '</tr>' +
                               '</thead>' +
                               '<tbody>';
@@ -543,6 +546,9 @@ let general_ledgers = function (frm) {
 											   `<td style="text-align: right;">${creditAmount}</td>` +
 											   `<td>${gl_posting.against_account}</td>` +
 											   `<td>${remarksText}</td>` +
+											   `<td>${gl_posting.project}</td>` +
+											   `<td>${gl_posting.cost_center}</td>` +
+											   `<td>${gl_posting.party}</td>` +
 											   '</tr>';
 							});
 

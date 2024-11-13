@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import money_in_words
 from digitz_erp.api.settings_api import add_seconds_to_time
+from digitz_erp.api.settings_api import get_default_currency, get_gl_narration
 
 
 class ProgressiveSalesInvoice(Document):
@@ -17,7 +18,9 @@ class ProgressiveSalesInvoice(Document):
 		# Add 12 seconds to self.posting_time and update it
 		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
-
+	def on_submit(self):
+		self.do_postings_on_submit()
+  
 	def before_validate(self):
 
 		if(self.Voucher_In_The_Same_Time()):
@@ -55,7 +58,7 @@ class ProgressiveSalesInvoice(Document):
 		# self.in_words = money_in_words(self.rounded_total,"AED")
   
 	def do_postings_on_submit(self):
-     
+          
 		self.insert_gl_records()
 		self.insert_payment_postings()
 
@@ -137,56 +140,73 @@ class ProgressiveSalesInvoice(Document):
 			idx +=1
 			
 	def insert_payment_postings(self):
-		
 		remarks = self.get_narration()
 
 		if self.credit_sale == 0:
+			# Retrieve GL count for voucher entries
+			gl_count = frappe.db.count('GL Posting', {'voucher_type': 'Sales Invoice', 'voucher_no': self.name})
 
-			gl_count = frappe.db.count(
-				'GL Posting', {'voucher_type': 'Sales Invoice', 'voucher_no': self.name})
+			# Fetch default accounts from Global Settings
+			default_company = frappe.db.get_single_value("Global Settings", "default_company")
+			default_accounts = frappe.get_value(
+				"Company", 
+				default_company, 
+				[
+					'default_receivable_account', 
+					'default_inventory_account',
+					'stock_received_but_not_billed', 
+					'round_off_account', 
+					'tax_account'
+				], 
+				as_dict=True
+			)
+			if not default_accounts:
+				frappe.throw(_("Default accounts not set in company settings."))
 
-			default_company = frappe.db.get_single_value(
-				"Global Settings", "default_company")
+			# Get payment mode account
+			payment_mode = frappe.get_value("Payment Mode", self.payment_mode, ['account'], as_dict=True)
+			if not payment_mode:
+				frappe.throw(_("Payment mode account not found."))
 
-			default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
-																				'stock_received_but_not_billed', 'round_off_account', 'tax_account'], as_dict=1)
+			idx = gl_count + 1  # Start index based on GL count
 
-			payment_mode = frappe.get_value(
-				"Payment Mode", self.payment_mode, ['account'], as_dict=1)
+			# Template for base fields in GL Posting
+			base_gl_posting = {
+				"voucher_type": self.doctype,
+				"voucher_no": self.name,
+				"posting_date": self.posting_date,
+				"posting_time": self.posting_time,
+				"remarks": remarks
+			}
 
-			idx = gl_count + 1
-
+			# First GL Posting entry (credit entry)
 			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
-			gl_doc.voucher_no = self.name
+			gl_doc.update(base_gl_posting)
 			gl_doc.idx = idx
-			gl_doc.posting_date = self.posting_date
-			gl_doc.posting_time = self.posting_time
 			gl_doc.account = default_accounts.default_receivable_account
 			gl_doc.credit_amount = self.rounded_total
 			gl_doc.party_type = "Customer"
 			gl_doc.party = self.customer
 			gl_doc.against_account = payment_mode.account
-			gl_doc.remarks = remarks
+			self.fill_cost_centers(gl_doc)
 			gl_doc.insert()
 
-			idx = idx + 1
-
+			# Second GL Posting entry (debit entry)
+			idx += 1
 			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
-			gl_doc.voucher_no = self.name
+			gl_doc.update(base_gl_posting)
 			gl_doc.idx = idx
-			gl_doc.posting_date = self.posting_date
-			gl_doc.posting_time = self.posting_time
 			gl_doc.account = payment_mode.account
 			gl_doc.debit_amount = self.rounded_total
 			gl_doc.against_account = default_accounts.default_receivable_account
-			gl_doc.remarks = remarks
+			self.fill_cost_centers(gl_doc)
 			gl_doc.insert()
 
-			update_posting_status(self.doctype,self.name, 'payment_posted_time',None)
-
-
+	def fill_cost_centers(self,gl_doc):
+ 
+		gl_doc.project = self.project
+		gl_doc.cost_center = self.cost_center
+  
 	def get_narration(self):
 		
 		# Assign supplier, invoice_no, and remarks

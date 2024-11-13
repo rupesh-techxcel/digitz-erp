@@ -67,7 +67,7 @@ def get_gl_postings(voucher,voucher_no):
     gl_postings = frappe.get_all("GL Posting",
                                   filters={"voucher_type":voucher,
                                       "voucher_no": voucher_no},
-                                  fields=["account", "debit_amount", "credit_amount", "against_account", "remarks"])
+                                  fields=["account", "debit_amount", "credit_amount", "against_account", "remarks","project","cost_center"])
     formatted_gl_postings = []
     for posting in gl_postings:
         formatted_gl_postings.append({
@@ -76,7 +76,10 @@ def get_gl_postings(voucher,voucher_no):
             "debit_amount": posting.debit_amount,
             "credit_amount": posting.credit_amount,
             "against_account": posting.against_account,
-            "remarks": posting.remarks
+            "remarks": posting.remarks,
+            "project":posting.project if posting.project else "",
+            "cost_center":posting.cost_center if posting.cost_center else "",
+            "party":posting.party if posting.party else ""
         })
 
     return formatted_gl_postings

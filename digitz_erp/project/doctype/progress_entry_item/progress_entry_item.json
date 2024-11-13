@@ -23,8 +23,9 @@
   "section_break_ijht",
   "tax",
   "tax_rate",
-  "column_break_swfb",
+  "total_amount",
   "prev_amount",
+  "column_break_swfb",
   "gross_amount",
   "tax_amount",
   "net_amount"
@@ -181,12 +182,17 @@
    "fieldname": "tax_excluded",
    "fieldtype": "Check",
    "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-24 18:13:25.650905",
+ "modified": "2024-11-13 14:05:00.281976",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry Item",

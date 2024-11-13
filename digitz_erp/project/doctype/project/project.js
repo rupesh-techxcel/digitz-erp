@@ -12,31 +12,12 @@ frappe.ui.form.on("Project", {
 
     onload_post_render(frm) {
         frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
-            if (frm.doc.project_stage_table.length < 1) {
+            
                 frappe.new_doc("Progress Entry", {}, function(pe) {
                     pe.project = frm.doc.name;
+                    pe.sales_order = frm.doc.sales_order
                 });
-            } else {
-                frappe.call({
-                    method: 'digitz_erp.api.project_api.get_last_progress_entry',
-                    args: { project_name: frm.doc.name },
-                    callback: function(r) {
-                        if (r.message) {
-                            frappe.new_doc("Progress Entry", {}, function(pe) {
-                                pe.project = frm.doc.name;
-                                pe.previous_progress_entry = r.message;
-                                pe.is_prev_progress_exists = 1;
-                            });
-                        } else if (frm.doc.project_stage_table.length == 1) {
-                            frappe.new_doc("Progress Entry", {}, function(pe) {
-                                pe.project = frm.doc.name;
-                            });
-                        } else {
-                            frappe.msgprint(__('No progress entries found, and conditions not met for auto-creation.'));
-                        }
-                    }
-                });
-            }
+            
         });
     },
 

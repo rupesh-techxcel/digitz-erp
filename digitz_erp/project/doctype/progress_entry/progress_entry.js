@@ -64,99 +64,131 @@ frappe.ui.form.on("Progress Entry", {
   },
  
   project(frm) {
+
     frm.set_value('progress_entry_items', []);
-    
-    if (frm.doc.project && frm.doc.is_prev_progress_exists === 0) {
-        frm.set_value("total_completion_percentage", 0);
 
-        if (frm.doc.sales_order) {
-            // Fetch sales order and check if BOQ exists
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "Sales Order",
-                    name: frm.doc.sales_order
-                },
-                callback(r) {
-                    if (r.message) {
-                        // Check if there is a BOQ linked in the Sales Order
-                        if (r.message.boq) {
-                            fetch_boq_items(frm, r.message.boq);
-                        } else {
-                            // If no BOQ exists, fall back to Sales Order items
-                            fetch_sales_order_items(frm);
-                        }
-                    } else {
-                        frappe.msgprint(__("No items found for the selected Sales Order."));
-                    }
-                }
-            });
+    if (frm.doc.project) {
+
+        if(frm.doc.sales_order == undefined)
+        {
+
+          frappe.call({
+            method: 'digitz_erp.api.project_api.get_sales_order_for_project',
+            args: { project_name: frm.doc.project }, 
+            async:false,
+            callback: function(response) {
+              if (response.message.status === "success") {
+                  frm.set_value('sales_order', response.message.sales_order);
+              }}});
         }
-    } else {
-        frm.set_value("total_completion_percentage", 0);
-        frm.set_value("gross_total", "");
-        frm.set_value("tax_total", "");
-        frm.set_value("net_total", "");
-        frm.set_value("total_discount_in_line_items", "");
-        frm.set_value("additional_discount", "");
-        frm.set_value("round_off", "");
-        frm.set_value("rounded_total", "");
-        frm.set_value("in_words", "");
-        frm.refresh_field("progress_entry_items");
 
-        if (frm.doc.previous_progress_entry && frm.doc.previous_progress_entry !== frm.doc.name) {
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "Progress Entry",
-                    name: frm.doc.previous_progress_entry
-                },
-                callback(r) {
-                    if (r.message && r.message.progress_entry_items) {
-                        // Check if the total completion percentage is below 100
-                        if (r.message.total_completion_percentage < 100) {
-                            update_from_previous_progress_entry(frm, r);
+        frappe.call({
+            method: 'digitz_erp.api.project_api.get_last_progress_entry',
+            args: { project_name: frm.doc.project },   
+            async:false,         
+            callback: function(r) {
+                if (r.message) {
+                  frm.set_value('previous_progress_entry', r.message);
+                  frm.set_value('is_prev_progress_exists', 1);
+                 
+                }
+            }
+        });
 
-                            // If previous progress entry exists, check for amendments
-                            if (frm.doc.sales_order) {
-                                frappe.call({
-                                    method: "frappe.client.get",
-                                    args: {
-                                        doctype: "Sales Order",
-                                        name: frm.doc.sales_order
-                                    },
-                                    callback(r) {
-                                        if (r.message && r.message.boq) {
-                                            // Check for BOQ Amendments after the progress entry date
-                                            check_boq_amendments_after_progress(frm, r.message.boq);
-                                        }
-                                    }
-                                });
+        if (frm.doc.is_prev_progress_exists === 0) {
+            frm.set_value("total_completion_percentage", 0);
+            
+
+            if (frm.doc.sales_order) {
+
+                // Fetch sales order and check if BOQ exists
+                frappe.call({
+                    method: "frappe.client.get",
+                    args: {
+                        doctype: "Sales Order",
+                        name: frm.doc.sales_order
+                    },
+                    callback(r) {
+                        if (r.message) {
+                            // Check if there is a BOQ linked in the Sales Order
+                            if (r.message.boq) {
+                                fetch_boq_items(frm, r.message.boq);
+                            } else {
+                                // If no BOQ exists, fall back to Sales Order items
+                                fetch_sales_order_items(frm);
                             }
                         } else {
-                            frappe.msgprint(__("The previous progress entry is already 100% completed."));
+                            frappe.msgprint(__("No items found for the selected Sales Order."));
                         }
-                    } else {
-                        frappe.msgprint(
-                            __("No Items Are In Previous Progress Entry, " + frm.doc.previous_progress_entry + ".")
-                        );
                     }
-                }
-            });
+                });
+            } else {
+                
+            }
+        } else {
+            frm.set_value("total_completion_percentage", 0);
+            frm.set_value("gross_total", "");
+            frm.set_value("tax_total", "");
+            frm.set_value("net_total", "");
+            frm.set_value("total_discount_in_line_items", "");
+            frm.set_value("additional_discount", "");
+            frm.set_value("round_off", "");
+            frm.set_value("rounded_total", "");
+            frm.set_value("in_words", "");
+            frm.refresh_field("progress_entry_items");
+
+            if (frm.doc.previous_progress_entry && frm.doc.previous_progress_entry !== frm.doc.name) {
+                frappe.call({
+                    method: "frappe.client.get",
+                    args: {
+                        doctype: "Progress Entry",
+                        name: frm.doc.previous_progress_entry
+                    },
+                    callback(r) {
+                        if (r.message && r.message.progress_entry_items) {
+                            // Check if the total completion percentage is below 100
+                            if (r.message.total_completion_percentage < 100) {
+                                update_from_previous_progress_entry(frm, r);
+
+                                // If previous progress entry exists, check for amendments
+                                // if (frm.doc.sales_order) {
+                                //     frappe.call({
+                                //         method: "frappe.client.get",
+                                //         args: {
+                                //             doctype: "Sales Order",
+                                //             name: frm.doc.sales_order
+                                //         },
+                                //         callback(r) {
+                                //             if (r.message && r.message.boq) {
+                                //                 // Check for BOQ Amendments after the progress entry date
+                                //                 check_boq_amendments_after_progress(frm, r.message.boq);
+                                //             }
+                                //         }
+                                //     });
+                                // }
+                            } else {
+                                frappe.msgprint(__("The previous progress entry is already 100% completed."));
+                            }
+                        } else {
+                            frappe.msgprint(__("No Items Are In Previous Progress Entry, " + frm.doc.previous_progress_entry + "."));
+                        }
+                    }
+                });
+            }
         }
     }
 },
 
-  is_prev_progress_exists(frm) {
-    if (frm.doc.is_prev_progress_exists === 0) {
-      frm.set_value("previous_progress_entry", "");
-    }
-    frm.trigger('project');
-  },
+  // is_prev_progress_exists(frm) {
+  //   if (frm.doc.is_prev_progress_exists === 0) {
+  //     frm.set_value("previous_progress_entry", "");
+  //   }
+  //   frm.trigger('project');
+  // },
 
-  previous_progress_entry(frm) {
-    frm.trigger('project');
-  }
+  // previous_progress_entry(frm) {
+  //   // frm.trigger('project');
+  // }
 });
 
 function fetch_sales_order_items(frm) {
@@ -251,6 +283,7 @@ function fetch_boq_amendment_items(frm, amendment_name) {
 }
 
 function fetch_boq_items(frm, boq_name) {
+
   frappe.call({
       method: "frappe.client.get",
       args: {
@@ -258,9 +291,10 @@ function fetch_boq_items(frm, boq_name) {
           name: boq_name
       },
       callback(r) {
-          if (r.message && r.message.items) {
+          if (r.message && r.message.boq_items) {
+
               frm.clear_table("progress_entry_items");
-              r.message.items.forEach(function (item) {
+              r.message.boq_items.forEach(function (item) {
                   let row = frm.add_child("progress_entry_items");
                   row.item = item.item;
                   row.item_name = item.item_name;
@@ -268,9 +302,9 @@ function fetch_boq_items(frm, boq_name) {
                   row.rate = item.rate;
                   row.amount = item.amount;
                   row.tax_rate = item.tax_rate;
-                  row.tax_amount = item.tax_amount;
-                  row.gross_amount = item.gross_amount;
-                  row.net_amount = item.net_amount;
+                  row.item_tax_amount = item.tax_amount;
+                  row.item_gross_amount = item.gross_amount;
+                  row.item_net_amount = item.net_amount;
               });
               frm.refresh_field("progress_entry_items");
           } else {
@@ -287,15 +321,15 @@ function update_from_previous_progress_entry(frm, r) {
     frappe.msgprint(__("No valid data found for the previous progress entry."));
     return;
   }
-
+  
   // Set previous completion percentage from the previous progress entry
   frm.set_value("previous_completion_percentage", r.message.total_completion_percentage);
 
   // Loop through each progress entry item and copy data to the current form
   r.message.progress_entry_items.forEach(function (item) {
+
     if (item.total_completion !== 100) {
-      let row = frm.add_child("progress_entry_items");
-      
+      let row = frm.add_child("progress_entry_items");      
       row.sales_order_amt = frm.doc.sales_order_net_total;
       row.prev_completion = item.total_completion || 0;
       row.total_amount = item.total_amount || 0;
@@ -308,12 +342,16 @@ function update_from_previous_progress_entry(frm, r) {
       row.tax_excluded = item.tax_excluded;
       row.tax = item.tax;
       row.tax_rate = item.tax_rate;
-
       row.item_net_amount = item.item_net_amount;
       row.item_gross_amount = item.item_gross_amount;
       row.item_tax_amount = item.item_tax_amount;
     }
   });
+
+  frm.set_value('gross_total',0)
+  frm.set_value('tax_total',0)
+  frm.set_value('net_total',0)
+  frm.set_value('rounded_total',0)
 
   // Refresh the field after setting new rows
   frm.refresh_field("progress_entry_items");
@@ -332,9 +370,21 @@ frappe.ui.form.on("Progress Entry Item", {
   total_completion(frm,cdt,cdn){
 
     let row = frappe.get_doc(cdt, cdn);
-    console.log(row);    
+    
+    if(row.total_completion< row.prev_completion)
+    {
+      frappe.msgprint({
+        title: __("Validation Error"),
+        indicator: "red",
+        message: __("Completion % can't be less than previous completion %."),
+      });
 
-    if (row.total_completion > 100) {
+      row.total_completion = 0
+      
+      frm.refresh_field("progress_entry_items")
+
+    }
+    else if (row.total_completion > 100) {
       row.total_completion = 0;
       frappe.msgprint({
         title: __("Validation Error"),
@@ -343,7 +393,7 @@ frappe.ui.form.on("Progress Entry Item", {
       });
     } else {       
         row.current_completion = (row.total_completion - row.prev_completion);        
-        console.log("current completion",row.current_completion)
+        
         update_progress(frm)
         make_taxes_and_totals(frm,cdt,cdn);      
     }
@@ -398,8 +448,7 @@ function make_taxes_and_totals(frm){
       
     
     frm.refresh_field("progress_entry_items")
-    update_total_amounts(frm);
-    
+    update_total_amounts(frm);    
 
   }
 
@@ -412,18 +461,16 @@ function update_total_amounts(frm){
     gross_total += element.gross_amount;
     tax_total += element.tax_amount;
     net_total += element.net_amount;
-  });
 
-  console.log("gross_total",gross_total)
-  console.log("tax_total",tax_total)
-  console.log("net_total",net_total)
+  });
 
   frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
   frm.set_value('net_total', net_total);
+  frm.set_value('rounded_total',0)
 
   frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
-    console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
+    
     if (data && data.do_not_apply_round_off_in_si == 1) {
       frm.doc.rounded_total = frm.doc.net_total;
       frm.refresh_field('rounded_total');				
@@ -436,16 +483,17 @@ function update_total_amounts(frm){
      }
      else{
 
-      frm.set_value('rounded_total',frm.doc.net_total) 
+      frm.set_value('rounded_total',frm.doc.net_total)
 
      }
    }
-   
-   console.log("rounded_total",frm.doc.rounded_total)  
+
+   console.log("frm.doc.rounded_total")
+   console.log(frm.doc.rounded_total)
+
    update_total_big_display(frm)  
 
   });
-
   
 }
 

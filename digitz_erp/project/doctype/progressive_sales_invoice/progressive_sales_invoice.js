@@ -11,6 +11,15 @@ frappe.ui.form.on("Progressive Sales Invoice", {
 			{
 			update_total_big_display(frm);
 			}
+
+			if (frappe.user.has_role('Management')) {
+				if(!frm.is_new() && (frm.doc.docstatus == 1)){
+				frm.add_custom_button('General Ledgers',() =>{
+						general_ledgers(frm)
+				}, 'Postings');
+					
+				}
+			}
 	},
     progress_entry(frm){
         frappe.call({
@@ -140,7 +149,79 @@ frappe.ui.form.on("Progressive Sales Invoice", {
 		}
 
 	},
+	
 });
+
+let general_ledgers = function (frm) {
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_gl_postings",
+        args: {
+			voucher: frm.doc.doctype,
+            voucher_no: frm.doc.name
+        },
+        callback: function (response) {
+            let gl_postings = response.message;
+
+            // Generate HTML content for the popup
+			let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+								'<table class="table table-bordered" style="width: 100%;">' +
+								'<thead>' +
+								'<tr>' +
+								'<th style="width: 10%;">Account</th>' +
+								'<th style="width: 8%;">Debit Amount</th>' +
+								'<th style="width: 8%;">Credit Amount</th>' +
+								'<th style="width: 10%;">Against Account</th>' +
+								'<th style="width: 25%;">Remarks</th>' +
+								'<th style="width: 10%;">Project</th>' +
+								'<th style="width: 10%;">Cost Center</th>' +
+								'<th style="width: 10%;">Party</th>' +
+								'</tr>' +
+								'</thead>' +
+								'<tbody>';
+
+							  gl_postings.forEach(function (gl_posting) {
+								// Handling null values for remarks
+								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+
+								// Ensure debit_amount and credit_amount are treated as floats and format them
+								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+
+								htmlContent += '<tr>' +
+											   `<td>${gl_posting.account}</td>` +
+											   `<td style="text-align: right;">${debitAmount}</td>` +
+											   `<td style="text-align: right;">${creditAmount}</td>` +
+											   `<td>${gl_posting.against_account}</td>` +
+											   `<td>${remarksText}</td>` +
+											   `<td>${gl_posting.project}</td>` +
+											   `<td>${gl_posting.cost_center}</td>` +
+											   `<td>${gl_posting.party}</td>` +
+											   '</tr>';
+							});
+
+            htmlContent += '</tbody></table></div>';
+
+            // Create and show the dialog
+            let d = new frappe.ui.Dialog({
+                title: 'General Ledgers',
+                fields: [{
+                    fieldtype: 'HTML',
+                    fieldname: 'general_ledgers_html',
+                    options: htmlContent
+                }],
+                primary_action_label: 'Close',
+                primary_action: function () {
+                    d.hide();
+                }
+            });
+
+            // Set custom width for the dialog
+            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
+
+            d.show();
+        }
+    });
+};
 
 frappe.ui.form.on("Progressive Sales Invoice", "onload", function (frm) {
 
