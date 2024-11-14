@@ -75,7 +75,6 @@
    "options": "\nDuties and Taxes\nStock\nCash\nBank\nReceivable\nPayable\nStock Received But Not Billed\nRound Off\nFixed Asset\nAccumulated Depreciation\nDepreciation\nCost Of Goods Sold\nLong Term Liability\nEquity\nAccrued Expense\nDeferred Income\nInvestment\nLoans Given\nUnearned Revenue"
   },
   {
-   "fetch_from": "parent_account.root_type",
    "fieldname": "root_type",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -113,7 +112,7 @@
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2024-08-09 09:09:42.515772",
+ "modified": "2024-11-13 19:50:16.140911",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

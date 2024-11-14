@@ -14,16 +14,17 @@
   "phone",
   "mobile_no",
   "email_id",
-  "column_break_ydag",
-  "industry",
   "market_segment",
-  "territory",
+  "industry",
   "column_break_pgsi",
   "address_line_1",
   "address_line_2",
   "country",
   "emirate",
-  "area"
+  "area",
+  "column_break_ydag",
+  "territory",
+  "disabled"
  ],
  "fields": [
   {
@@ -123,6 +124,12 @@
    "fieldname": "address_line_2",
    "fieldtype": "Data",
    "label": "Address Line 2"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -132,7 +139,7 @@
    "link_fieldname": "prospect"
   }
  ],
- "modified": "2024-10-06 08:48:52.950870",
+ "modified": "2024-11-14 12:58:20.100196",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Prospect",

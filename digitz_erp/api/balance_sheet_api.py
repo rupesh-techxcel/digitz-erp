@@ -55,7 +55,7 @@ def update_parent_accounts_recursive(account, accounts, account_name,balance, pe
     account_doc = frappe.get_doc('Account',account)
     
     # The parent account intend to be updated is the root account and need not update
-    if(account_doc.parent_account == None):
+    if(account_doc.parent_account == None or account_doc.parent_account==''):
         return;
     
     parent_account = account_doc.parent_account

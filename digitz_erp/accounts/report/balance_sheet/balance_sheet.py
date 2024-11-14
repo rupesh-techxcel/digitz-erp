@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from digitz_erp.api.settings_api import get_period_list
 
 def execute(filters=None):
+    
+    print("from Balance Sheet")
     # columns = get_columns()
     data,columns,summary = get_data(filters)
     
@@ -18,6 +20,8 @@ def execute(filters=None):
     return columns, data, None, None, summary
 
 def get_data(filters=None):
+    
+    print("from get_data")
     
     from_date = None
     to_date = None
@@ -61,9 +65,12 @@ def get_data(filters=None):
     if filters.get('accumulated_values'):
         from_date = datetime(2000,1,1)
         
+    print("before bs_accounts")
+        
     bs_accounts = get_accounts_data(from_date, to_date, period_list)    
         
-    
+    print("bs_accounts")
+    print(bs_accounts)
     #print("accounts")
     
     #print(accounts)
@@ -132,12 +139,12 @@ def get_data(filters=None):
         if account.name == "Accounts":
             continue
         
-        if account.name == "Assets":
+        if account.name == "Asset":
             assets_total = account[last_key]
         
         # Include profit in the liability
         # Include profit in the liability
-        if account['name'] == "Liabilities":
+        if account['name'] == "Liability":
             for period in period_list:
                 key = period['key']
                 # Ensure there's a default value of 0 for both account and gp_data before adding
@@ -180,7 +187,8 @@ def get_data(filters=None):
             "indicator": "Green" if profit > 0 else  ("Red" if profit<0 else "Black")
         })
     
-        
+    
+    print("eof get_data")
     return data,columns,summary_data
 
 def get_chart_data(filters=None):

@@ -13,6 +13,7 @@ def after_install():
     create_tax()
     create_default_base_unit()
     create_default_price_lists()
+    populate_area_data()
 
 def insert_accounts():
     # List of dictionaries representing account data in hierarchical order
@@ -50,13 +51,7 @@ def insert_accounts():
         {"account_name": "Customer Advances", "is_group": 0, "parent_account": "Current Liability", "account_type": "Unearned Revenue", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
     ]
 
-    for account_data in accounts:
-        # Ensure the parent account exists
-        if account_data["parent_account"]:
-            if not frappe.db.exists("Account", account_data["parent_account"]):
-                print(f"Parent account not found for {account_data['account_name']}. Skipping.")
-                continue
-        
+    for account_data in accounts:               
         # Check if the account already exists to avoid duplicates
         if not frappe.db.exists("Account", account_data["account_name"]):
             # Create and insert the new account record
@@ -64,7 +59,7 @@ def insert_accounts():
                 "doctype": "Account",
                 "account_name": account_data["account_name"],
                 "is_group": account_data["is_group"],
-                "parent_account": account_data["parent_account"],
+                "parent_account": account_data["parent_account"] if account_data["parent_account"]!='' else None ,
                 "account_type": account_data["account_type"],
                 "root_type": account_data["root_type"],
                 "balance": account_data["balance"],
@@ -75,9 +70,6 @@ def insert_accounts():
             print(f"Inserted: {account_data['account_name']}")
         else:
             print(f"Account already exists: {account_data['account_name']}")
-
-# Run the function to insert accounts
-insert_accounts()
 
 def create_demo_company():
     # Check if company already exists to avoid duplicates
@@ -387,4 +379,103 @@ def create_default_price_lists():
         frappe.db.commit()
         
         print(f"Default Price List, '{price_list_name}' created successfully.")
+        
+def populate_area_data():
     
+    areas = [
+    {"Area": "AL QULAIYA", "Emirate": "Sharjah"},
+    {"Area": "AL Qulaiya", "Emirate": "Abu Dhabi"},
+    {"Area": "CLOCKTOWER", "Emirate": "Sharjah"},
+    {"Area": "AL NAHDAI", "Emirate": "Dubai"},
+    {"Area": "JABEL ALI", "Emirate": "Abu Dhabi"},
+    {"Area": "Al Quoz", "Emirate": "Dubai"},
+    {"Area": "Oud Metha", "Emirate": "Dubai"},
+    {"Area": "Oud Mehtha", "Emirate": "Dubai"},
+    {"Area": "MANKHOOL", "Emirate": "Dubai"},
+    {"Area": "MASAFI", "Emirate": "Fujairah"},
+    {"Area": "Sajja", "Emirate": "Sharjah"},
+    {"Area": "Industrial Area 10", "Emirate": "Sharjah"},
+    {"Area": "Khorfakkan, Sharjah", "Emirate": "Sharjah"},
+    {"Area": "Al Ain, Town Center", "Emirate": "Abu Dhabi"},
+    {"Area": "Al Jimi, Al Ain", "Emirate": "Abu Dhabi"},
+    {"Area": "Al Nabbah", "Emirate": "Sharjah"},
+    {"Area": "Jebel Ali", "Emirate": "Dubai"},
+    {"Area": "Al Qusais 3", "Emirate": "Dubai"},
+    {"Area": "Al Khan", "Emirate": "Sharjah"},
+    {"Area": "New Muwailah", "Emirate": "Sharjah"},
+    {"Area": "Free Zone", "Emirate": "Sharjah"},
+    {"Area": "Abuhail", "Emirate": "Dubai"},
+    {"Area": "Al Digdagah", "Emirate": "Ras Al Khaimah"},
+    {"Area": "Nasserya", "Emirate": "Sharjah"},
+    {"Area": "Maysaloon", "Emirate": "Sharjah"},
+    {"Area": "Rashidiya", "Emirate": "Dubai"},
+    {"Area": "Industrial Area-6", "Emirate": "Sharjah"},
+    {"Area": "Al Manakh", "Emirate": "Sharjah"},
+    {"Area": "Umm Ramool", "Emirate": "Dubai"},
+    {"Area": "Al Ghafia", "Emirate": "Sharjah"},
+    {"Area": "Majaz-3", "Emirate": "Sharjah"},
+    {"Area": "Al Nakheel", "Emirate": "Ras Al Khaimah"},
+    {"Area": "Al Seer", "Emirate": "Ras Al Khaimah"},
+    {"Area": "Dafan Al Khor", "Emirate": "Ras Al Khaimah"},
+    {"Area": "Al Shahaba Area", "Emirate": "Sharjah"},
+    {"Area": "Al Majaz", "Emirate": "Sharjah"},
+    {"Area": "Um Al Tarafa", "Emirate": "Sharjah"},
+    {"Area": "Al Mahatah", "Emirate": "Sharjah"},
+    {"Area": "Al Qasimia", "Emirate": "Sharjah"},
+    {"Area": "Kalba", "Emirate": "Sharjah"},
+    {"Area": "Mega Mall", "Emirate": "Sharjah"},
+    {"Area": "Garhoud", "Emirate": "Dubai"},
+    {"Area": "Fujairah city", "Emirate": "Fujairah"},
+    {"Area": "Industrial Area-2", "Emirate": "Sharjah"},
+    {"Area": "Hamriya-2, Deira", "Emirate": "Dubai"},
+    {"Area": "Al Riqqa, Deira", "Emirate": "Dubai"},
+    {"Area": "Muteena, Deira", "Emirate": "Dubai"},
+    {"Area": "Muraqqabat, Deira", "Emirate": "Dubai"},
+    {"Area": "Jaddaf Waterfront", "Emirate": "Dubai"},
+    {"Area": "Al Dhait", "Emirate": "Ras Al Khaimah"},
+    {"Area": "Al Jazeera", "Emirate": "Ras Al Khaimah"},
+    {"Area": "Yarmook", "Emirate": "Sharjah"},
+    {"Area": "Al Ghubaiba", "Emirate": "Sharjah"},
+    {"Area": "Buhaira", "Emirate": "Sharjah"},
+    {"Area": "Al Nahda 1", "Emirate": "Dubai"},
+    {"Area": "Al Nahda 2", "Emirate": "Dubai"},
+    {"Area": "Cricket Stadium", "Emirate": "Sharjah"},
+    {"Area": "Al Bu Daniq", "Emirate": "Sharjah"},
+    {"Area": "Al Ras", "Emirate": "Umm Al Quwain"},
+    {"Area": "Al Quds", "Emirate": "Dubai"},
+    {"Area": "Istiqlal Street - Al Bu Daniq", "Emirate": "Sharjah"},
+    {"Area": "Satwa", "Emirate": "Dubai"},
+    {"Area": "International City", "Emirate": "Dubai"},
+    {"Area": "Jumairah", "Emirate": "Dubai"},
+    {"Area": "Al Barsha", "Emirate": "Dubai"},
+    {"Area": "Bur Dubai", "Emirate": "Dubai"},
+    {"Area": "Deira", "Emirate": "Dubai"},
+    {"Area": "Naif", "Emirate": "Dubai"},
+    {"Area": "Al Nahda", "Emirate": "Sharjah"},
+    {"Area": "Muwaileh", "Emirate": "Sharjah"},
+    {"Area": "Dhaid", "Emirate": "Sharjah"},
+    {"Area": "Maliha", "Emirate": "Sharjah"},
+    {"Area": "King Faizal Street", "Emirate": "Sharjah"},
+    {"Area": "Al Wahda Street", "Emirate": "Sharjah"},
+    {"Area": "Al Taawun", "Emirate": "Sharjah"},
+    {"Area": "Majaz-2", "Emirate": "Sharjah"},
+    {"Area": "Karama", "Emirate": "Ajman"},
+    {"Area": "Abu Shagara", "Emirate": "Sharjah"},
+    {"Area": "Rolla", "Emirate": "Sharjah"},
+    {"Area": "Karama", "Emirate": "Dubai"},
+    {"Area": "Majaz-1", "Emirate": "Sharjah"}
+    ]
+    for area in areas:
+        # Check if the area already exists to avoid duplicates
+        if not frappe.db.exists("Area", {"area": area["Area"], "emirate": area["Emirate"]}):
+            # Create a new Area document
+            area_doc = frappe.get_doc({
+                "doctype": "Area"                
+                "area": area["Area"],
+                "emirate": area["Emirate"]
+            })
+            # Insert the document into the database
+            area_doc.insert()
+            print(f"Inserted Area: {area['Area']} in {area['Emirate']}")
+        else:
+            print(f"Area already exists: {area['Area']} in {area['Emirate']}")
