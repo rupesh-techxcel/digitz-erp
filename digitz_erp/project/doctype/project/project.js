@@ -22,7 +22,8 @@ frappe.ui.form.on("Project", {
     },
 
     refresh(frm) {
-        refresh_progress_entries(frm);        
+        refresh_progress_entries(frm);   
+        refresh_wip(frm)     
     },
 
     setup(frm) {
@@ -82,10 +83,9 @@ frappe.ui.form.on("Project", {
             }
         });
     },
-    team_template:function(frm)
+    project_team:function(frm)
     {
-
-        if(frm.doc.team_template)
+        if(frm.doc.project_team)
         {
             frm.clear_table('employees')
         }
@@ -93,21 +93,20 @@ frappe.ui.form.on("Project", {
         frappe.call({
             method: 'frappe.client.get',
             args: {
-                doctype: 'Project Team Template',
-                name: frm.doc.team_template
+                doctype: 'Project Team',
+                name: frm.doc.project_team
             },
             callback: function (r) {
                 console.log("r")
                 console.log(r)
-                if (r.message && r.message.template_details) {
-                    let template_employees = r.message.template_details;
+                if (r.message && r.message.team_details) {
+                    let team_employees = r.message.team_details;
 
                     
                     // Loop through each task in the template and add it to the project_tasks child table
-                    template_employees.forEach(function (template_employee) {
+                    team_employees.forEach(function (team_employee) {
                         let new_employee = frm.add_child('employees');
-                        new_employee.employee = template_employee.employee; // Assuming Task Template has a 'task_name' field
-                        
+                        new_employee.employee = team_employee.employee; // Assuming Task Template has a 'task_name' field                        
                     });
 
                     // Refresh the child table to show populated tasks
@@ -192,4 +191,20 @@ function refresh_progress_entries(frm) {
             }
         }
     });
+}
+
+function refresh_wip(frm)
+{
+    frappe.call({
+        method: 'digitz_erp.api.project_api.get_wip_closing_balance',
+        args: {
+            project_name: frm.doc.name
+        },
+        callback: function (r) {
+            if (r.message) {
+                frm.set_value('work_in_progress_value', r.message);
+            }
+        }
+    });
+
 }

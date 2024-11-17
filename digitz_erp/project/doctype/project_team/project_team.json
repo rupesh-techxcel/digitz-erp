@@ -2,14 +2,15 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:team",
- "creation": "2024-11-10 20:27:01.921928",
+ "creation": "2024-11-15 12:08:30.618806",
+ "default_view": "List",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "team",
   "disabled",
   "section_break_urck",
-  "template_details"
+  "team_details"
  ],
  "fields": [
   {
@@ -29,18 +30,18 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "template_details",
+   "fieldname": "team_details",
    "fieldtype": "Table",
-   "label": "Project Team Template Details",
-   "options": "Project Team Template Detail"
+   "label": "Team Details",
+   "options": "Project Team Detail"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-10 20:48:24.480506",
+ "modified": "2024-11-15 12:14:23.099304",
  "modified_by": "Administrator",
  "module": "Project",
- "name": "Project Team Template",
+ "name": "Project Team",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [

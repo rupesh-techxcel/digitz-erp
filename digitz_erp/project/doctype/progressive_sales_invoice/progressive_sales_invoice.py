@@ -6,7 +6,7 @@ from frappe.model.document import Document
 from frappe.utils import money_in_words
 from digitz_erp.api.settings_api import add_seconds_to_time
 from digitz_erp.api.settings_api import get_default_currency, get_gl_narration
-
+from frappe.utils import money_in_words
 
 class ProgressiveSalesInvoice(Document):
 
@@ -57,6 +57,9 @@ class ProgressiveSalesInvoice(Document):
 			self.paid_amount = 0
 		# self.in_words = money_in_words(self.rounded_total,"AED")
   
+		if self.rounded_total>0:
+			self.in_words = money_in_words(self.rounded_total, "AED")
+  
 	def do_postings_on_submit(self):
           
 		self.insert_gl_records()
@@ -85,7 +88,7 @@ class ProgressiveSalesInvoice(Document):
 		gl_doc.debit_amount = self.rounded_total
 		gl_doc.party_type = "Customer"
 		gl_doc.party = self.customer
-		gl_doc.against_account = default_accounts.default_income_account
+		gl_doc.against_account = self.revenue_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
 		idx +=1
@@ -97,7 +100,7 @@ class ProgressiveSalesInvoice(Document):
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.default_income_account
+		gl_doc.account = self.revenue_account
 		gl_doc.credit_amount = self.net_total - self.tax_total
 		gl_doc.against_account = default_accounts.default_receivable_account
 		gl_doc.remarks = remarks

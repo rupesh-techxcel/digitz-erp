@@ -12,7 +12,6 @@
   "column_break_juec",
   "expected_start_date",
   "expected_end_date",
-  "progress_entry_link",
   "column_break_llof",
   "priority",
   "column_break_chgg",
@@ -40,13 +39,23 @@
   "notes_section",
   "notes",
   "employees_tab",
-  "team_template",
+  "project_team",
   "section_break_eaqi",
   "employees",
   "tasks_tab",
   "task_template",
   "section_break_xjll",
-  "tasks"
+  "tasks",
+  "statistics_tab",
+  "sales_order_value",
+  "purchase_cost",
+  "work_in_progress_value",
+  "column_break_zbcd",
+  "material_cost",
+  "labour_cost",
+  "overheads",
+  "column_break_vusx",
+  "total_billed_amount"
  ],
  "fields": [
   {
@@ -229,11 +238,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "progress_entry_link",
-   "fieldtype": "HTML",
-   "label": "Progress Entry"
-  },
-  {
    "fieldname": "boq",
    "fieldtype": "Data",
    "label": "BOQ",
@@ -245,6 +249,7 @@
    "label": "Employees"
   },
   {
+   "description": "Save the project to apply the selected employee details.",
    "fieldname": "employees",
    "fieldtype": "Table",
    "label": "Employees",
@@ -273,13 +278,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "team_template",
-   "fieldtype": "Link",
-   "label": "Team Template",
-   "link_filters": "[[\"Project Team Template\",\"disabled\",\"=\",0]]",
-   "options": "Project Team Template"
-  },
-  {
    "fieldname": "section_break_eaqi",
    "fieldtype": "Section Break"
   },
@@ -288,6 +286,67 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "project_team",
+   "fieldtype": "Link",
+   "label": "Project Team ",
+   "link_filters": "[[\"Project Team\",\"disabled\",\"=\",0]]",
+   "options": "Project Team"
+  },
+  {
+   "fieldname": "statistics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Statistics"
+  },
+  {
+   "fieldname": "sales_order_value",
+   "fieldtype": "Currency",
+   "label": "Sales Order Value"
+  },
+  {
+   "description": "Based on Purchase Receipt",
+   "fieldname": "purchase_cost",
+   "fieldtype": "Currency",
+   "label": "Purchase Cost"
+  },
+  {
+   "fieldname": "column_break_zbcd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Based On Material Issue",
+   "fieldname": "material_cost",
+   "fieldtype": "Currency",
+   "label": "Material Cost"
+  },
+  {
+   "fieldname": "column_break_vusx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Based on Timesheet Entry",
+   "fieldname": "labour_cost",
+   "fieldtype": "Currency",
+   "label": "Labour Cost"
+  },
+  {
+   "description": "Based On Expense Entry",
+   "fieldname": "overheads",
+   "fieldtype": "Currency",
+   "label": "Overheads"
+  },
+  {
+   "description": "Record a journal entry to clear the work in progress after the project's invoicing is completed.",
+   "fieldname": "work_in_progress_value",
+   "fieldtype": "Currency",
+   "label": "Work In Progress Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_billed_amount",
+   "fieldtype": "Currency",
+   "label": "Total Billed Amount"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -309,7 +368,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-13 17:44:38.392578",
+ "modified": "2024-11-16 14:56:11.375282",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

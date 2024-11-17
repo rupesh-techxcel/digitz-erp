@@ -547,6 +547,10 @@ class DeliveryNote(Document):
         more_records = 0
 
         for docitem in self.items:
+            
+            balance_qty = 0
+            balance_value = 0
+            valuation_rate = 0
 
             # For cancel delivery note balance qty logic is safe because it only add the qty back to the stock.
             more_record_for_item = frappe.db.count('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]

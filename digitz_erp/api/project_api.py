@@ -117,3 +117,37 @@ def get_sales_order_for_project(project_name):
             "status": "failed",
             "message": "No Sales Order linked to the specified project."
         }
+
+@frappe.whitelist()
+def get_wip_closing_balance(project_name=None):
+    # Fetch all accounts with account_type = 'Work In Progress'
+    wip_accounts = frappe.get_all('Account', filters={'account_type': 'Work In Progress'}, fields=['name'])
+    wip_account_names = [acc['name'] for acc in wip_accounts]
+
+    if not wip_account_names:
+        return 0  # No WIP accounts
+
+    # Sum up debit and credit from GL Entry for these accounts and filter by project if provided
+    query = """
+        SELECT 
+            SUM(debit_amount) AS total_debit, 
+            SUM(credit_amount) AS total_credit
+        FROM `tabGL Posting`
+        WHERE account IN (%s)
+    """ % ', '.join(['%s'] * len(wip_account_names))
+
+    if project_name:
+        query += " AND project = %s"
+        values = tuple(wip_account_names) + (project_name,)
+    else:
+        values = tuple(wip_account_names)
+
+    result = frappe.db.sql(query, values, as_dict=True)
+
+    if result:
+        total_debit = result[0].get('total_debit', 0) or 0
+        total_credit = result[0].get('total_credit', 0) or 0
+        closing_balance = total_debit - total_credit
+        return closing_balance
+
+    return 0

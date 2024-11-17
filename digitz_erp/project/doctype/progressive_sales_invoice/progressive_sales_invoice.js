@@ -114,10 +114,12 @@ frappe.ui.form.on("Progressive Sales Invoice", {
                     args: {
                         'doctype': 'Company',
                         'filters': { 'company_name': default_company },
-                        'fieldname': ['default_advance_received_account']
+                        'fieldname': ['default_income_account','retention_receivable_account']
                     },
                     callback: (r2) => {
-                        frm.doc.advance_account = r2.message.default_advance_received_account
+                        frm.doc.revenue_account = r2.message.default_income_account
+						frm.doc.retention_receivable_account = r2.message.retention_receivable_account
+
                         console.log(r2)
 
                     }

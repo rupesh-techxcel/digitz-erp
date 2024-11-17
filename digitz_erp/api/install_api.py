@@ -25,8 +25,12 @@ def insert_accounts():
         {"account_name": "RAK BANK", "is_group": 0, "parent_account": "Bank Accounts", "account_type": "Bank", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         {"account_name": "Cash Accounts", "is_group": 1, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": "Cr"},
         {"account_name": "Main Cash", "is_group": 0, "parent_account": "Cash Accounts", "account_type": "Cash", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        
+        {"account_name": "Main Cash", "is_group": 0, "parent_account": "Work In Progress", "account_type": "Work In Progress", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        
         {"account_name": "Stock In Hand", "is_group": 0, "parent_account": "Current Assets", "account_type": "Stock", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         {"account_name": "Trade Receivable", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Retention Receivable", "is_group": 0, "parent_account": "Current Assets", "account_type": "Retention Receivable", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         {"account_name": "Fixed Assets", "is_group": 1, "parent_account": "Asset", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         {"account_name": "Investments", "is_group": 1, "parent_account": "Asset", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         {"account_name": "Expense", "is_group": 1, "parent_account": "Accounts", "account_type": "", "root_type": "Expense", "balance": 0, "balance_dr_cr": ""},
@@ -116,6 +120,7 @@ def create_demo_company():
             "use_generic_items_for_material_and_labour": 1,
             "default_advance_received_account": "Customer Advances",
             "default_advance_paid_account": "",
+            "default_work_in_progress_account":"Work In Progress",
             "supplier_terms": "",
             "customer_terms": "",
             "material_receipt_integrated_with_purchase": 1,
@@ -470,7 +475,7 @@ def populate_area_data():
         if not frappe.db.exists("Area", {"area": area["Area"], "emirate": area["Emirate"]}):
             # Create a new Area document
             area_doc = frappe.get_doc({
-                "doctype": "Area"                
+                "doctype": "Area",               
                 "area": area["Area"],
                 "emirate": area["Emirate"]
             })
@@ -479,3 +484,6 @@ def populate_area_data():
             print(f"Inserted Area: {area['Area']} in {area['Emirate']}")
         else:
             print(f"Area already exists: {area['Area']} in {area['Emirate']}")
+
+def create_shift_payment_units()
+    pass

@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ProjectTeamTemplate(Document):
+class ProjectTeam(Document):
 	pass
