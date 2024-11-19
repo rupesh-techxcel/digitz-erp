@@ -10,28 +10,26 @@
  "engine": "InnoDB",
  "field_order": [
   "project_details_section",
+  "project_column",
   "project",
+  "project_retention_amount",
+  "project_advance_amount",
   "column_break_zubf",
   "sales_order",
   "sales_order_date",
-  "column_break_xtqn",
   "sales_order_net_total",
+  "column_break_xtqn",
+  "is_prev_progress_exists",
+  "previous_progress_entry",
   "boq_total",
   "column_break_ivtt",
   "company",
-  "progress_entry_details_section",
-  "is_prev_progress_exists",
-  "previous_progress_entry",
-  "column_break_hrax",
-  "column_break_gxtb",
-  "column_break_hgdc",
   "section_break_qxfb",
   "naming_series",
   "customer",
   "customer_name",
   "customer_display_name",
   "column_break_kscq",
-  "customer_balance",
   "customer_address",
   "tax_id",
   "column_break_6",
@@ -64,11 +62,15 @@
   "column_break_ejhs",
   "gross_total",
   "tax_total",
-  "net_total",
   "column_break_33",
+  "total_before_deductions",
   "total_discount_in_line_items",
   "additional_discount",
+  "retention_percentage",
+  "deduction_for_retention",
+  "deduction_against_advance",
   "column_break_xkzu",
+  "net_total",
   "round_off",
   "rounded_total",
   "previous_completion_percentage",
@@ -111,12 +113,6 @@
    "fieldname": "customer_display_name",
    "fieldtype": "Data",
    "label": "Customer Display Name"
-  },
-  {
-   "fieldname": "customer_balance",
-   "fieldtype": "Currency",
-   "label": "Customer Balance",
-   "read_only": 1
   },
   {
    "fieldname": "customer_address",
@@ -308,7 +304,8 @@
   },
   {
    "fieldname": "column_break_33",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Deductions"
   },
   {
    "fieldname": "total_discount_in_line_items",
@@ -324,7 +321,8 @@
   },
   {
    "fieldname": "column_break_xkzu",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Total"
   },
   {
    "fieldname": "round_off",
@@ -395,7 +393,8 @@
   },
   {
    "fieldname": "column_break_zubf",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Sales Order"
   },
   {
    "fetch_from": "project.sales_order",
@@ -409,11 +408,6 @@
   {
    "fieldname": "section_break_qxfb",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "progress_entry_details_section",
-   "fieldtype": "Section Break",
-   "label": "Progress Entry Details"
   },
   {
    "default": "0",
@@ -437,7 +431,8 @@
   },
   {
    "fieldname": "column_break_xtqn",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Previous Progress"
   },
   {
    "fetch_from": "sales_order.net_total",
@@ -453,27 +448,17 @@
    "fieldtype": "Percent",
    "in_list_view": 1,
    "label": "Project Completion Percentage",
-   "precision": "0"
+   "precision": "0",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_ygse",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_hrax",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_gxtb",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_ivtt",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_hgdc",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Company"
   },
   {
    "fieldname": "column_break_ejhs",
@@ -510,7 +495,52 @@
    "fieldname": "previous_completion_percentage",
    "fieldtype": "Percent",
    "in_list_view": 1,
-   "label": "Previous Completion Percentage"
+   "label": "Previous Completion Percentage",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project.retention_percentage",
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage",
+   "precision": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deduction_against_advance",
+   "fieldtype": "Currency",
+   "label": "Deduction against advance received"
+  },
+  {
+   "fieldname": "deduction_for_retention",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retention"
+  },
+  {
+   "fetch_from": "project.retention_amount",
+   "fieldname": "project_retention_amount",
+   "fieldtype": "Currency",
+   "label": "Project Retention Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_column",
+   "fieldtype": "Column Break",
+   "label": "Project"
+  },
+  {
+   "fetch_from": "project.advance_amount",
+   "fieldname": "project_advance_amount",
+   "fieldtype": "Currency",
+   "label": "Project Advance Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_before_deductions",
+   "fieldtype": "Currency",
+   "label": "Total Before Deductions"
   }
  ],
  "in_create": 1,
@@ -525,7 +555,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-13 14:32:00.119282",
+ "modified": "2024-11-18 12:30:58.681832",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

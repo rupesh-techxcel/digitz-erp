@@ -26,7 +26,9 @@ def insert_accounts():
         {"account_name": "Cash Accounts", "is_group": 1, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": "Cr"},
         {"account_name": "Main Cash", "is_group": 0, "parent_account": "Cash Accounts", "account_type": "Cash", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         
-        {"account_name": "Main Cash", "is_group": 0, "parent_account": "Work In Progress", "account_type": "Work In Progress", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Work In Progress", "is_group": 0, "parent_account": "Current Assets", "account_type": "Work In Progress", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+        {"account_name": "Project Advance Received Account", "is_group": 0, "parent_account": "Current Liability", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
+        
         
         {"account_name": "Stock In Hand", "is_group": 0, "parent_account": "Current Assets", "account_type": "Stock", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
         {"account_name": "Trade Receivable", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
@@ -112,8 +114,8 @@ def create_demo_company():
             "default_product_expense_account": "Cost Of Goods Sold Account",
             "default_payment_mode_for_purchase": "Cash",
             "default_payment_mode_for_sales": "Cash",
-            "default_credit_purchase": 0,
-            "default_credit_sale": 0,
+            "default_credit_purchase": 1,
+            "default_credit_sale": 1,
             "default_asset_location": "",
             "rate_includes_tax": 0,
             "use_percentage_for_overheads_in_estimate": 1,

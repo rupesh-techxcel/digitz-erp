@@ -93,7 +93,7 @@ class ProgressiveSalesInvoice(Document):
 		gl_doc.insert()
 		idx +=1
 
-		# Income account - Credit
+		# Income account - Credit (Accounts Receivable + Retention Receivable)
 		gl_doc = frappe.new_doc('GL Posting')
 		gl_doc.voucher_type = "Sales Invoice"
 		gl_doc.voucher_no = self.name
@@ -141,6 +141,7 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.remarks = remarks
 			gl_doc.insert()
 			idx +=1
+   
 			
 	def insert_payment_postings(self):
 		remarks = self.get_narration()

@@ -9,14 +9,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "progress_entry_details_section",
-  "progress_entry",
   "project_details_section",
   "project",
+  "project_advance_amount",
+  "project_retention_amount",
   "column_break_zubf",
   "sales_order",
-  "column_break_xtqn",
+  "sales_order_date",
   "sales_order_net_total",
+  "column_break_xtqn",
+  "progress_entry",
   "column_break_tivf",
   "company",
   "client_approved",
@@ -60,17 +62,22 @@
   "section_break_25",
   "gross_total",
   "tax_total",
-  "net_total",
   "column_break_33",
   "total_discount_in_line_items",
+  "total_before_deductions",
   "additional_discount",
+  "deduction_for_retention",
+  "retention_percentage",
+  "deduction_against_advance",
   "column_break_xkzu",
+  "net_total",
   "round_off",
   "rounded_total",
+  "total_completion_percentage",
+  "previous_completion_percentage",
   "column_break_mtin",
   "total_big",
   "in_words",
-  "total_completion_percentage",
   "tab_break_50",
   "data_53",
   "quotation",
@@ -123,11 +130,6 @@
    "non_negative": 1,
    "precision": "3",
    "read_only": 1
-  },
-  {
-   "fieldname": "progress_entry_details_section",
-   "fieldtype": "Section Break",
-   "label": "Progress Entry Details"
   },
   {
    "fieldname": "section_break_qxfb",
@@ -536,6 +538,46 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "project_advance_amount",
+   "fieldtype": "Currency",
+   "label": "Project Advance Amount"
+  },
+  {
+   "fieldname": "project_retention_amount",
+   "fieldtype": "Currency",
+   "label": "Project Retention Amount"
+  },
+  {
+   "fieldname": "sales_order_date",
+   "fieldtype": "Date",
+   "label": "Sales Order Date"
+  },
+  {
+   "fieldname": "previous_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Previous Completion Percentage"
+  },
+  {
+   "fieldname": "total_before_deductions",
+   "fieldtype": "Currency",
+   "label": "Total Before Deductions"
+  },
+  {
+   "fieldname": "deduction_for_retention",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retention"
+  },
+  {
+   "fieldname": "deduction_against_advance",
+   "fieldtype": "Currency",
+   "label": "Deduction Against Advance Received"
+  },
+  {
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -550,7 +592,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-10-24 19:21:30.595343",
+ "modified": "2024-11-18 12:46:03.149818",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

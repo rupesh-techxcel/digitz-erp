@@ -9,6 +9,7 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from digitz_erp.api.settings_api import add_seconds_to_time
+from digitz_erp.api.project_api import update_project_advance_amount
 
 class ReceiptEntry(Document):
 
@@ -75,7 +76,24 @@ class ReceiptEntry(Document):
 		self.assign_missing_reference_nos()
 		self.clean_deleted_allocations()
 		self.postings_start_time = datetime.now()
-		self.assign_customers()  
+		self.assign_customers()
+		self.validate_receipt_entry()
+  
+	def validate_receipt_entry(frm):
+     
+		for row in frm.get("receipt_entry_details"):  # Loop through each row in the child table
+			if row.reference_type == "Sales Order":
+				# Fetch the account linked to this row
+				account = frappe.get_doc("Account", row.account)
+				if account.root_type != "Liability":
+					frappe.throw(_("Account selected must have 'root_type' as 'Liability' when 'reference_type' is 'Sales Order'."))
+			else:
+				# For other reference_types, check that the root_type is "Asset"
+				account = frappe.get_doc("Account", row.account)
+				if account.root_type != "Asset":
+					frappe.throw(_("Account selected must have 'root_type' as 'Asset' when 'reference_type' is not 'Sales Order'."))
+
+
 
 	def validate(self):
 
@@ -270,6 +288,10 @@ class ReceiptEntry(Document):
 		# 	frappe.enqueue(self.do_postings_on_submit,queue="long")
 
 		self.do_postings_on_submit()
+  
+		# Updating the project advances only when submitting, But the entries saved in draft mode is excluded for another entries
+  
+		self.update_project_advances()
 
 	def do_postings_on_submit(self):
 
@@ -394,6 +416,19 @@ class ReceiptEntry(Document):
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
 					frappe.db.set_value("Credit Note", allocation.reference_name, {'paid_amount': invoice_total})
+    
+	def update_project_advances(self):
+		
+		allocations = self.receipt_allocation
+
+		if(allocations):
+			for allocation in allocations:
+
+				if allocation.reference_type != "Sales Order":
+					continue
+
+				if(allocation.paying_amount>0):
+					update_project_advance_amount(allocation.reference_name)
 
 	def insert_gl_records(self):
 
@@ -587,8 +622,6 @@ def get_amount(receipt_entry_id):
     amt = frappe.db.get_value('Receipt Entry', receipt_entry_id, 'amount')
 
     return amt
-
-
 
 @frappe.whitelist()
 def receipt_allocation_updates(receipt_entry_id, sales_inv_id):

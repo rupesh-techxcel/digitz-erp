@@ -19,13 +19,14 @@
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "warehouse",
   "default_cost_center",
   "column_break_dxaps",
   "amount",
   "allocated_amount",
   "remarks",
   "customers",
+  "column_break_forg",
+  "company",
   "section_break_wgdje",
   "amended_from",
   "advance_section_break",
@@ -56,7 +57,8 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Series"
+   "label": "Series",
+   "options": "RE-.#####.-.MM.-.YYYY."
   },
   {
    "fieldname": "payment_mode",
@@ -164,13 +166,6 @@
    "mandatory_depends_on": "eval:doc.mode == 'Bank'"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1
-  },
-  {
    "fetch_from": "payment_mode.mode",
    "fetch_if_empty": 1,
    "fieldname": "mode",
@@ -232,12 +227,22 @@
    "fieldtype": "Table",
    "label": "Previous Receipt Allocations",
    "options": "Receipt Allocation"
+  },
+  {
+   "fieldname": "column_break_forg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-20 12:52:02.937159",
+ "modified": "2024-11-18 18:00:35.211074",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

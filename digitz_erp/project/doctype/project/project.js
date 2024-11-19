@@ -8,20 +8,20 @@ frappe.ui.form.on("Project", {
                 filters: { project: frm.doc.project_name }
             };
         });
-    },
-
-    onload_post_render(frm) {
-        frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
-            
-                frappe.new_doc("Progress Entry", {}, function(pe) {
-                    pe.project = frm.doc.name;
-                    pe.sales_order = frm.doc.sales_order
-                });
-            
-        });
-    },
+    },   
 
     refresh(frm) {
+        if(!frm.is_new())
+            {
+                frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
+                
+                    frappe.new_doc("Progress Entry", {}, function(pe) {
+                        pe.project = frm.doc.name;
+                        pe.sales_order = frm.doc.sales_order
+                    });
+                
+                });
+            }
         refresh_progress_entries(frm);   
         refresh_wip(frm)     
     },
@@ -45,27 +45,35 @@ frappe.ui.form.on("Project", {
         }
     },
 
-    retentation_percentage(frm) {
-        let percentage = parseFloat(frm.doc.retentation_percentage);
+    retention_percentage(frm) {
+
+        let percentage = parseFloat(frm.doc.retention_percentage);
         if (isNaN(percentage) || percentage < 0) {
-            frm.set_value("retentation_amt", 0);
-            frm.set_value("amount_after_retentation", 0);
+            frm.set_value("retention_amt", 0);
+            frm.set_value("amount_after_retention", 0);
             frappe.msgprint('Please enter a valid retention percentage.');
             return;
         }
 
         if (frm.doc.sales_order) {
             frappe.call({
-                method: "digitz_erp.project.doctype.project.project.calculate_rest_amt",
+                method: "digitz_erp.project.doctype.project.project.calculate_retention_amt",
                 args: {
                     sales_order_id: frm.doc.sales_order,
-                    retentation_percentage: percentage
+                    retention_percentage: percentage
                 },
                 callback: function (response) {
                     if (response.message) {
+
+                        console.log("response.message",response.message)
+
                         let data = response.message;
-                        frm.set_value("retentation_amt", Math.round(data.retentation_amt));
-                        frm.set_value("amount_after_retentation", Math.round(data.amount_after_retentation));
+
+                        frm.doc.retention_amount = Math.round(data.retention_amt)
+                        frm.refresh_field('retention_amount')
+
+                        // frm.set_value("retention_amt", Math.round(data.retention_amt));
+                        frm.set_value("amount_after_retention", Math.round(data.amount_after_retention));
                     }
                 }
             });
@@ -76,10 +84,10 @@ frappe.ui.form.on("Project", {
         frappe.db.get_value("Sales Order", frm.doc.sales_order, 'net_total').then(r => {
             if (r.message) {
                 let net_total = r.message.net_total;
-                let amt = (net_total * parseFloat(frm.doc.retentation_percentage)) / 100;
+                let amt = (net_total * parseFloat(frm.doc.retention_percentage)) / 100;
                 frm.set_value("project_amount", net_total);
-                frm.set_value("retentation_amt", amt);
-                frm.set_value("amount_after_retentation", net_total - amt);
+                frm.set_value("retention_amt", amt);
+                frm.set_value("amount_after_retention", net_total - amt);
             }
         });
     },

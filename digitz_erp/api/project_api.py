@@ -1,6 +1,5 @@
 import frappe
 
-
 @frappe.whitelist()
 def check_project_for_so(so_id):
     pro_for_so = frappe.db.exists("Project", {"sales_order": so_id})
@@ -151,3 +150,36 @@ def get_wip_closing_balance(project_name=None):
         return closing_balance
 
     return 0
+
+@frappe.whitelist()
+def update_project_advance_amount(sales_order):
+    
+    # Note:This method calls while submitting or cancelling the receipt entry. Since the total_advance is calculating based on submitted only it updates the advance for cancellation as well as zero
+    try:
+        
+        project_for_sales_order = frappe.db.exists("Project", {"sales_order": sales_order})
+        
+        # Step 2: Check if the project has any progress entries
+        progress_entry_exists = frappe.db.exists("Progress Entry", {"project": project_for_sales_order})
+        
+        if progress_entry_exists:
+            frappe.msgprint(f"Project {project_for_sales_order} already has progress entries. Advance amount will not be updated.", alert=True)
+            return
+        
+        # Step 3: Fetch total allocated amount from Receipt Allocation
+        # Need not take the sum since there may not be multiple advances for same sales order but still keep the same logic.
+        
+        total_advance = frappe.db.sql("""
+            SELECT SUM(paying_amount) AS total_advance
+            FROM `tabReceipt Allocation`
+            WHERE reference_type = 'Sales Order' AND reference_name = %s and docstatus=1
+        """, (sales_order,), as_dict=True)[0].get('total_advance', 0) or 0
+        
+        # Step 4: Update advance_amount in the project
+        frappe.db.set_value("Project", project_for_sales_order, "advance_amount", total_advance)
+        
+        frappe.msgprint(f"Successfully updated advance amount for Project {project_for_sales_order}.", alert=True)
+    except Exception as e:
+        frappe.log_error(message=str(e), title="Error in update_project_advance_amount")
+        frappe.msgprint("An error occurred while updating the advance amount. Please check the error log.")
+

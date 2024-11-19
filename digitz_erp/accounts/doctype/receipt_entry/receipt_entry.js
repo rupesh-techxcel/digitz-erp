@@ -14,13 +14,24 @@ frappe.ui.form.on('Receipt Entry', {
 			};
 		});
 
-		    frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_group: 0  // Set filters to only show accounts where is_group is false
-                }
-            };
-        };
+		//     frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
+        //     return {
+        //         filters: {
+        //             is_group: 0  // Set filters to only show accounts where is_group is false
+        //         }
+        //     };
+        // };
+		frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
+			var row = locals[cdt][cdn]; // Access the current row in the child table
+			var rootTypeFilter = row.reference_type === "Sales Order" ? "Liability" : "Asset";
+		
+			return {
+				filters: {
+					root_type: rootTypeFilter, // Set root_type dynamically based on reference_type
+					is_group: 0               // Ensure only non-group accounts are shown
+				}
+			};
+		};
 
 		// Allocations are mean for readonly purpose and not for user inputs. So make it hidden first and show it on demand
 		frm.doc.show_allocations = false;
@@ -48,9 +59,7 @@ frappe.ui.form.on('Receipt Entry', {
 		}
 	},
 	get_default_company_and_warehouse(frm) {
-		var default_company = ""
-
-		frm.trigger("get_user_warehouse")
+		var default_company = ""		
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -59,37 +68,9 @@ frappe.ui.form.on('Receipt Entry', {
 				'fieldname': 'default_company'
 			},
 			callback: (r) => {
-
-				default_company = r.message.default_company
-				frm.doc.company = r.message.default_company
-				frm.refresh_field("company");
-				frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse']
-						},
-						callback: (r2) => {
-
-							if (typeof window.warehouse !== 'undefined') {
-								// The value is assigned to window.warehouse
-								// You can use it here
-								frm.doc.warehouse = window.warehouse;
-							}
-							else
-							{
-								frm.doc.warehouse = r2.message.default_warehouse;
-							}
-
-							console.log(frm.doc.warehouse);
-							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-							frm.refresh_field("warehouse");
-						}
-					}
-
-				)
+				
+				frm.set_value("company", r.message.default_company)
+				
 			}
 		});
 	},
@@ -254,27 +235,49 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 		}
 	 },
 
-  	receipt_type: function(frm, cdt, cdn) {
+receipt_type: function(frm, cdt, cdn) {
+	console.log("hitting receipt_type");
 
-  	var row = locals[cdt][cdn];
-	if(row.receipt_type == "Customer")
-	{
-
+	var row = locals[cdt][cdn];
+	if (row.receipt_type === "Customer") {
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
+				doctype: 'Global Settings',
+				fieldname: 'default_company'
 			},
-			callback: (r) => {
+			callback: (response) => {
+				if (response && response.message) {
 
-		 		frappe.db.get_value("Company", r.message.default_company, "default_receivable_account").then((r) => {
-	 			var default_receivable_account = r.message.default_receivable_account;
-	 			frappe.model.set_value(cdt, cdn, 'account', default_receivable_account)});
+					console.log("response",response)
+					frappe.db.get_value(
+						"Company",
+						response.message.default_company,
+						["default_receivable_account", "project_advance_received_account"]
+					).then((res) => {
+
+						console.log("res",res)
+						
+						if (res && res.message) {
+							var default_receivable_account = res.message.default_receivable_account;
+							var project_advance_received_account = res.message.project_advance_received_account;
+
+							if (row.reference_type === "Sales Order") {
+								frappe.model.set_value(cdt, cdn, 'account', project_advance_received_account);
+							} else {
+								frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
+							}
+						}
+					});
+				}
 			}
-		})
+		});
 	}
 },
+reference_type: function(frm, cdt, cdn) {
+	frm.trigger("receipt_type", cdt, cdn); // Correct way to trigger another function
+},
+	
 receipt_entry_details_add:function(frm,cdt,cdn)
 {
 	frappe.call({
@@ -732,39 +735,45 @@ let general_ledgers = function (frm) {
         },
         callback: function (response) {
             let gl_postings = response.message;
+            
+			// Generate HTML content for the popup
+			let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+			'<table class="table table-bordered" style="width: 100%;">' +
+			'<thead>' +
+			'<tr>' +
+			'<th style="width: 20%;">Account</th>' +
+			'<th style="width: 15%;">Debit Amount</th>' +
+			'<th style="width: 15%;">Credit Amount</th>' +
+			'<th style="width: 25%;">Against Account</th>' +
+			'<th style="width: 25%;">Remarks</th>' +
+			'<th style="width: 25%;">Project</th>' +
+			'<th style="width: 25%;">Cost Center</th>' +
+			'<th style="width: 25%;">Party</th>' +
+			'</tr>' +
+			'</thead>' +
+			'<tbody>';
 
-            // Generate HTML content for the popup
-            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
-                              '<table class="table table-bordered" style="width: 100%;">' +
-                              '<thead>' +
-                              '<tr>' +
-                              '<th style="width: 20%;">Account</th>' +
-                              '<th style="width: 15%;">Debit Amount</th>' +
-                              '<th style="width: 15%;">Credit Amount</th>' +
-                              '<th style="width: 25%;">Against Account</th>' +
-                              '<th style="width: 25%;">Remarks</th>' +
-                              '</tr>' +
-                              '</thead>' +
-                              '<tbody>';
+			gl_postings.forEach(function (gl_posting) {
+			// Handling null values for remarks
+			let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
 
-							  gl_postings.forEach(function (gl_posting) {
-								// Handling null values for remarks
-								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+			// Ensure debit_amount and credit_amount are treated as floats and format them
+			let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+			let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
 
-								// Ensure debit_amount and credit_amount are treated as floats and format them
-								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
-								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+			htmlContent += '<tr>' +
+							`<td>${gl_posting.account}</td>` +
+							`<td style="text-align: right;">${debitAmount}</td>` +
+							`<td style="text-align: right;">${creditAmount}</td>` +
+							`<td>${gl_posting.against_account}</td>` +
+							`<td>${remarksText}</td>` +
+							`<td>${gl_posting.project}</td>` +
+							`<td>${gl_posting.cost_center}</td>` +
+							`<td>${gl_posting.party}</td>` +
+							'</tr>';
+			});
 
-								htmlContent += '<tr>' +
-											   `<td>${gl_posting.account}</td>` +
-											   `<td style="text-align: right;">${debitAmount}</td>` +
-											   `<td style="text-align: right;">${creditAmount}</td>` +
-											   `<td>${gl_posting.against_account}</td>` +
-											   `<td>${remarksText}</td>` +
-											   '</tr>';
-							});
-
-            htmlContent += '</tbody></table></div>';
+			htmlContent += '</tbody></table></div>';
 
             // Create and show the dialog
             let d = new frappe.ui.Dialog({

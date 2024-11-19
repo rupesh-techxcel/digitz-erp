@@ -9,19 +9,20 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "progress_entry_details_section",
-  "progress_entry",
-  "column_break_nkmh",
-  "column_break_ucea",
-  "column_break_jute",
   "project_details_section",
+  "project_details_column",
   "project",
-  "cost_center",
+  "project_retention_amount",
+  "project_advance_amount",
   "column_break_zubf",
   "sales_order",
-  "column_break_xtqn",
+  "sales_order_date",
   "sales_order_net_total",
+  "column_break_xtqn",
+  "progress_entry",
   "column_break_kuck",
+  "company",
+  "cost_center",
   "section_break_qxfb",
   "naming_series",
   "customer",
@@ -36,7 +37,6 @@
   "ship_to_location",
   "tax_id",
   "column_break_kscq",
-  "company",
   "lpo_date",
   "lpo_no",
   "order_status",
@@ -62,16 +62,19 @@
   "section_break_25",
   "gross_total",
   "tax_total",
-  "net_total",
   "column_break_33",
+  "total_before_deductions",
   "total_discount_in_line_items",
   "additional_discount",
+  "retention_percentage",
   "deduction_for_retention",
   "deduction_against_advance",
   "column_break_xkzu",
+  "net_total",
   "round_off",
   "rounded_total",
   "total_completion_percentage",
+  "previous_completion_percentage",
   "column_break_xfiy",
   "total_big",
   "in_words",
@@ -93,11 +96,6 @@
  ],
  "fields": [
   {
-   "fieldname": "progress_entry_details_section",
-   "fieldtype": "Section Break",
-   "label": "Progress Entry Details"
-  },
-  {
    "bold": 1,
    "fieldname": "progress_entry",
    "fieldtype": "Link",
@@ -106,8 +104,7 @@
   },
   {
    "fieldname": "project_details_section",
-   "fieldtype": "Section Break",
-   "label": "Project Details"
+   "fieldtype": "Section Break"
   },
   {
    "fetch_from": "progress_entry.project",
@@ -119,7 +116,8 @@
   },
   {
    "fieldname": "column_break_zubf",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Sales Order Details"
   },
   {
    "fetch_from": "project.sales_order",
@@ -131,7 +129,8 @@
   },
   {
    "fieldname": "column_break_xtqn",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Progress Entry"
   },
   {
    "fetch_from": "sales_order.net_total",
@@ -337,17 +336,17 @@
   {
    "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
-   "label": "Total Completion Percentage",
+   "label": "Project Completion Percentage",
    "precision": "0"
   },
   {
    "fieldname": "section_break_25",
-   "fieldtype": "Section Break",
-   "label": "Totals"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "column_break_33",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Deductions"
   },
   {
    "fieldname": "total_discount_in_line_items",
@@ -361,7 +360,8 @@
   },
   {
    "fieldname": "column_break_xkzu",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Total"
   },
   {
    "fieldname": "round_off",
@@ -488,20 +488,9 @@
    "search_index": 1
   },
   {
-   "fieldname": "column_break_nkmh",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_ucea",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_jute",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_kuck",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Company"
   },
   {
    "fieldname": "receipt_schedule_tab",
@@ -578,6 +567,41 @@
    "fieldname": "deduction_against_advance",
    "fieldtype": "Currency",
    "label": "Deduction Against Advance"
+  },
+  {
+   "fieldname": "previous_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Previous Completion Percentage"
+  },
+  {
+   "fieldname": "project_details_column",
+   "fieldtype": "Column Break",
+   "label": "Project Details"
+  },
+  {
+   "fieldname": "project_retention_amount",
+   "fieldtype": "Currency",
+   "label": "Project Retention Amount"
+  },
+  {
+   "fieldname": "project_advance_amount",
+   "fieldtype": "Currency",
+   "label": "Project Advance Amount"
+  },
+  {
+   "fieldname": "sales_order_date",
+   "fieldtype": "Date",
+   "label": "Sales Order Date"
+  },
+  {
+   "fieldname": "total_before_deductions",
+   "fieldtype": "Currency",
+   "label": "Total Before Deductions"
+  },
+  {
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -592,7 +616,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-16 20:37:22.850244",
+ "modified": "2024-11-18 12:01:27.887299",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

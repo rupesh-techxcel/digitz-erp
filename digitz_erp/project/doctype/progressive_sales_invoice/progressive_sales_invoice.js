@@ -55,39 +55,23 @@ frappe.ui.form.on("Progressive Sales Invoice", {
                         frm.refresh_fields('progress_entry_items');
                     });
 
+					frm.set_value('project_retention_amount', progress_entry.project_retention_amount);
+					frm.set_value('project_advance_amount', progress_entry.project_advance_amount);
                     frm.set_value('total_completion_percentage', progress_entry.total_completion_percentage);
+					frm.set_value('previous_completion_percentage', progress_entry.previous_completion_percentage);
+					frm.set_value('retention_percentage', progress_entry.retention_percentage);
+					frm.set_value('deduction_for_retention', progress_entry.deduction_for_retention);
+					frm.set_value('deduction_against_advance', progress_entry.deduction_against_advance);
+
                     frm.set_value('gross_total', progress_entry.gross_total);
                     frm.set_value('tax_total', progress_entry.tax_total);
+					frm.set_value('total_before_deductions', progress_entry.total_before_deductions);
                     frm.set_value('net_total', progress_entry.net_total);
+					frm.set_value('in_words', progress_entry.in_words);
 
-					frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
-                        console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
-                        if (data && data.do_not_apply_round_off_in_si == 1) {
-                          frm.doc.rounded_total = frm.doc.net_total;
-                          frm.refresh_field('rounded_total');				
-                        }
-                        else {
-                         if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
-                           frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-                           frm.doc.rounded_total = Math.round(frm.doc.net_total);
-                           frm.refresh_field('round_off');
-                           frm.refresh_field('rounded_total');				 
-                         }
-                         else{
-                    
-                          frm.doc.rounded_total = frm.doc.net_total;
-                          frm.refresh_field("rounded_total");
-                    
-                          console.log(frm.doc.net_total)
-                          console.log(frm.doc.rounded_total)
-                          
-                          
-                         }
-                       }
-                       
-                      });
-                    
-                      update_total_big_display(frm)  
+					frm.set_value('round_off', progress_entry.round_off);
+                    frm.set_value('rounded_total', progress_entry.rounded_total);
+                    update_total_big_display(frm);
                 }
             }
         })
@@ -333,7 +317,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let netTotal = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(2);
 
     // Add 'AED' prefix and format net_total for display
 

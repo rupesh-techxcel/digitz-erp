@@ -26,10 +26,10 @@
   "advance_entry",
   "advance_amount",
   "column_break_wszi",
-  "retentation_percentage",
-  "retentation_amt",
+  "retention_percentage",
+  "retention_amount",
   "column_break_nqui",
-  "amount_after_retentation",
+  "amount_after_retention",
   "project_amount",
   "section_break_updt",
   "progress_entry",
@@ -113,7 +113,8 @@
    "fieldname": "sales_order",
    "fieldtype": "Link",
    "label": "Sales Order",
-   "options": "Sales Order"
+   "options": "Sales Order",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_nzbm",
@@ -124,26 +125,6 @@
    "fieldtype": "Data",
    "label": "Advance Entry",
    "read_only": 1
-  },
-  {
-   "fieldname": "retentation_percentage",
-   "fieldtype": "Percent",
-   "label": "Retentation Percentage",
-   "precision": "2"
-  },
-  {
-   "fieldname": "retentation_amt",
-   "fieldtype": "Float",
-   "label": "Retentation Amount",
-   "non_negative": 1,
-   "precision": "2"
-  },
-  {
-   "fieldname": "amount_after_retentation",
-   "fieldtype": "Float",
-   "label": "Amount After Retentation",
-   "non_negative": 1,
-   "precision": "2"
   },
   {
    "fetch_from": "sales_order.net_total",
@@ -347,6 +328,26 @@
    "fieldname": "total_billed_amount",
    "fieldtype": "Currency",
    "label": "Total Billed Amount"
+  },
+  {
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage",
+   "precision": "2"
+  },
+  {
+   "fieldname": "retention_amount",
+   "fieldtype": "Float",
+   "label": "Retention Amount",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "amount_after_retention",
+   "fieldtype": "Float",
+   "label": "Amount After Retention",
+   "non_negative": 1,
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -368,7 +369,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-16 14:56:11.375282",
+ "modified": "2024-11-17 18:52:27.412362",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

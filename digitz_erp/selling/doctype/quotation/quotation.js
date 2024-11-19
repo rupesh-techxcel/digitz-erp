@@ -93,7 +93,7 @@ frappe.ui.form.on('Quotation', {
 
 						});
 
-					});
+					},"Actions");
 
 					frm.add_custom_button('Create Delivery Note', () => {
 
@@ -112,7 +112,7 @@ frappe.ui.form.on('Quotation', {
 
 						});
 
-					});
+					},"Actions");
 
 					frm.add_custom_button('Create Sales Invoice', () => {
 
@@ -129,7 +129,7 @@ frappe.ui.form.on('Quotation', {
 								}
 							}
 						});
-					});
+					}, "Actions");
 
 				}
 			}

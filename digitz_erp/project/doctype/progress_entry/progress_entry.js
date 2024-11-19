@@ -39,7 +39,7 @@ frappe.ui.form.on("Progress Entry", {
               doc.company = frm.doc.company;
               frappe.set_route('Form', 'Proforma Invoice', doc.name);
             });
-          });
+          },"Actions");
         }
       }
     });
@@ -57,7 +57,7 @@ frappe.ui.form.on("Progress Entry", {
               doc.company = frm.doc.company;
               frappe.set_route('Form', 'Progressive Sales Invoice', doc.name);
             });
-          });
+          },"Actions");
         }
       }
     });
@@ -332,6 +332,7 @@ function update_from_previous_progress_entry(frm, r) {
       let row = frm.add_child("progress_entry_items");      
       row.sales_order_amt = frm.doc.sales_order_net_total;
       row.prev_completion = item.total_completion || 0;
+      row.total_completion = item.total_completion || 0; //Default to previous completion
       row.total_amount = item.total_amount || 0;
       row.prev_amount = item.total_amount || 0;
       row.item = item.item;
@@ -401,6 +402,7 @@ frappe.ui.form.on("Progress Entry Item", {
 });
 
 function update_progress(frm) {
+
   let total_weighted_completion = 0;
   let total_item_net_amount = 0;
   
@@ -415,6 +417,8 @@ function update_progress(frm) {
     }
   }
 
+
+
   // Calculate average completion percentage based on item_net_amount
   let average_completion = total_item_net_amount > 0 ? (total_weighted_completion / total_item_net_amount) * 100 : 0;
 
@@ -422,6 +426,9 @@ function update_progress(frm) {
 
   // Set the average value in the form
   frm.set_value("total_completion_percentage", rounded_completion);
+
+  console.log("new completion", rounded_completion) 
+
 }
 
 function make_taxes_and_totals(frm){
@@ -456,13 +463,43 @@ function update_total_amounts(frm){
 
   let gross_total = 0;
   let tax_total = 0;
-  let net_total = 0;
+  let net_total_before_deductions = 0;
   frm.doc.progress_entry_items.forEach(element => {
     gross_total += element.gross_amount;
     tax_total += element.tax_amount;
-    net_total += element.net_amount;
+    net_total_before_deductions += element.net_amount;
 
   });
+
+  frm.set_value('total_before_deductions', net_total_before_deductions)
+
+  console.log("net_total_before_deductions",net_total_before_deductions)
+  let current_completion = frm.doc.total_completion_percentage - frm.doc.previous_completion_percentage
+
+  let advance_amount = 0
+  let retention_amount  = 0
+  console.log("advance_amount",advance_amount)
+  console.log("current completion", current_completion)
+
+  if(frm.doc.project_advance_amount > 0)
+  {
+    advance_amount = (frm.doc.project_advance_amount * current_completion) / 100
+
+    console.log("frm.doc.project_advance_amount",frm.doc.project_advance_amount)
+
+    console.log("advance_amount",advance_amount)
+  }
+
+  if(frm.doc.retention_percentage > 0)
+  {
+    retention_amount = (net_total_before_deductions  * frm.doc.retention_percentage) /100
+  }
+
+  console.log("advance_amount",advance_amount)
+  frm.set_value("deduction_against_advance", advance_amount)
+  frm.set_value("deduction_for_retention", retention_amount)
+
+  net_total = net_total_before_deductions - advance_amount - retention_amount
 
   frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
@@ -484,7 +521,6 @@ function update_total_amounts(frm){
      else{
 
       frm.set_value('rounded_total',frm.doc.net_total)
-
      }
    }
 

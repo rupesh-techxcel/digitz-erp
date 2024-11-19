@@ -66,7 +66,7 @@
   "amended_from",
   "billing_details_section",
   "invoice_amount",
-  "deduction_for_retentation",
+  "deduction_for_retention",
   "column_break_zrqa",
   "deduction_for_advance",
   "net_amount",
@@ -647,15 +647,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "stage_proforma_invoice.deduction_for_retentation",
-   "fieldname": "deduction_for_retentation",
-   "fieldtype": "Currency",
-   "label": "Deduction For Retentation",
-   "non_negative": 1,
-   "precision": "2",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_zrqa",
    "fieldtype": "Column Break"
   },
@@ -673,6 +664,15 @@
    "fieldname": "net_amount",
    "fieldtype": "Currency",
    "label": "Net Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "stage_proforma_invoice.deduction_for_retentation",
+   "fieldname": "deduction_for_retention",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retention",
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
@@ -696,7 +696,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-10-13 09:47:47.479903",
+ "modified": "2024-11-17 15:42:04.507345",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
