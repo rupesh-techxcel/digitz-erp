@@ -125,7 +125,7 @@ frappe.ui.form.on("Progressive Sales Invoice", {
 		{
 			frm.trigger("get_default_company_and_warehouse");
 
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale',"project_advance_received_account", function(r) {
 				if (r && r.default_credit_sale === 1) {
 						frm.set_value('credit_sale', 1);
 				}

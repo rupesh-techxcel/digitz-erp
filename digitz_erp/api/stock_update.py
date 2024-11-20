@@ -252,9 +252,12 @@ def re_post_stock_ledgers(show_alert=False):
     
     doc.posting_status = "In Process"
     doc.save()
-        
-    clean_stock_ledgers_duplicated()
     
+    print("Status changed to in process")
+    
+    print("Cleaning Started...")
+    clean_stock_ledgers_duplicated()
+    print("Cleaning Completed...")
     # If there is already a reposting happened, get the last_processed_stock_ledger and fetch its posting_date to process subsequent stock ledgers  
     last_processed_ledger = doc.last_processed_stock_ledger
     
@@ -274,7 +277,13 @@ def re_post_stock_ledgers(show_alert=False):
     
     start_time = datetime.now()
     
+    print("start time")
+    print(start_time)
+    
     while udpate_ledgers==True:
+        
+        print("posting_date")
+        print(posting_date)
                
         # Get stock ledgers with the last assigned posting_date (there can be multiple records)
         count = frappe.db.count('Stock Ledger', filters={'posting_date': posting_date})

@@ -72,20 +72,21 @@ class ProgressiveSalesInvoice(Document):
 		default_company = frappe.db.get_single_value(
 			"Global Settings", "default_company")
 
-		default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
-																			'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+		default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account','default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account','project_advance_received_account','retention_receivable_account'], as_dict=1)
 
 		idx = 1
 
-			# Trade Receivable - Debit
+			# Trade Receivable
 		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Sales Invoice"
+		gl_doc.voucher_type = "Progressive Sales Invoice"
 		gl_doc.voucher_no = self.name
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = default_accounts.default_receivable_account
-		gl_doc.debit_amount = self.rounded_total
+		gl_doc.debit_amount = self.rounded_total 
+
+		# + self.deduction_against_advance + self.deduction_for_retention
 		gl_doc.party_type = "Customer"
 		gl_doc.party = self.customer
 		gl_doc.against_account = self.revenue_account
@@ -93,15 +94,53 @@ class ProgressiveSalesInvoice(Document):
 		gl_doc.insert()
 		idx +=1
 
+		# Reduce the liability against advance received
+		if self.deduction_against_advance>0:
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Progressive Sales Invoice"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = default_accounts.project_advance_received_account
+			gl_doc.debit_amount = self.deduction_against_advance
+			# + self.deduction_against_advance + self.deduction_for_retention
+			gl_doc.party_type = "Customer"
+			gl_doc.party = self.customer
+			gl_doc.against_account = self.revenue_account
+			gl_doc.remarks = remarks
+			gl_doc.insert()
+			idx +=1
+
+
+		# Reduce the liability against advance received
+		if self.deduction_for_retention > 0:
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Progressive Sales Invoice"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = default_accounts.retention_receivable_account
+			gl_doc.debit_amount = self.deduction_for_retention
+			# + self.deduction_against_advance + self.deduction_for_retention
+			gl_doc.party_type = "Customer"
+			gl_doc.party = self.customer
+			gl_doc.against_account = self.revenue_account
+			gl_doc.remarks = remarks
+			gl_doc.insert()
+			idx +=1
+
 		# Income account - Credit (Accounts Receivable + Retention Receivable)
 		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Sales Invoice"
+		gl_doc.voucher_type = "Progressive Sales Invoice"
 		gl_doc.voucher_no = self.name
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = self.revenue_account
-		gl_doc.credit_amount = self.net_total - self.tax_total
+		gl_doc.credit_amount = (self.net_total - self.tax_total) + self.deduction_against_advance + self.deduction_for_retention		
+
 		gl_doc.against_account = default_accounts.default_receivable_account
 		gl_doc.remarks = remarks
 		gl_doc.insert()
@@ -112,7 +151,7 @@ class ProgressiveSalesInvoice(Document):
 			# Tax - Credit
 
 			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
+			gl_doc.voucher_type = "Progressive Sales Invoice"
 			gl_doc.voucher_no = self.name
 			gl_doc.idx = idx
 			gl_doc.posting_date = self.posting_date
@@ -123,10 +162,10 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.remarks = remarks
 			gl_doc.insert()
 			idx +=1
-   
+
 		if self.round_off != 0.00:
 			gl_doc = frappe.new_doc('GL Posting')
-			gl_doc.voucher_type = "Sales Invoice"
+			gl_doc.voucher_type = "Progressive Sales Invoice"
 			gl_doc.voucher_no = self.name
 			gl_doc.idx = idx
 			gl_doc.posting_date = self.posting_date
@@ -141,7 +180,7 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.remarks = remarks
 			gl_doc.insert()
 			idx +=1
-   
+
 			
 	def insert_payment_postings(self):
 		remarks = self.get_narration()

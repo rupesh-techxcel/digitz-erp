@@ -29,6 +29,7 @@
   "company",
   "warehouse",
   "default_cost_center",
+  "project",
   "accounts_section",
   "credit_purchase",
   "credit_days",
@@ -459,6 +460,13 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0]]",
+   "options": "Project"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -469,7 +477,7 @@
    "link_fieldname": "purchase_receipt"
   }
  ],
- "modified": "2024-10-13 12:44:26.708019",
+ "modified": "2024-11-19 14:20:27.074552",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt",

@@ -30,6 +30,7 @@
   "company",
   "warehouse",
   "default_cost_center",
+  "project",
   "accounts_section",
   "credit_purchase",
   "credit_days",
@@ -455,6 +456,13 @@
    "fieldtype": "Link",
    "label": "Purchase Receipt",
    "options": "Purchase Receipt"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0]]",
+   "options": "Project"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -472,7 +480,7 @@
    "table_fieldname": "invoices"
   }
  ],
- "modified": "2024-08-29 15:37:14.638818",
+ "modified": "2024-11-19 14:23:04.021079",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",
