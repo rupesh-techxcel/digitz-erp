@@ -11,7 +11,7 @@ class ReceiptReconciliation(Document):
 	def on_submit(self):
 		self.adjust_receipts_based_on_reconciliation()
 		self.update_sales_invoices()
-		self.update_progressive_invoices()
+		# self.update_progressive_invoices()
 
 	def on_cancel(self):
 		self.revert_invoices_on_cancellation()
@@ -20,7 +20,7 @@ class ReceiptReconciliation(Document):
 		for invoice in self.invoices:
 			if invoice.allocated_amount > 0:
 				receipt_no = invoice.receipt_no
-				invoice_type = invoice.invoice_type
+				# invoice_type = invoice.invoice_type
 				customer = self.customer
 				receipt_original_reference_type = invoice.receipt_original_reference_type
 
@@ -173,15 +173,7 @@ class ReceiptReconciliation(Document):
 					frappe.db.commit()
 
 					frappe.msgprint(f"Receipt details for {receipt_no} have been reverted.", alert=True)
-
-	def update_sales_invoices(self):
-		
-		for invoice in self.invoices:
-
-			if invoice.allocated_amount > 0:
-
-				allocations = get_allocations_for_sales_invoice(invoice.invoice_no, invoice.receipt_no)
-		
+	
 	def update_sales_invoices(self):
 		
 		invoices = self.invoices
@@ -210,9 +202,9 @@ class ReceiptReconciliation(Document):
 
 					invoice_amount = frappe.db.get_value("Sales Invoice", invoice.invoice_no,["rounded_total"])
 					if(round(invoice_amount,2) > round(invoice_total,2)):
-						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Partial"})
+						frappe.db.set_value("Sales Invoice", invoice.invoice_no, {'payment_status': "Partial"})
 					elif round(invoice_amount,2) == round(invoice_total,2):
-						frappe.db.set_value("Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
+						frappe.db.set_value("Sales Invoice", invoice.invoice_no, {'payment_status': "Paid"})
 		
 	def update_progressive_invoices(self):
 		

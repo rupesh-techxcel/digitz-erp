@@ -203,10 +203,11 @@ def get_customer_pending_documents(customer, reference_type, receipt_no,only_unp
             #print("receipt allocation values")
             #print(receipt_allocation_values)
 
-        documents_values = frappe.db.sql(documents_query, as_dict=1)
-        
         print("documents_query")
         print(documents_query)
+        
+        documents_values = frappe.db.sql(documents_query, as_dict=1)        
+        
         print("documents_values")
         print(documents_values)
 

@@ -32,6 +32,11 @@
   "update_stock",
   "update_rates_in_price_list",
   "created_from_tab_sale",
+  "project",
+  "for_advance_payment",
+  "for_retention_recovery",
+  "allocated_receipt_entry",
+  "cost_center",
   "column_break_bufh",
   "company",
   "company_tax_id",
@@ -39,9 +44,6 @@
   "lpo_date",
   "payment_status",
   "submitted_record",
-  "project_stage_details_section",
-  "project",
-  "allocated_receipt_entry",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -608,16 +610,10 @@
    "read_only": 1
   },
   {
-   "fieldname": "project_stage_details_section",
-   "fieldtype": "Section Break",
-   "label": "Project & Stage Details"
-  },
-  {
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
-   "options": "Project",
-   "read_only": 1
+   "options": "Project"
   },
   {
    "fieldname": "allocated_receipt_entry",
@@ -676,6 +672,24 @@
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "for_advance_payment",
+   "fieldtype": "Check",
+   "label": "For Advance Payment"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "default": "0",
+   "fieldname": "for_retention_recovery",
+   "fieldtype": "Check",
+   "label": "For retention recovery"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -696,7 +710,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-11-17 15:42:04.507345",
+ "modified": "2024-11-21 11:23:40.723100",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

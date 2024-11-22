@@ -183,3 +183,37 @@ def update_project_advance_amount(sales_order):
         frappe.log_error(message=str(e), title="Error in update_project_advance_amount")
         frappe.msgprint("An error occurred while updating the advance amount. Please check the error log.")
 
+@frappe.whitelist()
+def get_sales_order_value_for_project(project_name):
+    # Check if the project exists and fetch the linked sales order
+    project = frappe.get_doc("Project", project_name)
+    if project.sales_order:
+        # Fetch the Sales Order document
+        sales_order = frappe.get_doc("Sales Order", project.sales_order)
+        # Return only the rounded_total value
+        return sales_order.rounded_total
+    else:
+        return 0  # Return 0 if no sales order is linked
+
+@frappe.whitelist()
+def get_billed_amount_for_project(project_name):
+    # Fetch all Sales Invoices linked to the project
+    sales_invoices = frappe.get_all(
+        "Sales Invoice",
+        filters={"project": project_name},
+        fields=["rounded_total"]
+    )
+
+    # Fetch all Progressive Sales Invoices linked to the project
+    progressive_sales_invoices = frappe.get_all(
+        "Progressive Sales Invoice",
+        filters={"project": project_name},
+        fields=["rounded_total"]
+    )
+
+    # Sum up the rounded_total values from both Sales Invoices and Progressive Sales Invoices
+    total = sum(invoice.rounded_total for invoice in sales_invoices) + \
+            sum(invoice.rounded_total for invoice in progressive_sales_invoices)
+
+    # Return the total
+    return total

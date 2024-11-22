@@ -20,10 +20,14 @@ frappe.ui.form.on("Project", {
                         pe.sales_order = frm.doc.sales_order
                     });
                 
-                });
+                });            
+                  
+                refresh_wip(frm)   
+                refresh_so_value(frm)  
+                refresh_billed_amount(frm)
             }
-        refresh_progress_entries(frm);   
-        refresh_wip(frm)     
+
+            refresh_progress_entries(frm); 
     },
 
     setup(frm) {
@@ -211,6 +215,38 @@ function refresh_wip(frm)
         callback: function (r) {
             if (r.message) {
                 frm.set_value('work_in_progress_value', r.message);
+            }
+        }
+    });
+}
+
+function refresh_so_value(frm)
+{
+    frappe.call({
+        method: 'digitz_erp.api.project_api.get_sales_order_value_for_project',
+        args: {
+            project_name: frm.doc.name
+        },
+        callback: function (r) {
+            if (r.message) {
+                frm.set_value('sales_order_value', r.message);
+            }
+        }
+    });
+
+}
+
+
+function refresh_billed_amount(frm)
+{
+    frappe.call({
+        method: 'digitz_erp.api.project_api.get_billed_amount_for_project',
+        args: {
+            project_name: frm.doc.name
+        },
+        callback: function (r) {
+            if (r.message) {
+                frm.set_value('total_billed_amount', r.message);
             }
         }
     });

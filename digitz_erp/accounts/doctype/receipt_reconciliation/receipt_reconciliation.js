@@ -34,39 +34,27 @@ frappe.ui.form.on("Receipt Reconciliation", {
         const receipt_method = "digitz_erp.api.receipt_entry_api.get_receipts_unallocated";
 
         if (selected_customer) {
-            // Sales Invoice and Progressive Sales Invoice Calls
-            const salesInvoicePromise = frappe.call({
+            // Sales Invoice Call
+            frappe.call({
                 method: invoice_method,
                 args: { customer: selected_customer, reference_type: "Sales Invoice", receipt_no: "", only_unpaid: 1 }
-            });
+            }).then((salesInvoiceRes) => {
+                frm.clear_table('invoices'); // Clear the table before inserting
 
-            const progressiveSalesInvoicePromise = frappe.call({
-                method: invoice_method,
-                args: { customer: selected_customer, reference_type: "Progressive Sales Invoice", receipt_no: "", only_unpaid: 1 }
-            });
-
-            Promise.all([salesInvoicePromise, progressiveSalesInvoicePromise])
-                .then(([salesInvoiceRes, progressiveInvoiceRes]) => {
-                    frm.clear_table('invoices'); // Clear the table before inserting
-
-                    const salesInvoices = salesInvoiceRes.message || [];
-                    const progressiveInvoices = progressiveInvoiceRes.message || [];
-                    const all_invoices = [...salesInvoices, ...progressiveInvoices];
-
-                    all_invoices.forEach((invoice) => {
-                        let row = frm.add_child('invoices');
-                        row.reference_type = invoice.reference_type || "";
-                        row.invoice_no = invoice.reference_name || "";
-                        row.invoice_date = invoice.posting_date || "";
-                        row.invoice_amount = invoice.invoice_amount || 0;
-                    });
-
-                    frm.refresh_field('invoices');
-                })
-                .catch(error => {
-                    console.error("Error fetching invoices:", error);
-                    frappe.msgprint(__("There was an error fetching the pending invoices."));
+                const salesInvoices = salesInvoiceRes.message || [];
+                salesInvoices.forEach((invoice) => {
+                    let row = frm.add_child('invoices');
+                    row.reference_type = invoice.reference_type || "";
+                    row.invoice_no = invoice.reference_name || "";
+                    row.invoice_date = invoice.posting_date || "";
+                    row.invoice_amount = invoice.invoice_amount || 0;
                 });
+
+                frm.refresh_field('invoices');
+            }).catch(error => {
+                console.error("Error fetching invoices:", error);
+                frappe.msgprint(__("There was an error fetching the pending invoices."));
+            });
 
             // Unallocated Receipts Call
             frappe.call({
@@ -76,7 +64,6 @@ frappe.ui.form.on("Receipt Reconciliation", {
                     frm.clear_table('receipts'); // Clear the table before inserting
                     if (r.message && r.message.length > 0) {
                         r.message.forEach((receipt) => {
-
                             let row = frm.add_child('receipts');
                             row.receipt_no = receipt.receipt_no || "";
                             row.reference_type = receipt.reference_type || "";
@@ -85,7 +72,6 @@ frappe.ui.form.on("Receipt Reconciliation", {
                         });
 
                         frm.refresh_field('receipts');
-
                     } else {
                         console.log("No unallocated receipts found.");
                     }
@@ -96,9 +82,7 @@ frappe.ui.form.on("Receipt Reconciliation", {
                 }
             });
         }
-    },
-    // Auto Allocate button logic
-// Auto Allocate button logic
+    },  
 auto_allocate(frm) {
     frm.events.allocate_receipts_to_invoices(frm,false);
 },

@@ -14,13 +14,9 @@
   "posting_time",
   "edit_posting_date_and_time",
   "column_break_hwnw",
+  "customer",
   "column_break_psam",
   "company",
-  "section_break_srbk",
-  "customer",
-  "column_break_gmpw",
-  "column_break_dtur",
-  "column_break_kxdd",
   "section_break_ezxt",
   "column_break_adcq",
   "receipts",
@@ -71,6 +67,7 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date",
    "read_only": 1
   },
@@ -96,27 +93,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_srbk",
-   "fieldtype": "Section Break",
-   "label": "Filter By"
-  },
-  {
    "fieldname": "customer",
    "fieldtype": "Link",
-   "label": "Customer",
+   "in_list_view": 1,
+   "label": "Filter for  Customer",
    "options": "Customer"
-  },
-  {
-   "fieldname": "column_break_gmpw",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_dtur",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_kxdd",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "section_break_ezxt",
@@ -186,7 +167,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-20 10:02:47.573150",
+ "modified": "2024-11-21 10:33:34.150810",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Reconciliation",

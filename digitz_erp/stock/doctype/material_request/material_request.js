@@ -8,7 +8,7 @@ frappe.ui.form.on("Material Request", {
         frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
             return {
                 filters: {
-                    item_type: ['in', ['BOQ Product', 'Product']]
+                    item_type: ['in', ['BOQ Product', 'Product','Material']]
                 }
             };
           }
@@ -144,7 +144,7 @@ frappe.ui.form.on("Material Request", {
 
 			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
 				if (r && r.default_credit_sale === 1) {
-						frm.set_value('credit_sale', 1);
+						// frm.set_value('credit_sale', 1);
 				}
 			});
 

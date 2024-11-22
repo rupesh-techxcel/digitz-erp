@@ -91,6 +91,9 @@ class ProgressiveSalesInvoice(Document):
 		gl_doc.party = self.customer
 		gl_doc.against_account = self.revenue_account
 		gl_doc.remarks = remarks
+		gl_doc.project = self.project
+		gl_doc.cost_center = self.cost_center
+  
 		gl_doc.insert()
 		idx +=1
 
@@ -109,6 +112,8 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.party = self.customer
 			gl_doc.against_account = self.revenue_account
 			gl_doc.remarks = remarks
+			gl_doc.project = self.project
+			gl_doc.cost_center = self.cost_center
 			gl_doc.insert()
 			idx +=1
 
@@ -128,6 +133,8 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.party = self.customer
 			gl_doc.against_account = self.revenue_account
 			gl_doc.remarks = remarks
+			gl_doc.project = self.project
+			gl_doc.cost_center = self.cost_center
 			gl_doc.insert()
 			idx +=1
 
@@ -143,6 +150,8 @@ class ProgressiveSalesInvoice(Document):
 
 		gl_doc.against_account = default_accounts.default_receivable_account
 		gl_doc.remarks = remarks
+		gl_doc.project = self.project
+		gl_doc.cost_center = self.cost_center
 		gl_doc.insert()
 		idx +=1
 
@@ -160,6 +169,8 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.credit_amount = self.tax_total
 			gl_doc.against_account = default_accounts.default_receivable_account
 			gl_doc.remarks = remarks
+			gl_doc.project = self.project
+			gl_doc.cost_center = self.cost_center
 			gl_doc.insert()
 			idx +=1
 
@@ -178,6 +189,8 @@ class ProgressiveSalesInvoice(Document):
 				gl_doc.debit_amount = abs(self.round_off)
 			
 			gl_doc.remarks = remarks
+			gl_doc.project = self.project
+			gl_doc.cost_center = self.cost_center
 			gl_doc.insert()
 			idx +=1
 

@@ -474,12 +474,28 @@ function update_total_amounts(frm){
   frm.set_value('total_before_deductions', net_total_before_deductions)
 
   console.log("net_total_before_deductions",net_total_before_deductions)
-  let current_completion = frm.doc.total_completion_percentage - frm.doc.previous_completion_percentage
+ 
+
+  let previous_completion_percentage = frm.doc.previous_completion_percentage;
+
+  // Check if previous_completion_percentage is a valid number
+  if (isNaN(previous_completion_percentage)) {      
+      previous_completion_percentage = 0; // Assign a default value or handle it as required
+  }
+
+  let current_completion = frm.doc.total_completion_percentage - previous_completion_percentage;
+
+  // Validate the result of current_completion as well
+  if (isNaN(current_completion)) {
+      current_completion = 0; // Handle accordingly
+}
 
   let advance_amount = 0
   let retention_amount  = 0
   console.log("advance_amount",advance_amount)
   console.log("current completion", current_completion)
+
+  console.log*("project_Advance", frm.doc.project_advance_amount)
 
   if(frm.doc.project_advance_amount > 0)
   {

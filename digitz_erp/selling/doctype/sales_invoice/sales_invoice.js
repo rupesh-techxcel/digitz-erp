@@ -233,6 +233,13 @@ frappe.ui.form.on('Sales Invoice', {
 
 		fill_receipt_schedule(frm,refresh= true)
 	},
+	project(frm)
+	{
+		if(frm.doc.project != undefined)
+		{
+			frm.set_value('update_stock',false)
+		}
+	},
 	credit_days(frm)
 	{
 		fill_receipt_schedule(frm,refresh_credit_days= true);

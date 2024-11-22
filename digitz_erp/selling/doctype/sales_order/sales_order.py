@@ -239,7 +239,8 @@ def generate_sales_invoice(sales_order_name):
 					'discount_percentage', 'discount_amount', 'net_amount', 'unit_conversion_details']:
 			setattr(sales_invoice_item, field, getattr(item, field, None))
 
-		sales_invoice_item.qty = round((item.qty_in_base_unit - item.qty_sold_in_base_unit) / item.conversion_factor, 2)
+		conversion_factor = 1
+		sales_invoice_item.qty = round((item.qty_in_base_unit - item.qty_sold_in_base_unit) / conversion_factor, 2)
 		sales_invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
 		sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_sold_in_base_unit
 		sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit

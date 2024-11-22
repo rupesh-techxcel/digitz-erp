@@ -93,7 +93,7 @@ class SalesInvoice(Document):
 
         self.update_item_prices()
 
-        if not self.tab_sales:
+        if not self.tab_sales and not self.for_advance_payment:
             update_sales_order_quantities_on_update(self)
             check_and_update_sales_order_status(self.name, "Sales Invoice")
 
@@ -423,6 +423,9 @@ class SalesInvoice(Document):
 
         default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
                                                                             'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+        
+        print("default_accounts")
+        print(default_accounts)
 
         idx = 1
 
@@ -439,6 +442,8 @@ class SalesInvoice(Document):
         gl_doc.party = self.customer
         gl_doc.against_account = default_accounts.default_income_account
         gl_doc.remarks = remarks
+        gl_doc.project = self.project
+        gl_doc.cost_center = self.cost_center
         gl_doc.insert()
         idx +=1
 
@@ -453,6 +458,8 @@ class SalesInvoice(Document):
         gl_doc.credit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.remarks = remarks
+        gl_doc.project = self.project
+        gl_doc.cost_center = self.cost_center
         gl_doc.insert()
         idx +=1
 
@@ -470,6 +477,8 @@ class SalesInvoice(Document):
             gl_doc.credit_amount = self.tax_total
             gl_doc.against_account = default_accounts.default_receivable_account
             gl_doc.remarks = remarks
+            gl_doc.project = self.project
+            gl_doc.cost_center = self.cost_center
             gl_doc.insert()
             idx +=1
 
@@ -490,6 +499,8 @@ class SalesInvoice(Document):
                 gl_doc.debit_amount = abs(self.round_off)
             
             gl_doc.remarks = remarks
+            gl_doc.project = self.project
+            gl_doc.cost_center = self.cost_center
             gl_doc.insert()
             idx +=1
 
@@ -516,6 +527,8 @@ class SalesInvoice(Document):
                 gl_doc.against_account = default_accounts.default_inventory_account
                 gl_doc.is_for_cogs = True
                 gl_doc.remarks = remarks
+                gl_doc.project = self.project
+                gl_doc.cost_center = self.cost_center
                 gl_doc.insert()
                 idx +=1
 
@@ -531,6 +544,8 @@ class SalesInvoice(Document):
                 gl_doc.against_account = default_accounts.cost_of_goods_sold_account
                 gl_doc.is_for_cogs = True
                 gl_doc.remarks = remarks
+                gl_doc.project = self.project
+                gl_doc.cost_center = self.cost_center
                 gl_doc.insert()
                 idx +=1
 
