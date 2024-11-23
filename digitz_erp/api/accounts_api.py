@@ -69,7 +69,12 @@ def get_gl_postings(voucher,voucher_no):
                                       "voucher_no": voucher_no},
                                   fields=["account", "debit_amount", "credit_amount", "against_account", "remarks","project","cost_center"])
     formatted_gl_postings = []
+    total_debit = 0
+    total_credit = 0
+    
     for posting in gl_postings:
+        total_debit += posting.debit_amount or 0
+        total_credit += posting.credit_amount or 0
         formatted_gl_postings.append({
             "gl_posting": posting.name,
             "account":posting.account,
@@ -82,4 +87,8 @@ def get_gl_postings(voucher,voucher_no):
             "party":posting.party if posting.party else ""
         })
 
-    return formatted_gl_postings
+    return {
+        "gl_postings": formatted_gl_postings,
+        "total_debit": total_debit,
+        "total_credit": total_credit
+    }

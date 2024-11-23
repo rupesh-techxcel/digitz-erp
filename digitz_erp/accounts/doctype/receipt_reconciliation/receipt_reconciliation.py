@@ -15,8 +15,10 @@ class ReceiptReconciliation(Document):
 
 	def on_cancel(self):
 		self.revert_invoices_on_cancellation()
+		self.reverse_adjustments_on_cancellation()
 
 	def adjust_receipts_based_on_reconciliation(self):
+     
 		for invoice in self.invoices:
 			if invoice.allocated_amount > 0:
 				receipt_no = invoice.receipt_no
@@ -25,8 +27,9 @@ class ReceiptReconciliation(Document):
 				receipt_original_reference_type = invoice.receipt_original_reference_type
 
 				# Process only 'Sales Order' records, skip 'On Account' as there are no rows in Receipt Allocation for it
-				if receipt_original_reference_type == "Sales Order":
-					
+				if receipt_original_reference_type == "Sales Order":					
+					# Note that this works because 'receipt_allocations' and  'previous_receipt_allocations' both are using same child table 'Receipt Allocation'. So we just chnge the parent field to move the allocation to previous_allocation
+		
 					# Fetch the corresponding receipt allocation from `tabReceipt Allocation`
 					receipt_allocations = frappe.db.get_all(
 						"Receipt Allocation", 
@@ -35,17 +38,17 @@ class ReceiptReconciliation(Document):
 							'customer': customer, 
 							'reference_type': receipt_original_reference_type
 						}, 
-						fields=['name', 'parent_field']
+						fields=['name', 'parentfield']
 					)
 
 					# Iterate over the fetched receipt allocations and update the parent_field
 					for receipt_allocation in receipt_allocations:
-						if receipt_allocation.get('parent_field') == 'receipt_allocation':
+						if receipt_allocation.get('parentfield') == 'receipt_allocation':
 							# Update the parent_field to 'previous_receipt_allocations'
 							frappe.db.set_value(
 								"Receipt Allocation", 
 								receipt_allocation.get('name'), 
-								'parent_field', 
+								'parentfield', 
 								'previous_receipt_allocations'
 							)
 							frappe.db.commit()
@@ -60,8 +63,9 @@ class ReceiptReconciliation(Document):
 						"total_amount": invoice.invoice_amount,
 						"paying_amount": invoice.allocated_amount,
 						"reference_type": invoice.reference_type,
-						"reference_name": invoice.invoice_no,  # Assuming invoice_no represents the document number
-						"parent_field": "receipt_allocation",
+						"reference_name": invoice.invoice_no,  
+						"parentfield": "receipt_allocation",
+						"parenttype": "Receipt Entry",
 						"owner": frappe.session.user,  # Current user as owner
 						"docstatus": 1  # Mark as submitted
 					})
@@ -72,31 +76,32 @@ class ReceiptReconciliation(Document):
 
 					frappe.msgprint(f"New receipt allocation for {receipt_no} has been created.", alert=True)
 
-					# Additional update for `tabReceipt Details`
-					# Fetch the corresponding receipt detail record
-					receipt_details = frappe.db.get_all(
-						"Receipt Details",
-						filters={
-							'parent': receipt_no,
-							'customer': customer,
-							'reference_type': receipt_original_reference_type  # Match original reference type
-						},
-						fields=['name']
+				# Additional update for `tabReceipt Entry Details`
+				# Fetch the corresponding receipt detail record
+				receipt_details = frappe.db.get_all(
+					"Receipt Entry Detail",
+					filters={
+						'parent': receipt_no,
+						'customer': customer,
+						'reference_type': receipt_original_reference_type  # Match original reference type
+					},
+					fields=['name']
+				)
+
+				# Update the found record's reference_type and previous_reference_type
+				for detail in receipt_details:
+					frappe.db.set_value(
+						"Receipt Entry Detail",
+						detail.get('name'),
+						{
+							'reference_type': invoice.reference_type,
+							'previous_reference_type': receipt_original_reference_type
+						}
 					)
+		
+				frappe.db.commit()
 
-					# Update the found record's reference_type and previous_reference_type
-					for detail in receipt_details:
-						frappe.db.set_value(
-							"Receipt Details",
-							detail.get('name'),
-							{
-								'reference_type': invoice.reference_type,
-								'previous_reference_type': receipt_original_reference_type
-							}
-						)
-						frappe.db.commit()
-
-					frappe.msgprint(f"Receipt details for {receipt_no} have been updated.", alert=True)
+				frappe.msgprint(f"Receipt details for {receipt_no} have been updated.", alert=True)
 
 	def reverse_adjustments_on_cancellation(self):
 		
@@ -115,8 +120,8 @@ class ReceiptReconciliation(Document):
 						filters={
 							'parent': receipt_no,
 							'customer': customer,
-							'reference_name': invoice.invoice_no,  # Assuming invoice_no represents the document number
-							'parent_field': 'receipt_allocation'
+							'reference_name': invoice.invoice_no,  
+							'parentfield': 'receipt_allocation'
 						},
 						fields=['name']
 					)
@@ -132,7 +137,7 @@ class ReceiptReconciliation(Document):
 							'parent': receipt_no, 
 							'customer': customer, 
 							'reference_type': receipt_original_reference_type,
-							'parent_field': 'previous_receipt_allocations'
+							'parentfield': 'previous_receipt_allocations'
 						},
 						fields=['name']
 					)
@@ -142,37 +147,36 @@ class ReceiptReconciliation(Document):
 						frappe.db.set_value(
 							"Receipt Allocation", 
 							receipt_allocation.get('name'), 
-							'parent_field', 
+							'parentfield', 
 							'receipt_allocation'
 						)
 
 					frappe.db.commit()
 					frappe.msgprint(f"Reversed receipt allocations for {receipt_no}.")
 
-					# New: Fetch the receipt details that were updated
-					receipt_details_to_update = frappe.db.get_all(
-						"Receipt Details",
-						filters={
-							'parent': receipt_no,
-							'customer': customer,
-							'reference_type': invoice.reference_type  # Match the current reference type
-						},
-						fields=['name']
+				# New: Fetch the receipt details that were updated
+				receipt_details_to_update = frappe.db.get_all(
+					"Receipt Entry Detail",
+					filters={
+						'parent': receipt_no,
+						'customer': customer,
+						'reference_type': invoice.reference_type  # Match the current reference type
+					},
+					fields=['name']
+				)
+
+				# Update the found record's reference_type and previous_reference_type
+				for detail in receipt_details_to_update:
+					frappe.db.set_value(
+						"Receipt Entry Detail",
+						detail.get('name'),
+						{
+							'reference_type': invoice.receipt_original_reference_type,
+							'previous_reference_type': invoice.reference_type  # Store current reference as previous
+						}
 					)
-
-					# Update the found record's reference_type and previous_reference_type
-					for detail in receipt_details_to_update:
-						frappe.db.set_value(
-							"Receipt Details",
-							detail.get('name'),
-							{
-								'reference_type': invoice.receipt_original_reference_type,
-								'previous_reference_type': invoice.reference_type  # Store current reference as previous
-							}
-						)
-					frappe.db.commit()
-
-					frappe.msgprint(f"Receipt details for {receipt_no} have been reverted.", alert=True)
+				frappe.db.commit()
+				frappe.msgprint(f"Receipt details for {receipt_no} have been reverted.", alert=True)
 	
 	def update_sales_invoices(self):
 		
@@ -205,38 +209,6 @@ class ReceiptReconciliation(Document):
 						frappe.db.set_value("Sales Invoice", invoice.invoice_no, {'payment_status': "Partial"})
 					elif round(invoice_amount,2) == round(invoice_total,2):
 						frappe.db.set_value("Sales Invoice", invoice.invoice_no, {'payment_status': "Paid"})
-		
-	def update_progressive_invoices(self):
-		
-		invoices = self.invoices
-
-		if(invoices):
-			for invoice in invoices:
-
-				if invoice.reference_type != "Progressive Sales Invoice":
-					continue
-
-				if(invoice.allocated_amount>0):
-
-					receipt_no = invoice.receipt_no
-					if self.is_new():
-						receipt_no = ""
-
-					previous_paid_amount = 0
-					allocations_exists = get_allocations_for_progressive_sales_invoice(invoice.invoice_no, receipt_no)
-
-					for existing_allocation in allocations_exists:
-						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
-
-					invoice_total = previous_paid_amount + invoice.allocated_amount
-
-					frappe.db.set_value("Progressive Sales Invoice", invoice.invoice_no, {'paid_amount': invoice_total})
-
-					invoice_amount = frappe.db.get_value("Progressive Sales Invoice", invoice.invoice_no,["rounded_total"])
-					if(round(invoice_amount,2) > round(invoice_total,2)):
-						frappe.db.set_value("Progressive Sales Invoice", allocation.reference_name, {'payment_status': "Partial"})
-					elif round(invoice_amount,2) == round(invoice_total,2):
-						frappe.db.set_value("Progressive Sales Invoice", allocation.reference_name, {'payment_status': "Paid"})
 		
 	def revert_invoices_on_cancellation(self):
 		

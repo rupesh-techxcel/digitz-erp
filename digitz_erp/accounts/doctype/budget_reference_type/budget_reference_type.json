@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "field:reference_type",
  "creation": "2024-11-04 08:47:15.561946",
  "doctype": "DocType",
@@ -24,9 +23,10 @@
    "unique": 1
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-04 09:43:54.649434",
+ "modified": "2024-11-23 09:24:17.991552",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget Reference Type",
@@ -46,6 +46,7 @@
    "write": 1
   }
  ],
+ "read_only": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

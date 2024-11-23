@@ -61,13 +61,14 @@
   "section_break_hgqy",
   "column_break_ejhs",
   "gross_total",
+  "deduction_for_retention",
+  "retention_percentage",
+  "taxable_amount",
   "tax_total",
   "column_break_33",
   "total_before_deductions",
   "total_discount_in_line_items",
   "additional_discount",
-  "retention_percentage",
-  "deduction_for_retention",
   "deduction_against_advance",
   "column_break_xkzu",
   "net_total",
@@ -541,6 +542,11 @@
    "fieldname": "total_before_deductions",
    "fieldtype": "Currency",
    "label": "Total Before Deductions"
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "label": "Taxable Amount"
   }
  ],
  "in_create": 1,
@@ -555,7 +561,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-18 12:30:58.681832",
+ "modified": "2024-11-23 11:24:25.856111",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

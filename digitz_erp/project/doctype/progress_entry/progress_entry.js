@@ -417,8 +417,6 @@ function update_progress(frm) {
     }
   }
 
-
-
   // Calculate average completion percentage based on item_net_amount
   let average_completion = total_item_net_amount > 0 ? (total_weighted_completion / total_item_net_amount) * 100 : 0;
 

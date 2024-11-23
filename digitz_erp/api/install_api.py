@@ -69,7 +69,6 @@ def insert_accounts():
     {"account_name": "Revaluation Reserve", "is_group": 1, "parent_account": "Liabilities", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": "Dr"}
     ]
 
-
     for account_data in accounts:               
         # Check if the account already exists to avoid duplicates
         if not frappe.db.exists("Account", account_data["account_name"]):
@@ -122,7 +121,7 @@ def create_demo_company():
             "default_warehouse": "Default Warehouse",
             "rules_for_prices": "Default Selling Price List : Standard Selling Default Buying Price List : Standard Buying Use Default price LIst when customer or supplier price not available: Yes",
             "maintain_stock": 1,
-            "update_stock_in_sales_invoice": 1,
+            "update_stock_in_sales_invoice": 0,
             "tax_excluded": 0,
             "tax_type": "VAT",
             "tax": "UAE VAT - 5%",

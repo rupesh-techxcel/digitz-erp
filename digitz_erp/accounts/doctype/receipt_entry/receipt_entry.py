@@ -101,6 +101,17 @@ class ReceiptEntry(Document):
 		self.check_reference_numbers()
 		self.check_allocations_and_totals()
 		self.check_excess_allocation()
+		self.validate_multiple_sales_orders()
+	
+	def validate_multiple_sales_orders(self):
+ 
+		sales_order_count = sum(1 for row in doc.receipt_entry_details if row.reference_type == "Sales Order")
+
+		# If more than one row has reference_type = 'Sales Order', raise an error
+		if sales_order_count > 1:
+			frappe.throw(
+			_("You cannot allocate multiple rows with 'Sales Order' as the reference type. Please keep only one row with 'Sales Order'.")
+			)
 
 	def clean_deleted_allocations(self):
 

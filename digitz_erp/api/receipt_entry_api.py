@@ -436,10 +436,13 @@ def get_allocations_for_credit_note(credit_note_no, receipt_no):
 @frappe.whitelist()
 def get_receipts_unallocated(customer):
     # Get 'On Account' and 'Sales Order' data for the customer
+    # Note that for 'On Account' there is no entries in the 'Receipt Allocation' table so in 'Receipt Reconciliation' there is no replacing required for 'On Account' records
+    
+    #  Open issue related to this method. Now only 'Receipt Entry Detail' is fetching and not allocation, so it does not give reference_name eg: sales order number and hence cannot specifically allocate as well. So this works for receipt entries which congains only one sales order record as there is no way to find out the matching sales order.
     data = frappe.db.sql("""
         SELECT 
             trd.parent as receipt_no, 
-            trd.reference_type,
+            trd.reference_type,            
             tr.posting_date as receipt_date,
             trd.amount as receipt_amount            
         FROM 

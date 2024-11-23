@@ -1,4 +1,13 @@
 frappe.ui.form.on("Receipt Reconciliation", {
+
+    show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
     // Triggered when the form is refreshed
     refresh(frm) {
         // Remove the "Add Row" button for the 'invoices' child table
@@ -9,6 +18,31 @@ frappe.ui.form.on("Receipt Reconciliation", {
         frm.fields_dict['receipts'].grid.cannot_add_rows = true;        
         frm.refresh_field('receipts'); // Refresh to apply changes
     },
+    setup(frm) {
+        frm.trigger('get_default_company');
+    },
+
+    get_default_company(frm) {
+
+		var default_company = ""
+
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Global Settings',
+				'fieldname': 'default_company'
+			},
+			callback: (r) => {
+
+				default_company = r.message.default_company
+				
+                frm.set_value("company",default_company)
+				
+				
+			}
+		})
+
+	},
 
     edit_posting_date_and_time(frm) {
         if (frm.doc.edit_posting_date_and_time == 1) {
@@ -174,10 +208,10 @@ allocate_receipts_to_invoices: function (frm, selected_rows = false) {
     frm.refresh_field('receipts');
 
     // Show messages based on allocation status
-    if (allocation_occurred) {
-        frappe.msgprint(__("Receipts have been successfully allocated to invoices."));
-    } else {
-        frappe.msgprint(__("No allocations were made due to insufficient invoices."));
+    if (allocation_occurred) {        
+        frm.events.show_a_message(frm,"Receipt(s) have been successfully allocated to invoices.");
+    } else {        
+        frm.events.show_a_message(frm,"No allocations were made due to insufficient invoices.");
     }
 },
 clear_allocations: function(frm) {

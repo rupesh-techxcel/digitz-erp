@@ -18,6 +18,7 @@ from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, c
 from frappe.utils import money_in_words
 from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_on_update
 from digitz_erp.api.settings_api import add_seconds_to_time
+from frappe import _
 
 class SalesInvoice(Document):
 
@@ -84,9 +85,29 @@ class SalesInvoice(Document):
         # Ship to location is a child table reference for customer and cannot have acess 
         # from Sales Invoice. So adding a duplicate field for printing purpose
         self.location_to_print = self.ship_to_location
+        
+    def validate_for_sales_order(self):
+        # Ensure the Sales Invoice is linked to a Sales Order
+        if not (self.sales_order) or self.for_advance_payment or self.for_retention_recovery :
+            return
+
+        # Fetch the Sales Order document
+        sales_order_doc = frappe.get_doc("Sales Order", self.sales_order)
+
+        # Get the list of allowed item codes from the Sales Order
+        allowed_items = [item.item for item in sales_order_doc.items]
+
+        # Validate each item in the Sales Invoice
+        for item in self.items:
+            if item.item not in allowed_items:
+                frappe.throw(
+                    _("Item '{0}' is not part of the Sales Order '{1}'. If this is an for advance payment check the 'for advnce payment' option to proceed further.")
+                    .format(item.item, self.sales_order)
+                )
 
     def validate(self):
         self.validate_item()
+        self.validate_for_sales_order()
         # self.validate_item_valuation_rates()
 
     def on_update(self):
@@ -416,13 +437,17 @@ class SalesInvoice(Document):
 
     def insert_gl_records(self):
         
+        if self.for_retention_recovery:
+           self.insert_gl_records_for_retention_recovery() 
+           return
+        
         remarks = self.get_narration()
 
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")
 
         default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
-                                                                            'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+                                                                            'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account','retention_receivable_account'], as_dict=1)
         
         print("default_accounts")
         print(default_accounts)
@@ -550,6 +575,98 @@ class SalesInvoice(Document):
                 idx +=1
 
         update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
+        
+    def insert_gl_records_for_retention_recovery(self):
+        
+        remarks = self.get_narration()
+
+        default_company = frappe.db.get_single_value(
+            "Global Settings", "default_company")
+
+        default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+                                                                            'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account','retention_receivable_account'], as_dict=1)
+        
+        print("default_accounts")
+        print(default_accounts)
+
+        idx = 1
+
+        # Trade Receivable - Debit
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.default_receivable_account 
+        gl_doc.debit_amount = self.rounded_total
+        gl_doc.party_type = "Customer"
+        gl_doc.party = self.customer
+        gl_doc.against_account = default_accounts.retention_receivable_account
+        gl_doc.remarks = remarks
+        gl_doc.project = self.project
+        gl_doc.cost_center = self.cost_center
+        gl_doc.insert()
+        idx +=1
+
+        # Retention Receivable Account - Credit
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.retention_receivable_account
+        gl_doc.credit_amount = self.rounded_total
+        gl_doc.against_account = default_accounts.default_receivable_account
+        gl_doc.remarks = remarks
+        gl_doc.project = self.project
+        gl_doc.cost_center = self.cost_center
+        gl_doc.insert()
+        idx +=1
+
+        if self.tax_total >0:
+
+            # Tax - Credit
+
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.tax_account
+            gl_doc.credit_amount = self.tax_total
+            gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.remarks = remarks
+            gl_doc.project = self.project
+            gl_doc.cost_center = self.cost_center
+            gl_doc.insert()
+            idx +=1
+
+        # Round Off
+
+        if self.round_off != 0.00:
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.round_off_account
+
+            if self.rounded_total > self.net_total:
+                gl_doc.credit_amount = abs(self.round_off)
+            else:
+                gl_doc.debit_amount = abs(self.round_off)
+            
+            gl_doc.remarks = remarks
+            gl_doc.project = self.project
+            gl_doc.cost_center = self.cost_center
+            gl_doc.insert()
+            idx +=1
+
+        update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
 
     def insert_payment_postings(self):
         
@@ -577,7 +694,7 @@ class SalesInvoice(Document):
             gl_doc.idx = idx
             gl_doc.posting_date = self.posting_date
             gl_doc.posting_time = self.posting_time
-            gl_doc.account = default_accounts.default_receivable_account
+            gl_doc.account = default_accounts.default_receivable_account if not self.for_retention_recovery else default_accounts.retention_receivable_account
             gl_doc.credit_amount = self.rounded_total
             gl_doc.party_type = "Customer"
             gl_doc.party = self.customer
@@ -595,7 +712,7 @@ class SalesInvoice(Document):
             gl_doc.posting_time = self.posting_time
             gl_doc.account = payment_mode.account
             gl_doc.debit_amount = self.rounded_total
-            gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.against_account = default_accounts.default_receivable_account if not self.for_retention_recovery else default_accounts.retention_receivable_account
             gl_doc.remarks = remarks
             gl_doc.insert()
 

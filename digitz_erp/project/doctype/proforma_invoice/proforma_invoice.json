@@ -61,13 +61,14 @@
   "column_break_ywbh",
   "section_break_25",
   "gross_total",
+  "retention_percentage",
+  "deduction_for_retention",
+  "taxable_amount",
   "tax_total",
   "column_break_33",
   "total_discount_in_line_items",
   "total_before_deductions",
   "additional_discount",
-  "deduction_for_retention",
-  "retention_percentage",
   "deduction_against_advance",
   "column_break_xkzu",
   "net_total",
@@ -578,6 +579,11 @@
    "fieldname": "retention_percentage",
    "fieldtype": "Percent",
    "label": "Retention Percentage"
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "label": "Taxable Amount"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -592,7 +598,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-18 12:46:03.149818",
+ "modified": "2024-11-23 11:28:07.071644",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

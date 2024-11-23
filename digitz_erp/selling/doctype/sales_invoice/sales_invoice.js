@@ -323,8 +323,6 @@ frappe.ui.form.on('Sales Invoice', {
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
 
-
-
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
 			gross_total = gross_total + entry.gross_amount;

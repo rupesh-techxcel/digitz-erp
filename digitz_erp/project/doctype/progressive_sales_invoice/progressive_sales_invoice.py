@@ -88,7 +88,7 @@ class ProgressiveSalesInvoice(Document):
 
 		# + self.deduction_against_advance + self.deduction_for_retention
 		gl_doc.party_type = "Customer"
-		gl_doc.party = self.customer
+		gl_doc.party = self.customer_name
 		gl_doc.against_account = self.revenue_account
 		gl_doc.remarks = remarks
 		gl_doc.project = self.project
@@ -109,7 +109,7 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.debit_amount = self.deduction_against_advance
 			# + self.deduction_against_advance + self.deduction_for_retention
 			gl_doc.party_type = "Customer"
-			gl_doc.party = self.customer
+			gl_doc.party = self.customer_name
 			gl_doc.against_account = self.revenue_account
 			gl_doc.remarks = remarks
 			gl_doc.project = self.project
@@ -130,7 +130,7 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.debit_amount = self.deduction_for_retention
 			# + self.deduction_against_advance + self.deduction_for_retention
 			gl_doc.party_type = "Customer"
-			gl_doc.party = self.customer
+			gl_doc.party = self.customer_name
 			gl_doc.against_account = self.revenue_account
 			gl_doc.remarks = remarks
 			gl_doc.project = self.project
@@ -146,8 +146,7 @@ class ProgressiveSalesInvoice(Document):
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
 		gl_doc.account = self.revenue_account
-		gl_doc.credit_amount = (self.net_total - self.tax_total) + self.deduction_against_advance + self.deduction_for_retention		
-
+		gl_doc.credit_amount = (self.net_total - self.tax_total) + self.deduction_against_advance + self.deduction_for_retention
 		gl_doc.against_account = default_accounts.default_receivable_account
 		gl_doc.remarks = remarks
 		gl_doc.project = self.project
@@ -193,7 +192,6 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.cost_center = self.cost_center
 			gl_doc.insert()
 			idx +=1
-
 			
 	def insert_payment_postings(self):
 		remarks = self.get_narration()
