@@ -10,11 +10,12 @@ from digitz_erp.api.project_api import update_project_advance_amount
 class Project(Document):
     def before_save(self):
         net_total = frappe.db.get_value("Sales Order", self.sales_order, "net_total")
-        self.project_amount = net_total
+        self.project_amount = net_total        
+        self.update_advance_amount()
     
     def on_update(self):
-        self.update_advance_amount()
-        
+             
+        update_project_advance_amount(self.sales_order)        
     
     def advance_entry_exists(self):
         allocation_exists = frappe.db.exists("Receipt Allocation", {

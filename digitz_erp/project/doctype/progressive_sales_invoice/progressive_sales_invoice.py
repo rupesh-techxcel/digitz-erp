@@ -7,6 +7,8 @@ from frappe.utils import money_in_words
 from digitz_erp.api.settings_api import add_seconds_to_time
 from digitz_erp.api.settings_api import get_default_currency, get_gl_narration
 from frappe.utils import money_in_words
+from digitz_erp.api.project_api import update_progress_entries_for_project
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class ProgressiveSalesInvoice(Document):
 
@@ -20,6 +22,16 @@ class ProgressiveSalesInvoice(Document):
 
 	def on_submit(self):
 		self.do_postings_on_submit()
+  
+	def on_cancel(self):
+		update_progress_entries_for_project(self.project)
+		delete_gl_postings_for_cancel_doc_type('Progressive Sales Invoice',self.name)
+  
+	def on_trash(self):
+		update_progress_entries_for_project(self.project)
+  
+	def on_update(self):
+		update_progress_entries_for_project(self.project)
   
 	def before_validate(self):
 

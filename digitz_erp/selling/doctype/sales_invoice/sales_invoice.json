@@ -677,7 +677,8 @@
    "default": "0",
    "fieldname": "for_advance_payment",
    "fieldtype": "Check",
-   "label": "For Advance Payment"
+   "label": "For Advance Payment",
+   "read_only_depends_on": "eval:doc.project == undefined"
   },
   {
    "fieldname": "cost_center",
@@ -689,7 +690,8 @@
    "default": "0",
    "fieldname": "for_retention_recovery",
    "fieldtype": "Check",
-   "label": "For retention recovery"
+   "label": "For retention recovery",
+   "read_only_depends_on": "eval:doc.project == undefined"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -710,7 +712,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-11-21 11:23:40.723100",
+ "modified": "2024-11-23 13:32:05.819318",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

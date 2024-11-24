@@ -167,7 +167,7 @@ frappe.ui.form.on('Item', {
 	},	
 	item_type(frm)
 	{
-		if (frm.doc.item_type === "Fixed Asset" || frm.doc.item_type === "Labour") {
+		if (frm.doc.item_type === "Fixed Asset" || frm.doc.item_type === "Labour" || frm.doc.item_type === "Service" ) {
 			frm.set_value("maintain_stock", false);
 		}		
 	},	

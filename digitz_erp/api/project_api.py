@@ -66,7 +66,46 @@ def get_progress_entries_by_project(project_name):
     print(progress_entries)
     return progress_entries
 
+@frappe.whitelist()
+def update_progress_entries_for_project(project_name):
+    """
+    Fetch progress entries for the given project and update the project's child table.
+    """
+    # Fetch the project document
+    project_doc = frappe.get_doc("Project", project_name)
 
+    # Clear the existing child table
+    project_doc.set('project_stage_table', [])
+
+    # Fetch progress entries related to the project
+    progress_entries = frappe.get_all(
+        'Progress Entry',
+        filters={'project': project_name},
+        fields=['name', 'posting_date', 'total_completion_percentage', 'net_total']  # Include the fields you want
+    )
+
+    # Iterate through progress entries and fetch related details
+    for entry in progress_entries:
+        # Retrieve the related Proforma Invoice
+        proforma_invoice = frappe.get_value('Proforma Invoice', {'progress_entry': entry['name']}, 'name')
+
+        # Retrieve the related Progressive Sales Invoice
+        progressive_sales_invoice = frappe.get_value('Progressive Sales Invoice', {'progress_entry': entry['name']}, 'name')
+
+        # Add the progress entry to the child table
+        project_doc.append('project_stage_table', {
+            'progress_entry': entry['name'],
+            'proforma_invoice': proforma_invoice,
+            'sales_invoice': progressive_sales_invoice,
+            'posting_date': entry['posting_date'],
+            'percentage_of_completion': entry['total_completion_percentage'],
+            'net_total': entry['net_total']
+        })
+
+    # Save the updated project document
+    project_doc.save()
+
+    return {"status": "success", "message": "Project stage table updated successfully."}
 
 
 @frappe.whitelist()
@@ -153,35 +192,42 @@ def get_wip_closing_balance(project_name=None):
 
 @frappe.whitelist()
 def update_project_advance_amount(sales_order):
-    
-    # Note:This method calls while submitting or cancelling the receipt entry. Since the total_advance is calculating based on submitted only it updates the advance for cancellation as well as zero
+    """
+    Updates the advance amount in the linked project for a given sales order.
+    This is triggered while submitting or canceling a receipt entry.
+    """
     try:
-        
-        project_for_sales_order = frappe.db.exists("Project", {"sales_order": sales_order})
+        # Step 1: Check if a project exists for the given sales order
+        project_for_sales_order = frappe.db.get_value("Project", {"sales_order": sales_order}, "name")
+        if not project_for_sales_order:
+            frappe.msgprint(f"No project found for Sales Order {sales_order}.", alert=True)
+            return
         
         # Step 2: Check if the project has any progress entries
         progress_entry_exists = frappe.db.exists("Progress Entry", {"project": project_for_sales_order})
-        
         if progress_entry_exists:
             frappe.msgprint(f"Project {project_for_sales_order} already has progress entries. Advance amount will not be updated.", alert=True)
             return
         
-        # Step 3: Fetch total allocated amount from Receipt Allocation
-        # Need not take the sum since there may not be multiple advances for same sales order but still keep the same logic.
+        # Step 3: Fetch total allocated advance amount from Sales Invoices
+        advance_amount_query = frappe.db.sql("""
+            SELECT gross_total
+            FROM `tabSales Invoice`
+            WHERE for_advance_payment = 1 AND sales_order = %s AND docstatus = 1
+        """, (sales_order,), as_dict=True)
         
-        total_advance = frappe.db.sql("""
-            SELECT SUM(paying_amount) AS total_advance
-            FROM `tabReceipt Allocation`
-            WHERE reference_type = 'Sales Order' AND reference_name = %s and docstatus=1
-        """, (sales_order,), as_dict=True)[0].get('total_advance', 0) or 0
+        # Handle cases where no matching invoices are found
+        advance_amount = advance_amount_query[0].get("gross_total", 0) if advance_amount_query else 0
         
-        # Step 4: Update advance_amount in the project
-        frappe.db.set_value("Project", project_for_sales_order, "advance_amount", total_advance)
+        # Step 4: Update the advance amount in the project
+        frappe.db.set_value("Project", project_for_sales_order, "advance_amount", advance_amount)
         
         frappe.msgprint(f"Successfully updated advance amount for Project {project_for_sales_order}.", alert=True)
+
     except Exception as e:
+        # Log error and notify the user
         frappe.log_error(message=str(e), title="Error in update_project_advance_amount")
-        frappe.msgprint("An error occurred while updating the advance amount. Please check the error log.")
+        frappe.msgprint("An error occurred while updating the advance amount. Please check the error log.", alert=True)
 
 @frappe.whitelist()
 def get_sales_order_value_for_project(project_name):

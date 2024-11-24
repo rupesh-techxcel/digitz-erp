@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import nowdate, nowtime
 from frappe.utils import money_in_words
-
+from digitz_erp.api.project_api import update_progress_entries_for_project
 
 class ProgressEntry(Document):
     
@@ -24,12 +24,13 @@ class ProgressEntry(Document):
 			"percentage_of_completion":self.total_completion_percentage
 
 			# "child_table_int_field": 0,
-		})
+		})  
 
-		print(project)
 		project.save()
-		project.reload()
 
+		update_progress_entries_for_project()
+		project.reload()
+  
 	def on_trash(self):
 			
 		"""

@@ -80,18 +80,19 @@ class ReceiptEntry(Document):
 		self.validate_receipt_entry()
   
 	def validate_receipt_entry(frm):
+		pass
      
-		for row in frm.get("receipt_entry_details"):  # Loop through each row in the child table
-			if row.reference_type == "Sales Order":
-				# Fetch the account linked to this row
-				account = frappe.get_doc("Account", row.account)
-				if account.root_type != "Liability":
-					frappe.throw(_("Account selected must have 'root_type' as 'Liability' when 'reference_type' is 'Sales Order'."))
-			else:
-				# For other reference_types, check that the root_type is "Asset"
-				account = frappe.get_doc("Account", row.account)
-				if account.root_type != "Asset":
-					frappe.throw(_("Account selected must have 'root_type' as 'Asset' when 'reference_type' is not 'Sales Order'."))
+		# for row in frm.get("receipt_entry_details"):  # Loop through each row in the child table
+		# 	if row.reference_type == "Sales Order":
+		# 		# Fetch the account linked to this row
+		# 		account = frappe.get_doc("Account", row.account)
+		# 		# if account.root_type != "Liability":
+		# 			# frappe.throw(_("Account selected must have 'root_type' as 'Liability' when 'reference_type' is 'Sales Order'."))
+		# 	else:
+		# 		# For other reference_types, check that the root_type is "Asset"
+		# 		account = frappe.get_doc("Account", row.account)
+		# 		if account.root_type != "Asset":
+		# 			frappe.throw(_("Account selected must have 'root_type' as 'Asset' when 'reference_type' is not 'Sales Order'."))
 
 
 
@@ -105,7 +106,7 @@ class ReceiptEntry(Document):
 	
 	def validate_multiple_sales_orders(self):
  
-		sales_order_count = sum(1 for row in doc.receipt_entry_details if row.reference_type == "Sales Order")
+		sales_order_count = sum(1 for row in self.receipt_entry_details if row.reference_type == "Sales Order")
 
 		# If more than one row has reference_type = 'Sales Order', raise an error
 		if sales_order_count > 1:
@@ -300,10 +301,6 @@ class ReceiptEntry(Document):
 
 		self.do_postings_on_submit()
   
-		# Updating the project advances only when submitting, But the entries saved in draft mode is excluded for another entries
-  
-		self.update_project_advances()
-
 	def do_postings_on_submit(self):
 
 		self.insert_gl_records()
@@ -428,19 +425,6 @@ class ReceiptEntry(Document):
 
 					frappe.db.set_value("Credit Note", allocation.reference_name, {'paid_amount': invoice_total})
     
-	def update_project_advances(self):
-		
-		allocations = self.receipt_allocation
-
-		if(allocations):
-			for allocation in allocations:
-
-				if allocation.reference_type != "Sales Order":
-					continue
-
-				if(allocation.paying_amount>0):
-					update_project_advance_amount(allocation.reference_name)
-
 	def insert_gl_records(self):
 
 		#print("From insert gl records")
@@ -607,6 +591,20 @@ class ReceiptEntry(Document):
 
 						total_paid_Amount = previous_paid_amount
 						frappe.db.set_value("Sales Return", allocation.reference_name, {'paid_amount': total_paid_Amount})
+      
+				if allocation.reference_type == "Sales Order":
+					if(allocation.paying_amount>0):
+						receipt_no = self.name
+						if self.is_new():
+							receipt_no = ""
+
+						# previous_paid_amount = 0
+						# allocations_exists = get_allocations_for_sales_invoice(allocation.reference_name, receipt_no)
+						# for existing_allocation in allocations_exists:
+						# 	previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
+
+						total_paid_Amount = previous_paid_amount
+						frappe.db.set_value("Sales Order", allocation.reference_name, {'paid_amount': 0})
 
 @frappe.whitelist()
 def get_gl_postings(receipt_entry):
@@ -624,9 +622,6 @@ def get_gl_postings(receipt_entry):
         })
 
     return formatted_gl_postings
-
-
-
 
 @frappe.whitelist()
 def get_amount(receipt_entry_id):

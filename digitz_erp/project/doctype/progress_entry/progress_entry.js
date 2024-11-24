@@ -130,7 +130,7 @@ frappe.ui.form.on("Progress Entry", {
             frm.set_value("gross_total", "");
             frm.set_value("tax_total", "");
             frm.set_value("net_total", "");
-            frm.set_value("total_discount_in_line_items", "");
+            // frm.set_value("total_discount_in_line_items", "");
             frm.set_value("additional_discount", "");
             frm.set_value("round_off", "");
             frm.set_value("rounded_total", "");
@@ -413,7 +413,7 @@ function update_progress(frm) {
 
     // Calculate weighted completion only if total_completion is greater than 0
     if (item.total_completion > 0) {
-      total_weighted_completion += (item.total_completion / 100) * item.item_net_amount; // Convert percentage to actual amount
+      total_weighted_completion += item.item_net_amount * (item.total_completion / 100); // Convert percentage to actual amount
     }
   }
 
@@ -464,15 +464,8 @@ function update_total_amounts(frm){
   let net_total_before_deductions = 0;
   frm.doc.progress_entry_items.forEach(element => {
     gross_total += element.gross_amount;
-    tax_total += element.tax_amount;
-    net_total_before_deductions += element.net_amount;
-
   });
 
-  frm.set_value('total_before_deductions', net_total_before_deductions)
-
-  console.log("net_total_before_deductions",net_total_before_deductions)
- 
 
   let previous_completion_percentage = frm.doc.previous_completion_percentage;
 
@@ -506,14 +499,22 @@ function update_total_amounts(frm){
 
   if(frm.doc.retention_percentage > 0)
   {
-    retention_amount = (net_total_before_deductions  * frm.doc.retention_percentage) /100
+    retention_amount = (gross_total  * frm.doc.retention_percentage) /100
   }
 
-  console.log("advance_amount",advance_amount)
+  let taxable_amount  = gross_total - advance_amount - retention_amount
+
   frm.set_value("deduction_against_advance", advance_amount)
   frm.set_value("deduction_for_retention", retention_amount)
+  frm.set_value('taxable_amount',taxable_amount)  
 
-  net_total = net_total_before_deductions - advance_amount - retention_amount
+  if(!frm.doc.tax_excluded && frm.doc.tax_rate>0)
+  {
+    console.log("taxable_amount",taxable_amount)
+    tax_total = taxable_amount * frm.doc.tax_rate / 100
+  }
+
+  net_total = taxable_amount - tax_total
 
   frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
@@ -544,7 +545,7 @@ function update_total_amounts(frm){
    update_total_big_display(frm)  
 
   });
-  
+  0
 }
 
 function update_total_big_display(frm) {
@@ -565,8 +566,42 @@ function update_total_big_display(frm) {
 
 function get_default_company_and_warehouse(frm) {
   frappe.call({
-    method: 'frappe.client.get_value',
-    args: { doctype: 'Global Settings', fieldname: 'default_company' },
-    callback: r => frm.set_value('company', r.message.default_company)
+      method: 'frappe.client.get_value',
+      args: { 
+          doctype: 'Global Settings', 
+          fieldname: 'default_company' 
+      },
+      callback: (r) => {
+          if (r && r.message) {
+              frm.set_value('company', r.message.default_company);
+
+              // Ensure frm.company is set before fetching tax details
+              if (frm.doc.company) {
+                  frappe.db.get_value(
+                      "Company", 
+                      frm.doc.company, 
+                      ["tax_excluded", "tax"]
+                  ).then((res) => {
+                      if (res && res.message) {
+                          frm.set_value('tax_excluded', res.message.tax_excluded);
+                          frm.set_value('tax', res.message.tax);
+
+                          // Check if tax_excluded is false, then fetch tax_rate from Tax doctype
+                          if (!res.message.tax_excluded) {
+                              frappe.db.get_value(
+                                  "Tax", 
+                                  res.message.tax, 
+                                  "tax_rate"
+                              ).then((taxRes) => {
+                                  if (taxRes && taxRes.message) {
+                                      frm.set_value('tax_rate', taxRes.message.tax_rate);
+                                  }
+                              });
+                          }
+                      }
+                  });
+              }
+          }
+      }
   });
 }

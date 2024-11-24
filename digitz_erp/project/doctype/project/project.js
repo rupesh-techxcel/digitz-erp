@@ -22,12 +22,12 @@ frappe.ui.form.on("Project", {
                 
                 });            
                   
-                refresh_wip(frm)   
-                refresh_so_value(frm)  
-                refresh_billed_amount(frm)
+                // refresh_wip(frm)   
+                // refresh_so_value(frm)  
+                // refresh_billed_amount(frm)
             }
 
-            refresh_progress_entries(frm); 
+            // refresh_progress_entries(frm); 
     },
 
     setup(frm) {
@@ -53,7 +53,7 @@ frappe.ui.form.on("Project", {
 
         let percentage = parseFloat(frm.doc.retention_percentage);
         if (isNaN(percentage) || percentage < 0) {
-            frm.set_value("retention_amt", 0);
+            frm.set_value("retention_amount", 0);
             frm.set_value("amount_after_retention", 0);
             frappe.msgprint('Please enter a valid retention percentage.');
             return;
@@ -90,7 +90,7 @@ frappe.ui.form.on("Project", {
                 let net_total = r.message.net_total;
                 let amt = (net_total * parseFloat(frm.doc.retention_percentage)) / 100;
                 frm.set_value("project_amount", net_total);
-                frm.set_value("retention_amt", amt);
+                frm.set_value("retention_amount", amt);
                 frm.set_value("amount_after_retention", net_total - amt);
             }
         });
@@ -172,38 +172,39 @@ frappe.ui.form.on("Project", {
     }
 });
 
-function refresh_progress_entries(frm) {
-    frappe.call({
-        method: 'digitz_erp.api.project_api.get_progress_entries_by_project',
-        args: { project_name: frm.doc.name },
-        callback: function(response) {
-            if (response.message) {
-                let total_completion_percentage = 0;
-                let progress_count = 0;
+// function refresh_progress_entries(frm) {
+//     frappe.call({
+//         method: 'digitz_erp.api.project_api.get_progress_entries_by_project',
+//         args: { project_name: frm.doc.name },
+//         callback: function(response) {
+//             if (response.message) {
+//                 let total_completion_percentage = 0;
+//                 let progress_count = 0;
 
-                frm.clear_table('project_stage_table');
-                response.message.forEach(entry => {
-                    let row = frm.add_child('project_stage_table');
-                    row.progress_entry = entry.name;
-                    row.proforma_invoice = entry.proforma_invoice;
-                    row.sales_invoice = entry.progressive_sales_invoice;
-                    row.posting_date = entry.posting_date;
-                    row.percentage_of_completion = entry.total_completion_percentage;
-                    row.net_total = entry.net_total;
+//                 frm.clear_table('project_stage_table');
+//                 response.message.forEach(entry => {
+//                     let row = frm.add_child('project_stage_table');
+//                     row.progress_entry = entry.name;
+//                     row.proforma_invoice = entry.proforma_invoice;
+//                     row.sales_invoice = entry.progressive_sales_invoice;
+//                     row.posting_date = entry.posting_date;
+//                     row.percentage_of_completion = entry.total_completion_percentage;
+//                     row.net_total = entry.net_total;
 
-                    console.log("row.percentage_of_completion")
-                    console.log(row.percentage_of_completion)
+//                     console.log("row.percentage_of_completion")
+//                     console.log(row.percentage_of_completion)
 
-                    total_completion_percentage += row.percentage_of_completion;
-                    progress_count++;
-                });
+//                     total_completion_percentage += row.percentage_of_completion;
+//                     progress_count++;
+//                 });
                 
-                frm.refresh_field('project_stage_table');
+//                 frm.refresh_field('project_stage_table');
+//                 frm.save()
                 
-            }
-        }
-    });
-}
+//             }
+//         }
+//     });
+// }
 
 function refresh_wip(frm)
 {
@@ -215,6 +216,7 @@ function refresh_wip(frm)
         callback: function (r) {
             if (r.message) {
                 frm.set_value('work_in_progress_value', r.message);
+                frm.save()
             }
         }
     });
@@ -230,6 +232,7 @@ function refresh_so_value(frm)
         callback: function (r) {
             if (r.message) {
                 frm.set_value('sales_order_value', r.message);
+                frm.save()
             }
         }
     });
@@ -247,6 +250,7 @@ function refresh_billed_amount(frm)
         callback: function (r) {
             if (r.message) {
                 frm.set_value('total_billed_amount', r.message);
+                frm.save()
             }
         }
     });

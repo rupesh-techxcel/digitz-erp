@@ -51,6 +51,7 @@
   "default_product_expense_account",
   "retention_receivable_account",
   "project_advance_received_account",
+  "default_advance_billed_but_not_received_account",
   "column_break_jltm",
   "default_payable_account",
   "default_receivable_account",
@@ -521,11 +522,18 @@
    "label": "Project Advance Received Account",
    "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"root_type\",\"=\",\"Liability\"]]",
    "options": "Account"
+  },
+  {
+   "fieldname": "default_advance_billed_but_not_received_account",
+   "fieldtype": "Link",
+   "label": "Default Advance Billed But Not Received Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"account_type\",\"=\",\"Advance Billed But Not Received\"]]",
+   "options": "Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-18 20:59:25.017933",
+ "modified": "2024-11-23 16:55:48.951884",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

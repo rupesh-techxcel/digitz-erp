@@ -2,12 +2,14 @@ import frappe
 from frappe.utils import get_datetime
 
 @frappe.whitelist()
-def get_customer_pending_documents(customer, reference_type, receipt_no,only_unpaid=False):
+def get_customer_pending_documents(customer, reference_type, receipt_no,only_unpaid=False, exclude_advance_invoices=False):
     
     print("reference type")
     print(reference_type)
     
     filter_paid_condition = "AND paid_amount = 0" if only_unpaid else ""
+    
+    exclude_advance_invoices_condition = "AND (for_advance_payment == 0 OR for_advance_payment IS NULL)" if exclude_advance_invoices else "" if exclude_advance_invoices else ""
 
     if reference_type == 'Sales Invoice':
 
@@ -32,7 +34,8 @@ def get_customer_pending_documents(customer, reference_type, receipt_no,only_unp
                 AND credit_sale = 1
                 AND rounded_total > paid_amount
                 {1}
-        """.format(customer, filter_paid_condition)
+                {2}
+        """.format(customer, filter_paid_condition, exclude_advance_invoices_condition)
 
         # Additional Query for Receipt Allocation (if receipt_no is not None)
         receipt_allocation_values = []

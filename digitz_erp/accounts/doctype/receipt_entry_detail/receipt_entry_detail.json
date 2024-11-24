@@ -36,6 +36,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
+   "length": 140,
    "options": "Customer"
   },
   {
@@ -116,7 +117,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-20 15:08:55.486867",
+ "modified": "2024-11-24 12:02:58.907913",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry Detail",

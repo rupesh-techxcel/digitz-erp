@@ -29,6 +29,7 @@ def insert_accounts():
     {"account_name": "Inventory", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Accounts Receivables", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Retention Receivables", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+    {"account_name": "Advance Billed But Not Received", "is_group": 0, "parent_account": "Current Assets", "account_type": "Advance Billed But Not Received", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Fixed Assets", "is_group": 1, "parent_account": "Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Investments", "is_group": 1, "parent_account": "Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
 
@@ -137,6 +138,7 @@ def create_demo_company():
             "use_percentage_for_overheads_in_estimate": 1,
             "use_generic_items_for_material_and_labour": 1,
             "default_advance_received_account": "Customer Advances",
+            "default_advance_billed_but_not_received_account": "Advance Billed But Not Received"
             "default_advance_paid_account": "",
             "default_work_in_progress_account": "Work In Progress",
             "supplier_terms": "",

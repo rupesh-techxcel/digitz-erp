@@ -104,10 +104,18 @@ class SalesInvoice(Document):
                     _("Item '{0}' is not part of the Sales Order '{1}'. If this is an for advance payment check the 'for advnce payment' option to proceed further.")
                     .format(item.item, self.sales_order)
                 )
+    def validate_for_advance(self):
+        
+        if self.for_advance_payment:
+            progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project})
+            if progress_entry_exists:
+                frappe.throw(f"Project '{self.project}' already has progress entries. Advance amount will not be updated.", alert=True)
+                return
 
     def validate(self):
         self.validate_item()
         self.validate_for_sales_order()
+        self.validate_for_advance()
         # self.validate_item_valuation_rates()
 
     def on_update(self):
@@ -120,6 +128,12 @@ class SalesInvoice(Document):
 
         self.update_customer_last_transaction_date()
         self.update_receipt_schedules()
+        self.update_project_advance_amount()        
+        
+    def update_project_advance_amount(self,for_cancel=False):
+        if self.for_advance_payment:
+            frappe.db.set_value("Project", self.project, "advance_amount", self.gross_total if not for_cancel else 0)
+            frappe.msgprint("Advance amount updated in the project", alert=1)
 
     def on_submit(self):
 
@@ -133,6 +147,7 @@ class SalesInvoice(Document):
             # frappe.enqueue(self.do_postings_on_submit, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
         self.do_postings_on_submit()
+        
 
         # if(self.auto_generate_delivery_note):
         #     #print("submitting DO from sales_invoice")
@@ -150,6 +165,7 @@ class SalesInvoice(Document):
 
         update_posting_status(self.doctype, self.name, 'posting_status','Completed')
         self.update_customer_last_transaction_date()
+        
 
     def update_customer_last_transaction_date(self):
 
@@ -262,6 +278,7 @@ class SalesInvoice(Document):
             update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
             check_and_update_sales_order_status(self.name, "Sales Invoice")
         self.cancel_sales_invoice()
+        self.update_project_advance_amount(for_cancel=True)
 
     def on_trash(self):
 
@@ -270,6 +287,8 @@ class SalesInvoice(Document):
         if not self.tab_sales:
             update_sales_order_quantities_on_update(self,forDeleteOrCancel=True)
             check_and_update_sales_order_status(self.name, "Sales Invoice")
+        
+        self.update_project_advance_amount(for_cancel=True)
 
 
     def cancel_sales_invoice(self):
@@ -438,9 +457,13 @@ class SalesInvoice(Document):
     def insert_gl_records(self):
         
         if self.for_retention_recovery:
-           self.insert_gl_records_for_retention_recovery() 
-           return
+            self.insert_gl_records_for_retention_recovery() 
+            return
         
+        if self.for_advance_payment:
+            self.insert_gl_records_for_advance()
+            return
+
         remarks = self.get_narration()
 
         default_company = frappe.db.get_single_value(
@@ -584,7 +607,8 @@ class SalesInvoice(Document):
             "Global Settings", "default_company")
 
         default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
-                                                                            'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account','retention_receivable_account'], as_dict=1)
+                                                                            'default_income_account', 'cost_of_goods_sold_account', 
+                                                                            'round_off_account', 'tax_account','retention_receivable_account','default_advance_billed_but_received_account'], as_dict=1)
         
         print("default_accounts")
         print(default_accounts)
@@ -617,7 +641,7 @@ class SalesInvoice(Document):
         gl_doc.posting_date = self.posting_date
         gl_doc.posting_time = self.posting_time
         gl_doc.account = default_accounts.retention_receivable_account
-        gl_doc.credit_amount = self.rounded_total
+        gl_doc.credit_amount = self.net_total - self.tax_total
         gl_doc.against_account = default_accounts.default_receivable_account
         gl_doc.remarks = remarks
         gl_doc.project = self.project
@@ -638,6 +662,100 @@ class SalesInvoice(Document):
             gl_doc.account = default_accounts.tax_account
             gl_doc.credit_amount = self.tax_total
             gl_doc.against_account = default_accounts.default_receivable_account
+            gl_doc.remarks = remarks
+            gl_doc.project = self.project
+            gl_doc.cost_center = self.cost_center
+            gl_doc.insert()
+            idx +=1
+
+        # Round Off
+
+        if self.round_off != 0.00:
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.round_off_account
+
+            if self.rounded_total > self.net_total:
+                gl_doc.credit_amount = abs(self.round_off)
+            else:
+                gl_doc.debit_amount = abs(self.round_off)
+            
+            gl_doc.remarks = remarks
+            gl_doc.project = self.project
+            gl_doc.cost_center = self.cost_center
+            gl_doc.insert()
+            idx +=1
+
+        update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
+    
+    def insert_gl_records_for_advance(self):
+        
+        remarks = self.get_narration()
+
+        default_company = frappe.db.get_single_value(
+            "Global Settings", "default_company")
+
+        default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+                                                                            'default_income_account', 'cost_of_goods_sold_account',
+                                                                            'round_off_account', 'tax_account','retention_receivable_account',
+                                                                            'project_advance_received_account','default_advance_billed_but_not_received_account'], as_dict=1)
+        
+        print("default_accounts")
+        print(default_accounts)
+
+        idx = 1
+
+        # Trade Receivable - Debit
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.default_advance_billed_but_not_received_account 
+        gl_doc.debit_amount = self.rounded_total
+        gl_doc.party_type = "Customer"
+        gl_doc.party = self.customer
+        gl_doc.against_account = default_accounts.project_advance_received_account
+        gl_doc.remarks = remarks
+        gl_doc.project = self.project
+        gl_doc.cost_center = self.cost_center
+        gl_doc.insert()
+        idx +=1
+
+        # Retention Receivable Account - Credit
+        gl_doc = frappe.new_doc('GL Posting')
+        gl_doc.voucher_type = "Sales Invoice"
+        gl_doc.voucher_no = self.name
+        gl_doc.idx = idx
+        gl_doc.posting_date = self.posting_date
+        gl_doc.posting_time = self.posting_time
+        gl_doc.account = default_accounts.project_advance_received_account
+        gl_doc.credit_amount = self.net_total - self.tax_total
+        gl_doc.against_account = default_accounts.default_advance_billed_but_not_received_account
+        gl_doc.remarks = remarks
+        gl_doc.project = self.project
+        gl_doc.cost_center = self.cost_center
+        gl_doc.insert()
+        idx +=1
+
+        if self.tax_total >0:
+
+            # Tax - Credit
+
+            gl_doc = frappe.new_doc('GL Posting')
+            gl_doc.voucher_type = "Sales Invoice"
+            gl_doc.voucher_no = self.name
+            gl_doc.idx = idx
+            gl_doc.posting_date = self.posting_date
+            gl_doc.posting_time = self.posting_time
+            gl_doc.account = default_accounts.tax_account
+            gl_doc.credit_amount = self.tax_total
+            gl_doc.against_account = default_accounts.default_advance_billed_but_not_received_account
             gl_doc.remarks = remarks
             gl_doc.project = self.project
             gl_doc.cost_center = self.cost_center

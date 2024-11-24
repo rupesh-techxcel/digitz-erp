@@ -36,9 +36,12 @@
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
+  "salesman",
   "column_break_4",
   "rate_includes_tax",
-  "salesman",
+  "tax_excluded",
+  "tax",
+  "tax_rate",
   "default_cost_center",
   "accounts_section",
   "credit_sale",
@@ -61,15 +64,13 @@
   "section_break_hgqy",
   "column_break_ejhs",
   "gross_total",
+  "deduction_against_advance",
   "deduction_for_retention",
   "retention_percentage",
+  "column_break_33",
   "taxable_amount",
   "tax_total",
-  "column_break_33",
-  "total_before_deductions",
-  "total_discount_in_line_items",
   "additional_discount",
-  "deduction_against_advance",
   "column_break_xkzu",
   "net_total",
   "round_off",
@@ -305,14 +306,7 @@
   },
   {
    "fieldname": "column_break_33",
-   "fieldtype": "Column Break",
-   "label": "Deductions"
-  },
-  {
-   "fieldname": "total_discount_in_line_items",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items",
-   "precision": "2"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "additional_discount",
@@ -428,7 +422,7 @@
   {
    "fieldname": "section_break_hgqy",
    "fieldtype": "Section Break",
-   "label": "Statistics"
+   "label": "Totals"
   },
   {
    "fieldname": "column_break_xtqn",
@@ -539,14 +533,26 @@
    "read_only": 1
   },
   {
-   "fieldname": "total_before_deductions",
-   "fieldtype": "Currency",
-   "label": "Total Before Deductions"
-  },
-  {
    "fieldname": "taxable_amount",
    "fieldtype": "Currency",
    "label": "Taxable Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Percent",
+   "label": "Tax Rate"
   }
  ],
  "in_create": 1,
@@ -561,7 +567,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-23 11:24:25.856111",
+ "modified": "2024-11-24 09:09:28.847016",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

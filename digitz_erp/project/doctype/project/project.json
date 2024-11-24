@@ -55,7 +55,8 @@
   "labour_cost",
   "overheads",
   "column_break_vusx",
-  "total_billed_amount"
+  "total_billed_amount",
+  "amended_from"
  ],
  "fields": [
   {
@@ -123,7 +124,7 @@
   {
    "fieldname": "advance_entry",
    "fieldtype": "Data",
-   "label": "Advance Entry",
+   "label": "Advance Entry (Excl. Tax)",
    "read_only": 1
   },
   {
@@ -141,6 +142,7 @@
    "label": "Progress Details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "project_stage_table",
    "fieldtype": "Table",
    "label": "Project Stage",
@@ -281,6 +283,7 @@
    "label": "Statistics"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "sales_order_value",
    "fieldtype": "Currency",
    "label": "Sales Order Value"
@@ -318,6 +321,7 @@
    "label": "Overheads"
   },
   {
+   "allow_on_submit": 1,
    "description": "Record a journal entry to clear the work in progress after the project's invoicing is completed.",
    "fieldname": "work_in_progress_value",
    "fieldtype": "Currency",
@@ -325,6 +329,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "total_billed_amount",
    "fieldtype": "Currency",
    "label": "Total Billed Amount"
@@ -348,9 +353,20 @@
    "label": "Amount After Retention",
    "non_negative": 1,
    "precision": "2"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Project",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [
   {
    "link_doctype": "Progress Entry",
@@ -369,7 +385,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-17 18:52:27.412362",
+ "modified": "2024-11-24 12:26:24.387121",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

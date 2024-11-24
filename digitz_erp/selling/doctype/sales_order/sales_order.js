@@ -14,7 +14,13 @@ frappe.ui.form.on('Sales Order', {
                     sales_order: frm.doc.name
                 },
                 callback: function(r) {
+
+					console.log("check_project_exists",r.message)
+
                     if (!r.message) {
+						
+						
+
                         frm.add_custom_button(__('Create Project'), function() {
                             frappe.call({
                                 method: 'digitz_erp.api.sales_order_api.create_project_from_sales_order',

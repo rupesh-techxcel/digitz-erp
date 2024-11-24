@@ -253,17 +253,17 @@ receipt_type: function(frm, cdt, cdn) {
 					frappe.db.get_value(
 						"Company",
 						response.message.default_company,
-						["default_receivable_account", "project_advance_received_account"]
+						["default_receivable_account", "default_advance_billed_but_not_received_account"]
 					).then((res) => {
 
 						console.log("res",res)
 						
 						if (res && res.message) {
 							var default_receivable_account = res.message.default_receivable_account;
-							var project_advance_received_account = res.message.project_advance_received_account;
+							var default_advance_billed_but_not_received_account = res.message.default_advance_billed_but_not_received_account;
 
 							if (row.reference_type === "Sales Order") {
-								frappe.model.set_value(cdt, cdn, 'account', project_advance_received_account);
+								frappe.model.set_value(cdt, cdn, 'account', default_advance_billed_but_not_received_account);
 							} else {
 								frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
 							}
@@ -309,7 +309,6 @@ receipt_entry_details_remove: function(frm,cdt,cdn)
 },
 
 customer: function(frm,cdt,cdn){
-
 
 
 },
@@ -387,12 +386,15 @@ allocations: function(frm, cdt, cdn)
 	console.log("selected_reference_type")
 	console.log(selected_reference_type)
 
+	// Advances excluded for 'Sales Invoice's
+
 	frappe.call({
 		method: client_method,
 		args: {
 			customer: selected_customer,
 			reference_type: selected_reference_type,
-			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name
+			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name,
+			exclude_advance_invoices:true
 		},
 		callback:(r) => {
 
@@ -730,50 +732,59 @@ let general_ledgers = function (frm) {
     frappe.call({
         method: "digitz_erp.api.accounts_api.get_gl_postings",
         args: {
-			voucher:frm.doc.doctype,
+            voucher: frm.doc.doctype,
             voucher_no: frm.doc.name
         },
         callback: function (response) {
-            let gl_postings = response.message;
-            
-			// Generate HTML content for the popup
-			let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
-			'<table class="table table-bordered" style="width: 100%;">' +
-			'<thead>' +
-			'<tr>' +
-			'<th style="width: 20%;">Account</th>' +
-			'<th style="width: 15%;">Debit Amount</th>' +
-			'<th style="width: 15%;">Credit Amount</th>' +
-			'<th style="width: 25%;">Against Account</th>' +
-			'<th style="width: 25%;">Remarks</th>' +
-			'<th style="width: 25%;">Project</th>' +
-			'<th style="width: 25%;">Cost Center</th>' +
-			'<th style="width: 25%;">Party</th>' +
-			'</tr>' +
-			'</thead>' +
-			'<tbody>';
+            let gl_postings = response.message.gl_postings;
+            let totalDebit = parseFloat(response.message.total_debit).toFixed(2);
+            let totalCredit = parseFloat(response.message.total_credit).toFixed(2);
 
-			gl_postings.forEach(function (gl_posting) {
-			// Handling null values for remarks
-			let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+            // Generate HTML content for the popup
+            let htmlContent = '<div style="max-height: 680px; overflow-y: auto;">' +
+                              '<table class="table table-bordered" style="width: 100%;">' +
+                              '<thead>' +
+                              '<tr>' +
+                              '<th style="width: 15%;">Account</th>' +
+							  '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 10%;">Debit Amount</th>' +
+                              '<th style="width: 10%;">Credit Amount</th>' +
+							  '<th style="width: 10%;">Party</th>' +
+                              '<th style="width: 10%;">Against Account</th>' +                              
+                              '<th style="width: 10%;">Project</th>' +
+                              '<th style="width: 10%;">Cost Center</th>' +                              
+                              '</tr>' +
+                              '</thead>' +
+                              '<tbody>';
 
-			// Ensure debit_amount and credit_amount are treated as floats and format them
-			let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
-			let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+            gl_postings.forEach(function (gl_posting) {
+                let remarksText = gl_posting.remarks || '';
+                let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+                let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
 
-			htmlContent += '<tr>' +
-							`<td>${gl_posting.account}</td>` +
-							`<td style="text-align: right;">${debitAmount}</td>` +
-							`<td style="text-align: right;">${creditAmount}</td>` +
-							`<td>${gl_posting.against_account}</td>` +
-							`<td>${remarksText}</td>` +
-							`<td>${gl_posting.project}</td>` +
-							`<td>${gl_posting.cost_center}</td>` +
-							`<td>${gl_posting.party}</td>` +
-							'</tr>';
-			});
+                htmlContent += '<tr>' +
+                               `<td>${gl_posting.account}</td>` +
+							   `<td>${remarksText}</td>` +
+                               `<td style="text-align: right;">${debitAmount}</td>` +
+                               `<td style="text-align: right;">${creditAmount}</td>` +
+							   `<td>${gl_posting.party}</td>` +
+                               `<td>${gl_posting.against_account}</td>` +                               
+                               `<td>${gl_posting.project}</td>` +
+                               `<td>${gl_posting.cost_center}</td>` +
+                               
+                               '</tr>';
+            });
 
-			htmlContent += '</tbody></table></div>';
+            // Add totals row
+            htmlContent += '<tr>' +
+                           '<td style="font-weight: bold;">Total</td>' +
+						   '<td></td>'+
+                           `<td style="text-align: right; font-weight: bold;">${totalDebit}</td>` +
+                           `<td style="text-align: right; font-weight: bold;">${totalCredit}</td>` +
+                           '<td colspan="5"></td>' +
+                           '</tr>';
+
+            htmlContent += '</tbody></table></div>';
 
             // Create and show the dialog
             let d = new frappe.ui.Dialog({
@@ -790,7 +801,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); 
 
             d.show();
         }
