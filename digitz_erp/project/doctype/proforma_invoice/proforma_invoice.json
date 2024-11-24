@@ -63,19 +63,17 @@
   "gross_total",
   "retention_percentage",
   "deduction_for_retention",
+  "deduction_against_advance",
+  "column_break_33",
   "taxable_amount",
   "tax_total",
-  "column_break_33",
-  "total_discount_in_line_items",
-  "total_before_deductions",
   "additional_discount",
-  "deduction_against_advance",
   "column_break_xkzu",
   "net_total",
   "round_off",
   "rounded_total",
-  "total_completion_percentage",
   "previous_completion_percentage",
+  "total_completion_percentage",
   "column_break_mtin",
   "total_big",
   "in_words",
@@ -362,7 +360,7 @@
   {
    "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
-   "label": "Total Completion Percentage",
+   "label": "Project Completion Percentage",
    "precision": "0"
   },
   {
@@ -396,11 +394,6 @@
   {
    "fieldname": "column_break_33",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_discount_in_line_items",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
   },
   {
    "fieldname": "additional_discount",
@@ -561,11 +554,6 @@
    "label": "Previous Completion Percentage"
   },
   {
-   "fieldname": "total_before_deductions",
-   "fieldtype": "Currency",
-   "label": "Total Before Deductions"
-  },
-  {
    "fieldname": "deduction_for_retention",
    "fieldtype": "Currency",
    "label": "Deduction For Retention"
@@ -598,7 +586,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-23 11:28:07.071644",
+ "modified": "2024-11-24 20:34:57.292619",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

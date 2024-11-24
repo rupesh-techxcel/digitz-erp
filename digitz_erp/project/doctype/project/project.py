@@ -11,12 +11,14 @@ class Project(Document):
     def before_save(self):
         net_total = frappe.db.get_value("Sales Order", self.sales_order, "net_total")
         self.project_amount = net_total        
-        self.update_advance_amount()
-    
+            
     def on_update(self):
              
-        update_project_advance_amount(self.sales_order)        
-    
+        update_project_advance_amount(self.sales_order)   
+        progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project_name})
+        if not progress_entry_exists:     
+            frappe.msgprint("Submit the document to create the first 'Progress Entry' for the project.", alert=True)
+
     def advance_entry_exists(self):
         allocation_exists = frappe.db.exists("Receipt Allocation", {
         "reference_type": "Sales Order",

@@ -14,21 +14,20 @@ class ProgressEntry(Document):
 
 	def validate(self):
 		if(self.previous_progress_entry == self.name):
-			frappe.throw("Choose a valid Progress Entry !")
-
-	def after_insert(self):
+			frappe.throw("Choose a valid Progress Entry !")   
+   
+	def on_update(self):
 		project = frappe.get_doc("Project", self.project)
-		project.append("project_stage_table", {
-			"progress_entry": self.name,
-			"posting_date": self.posting_date,
-			"percentage_of_completion":self.total_completion_percentage
+		# project.append("project_stage_table", {
+		# 	"progress_entry": self.name,
+		# 	"posting_date": self.posting_date,
+		# 	"percentage_of_completion":self.total_completion_percentage
+		# 	# "child_table_int_field": 0,
+		# })  
 
-			# "child_table_int_field": 0,
-		})  
+		# project.save()
 
-		project.save()
-
-		update_progress_entries_for_project()
+		update_progress_entries_for_project(project.name)
 		project.reload()
   
 	def on_trash(self):

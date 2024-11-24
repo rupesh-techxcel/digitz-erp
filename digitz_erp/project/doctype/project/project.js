@@ -11,7 +11,7 @@ frappe.ui.form.on("Project", {
     },   
 
     refresh(frm) {
-        if(!frm.is_new())
+        if(!frm.is_new() && frm.doc.docstatus==1)
             {
                 frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
                 

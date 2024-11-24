@@ -61,20 +61,19 @@
   "progress_entry_items",
   "section_break_25",
   "gross_total",
-  "tax_total",
-  "column_break_33",
-  "total_before_deductions",
-  "total_discount_in_line_items",
-  "additional_discount",
-  "retention_percentage",
   "deduction_for_retention",
+  "retention_percentage",
   "deduction_against_advance",
+  "column_break_33",
+  "tax_total",
+  "additional_discount",
+  "taxable_amount",
   "column_break_xkzu",
   "net_total",
   "round_off",
   "rounded_total",
-  "total_completion_percentage",
   "previous_completion_percentage",
+  "total_completion_percentage",
   "column_break_xfiy",
   "total_big",
   "in_words",
@@ -349,11 +348,6 @@
    "label": "Deductions"
   },
   {
-   "fieldname": "total_discount_in_line_items",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
-  },
-  {
    "fieldname": "additional_discount",
    "fieldtype": "Currency",
    "label": "Additional Discount"
@@ -594,14 +588,14 @@
    "label": "Sales Order Date"
   },
   {
-   "fieldname": "total_before_deductions",
-   "fieldtype": "Currency",
-   "label": "Total Before Deductions"
-  },
-  {
    "fieldname": "retention_percentage",
    "fieldtype": "Percent",
    "label": "Retention Percentage"
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "label": "Taxable Amount"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -616,7 +610,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-23 11:23:11.072094",
+ "modified": "2024-11-24 20:39:04.297098",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

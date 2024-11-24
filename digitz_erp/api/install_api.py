@@ -2,19 +2,22 @@ import frappe
 
 @frappe.whitelist()
 def after_install():
+    # Do not change the order of the following methods which may lead to reference_error
     insert_accounts()
     create_default_warehouse()
     create_payment_modes()
-    create_demo_company()   
-    create_budget_reference_types()
+    create_units()
+    create_tax()    
     create_default_item_group()
+    create_demo_company()   
+    create_default_items()    
+    create_budget_reference_types()    
     create_default_supplier_group()
-    create_default_customer_group()    
-    create_tax()
-    create_default_base_unit()
+    create_default_customer_group()
     create_default_price_lists()
     populate_area_data()
-    create_shift_payment_units()
+    create_shift_payment_units()   
+    
 
 def insert_accounts():
     accounts = [
@@ -138,7 +141,7 @@ def create_demo_company():
             "use_percentage_for_overheads_in_estimate": 1,
             "use_generic_items_for_material_and_labour": 1,
             "default_advance_received_account": "Customer Advances",
-            "default_advance_billed_but_not_received_account": "Advance Billed But Not Received"
+            "default_advance_billed_but_not_received_account": "Advance Billed But Not Received",
             "default_advance_paid_account": "",
             "default_work_in_progress_account": "Work In Progress",
             "supplier_terms": "",
@@ -324,23 +327,28 @@ def create_tax():
         frappe.db.commit()
         print(f"Tax '{tax_name}' created successfully.")    
 
-def create_default_base_unit():
-    
-    unit_name = "PCS"
+def create_units():
 
-    # Check if the payment mode is already set to 'Cash' and the account is not 'Main Cash'
+    """
+    Create default units if they do not exist.
+    """
+    default_units = ["PCS", "LS"]
+
+    for unit_name in default_units:
+        create_unit_if_not_exists(unit_name)
+
+def create_unit_if_not_exists(unit_name):
+    """
+    Check if a unit exists, and if not, create and insert it into the database.
+    """
     if not frappe.db.exists("Unit", unit_name):
-        # Create a new Payment Mode if it doesn't exist
         unit_doc = frappe.get_doc({
             "doctype": "Unit",
-            "unit":unit_name
+            "unit": unit_name
         })
-        
-        # Insert the payment mode into the database
         unit_doc.insert(ignore_permissions=True)
         frappe.db.commit()
-        print(f"Default Unit '{unit_name}' created successfully.")   
-
+        print(f"Default Unit '{unit_name}' created successfully.")
 
 def create_budget_reference_types():
     
@@ -549,4 +557,54 @@ def create_shift_payment_units():
         
         shift_payment_unit.insert()
         print(f"Inserted Shift Payment Unit: {unit}")
+
+def create_default_items():
+
+    """
+    Create default items if they do not exist.
+    """
+    default_items = [
+        {"item_code": "ADV_RCVD", "item_name": "Advance Received", "item_type": "Service", "maintain_stock": 0, "tax": "UAE VAT - 5%", "unit": "LS"},
+        {"item_code": "GEN_LAB", "item_name": "Generic Labour", "item_type": "Labour", "maintain_stock": 0, "tax": "UAE VAT - 5%", "unit": "LS"},
+        {"item_code": "GEN_MAT", "item_name": "Generic Material", "item_type": "Material", "maintain_stock": 0, "tax": "UAE VAT - 5%", "unit": "LS"}
+    ]
+
+    for item in default_items:
+        create_item_if_not_exists(
+            item_code=item["item_code"],
+            item_name=item["item_name"],
+            item_type=item["item_type"],
+            maintain_stock=item["maintain_stock"],
+            tax=item["tax"],
+            unit=item.get("unit")  # Use `get` to handle optional fields
+        )
+        
+    # Set default items for specific purposes
+    frappe.db.set_value("Item", "GEN_LAB", "use_as_default_for_labour_in_estimate", 1)
+    frappe.db.set_value("Item", "GEN_MAT", "use_as_default_for_material_in_estimate", 1)
+
+def create_item_if_not_exists(item_code, item_name, item_type, maintain_stock, tax, unit=None):
+    """
+    Check if an item exists, and if not, create and insert it into the database.
+    """
+    if not frappe.db.exists("Item", {"name": item_code}):
+        item_data = {
+            "doctype": "Item",
+            "item_code": item_code,
+            "item_name": item_name,
+            "item_type": item_type,
+            "maintain_stock": maintain_stock,
+            "default_expense_account": "Cost Of Goods Sold Account",
+            "tax": tax
+        }
+
+        # Add optional fields
+        if unit:
+            item_data["base_unit"] = unit
+
+        # Create and insert the item
+        item = frappe.get_doc(item_data)
+        item.insert()
+        frappe.db.commit()
+        print(f"Inserted Item: {item_code}")
 

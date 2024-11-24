@@ -64,9 +64,9 @@
   "section_break_hgqy",
   "column_break_ejhs",
   "gross_total",
-  "deduction_against_advance",
-  "deduction_for_retention",
   "retention_percentage",
+  "deduction_for_retention",
+  "deduction_against_advance",
   "column_break_33",
   "taxable_amount",
   "tax_total",
@@ -567,7 +567,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-24 09:09:28.847016",
+ "modified": "2024-11-24 20:31:10.011860",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

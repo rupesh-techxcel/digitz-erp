@@ -161,7 +161,7 @@
   {
    "fieldname": "advance_amount",
    "fieldtype": "Float",
-   "label": "Advance Amount",
+   "label": "Advance Amount(Gross Amount)",
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
@@ -338,7 +338,7 @@
    "fieldname": "retention_percentage",
    "fieldtype": "Percent",
    "label": "Retention Percentage",
-   "precision": "2"
+   "precision": "0"
   },
   {
    "fieldname": "retention_amount",
@@ -385,7 +385,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-24 12:26:24.387121",
+ "modified": "2024-11-24 19:41:24.857846",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

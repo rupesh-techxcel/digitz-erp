@@ -65,7 +65,7 @@ frappe.ui.form.on("Progressive Sales Invoice", {
 
                     frm.set_value('gross_total', progress_entry.gross_total);
                     frm.set_value('tax_total', progress_entry.tax_total);
-					frm.set_value('total_before_deductions', progress_entry.total_before_deductions);
+					frm.set_value('taxable_amount', progress_entry.taxable_amount);
                     frm.set_value('net_total', progress_entry.net_total);
 					frm.set_value('in_words', progress_entry.in_words);
 
