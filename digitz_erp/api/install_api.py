@@ -16,7 +16,7 @@ def after_install():
     create_default_customer_group()
     create_default_price_lists()
     populate_area_data()
-    create_shift_payment_units()   
+    # create_shift_payment_units()   
     
 
 def insert_accounts():
