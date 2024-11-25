@@ -46,7 +46,7 @@
    "no_copy": 1,
    "oldfieldname": "naming_series",
    "oldfieldtype": "Select",
-   "options": "MAT-MR-.YYYY.-",
+   "options": "MR-.YYYY.-",
    "print_hide": 1,
    "reqd": 1,
    "set_only_once": 1
@@ -108,6 +108,7 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"status\",\"=\",\"Open\"],[\"Project\",\"docstatus\",\"=\",\"1\"]]",
    "options": "Project"
   },
   {
@@ -240,7 +241,7 @@
    "link_fieldname": "material_request"
   }
  ],
- "modified": "2024-10-17 19:31:24.758414",
+ "modified": "2024-11-25 08:31:49.205894",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",

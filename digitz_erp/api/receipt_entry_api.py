@@ -171,7 +171,7 @@ def get_customer_pending_documents(customer, reference_type, receipt_no,only_unp
                 customer = '{0}'
                 AND docstatus = 1
                 AND credit_sale = 1
-                AND rounded_total > paid_amount
+                AND rounded_total > COALESCE(paid_amount, 0)
                 {1}
                 order by posting_date
         """.format(customer,filter_paid_condition)

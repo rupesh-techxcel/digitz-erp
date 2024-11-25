@@ -91,7 +91,8 @@
   "salesman",
   "salesman_code",
   "amended_from",
-  "receipt_schedule_tab"
+  "receipt_schedule_tab",
+  "paid_amount"
  ],
  "fields": [
   {
@@ -596,6 +597,11 @@
    "fieldname": "taxable_amount",
    "fieldtype": "Currency",
    "label": "Taxable Amount"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -610,7 +616,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-24 20:39:04.297098",
+ "modified": "2024-11-25 15:21:48.600251",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

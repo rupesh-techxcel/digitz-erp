@@ -64,9 +64,9 @@
   "round_off",
   "rounded_total",
   "paid_amount",
-  "in_words",
   "column_break_xkte",
   "total_big",
+  "in_words",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
@@ -395,7 +395,7 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
@@ -443,7 +443,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-10-17 12:05:35.019420",
+ "modified": "2024-11-25 08:30:42.817707",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

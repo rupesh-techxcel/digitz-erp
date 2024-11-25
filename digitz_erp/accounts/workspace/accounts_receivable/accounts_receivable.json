@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"C3x4NbweS9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounts Receivable</span>\",\"col\":12}},{\"id\":\"6fWqyJ_Vb8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Entry\",\"col\":3}},{\"id\":\"zM-KXPLJUZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"kOV95J6bj8\",\"type\":\"card\",\"data\":{\"card_name\":\"Outstanding Reports\",\"col\":4}},{\"id\":\"ISiFTPAP1c\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Receipt Entry\",\"col\":4}}]",
+ "content": "[{\"id\":\"C3x4NbweS9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounts Receivable</span>\",\"col\":12}},{\"id\":\"6fWqyJ_Vb8\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Entry\",\"col\":3}},{\"id\":\"zM-KXPLJUZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fBhD0VXpZE\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h3\\\">Outstanding Reports</span>\",\"col\":12}},{\"id\":\"HhngGUhwy_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Outstanding Summary Report\",\"col\":3}},{\"id\":\"bZ7APHbChj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Transaction Ageing Report\",\"col\":3}},{\"id\":\"ISiFTPAP1c\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Receipt Entry\",\"col\":4}},{\"id\":\"DQyXQUZqN8\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}}]",
  "creation": "2024-02-06 13:24:19.970683",
  "custom_blocks": [],
  "docstatus": 0,
@@ -16,7 +16,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Outstanding Reports",
+   "label": "Reports",
    "link_count": 2,
    "link_type": "DocType",
    "onboard": 0,
@@ -45,7 +45,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-10-25 14:19:14.498991",
+ "modified": "2024-11-25 12:00:24.497354",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Receivable",
@@ -66,10 +66,24 @@
   {
    "color": "Grey",
    "doc_view": "List",
+   "label": "Customer Outstanding Summary Report",
+   "link_to": "Customer Statement Of Account",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
    "label": "Receipt Entry",
    "link_to": "Receipt Entry",
    "stats_filter": "[]",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Customer Transaction Ageing Report",
+   "link_to": "Customer Transaction Ageing Report",
+   "type": "Report"
   }
  ],
  "title": "Accounts Receivable"

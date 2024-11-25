@@ -169,6 +169,9 @@ frappe.ui.form.on('Item', {
 	{
 		if (frm.doc.item_type === "Fixed Asset" || frm.doc.item_type === "Labour" || frm.doc.item_type === "Service" ) {
 			frm.set_value("maintain_stock", false);
+		}
+		else{
+			frm.set_value("maintain_stock", true);
 		}		
 	},	
 	get_margin_from_rates(frm)
