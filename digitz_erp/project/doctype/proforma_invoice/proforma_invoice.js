@@ -4,9 +4,21 @@
 frappe.ui.form.on("Proforma Invoice", {
 	onload(frm) {
 
-       frm.trigger('get_default_company_and_warehouse');       
+        frm.trigger("assign_defaults")
                          
 	},
+    assign_defaults(frm)
+    {
+       frm.trigger('get_default_company_and_warehouse');    
+       
+       frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
+        if (r && r.default_credit_sale === 1) {
+                frm.set_value('credit_sale', 1);
+        }
+        });
+
+        set_default_payment_mode(frm);
+    },
     refresh(frm)
 	{
 		
@@ -68,8 +80,14 @@ frappe.ui.form.on("Proforma Invoice", {
             }
         });
     },
-      
+    credit_sale(frm)
+    {
+        set_default_payment_mode(frm);
+    },      
     get_default_company_and_warehouse(frm) {
+
+        console.log("get_default_company_and_warehouse")
+
 
 		var default_company = ""
 
@@ -104,7 +122,33 @@ frappe.ui.form.on("Proforma Invoice", {
 		})
 
 	},
+    
 });
+
+function set_default_payment_mode(frm)
+{
+    console.log("set_default_payment_mode")
+
+	if(frm.doc.credit_sale == 0){
+        frappe.db.get_value('Company', frm.doc.company,'default_payment_mode_for_sales', function(r){
+
+			if (r && r.default_payment_mode_for_sales) {
+							frm.set_value('payment_mode', r.default_payment_mode_for_sales);
+			} else {
+							frappe.msgprint('Default payment mode for purchase not found.');
+			}
+		});
+    }
+	else{
+
+		frm.set_value('payment_mode', '');
+	}
+
+	frm.set_df_property("credit_days", "hidden", !frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_account", "hidden", frm.doc.credit_sale);
+	frm.set_df_property("payment_mode", "mandatory", !frm.doc.credit_sale);
+}
 
 function update_total_big_display(frm) {
 

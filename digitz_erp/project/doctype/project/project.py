@@ -60,7 +60,7 @@ def calculate_retention_amt(sales_order_id, retention_percentage):
         frappe.throw(f"Invalid value provided: {e}")
 
     retention_amt = (net_total * retention_percentage) / 100
-    
+    print("sales_order_amt", net_total)
     print("retention_amt",retention_amt)
 
     return {

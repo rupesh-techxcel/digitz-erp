@@ -10,7 +10,7 @@ frappe.ui.form.on("Progress Entry", {
 
   refresh(frm) {
     if (frm.is_new()) {
-        get_default_company_and_warehouse(frm)
+      get_default_company_and_warehouse(frm)
     }
     else
     {
@@ -437,6 +437,7 @@ function make_taxes_and_totals(frm){
       if(row.current_completion > 0){
 
         row.gross_amount = (row.item_gross_amount * row.current_completion)/100;
+        // Note that retention is not considering in the line item
         row.net_amount = (row.item_net_amount * row.current_completion)/100;
         row.tax_amount = row.item_tax_amount>0? (row.item_tax_amount * row.current_completion)/100:0
           
@@ -514,18 +515,24 @@ function update_total_amounts(frm){
     tax_total = taxable_amount * frm.doc.tax_rate / 100
   }
 
-  net_total = taxable_amount - tax_total
+  net_total = taxable_amount + tax_total
 
   frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
   frm.set_value('net_total', net_total);
   frm.set_value('rounded_total',0)
+  
+  console.log("gross_total",gross_total)
+  console.log("taxable_amount",taxable_amount)
+  console.log("tax_total",tax_total)
+  console.log("net_total",net_total)
 
   frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
     
     if (data && data.do_not_apply_round_off_in_si == 1) {
-      frm.doc.rounded_total = frm.doc.net_total;
-      frm.refresh_field('rounded_total');				
+     	
+      frm.set_value('rounded_total',net_total)		
+
     }
     else {
      if (frm.doc.net_total != Math.round(frm.doc.net_total)) {

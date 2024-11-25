@@ -31,7 +31,7 @@ def insert_accounts():
     {"account_name": "Main Cash", "is_group": 0, "parent_account": "Cash Accounts", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Inventory", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Accounts Receivables", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
-    {"account_name": "Retention Receivables", "is_group": 0, "parent_account": "Current Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
+    {"account_name": "Retention Receivables", "is_group": 0, "parent_account": "Current Assets", "account_type": "Retention Receivable", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Advance Billed But Not Received", "is_group": 0, "parent_account": "Current Assets", "account_type": "Advance Billed But Not Received", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Fixed Assets", "is_group": 1, "parent_account": "Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Investments", "is_group": 1, "parent_account": "Assets", "account_type": "", "root_type": "Asset", "balance": 0, "balance_dr_cr": ""},

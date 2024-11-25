@@ -65,9 +65,9 @@
   "retention_percentage",
   "deduction_against_advance",
   "column_break_33",
+  "taxable_amount",
   "tax_total",
   "additional_discount",
-  "taxable_amount",
   "column_break_xkzu",
   "net_total",
   "round_off",
@@ -584,6 +584,7 @@
    "label": "Project Advance Amount"
   },
   {
+   "fetch_from": "sales_order.posting_date",
    "fieldname": "sales_order_date",
    "fieldtype": "Date",
    "label": "Sales Order Date"
@@ -616,7 +617,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-25 15:21:48.600251",
+ "modified": "2024-11-25 20:14:34.102478",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

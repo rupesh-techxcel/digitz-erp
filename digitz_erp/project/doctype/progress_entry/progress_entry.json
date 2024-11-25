@@ -384,6 +384,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"docstatus\",\"=\",\"1\"],[\"Project\",\"status\",\"=\",\"Open\"]]",
    "options": "Project"
   },
   {
@@ -567,7 +568,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-24 20:31:10.011860",
+ "modified": "2024-11-25 19:00:08.544222",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

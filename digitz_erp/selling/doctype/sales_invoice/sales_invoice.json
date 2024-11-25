@@ -613,6 +613,7 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"docstatus\",\"=\",\"1\"],[\"Project\",\"status\",\"=\",\"Open\"]]",
    "options": "Project"
   },
   {
@@ -712,7 +713,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-11-23 13:32:05.819318",
+ "modified": "2024-11-25 18:36:34.557251",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

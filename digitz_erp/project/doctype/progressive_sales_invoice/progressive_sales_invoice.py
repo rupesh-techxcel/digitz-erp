@@ -129,7 +129,6 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.insert()
 			idx +=1
 
-
 		# Reduce the liability against advance received
 		if self.deduction_for_retention > 0:
 			gl_doc = frappe.new_doc('GL Posting')
