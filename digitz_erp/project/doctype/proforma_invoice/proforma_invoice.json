@@ -543,6 +543,7 @@
    "label": "Project Retention Amount"
   },
   {
+   "fetch_from": "sales_order.posting_date",
    "fieldname": "sales_order_date",
    "fieldtype": "Date",
    "label": "Sales Order Date"
@@ -585,7 +586,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-25 20:44:02.639915",
+ "modified": "2024-11-25 22:31:44.879132",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

@@ -61,8 +61,8 @@
   "progress_entry_items",
   "section_break_25",
   "gross_total",
-  "deduction_for_retention",
   "retention_percentage",
+  "deduction_for_retention",
   "deduction_against_advance",
   "column_break_33",
   "taxable_amount",
@@ -617,7 +617,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-25 20:14:34.102478",
+ "modified": "2024-11-25 22:34:49.127506",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",
