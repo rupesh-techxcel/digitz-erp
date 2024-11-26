@@ -259,7 +259,6 @@ function set_default_payment_mode(frm)
 function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 {
 
-
 	if(refresh)
 	{
 		frm.doc.receipt_schedule = [];
@@ -276,8 +275,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 		var postingDate = frm.doc.posting_date;
 		var creditDays = frm.doc.credit_days;
-		var roundedTotal = frm.doc.rounded_total;
-
+		
 		if (!frm.doc.receipt_schedule) {
 			frm.doc.receipt_schedule = [];
 		}

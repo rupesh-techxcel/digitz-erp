@@ -2,8 +2,23 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe.utils import get_datetime
+from frappe.utils.data import now
 from frappe.model.document import Document
-
+from digitz_erp.api.stock_update import recalculate_stock_ledgers, update_stock_balance_in_item
+from digitz_erp.api.purchase_order_api import check_and_update_purchase_order_status
+from frappe.model.mapper import *
+from digitz_erp.api.item_price_api import update_item_price,update_supplier_item_price
+from digitz_erp.api.settings_api import get_default_currency, get_gl_narration
+from digitz_erp.api.purchase_invoice_api import check_balance_qty_to_return_for_purchase_invoice
+from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
+from datetime import datetime,timedelta
+from frappe.model.mapper import get_mapped_doc
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
+from frappe import throw, _
+from frappe.utils import money_in_words
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class PurchaseReceipt(Document):
     
@@ -13,13 +28,21 @@ class PurchaseReceipt(Document):
 			self.update_purchase_order_quantities_on_update()			
 		
 	def on_cancel(self):
+     
+		self.cancel_purchase()
 
 		if self.purchase_order:
 			#print("Calling update po qties b4 cancel or delete")
 			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
+   
+	def on_submit(self):
+		self.do_postings_on_submit()		
+  
+	def do_postings_on_submit(self):
+		self.do_stock_posting()    
+		self.insert_gl_records()
 
-	def on_trash(self):
-		
+	def on_trash(self):		
 		if self.purchase_order:
 			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
 
@@ -32,13 +55,13 @@ class PurchaseReceipt(Document):
 				continue
 			else:
 				# Get total purchase invoice qty for the mr_item_reference other than in the current purchase invoice.
-				total_purchased_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Receipt Item` pinvi inner join `tabPurchase Receipt` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
+				total_purchased_qty_not_in_this_pr = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Receipt Item` pinvi inner join `tabPurchase Receipt` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus<2""",(item.po_item_reference, self.name))[0][0]
     
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
 
 				# Get Total returned quantity for the po_item, since there can be multiple purchase invoice line items for the same po_item_reference and which could be returned from the purchase invoices as well.
 
-				total_qty_purchased = (total_purchased_qty_not_in_this_pi if total_purchased_qty_not_in_this_pi else 0) 
+				total_qty_purchased = (total_purchased_qty_not_in_this_pr if total_purchased_qty_not_in_this_pr else 0) 
 
 				po_item.qty_purchased_in_base_unit = total_qty_purchased + (item.qty_in_base_unit if not forDeleteOrCancel else 0)
 
@@ -47,8 +70,370 @@ class PurchaseReceipt(Document):
 
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding material request updated successfully", indicator= "green", alert= True)
+   
+	def do_stock_posting(self):
+     
+		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
+		stock_recalc_voucher.voucher = 'Purchase Receipt'
+		stock_recalc_voucher.voucher_no = self.name
+		stock_recalc_voucher.voucher_date = self.posting_date
+		stock_recalc_voucher.voucher_time = self.posting_time
+		stock_recalc_voucher.status = 'Not Started'
+		stock_recalc_voucher.source_action = "Insert"
 
+		more_records = 0
+		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+
+		# Create a dictionary for handling duplicate items. In stock ledger posting it is expected to have only one stock ledger per item per voucher.
+		item_stock_ledger = {}
+
+		for docitem in self.items:
+			maintain_stock, item_type, asset_category = frappe.db.get_value('Item',
+			docitem.item, ['maintain_stock', 'item_type', 'asset_category'])
+
+			if item_type=="Fixed Asset":
+				self.do_asset_posting(docitem, asset_category=asset_category)				
+				continue
+		
+			if(maintain_stock == 1):
+
+				# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
+				# in this flow itself. If more records, exists stock balance will be udpated lateer
+				more_records_count_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
+					'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
+
+				more_records = more_records + more_records_count_for_item
+
+				new_balance_qty = docitem.qty_in_base_unit
+
+				# Default valuation rate
+				valuation_rate = docitem.rate_in_base_unit
+
+				# Default balance value calculating withe the current row only
+				new_balance_value = new_balance_qty * valuation_rate
+
+				# Assigned current stock value to use if previous values not exist
+				change_in_stock_value = new_balance_value
+
+				# posting_date<= consider because to take the dates with in the same minute
+				# dbCount = frappe.db.count('Stock Ledger',{'item_code': ['=', docitem.item_code],'warehouse':['=', docitem.warehouse], 'posting_date':['<=', posting_date_time]})
+				dbCount = frappe.db.count('Stock Ledger',{'item': ['=', docitem.item],'warehouse':['=', docitem.warehouse],
+													'posting_date': ['<', posting_date_time]})
+
+				if(dbCount>0):
+
+					# Find out the balance value and valuation rate. Here recalculates the total balance value and valuation rate
+					# from the balance qty in the existing rows x actual incoming rate
+
+					last_stock_ledger = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse],
+															'posting_date':['<', posting_date_time]},
+												['balance_qty', 'balance_value', 'valuation_rate'],order_by='posting_date desc', as_dict=True)
+
+					new_balance_qty = new_balance_qty + last_stock_ledger.balance_qty
+
+					new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
+
+					#print("new_balance_qty")
+					#print(new_balance_qty)
+
+					#print("new_balance_value")
+					#print(new_balance_value)
+
+					if new_balance_qty!=0:
+						valuation_rate = new_balance_value/new_balance_qty
+
+					change_in_stock_value = new_balance_value - last_stock_ledger.balance_value
+
+				if docitem.item not in item_stock_ledger:
+
+					new_stock_ledger = frappe.new_doc("Stock Ledger")
+					new_stock_ledger.item = docitem.item
+					new_stock_ledger.item_name = docitem.item_name
+					new_stock_ledger.warehouse = docitem.warehouse
+					new_stock_ledger.posting_date = posting_date_time
+
+					new_stock_ledger.qty_in = docitem.qty_in_base_unit
+					new_stock_ledger.incoming_rate = docitem.rate_in_base_unit
+					new_stock_ledger.unit = docitem.base_unit
+					new_stock_ledger.valuation_rate = valuation_rate
+					new_stock_ledger.balance_qty = new_balance_qty
+					new_stock_ledger.balance_value = new_balance_value
+					new_stock_ledger.change_in_stock_value = change_in_stock_value
+					new_stock_ledger.voucher = "Purchase Receipt"
+					new_stock_ledger.voucher_no = self.name
+					new_stock_ledger.source = "Purchase Receipt Item"
+					new_stock_ledger.source_document_id = docitem.name
+					new_stock_ledger.insert()
+
+					sl = frappe.get_doc("Stock Ledger", new_stock_ledger.name)
+
+					item_stock_ledger[docitem.item] = sl.name
+
+				else:
+					stock_ledger_name = item_stock_ledger.get(docitem.item)
+					stock_ledger = frappe.get_doc('Stock Ledger', stock_ledger_name)
+
+					stock_ledger.qty_in = stock_ledger.qty_in + docitem.qty_in_base_unit
+					stock_ledger.balance_qty = stock_ledger.balance_qty + docitem.qty_in_base_unit
+					stock_ledger.balance_value = stock_ledger.balance_qty * stock_ledger.valuation_rate
+					stock_ledger.change_in_stock_value = stock_ledger.change_in_stock_value + (stock_ledger.balance_qty * stock_ledger.valuation_rate)
+					new_balance_qty = stock_ledger.balance_qty
+					stock_ledger.save()
+
+				# If no more records for the item, update balances. otherwise it updates in the flow
+				if more_records_count_for_item==0:
+
+					if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+						frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse})
+
+					new_stock_balance = frappe.new_doc('Stock Balance')
+					new_stock_balance.item = docitem.item
+					new_stock_balance.item_name = docitem.item_name
+					new_stock_balance.unit = docitem.base_unit
+					new_stock_balance.warehouse = docitem.warehouse
+					new_stock_balance.stock_qty = new_balance_qty
+					new_stock_balance.stock_value = new_balance_value
+					new_stock_balance.valuation_rate = valuation_rate
+
+					new_stock_balance.insert()
+
+
+					update_stock_balance_in_item(docitem.item)
+
+				else:
+					stock_recalc_voucher.append('records',{'item': docitem.item,
+															'warehouse': docitem.warehouse,
+															'base_stock_ledger': new_stock_ledger.name
+																})
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+		# posting_status_doc.stock_posted_time = datetime.now()
+		# posting_status_doc.save()
+		update_posting_status(self.doctype, self.name, 'stock_posted_time', None)
+
+		if(more_records>0):
+			stock_recalc_voucher.insert()
+			# self.stock_recalc_voucher = stock_recalc_voucher.name
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+			# posting_status_doc.stock_recalc_required = True
+			# posting_status_doc.save()
+
+			update_posting_status(self.doctype, self.name, 'stock_recalc_required', True)
+
+			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+			# posting_status_doc.stock_recalc_time =datetime.now()
+			# posting_status_doc.save()
+
+			update_posting_status(self.doctype, self.name, 'stock_recalc_time', None)
 	
+	def do_asset_posting(self,item, asset_category):
+     
+		# Get the default company from the Global Settings
+		company = frappe.db.get_single_value("Global Settings", "default_company")
+
+		# Get the default asset location for the specified company
+		default_asset_location = frappe.get_value("Company", company, 'default_asset_location')
+
+		# Check if the default asset location is not set
+		if not default_asset_location:
+			# Try to retrieve the 'Default Asset Location' document
+			asset_location = frappe.db.exists("Asset Location", "Default Asset Location")
+
+			# If the 'Default Asset Location' document does not exist, create it
+			if not asset_location:
+				asset_location = frappe.new_doc("Asset Location")
+				asset_location.location_name = "Default Asset Location"
+				asset_location.insert()  # Save the new asset location document
+				default_asset_location = asset_location.name
+			else:
+				default_asset_location = asset_location
+
+			# You should probably link the default asset location with the company here
+			# Assuming 'default_asset_location' is a field in the 'Company' doctype
+			frappe.db.set_value("Company", company, "default_asset_location", default_asset_location)
+		
+		asset = frappe.new_doc("Asset")
+		asset.asset_name = item.name
+		asset.item = item.item_code
+		asset.asset_category = asset_category
+		asset.asset_location = default_asset_location
+		asset.gross_value = item.gross_amount
+		asset.posting_date = self.posting_date
+		asset.posting_time = self.posting_time
+		asset.insert()
+  
+	def get_narration(self):
+     
+				# Assign supplier, invoice_no, and remarks
+		supplier = self.supplier
+		invoice_no = self.supplier_inv_no
+		remarks = self.remarks if self.remarks else ""
+		payment_mode = ""
+		if self.credit_purchase:
+			payment_mode = "Credit"
+		else:
+			payment_mode = self.payment_mode
+		
+		# Get the gl_narration which might be empty
+		gl_narration = get_gl_narration('Purchase Receipt')  # This could return an empty string
+
+		# Provide a default template if gl_narration is empty
+		if not gl_narration:
+			gl_narration = "Purchase from {supplier}"
+
+		#print("gl_narration")
+		#print(gl_narration)
+
+		# Replace placeholders with actual values
+		narration = gl_narration.format(payment_mode=payment_mode, supplier=supplier, invoice_no=invoice_no)
+
+		# Append remarks if they are available
+		if remarks:
+			narration += f", {remarks}"
+
+		return narration   
+  
+	def insert_gl_records(self):
+
+		remarks = self.get_narration()
+		
+		default_company = frappe.db.get_single_value("Global Settings","default_company")
+
+		default_accounts = frappe.get_value("Company", default_company,['default_payable_account','default_inventory_account',
+
+		'stock_received_but_not_billed','round_off_account','tax_account'], as_dict=1)
+
+		idx =1
+		# Trade Payable - Credit - Against Inventory A/c
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Purchase Receipt"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.posting_date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = default_accounts.stock_received_but_not_billed
+		gl_doc.credit_amount = self.net_total - self.tax_total
+		gl_doc.party_type = "Supplier"
+		gl_doc.party = self.supplier
+		gl_doc.against_account = default_accounts.default_inventory_account
+		gl_doc.remarks = remarks
+		gl_doc.insert()
+		idx +=1
+
+		# Stock Received But Not Billed - Debit - Against Trade Payable A/c
+		gl_doc = frappe.new_doc('GL Posting')
+		gl_doc.voucher_type = "Purchase Receipt"
+		gl_doc.voucher_no = self.name
+		gl_doc.idx = idx
+		gl_doc.posting_date = self.posting_date
+		gl_doc.posting_time = self.posting_time
+		gl_doc.account = default_accounts.default_inventory_account
+		gl_doc.debit_amount =  self.net_total - self.tax_total
+		gl_doc.against_account = default_accounts.stock_received_but_not_billed
+		gl_doc.remarks = remarks
+		gl_doc.insert()
+		idx +=1
+
+		update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
+   
+	def cancel_purchase(self):
+
+        # Insert record to 'Stock Recalculate Voucher' doc
+		stock_recalc_voucher = frappe.new_doc('Stock Recalculate Voucher')
+		stock_recalc_voucher.voucher = 'Purchase Receipt'
+		stock_recalc_voucher.voucher_no = self.name
+		stock_recalc_voucher.voucher_date = self.posting_date
+		stock_recalc_voucher.voucher_time = self.posting_time
+		stock_recalc_voucher.status = 'Not Started'
+		stock_recalc_voucher.source_action = "Cancel"
+
+		posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
+
+		more_records = 0
+
+		# Iterate on each item from the cancelling purchase invoice
+		for docitem in self.items:
+			more_records_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
+            	'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
+
+			more_records = more_records + more_records_for_item
+
+			previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
+            		    , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
+
+			# If any items in the collection has more records
+			if(more_records_for_item>0):
+
+				if(previous_stock_ledger_name):
+					stock_recalc_voucher.append('records',{'item': docitem.item,
+                                                            'warehouse': docitem.warehouse,
+                                                            'base_stock_ledger': previous_stock_ledger_name
+                                                            })
+				else:
+					stock_recalc_voucher.append('records',{'item': docitem.item,
+															'warehouse': docitem.warehouse,
+															'base_stock_ledger': "No Previous Ledger"
+															})
+
+			else:
+
+				balance_qty =0
+				balance_value =0
+				valuation_rate  = 0
+
+				if(previous_stock_ledger_name):
+					previous_stock_ledger = frappe.get_doc('Stock Ledger',previous_stock_ledger_name)
+					balance_qty = previous_stock_ledger.balance_qty
+					balance_value = previous_stock_ledger.balance_value
+					valuation_rate = previous_stock_ledger.valuation_rate
+
+				if frappe.db.exists('Stock Balance', {'item':docitem.item,'warehouse': docitem.warehouse}):
+					frappe.db.delete('Stock Balance',{'item': docitem.item, 'warehouse': docitem.warehouse} )
+
+				unit = frappe.get_value("Item", docitem.item,['base_unit'])
+
+				new_stock_balance = frappe.new_doc('Stock Balance')
+				new_stock_balance.item = docitem.item
+				new_stock_balance.item_name = docitem.item_name
+				new_stock_balance.unit = unit
+				new_stock_balance.warehouse = docitem.warehouse
+				new_stock_balance.stock_qty = balance_qty
+				new_stock_balance.stock_value = balance_value
+				new_stock_balance.valuation_rate = valuation_rate
+
+				new_stock_balance.insert()
+
+				update_stock_balance_in_item(docitem.item)
+
+		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+		# posting_status_doc.stock_posted_on_cancel_time = datetime.now()
+		# posting_status_doc.save()
+
+		update_posting_status(self.doctype, self.name, 'stock_posted_on_cancel_time', None)
+
+		if(more_records>0):
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+			# posting_status_doc.stock_recalc_required_on_cancel = True
+			# posting_status_doc.save()
+
+			update_posting_status(self.doctype, self.name, 'stock_recalc_required_on_cancel', True)
+
+			stock_recalc_voucher.insert()
+			recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
+
+			# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
+			# posting_status_doc.stock_recalc_on_cancel_time = datetime.now()
+			# posting_status_doc.save()
+			update_posting_status(self.doctype, self.name, 'stock_recalc_on_cancel_time', None)
+
+		frappe.db.delete("Stock Ledger",
+				{"voucher": "Purchase Receipt",
+					"voucher_no":self.name
+				})
+
+		delete_gl_postings_for_cancel_doc_type('Purchase Receipt', self.name)
+
+		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
 @frappe.whitelist()
 def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):

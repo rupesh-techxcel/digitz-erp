@@ -47,8 +47,7 @@ frappe.ui.form.on('Purchase Order', {
 													}
 												}										
 											});
-										},
-									);
+										},"Create");
 								}
 
 								let create_pi = false
@@ -71,8 +70,7 @@ frappe.ui.form.on('Purchase Order', {
 												frappe.set_route("Form", "Purchase Invoice", pr_doc.name);
 											}
 										});
-									},
-									);
+									}, "Create");
 								}
 							}
 
@@ -487,6 +485,8 @@ frappe.ui.form.on('Purchase Order', {
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
 		}
+
+		update_total_big_display(frm)
 
 		console.log("Totals");
 
@@ -912,7 +912,7 @@ function update_item_row(frm,cdt,cdn){
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let netTotal = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 

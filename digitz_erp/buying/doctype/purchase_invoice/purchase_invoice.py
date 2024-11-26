@@ -102,7 +102,10 @@ class PurchaseInvoice(Document):
 
 		self.insert_gl_records()
 		self.insert_payment_postings()
-		self.do_stock_posting()
+		#For invoice converted from Purchase Receipt, stock postings already done.   
+		if not self.purchase_receipt:
+			self.do_stock_posting()
+   
 		create_bank_reconciliation("Purchase Invoice", self.name)
 
 		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
@@ -210,11 +213,10 @@ class PurchaseInvoice(Document):
 		item_stock_ledger = {}
 
 		for docitem in self.items:
-			maintain_stock, fixed_asset, asset_category = frappe.db.get_value('Item',
-			docitem.item, ['maintain_stock', 'is_fixed_asset', 'asset_category'])
+			maintain_stock, item_type, asset_category = frappe.db.get_value('Item',
+			docitem.item, ['maintain_stock', 'item_type', 'asset_category'])
 	
-
-			if fixed_asset == 1:
+			if fixed_asset == item_type=="Fixed Asset":
 				self.do_asset_posting(docitem, asset_category=asset_category)				
 				continue
 		
@@ -570,7 +572,7 @@ class PurchaseInvoice(Document):
 		#print(gl_narration)
 
 		# Replace placeholders with actual values
-		narration = gl_narration.format(payment_mode=payment_mode, supplier_name=supplier, invoice_number=invoice_no)
+		narration = gl_narration.format(payment_mode=payment_mode, supplier=supplier, invoice_no=invoice_no)
 
 		# Append remarks if they are available
 		if remarks:
@@ -581,9 +583,6 @@ class PurchaseInvoice(Document):
 	def insert_gl_records(self):
 
 		remarks = self.get_narration()
-		#print("remarks")
-		#print(remarks)
-
 		
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
@@ -616,7 +615,7 @@ class PurchaseInvoice(Document):
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.default_inventory_account
+		gl_doc.account = default_accounts.default_inventory_account if not self.purchase_receipt else default_accounts.stock_received_but_not_billed
 		gl_doc.debit_amount =  self.net_total - self.tax_total
 		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
@@ -661,11 +660,6 @@ class PurchaseInvoice(Document):
 			idx +=1
 
 		update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
-
-	def insert_gl_record(self,gl_doc, accounts):
-		gl_doc.insert()
-		if gl_doc.account not in accounts:
-				accounts.append(gl_doc.account)
 
 	def insert_payment_postings(self):
 
