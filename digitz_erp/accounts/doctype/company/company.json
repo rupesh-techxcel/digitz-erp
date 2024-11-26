@@ -78,7 +78,6 @@
   "section_break_39",
   "customer_terms",
   "system_tab",
-  "material_receipt_integrated_with_purchase",
   "delivery_note_integrated_with_sales_invoice",
   "use_custom_item_group_description_in_estimation",
   "overheads_based_on_percentage"
@@ -240,13 +239,6 @@
    "fieldname": "system_tab",
    "fieldtype": "Tab Break",
    "label": "System"
-  },
-  {
-   "default": "1",
-   "fieldname": "material_receipt_integrated_with_purchase",
-   "fieldtype": "Check",
-   "label": "Material Receipt Integrated With Purchase",
-   "read_only": 1
   },
   {
    "fetch_from": "tax.account",
@@ -533,7 +525,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-23 16:55:48.951884",
+ "modified": "2024-11-26 13:06:46.172640",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

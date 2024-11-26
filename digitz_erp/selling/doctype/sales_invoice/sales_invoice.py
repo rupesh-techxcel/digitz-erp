@@ -116,9 +116,9 @@ class SalesInvoice(Document):
         existing_invoice = frappe.db.exists(
                         "Sales Invoice",
                         {
-                            "project": doc.project,
+                            "project": self.project,
                             "for_advance_payment": 1,
-                            "name": ["!=", doc.name],  # Exclude the current document in case it's being updated
+                            "name": ["!=", self.name],  # Exclude the current document in case it's being updated
                             "docstatus": ["<", 2]  # Consider only Draft or Submitted documents
                         }
                         )

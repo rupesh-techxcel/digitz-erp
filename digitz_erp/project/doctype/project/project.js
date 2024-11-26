@@ -12,35 +12,20 @@ frappe.ui.form.on("Project", {
 
     refresh(frm) {
         if(!frm.is_new() && frm.doc.docstatus==1)
-            {
-                frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
-                
-                    frappe.new_doc("Progress Entry", {}, function(pe) {
-                        pe.project = frm.doc.name;
-                        pe.sales_order = frm.doc.sales_order
-                    });
-                
-                });            
-                  
-                // refresh_wip(frm)   
-                // refresh_so_value(frm)  
-                // refresh_billed_amount(frm)
-            }
-
-            // refresh_progress_entries(frm); 
-    },
-
-    setup(frm) {
-        let data = JSON.parse(localStorage.getItem('project_data'));
-        if (data) {
-            frm.set_value('customer', data.customer);
-            frm.set_value('sales_order', data.sales_order);
-            frm.set_value("project_amount", data.project_amount);
-            frm.refresh_field();
-            localStorage.removeItem('project_data');
+        {
+            frm.fields_dict['project_stage_table'].grid.add_custom_button('Create Progress Entry', function() {
+            
+                frappe.new_doc("Progress Entry", {}, function(pe) {
+                    pe.project = frm.doc.name;
+                    pe.sales_order = frm.doc.sales_order
+                });
+            
+            });
         }
     },
-
+    setup(frm) {
+       
+    },
     onload(frm) {
         let customer = localStorage.getItem('customer');
         if (customer) {
@@ -60,6 +45,7 @@ frappe.ui.form.on("Project", {
         }
 
         if (frm.doc.sales_order) {
+            
             frappe.call({
                 method: "digitz_erp.project.doctype.project.project.calculate_retention_amt",
                 args: {
@@ -85,13 +71,13 @@ frappe.ui.form.on("Project", {
     },
 
     sales_order(frm) {
-        frappe.db.get_value("Sales Order", frm.doc.sales_order, 'net_total').then(r => {
+        frappe.db.get_value("Sales Order", frm.doc.sales_order, 'rounded_total','gross_total').then(r => {
             if (r.message) {
-                let net_total = r.message.net_total;
-                let amt = (net_total * parseFloat(frm.doc.retention_percentage)) / 100;
-                frm.set_value("project_amount", net_total);
-                frm.set_value("retention_amount", amt);
-                frm.set_value("amount_after_retention", net_total - amt);
+                let project_value = r.message.rounded_total; 
+                let project_gross_value = r.message.gross_total
+                frm.set_value("project_value", project_value);
+                frm.set_value("project_gross_value", project_gross_value);
+
             }
         });
     },
@@ -172,87 +158,4 @@ frappe.ui.form.on("Project", {
     }
 });
 
-// function refresh_progress_entries(frm) {
-//     frappe.call({
-//         method: 'digitz_erp.api.project_api.get_progress_entries_by_project',
-//         args: { project_name: frm.doc.name },
-//         callback: function(response) {
-//             if (response.message) {
-//                 let total_completion_percentage = 0;
-//                 let progress_count = 0;
 
-//                 frm.clear_table('project_stage_table');
-//                 response.message.forEach(entry => {
-//                     let row = frm.add_child('project_stage_table');
-//                     row.progress_entry = entry.name;
-//                     row.proforma_invoice = entry.proforma_invoice;
-//                     row.sales_invoice = entry.progressive_sales_invoice;
-//                     row.posting_date = entry.posting_date;
-//                     row.percentage_of_completion = entry.total_completion_percentage;
-//                     row.net_total = entry.net_total;
-
-//                     console.log("row.percentage_of_completion")
-//                     console.log(row.percentage_of_completion)
-
-//                     total_completion_percentage += row.percentage_of_completion;
-//                     progress_count++;
-//                 });
-                
-//                 frm.refresh_field('project_stage_table');
-//                 frm.save()
-                
-//             }
-//         }
-//     });
-// }
-
-function refresh_wip(frm)
-{
-    frappe.call({
-        method: 'digitz_erp.api.project_api.get_wip_closing_balance',
-        args: {
-            project_name: frm.doc.name
-        },
-        callback: function (r) {
-            if (r.message) {
-                frm.set_value('work_in_progress_value', r.message);
-                frm.save()
-            }
-        }
-    });
-}
-
-function refresh_so_value(frm)
-{
-    frappe.call({
-        method: 'digitz_erp.api.project_api.get_sales_order_value_for_project',
-        args: {
-            project_name: frm.doc.name
-        },
-        callback: function (r) {
-            if (r.message) {
-                frm.set_value('sales_order_value', r.message);
-                frm.save()
-            }
-        }
-    });
-
-}
-
-
-function refresh_billed_amount(frm)
-{
-    frappe.call({
-        method: 'digitz_erp.api.project_api.get_billed_amount_for_project',
-        args: {
-            project_name: frm.doc.name
-        },
-        callback: function (r) {
-            if (r.message) {
-                frm.set_value('total_billed_amount', r.message);
-                frm.save()
-            }
-        }
-    });
-
-}

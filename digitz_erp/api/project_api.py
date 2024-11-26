@@ -196,48 +196,6 @@ def get_wip_closing_balance(project_name=None):
     return 0
 
 @frappe.whitelist()
-def update_project_advance_amount(sales_order):
-    """
-    Updates the advance amount in the linked project for a given sales order.
-    This is triggered while submitting or canceling a receipt entry.
-    """
-    try:
-        # Step 1: Check if a project exists for the given sales order
-        project_for_sales_order = frappe.db.get_value("Project", {"sales_order": sales_order}, "name")
-        if not project_for_sales_order:
-            frappe.msgprint(f"No project found for Sales Order {sales_order}.", alert=True)
-            return
-        
-        # Step 2: Check if the project has any progress entries
-        progress_entry_exists = frappe.db.exists("Progress Entry", {"project": project_for_sales_order})
-        if progress_entry_exists:
-            frappe.msgprint(f"Project {project_for_sales_order} already has progress entries. Advance amount will not be updated.", alert=True)
-            return
-        
-        # Step 3: Fetch total allocated advance amount from Sales Invoices
-        advance_amount_query = frappe.db.sql("""
-            SELECT gross_total, advance_percentage
-            FROM `tabSales Invoice`
-            WHERE for_advance_payment = 1 AND sales_order = %s AND docstatus = 1
-        """, (sales_order,), as_dict=True)
-        
-        # Handle cases where no matching invoices are found
-        advance_amount = advance_amount_query[0].get("gross_total", 0) if advance_amount_query else 0
-        advance_percentage = advance_amount_query[0].get("advance_percentage", 0) if advance_amount_query else 0
-        
-        # Step 4: Update the advance amount in the project
-        frappe.db.set_value("Project", project_for_sales_order, "advance_amount", advance_amount)
-        frappe.db.set_value("Project", project_for_sales_order, "advance_percentage", advance_percentage)
-        
-        if advance_amount > 0:
-            frappe.msgprint(f"Successfully updated advance amount for Project {project_for_sales_order}.", alert=True)
-
-    except Exception as e:
-        # Log error and notify the user
-        frappe.log_error(message=str(e), title="Error in update_project_advance_amount")
-        frappe.msgprint("An error occurred while updating the advance amount. Please check the error log.", alert=True)
-
-@frappe.whitelist()
 def get_sales_order_value_for_project(project_name):
     # Check if the project exists and fetch the linked sales order
     project = frappe.get_doc("Project", project_name)

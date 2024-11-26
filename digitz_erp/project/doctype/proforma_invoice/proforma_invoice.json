@@ -12,6 +12,7 @@
   "project_details_section",
   "project",
   "project_advance_amount",
+  "project_advance_percentage",
   "project_retention_amount",
   "column_break_zubf",
   "sales_order",
@@ -572,6 +573,11 @@
    "fieldname": "taxable_amount",
    "fieldtype": "Currency",
    "label": "Taxable Amount"
+  },
+  {
+   "fieldname": "project_advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Advance Percentage"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -586,7 +592,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-25 22:31:44.879132",
+ "modified": "2024-11-26 11:47:53.442564",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

@@ -23,14 +23,15 @@
   "sales_order",
   "boq",
   "column_break_nzbm",
-  "advance_amount",
   "advance_percentage",
+  "advance_amount",
   "column_break_wszi",
   "retention_percentage",
   "retention_amount",
   "column_break_nqui",
   "amount_after_retention",
-  "project_amount",
+  "project_gross_value",
+  "project_value",
   "section_break_updt",
   "progress_entry",
   "column_break_xcaf",
@@ -120,14 +121,6 @@
   {
    "fieldname": "column_break_nzbm",
    "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "sales_order.net_total",
-   "fieldname": "project_amount",
-   "fieldtype": "Float",
-   "label": "Project Amount",
-   "non_negative": 1,
-   "precision": "2"
   },
   {
    "fieldname": "section_break_updt",
@@ -361,7 +354,24 @@
   {
    "fieldname": "advance_percentage",
    "fieldtype": "Percent",
-   "label": "Advance Percentage"
+   "label": "Advance Percentage",
+   "precision": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_gross_value",
+   "fieldtype": "Currency",
+   "label": "Project Gross Value",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fetch_from": "sales_order.net_total",
+   "fieldname": "project_value",
+   "fieldtype": "Float",
+   "label": "Project Value",
+   "non_negative": 1,
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -384,7 +394,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-26 11:34:11.183678",
+ "modified": "2024-11-26 14:19:28.572841",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

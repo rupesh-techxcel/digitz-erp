@@ -287,7 +287,10 @@ def create_project_from_sales_order(sales_order):
     # Reference the Sales Order
     project_doc.sales_order = sales_order_doc.name
     project_doc.customer = sales_order_doc.customer
-    project_doc.project_amount = sales_order_doc.net_total
+    project_doc.project_value = round(sales_order_doc.rounded_total,2)
+    project_doc.project_gross_value = round(sales_order_doc.gross_total,2)
+    
     project_doc.boq = sales_order_doc.boq
+    project_doc.sales_order_value = round(sales_order_doc.rounded_total,2)
     # Return the document as a dictionary
     return project_doc.as_dict()

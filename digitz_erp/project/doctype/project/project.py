@@ -5,56 +5,40 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 import frappe.model.rename_doc as rd
-from digitz_erp.api.project_api import update_project_advance_amount
+
 
 class Project(Document):
-    def before_save(self):
-        net_total = frappe.db.get_value("Sales Order", self.sales_order, "net_total")
-        self.project_amount = net_total        
+    
+    def before_validate(self):
+        self.update_advance_amount()     
             
     def on_update(self):
-             
-        update_project_advance_amount(self.sales_order)   
+         
         progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project_name})
         if not progress_entry_exists:     
             frappe.msgprint("Submit the document to create the first 'Progress Entry' for the project.", alert=True)
 
-    def advance_entry_exists(self):
-        allocation_exists = frappe.db.exists("Receipt Allocation", {
-        "reference_type": "Sales Order",
-        "reference_name": self.sales_order
-        })
-
-        return bool(allocation_exists)
-        
     def update_advance_amount(self):
-    
-        progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project_name})
+        
+        advance_amount_query = frappe.db.sql("""
+        SELECT gross_total, advance_percentage
+        FROM `tabSales Invoice`
+        WHERE for_advance_payment = 1 AND sales_order = %s AND docstatus = 1
+        """, (self.sales_order,), as_dict=True)
 
-        if not progress_entry_exists:
+        # Handle cases where no matching invoices are found
+        advance_amount = advance_amount_query[0].get("gross_total", 0) if advance_amount_query else 0
+        advance_percentage = advance_amount_query[0].get("advance_percentage", 0) if advance_amount_query else 0
+        self.advance_amount = advance_amount
+        self.advance_percentage = advance_percentage
             
-            if self.advance_entry_exists():                
-                
-                if not self.advance_amount:
-                    
-                    # Step 3: Fetch total allocated amount from Receipt Allocation
-                    total_advance = frappe.db.sql("""
-                        SELECT SUM(paying_amount) AS total_advance
-                        FROM `tabReceipt Allocation`
-                        WHERE reference_type = 'Sales Order' AND reference_name = %s
-                    """, (self.sales_order,), as_dict=True)[0].get('total_advance', 0) or 0
-                    
-                    self.advance_amount = total_advance
-                    frappe.msgprint("Advance amount fetched from the 'Receipt Entry' made for the 'Sales Order'.", alert=True)
-            else:
-                frappe.msgprint("Advance for the project can be recorded using a 'Receipt Entry' linked to the 'Sales Order'.", alert=True)
-
+    
 @frappe.whitelist()
 def calculate_retention_amt(sales_order_id, retention_percentage):
     sales_doc = frappe.get_doc("Sales Order", sales_order_id)
 
     try:
-        net_total = float(sales_doc.net_total)
+        net_total = float(sales_doc.gross_total)
         retention_percentage = float(retention_percentage)
     except ValueError as e:
         frappe.throw(f"Invalid value provided: {e}")

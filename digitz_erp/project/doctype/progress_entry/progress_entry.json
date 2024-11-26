@@ -14,6 +14,7 @@
   "project",
   "project_retention_amount",
   "project_advance_amount",
+  "project_advance_percentage",
   "column_break_zubf",
   "sales_order",
   "sales_order_date",
@@ -554,6 +555,12 @@
    "fieldname": "tax_rate",
    "fieldtype": "Percent",
    "label": "Tax Rate"
+  },
+  {
+   "fetch_from": "project.advance_percentage",
+   "fieldname": "project_advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Advance Percentage"
   }
  ],
  "in_create": 1,
@@ -568,7 +575,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-25 19:00:08.544222",
+ "modified": "2024-11-26 11:45:18.398742",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

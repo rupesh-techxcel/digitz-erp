@@ -14,6 +14,7 @@
   "project",
   "project_retention_amount",
   "project_advance_amount",
+  "project_advance_percentage",
   "column_break_zubf",
   "sales_order",
   "sales_order_date",
@@ -603,6 +604,11 @@
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
    "label": "Paid Amount"
+  },
+  {
+   "fieldname": "project_advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Advance Percentage"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -617,7 +623,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-25 22:34:49.127506",
+ "modified": "2024-11-26 11:45:56.131842",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

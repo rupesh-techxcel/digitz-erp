@@ -7,10 +7,8 @@ frappe.ui.form.on('Sales Invoice', {
 		 create_custom_buttons(frm);
 
 		//  if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) 
-		 
-
-
-		update_total_big_display(frm);
+	
+		// update_total_big_display(frm);
 		
         frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
             var child = locals[cdt][cdn];
@@ -285,6 +283,7 @@ frappe.ui.form.on('Sales Invoice', {
 			})
 	},
 	make_taxes_and_totals(frm) {
+		console.clear()
 		console.log("from make totals..")
 		frm.clear_table("taxes");
 		frm.refresh_field("taxes");
@@ -448,29 +447,36 @@ frappe.ui.form.on('Sales Invoice', {
 		frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
 			console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
 			if (data && data.do_not_apply_round_off_in_si == 1) {
-				frm.doc.rounded_total = frm.doc.net_total;
-				frm.refresh_field('rounded_total');				
+						
+				frm.set_value("rounded_total", frm.doc.net_total)		
 			}
 			else {
 			 if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
 				 frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-				 frm.doc.rounded_total = Math.round(frm.doc.net_total);
+				//  frm.doc.rounded_total = Math.round(frm.doc.net_total);
+				 frm.set_value("rounded_total", Math.round(frm.doc.net_total))	
 				 frm.refresh_field('round_off');
-				 frm.refresh_field('rounded_total');				 
+				 frm.refresh_field('rounded_total');
+
 			 }
 			 else{
 
-				frm.doc.rounded_total = frm.doc.net_total;
-				frm.refresh_field("rounded_total");
+				// frm.doc.rounded_total = frm.doc.net_total;
+				// frm.refresh_field("rounded_total");
+				frm.set_value("rounded_total", Math.round(frm.doc.net_total))	
 
 				console.log(frm.doc.net_total)
 				console.log(frm.doc.rounded_total)
 				
 			 }
 		 }
+		 console.log("rounded_total_calculated", frm.doc.rounded_total)
 
 			console.log("before call fill_receipt_schedule")
 			fill_receipt_schedule(frm);
+			console.log("rounded_total_calculated 2", frm.doc.rounded_total)
+
+			update_total_big_display(frm);
 		});
 
 		
@@ -482,10 +488,6 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.refresh_field("net_total");
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
-		frm.refresh_field("rounded_total");		
-
-		update_total_big_display(frm);
-
 	},
 	get_item_stock_balance(frm) {
 
@@ -630,7 +632,6 @@ frappe.ui.form.on('Sales Invoice', {
 function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 {
 
-
 	if(refresh)
 	{
 		frm.doc.receipt_schedule = [];
@@ -647,8 +648,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 		var postingDate = frm.doc.posting_date;
 		var creditDays = frm.doc.credit_days;
-		var roundedTotal = frm.doc.rounded_total;
-
+		
 		if (!frm.doc.receipt_schedule) {
 			frm.doc.receipt_schedule = [];
 		}
@@ -704,12 +704,15 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 function update_total_big_display(frm) {
 
+	console.log("from big",frm.doc.rounded_total)
+	
 	let total_to_display = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
 	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${total_to_display}</div>`;
 
+	console.log("displayHtml",displayHtml)
 
     // Directly update the HTML content of the 'total_big' field
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);

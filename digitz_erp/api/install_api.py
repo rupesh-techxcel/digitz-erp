@@ -145,8 +145,7 @@ def create_demo_company():
             "default_advance_paid_account": "",
             "default_work_in_progress_account": "Work In Progress",
             "supplier_terms": "",
-            "customer_terms": "",
-            "material_receipt_integrated_with_purchase": 1,
+            "customer_terms": "",            
             "use_custom_item_group_description_in_estimation": 1,
             "overheads_based_on_percentage": 1
         })

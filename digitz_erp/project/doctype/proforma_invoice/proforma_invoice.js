@@ -61,6 +61,7 @@ frappe.ui.form.on("Proforma Invoice", {
     
                     frm.set_value('project_retention_amount', progress_entry.project_retention_amount);
 					frm.set_value('project_advance_amount', progress_entry.project_advance_amount);
+                    frm.set_value('project_advance_percentage', progress_entry.project_advance_percentage);
                     frm.set_value('total_completion_percentage', progress_entry.total_completion_percentage);
 					frm.set_value('previous_completion_percentage', progress_entry.previous_completion_percentage);
 					frm.set_value('retention_percentage', progress_entry.retention_percentage);
