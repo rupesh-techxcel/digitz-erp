@@ -34,6 +34,8 @@
   "created_from_tab_sale",
   "project",
   "for_advance_payment",
+  "advance_percentage",
+  "project_value",
   "for_retention_recovery",
   "allocated_receipt_entry",
   "cost_center",
@@ -613,7 +615,6 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
-   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"docstatus\",\"=\",\"1\"],[\"Project\",\"status\",\"=\",\"Open\"]]",
    "options": "Project"
   },
   {
@@ -693,6 +694,19 @@
    "fieldtype": "Check",
    "label": "For retention recovery",
    "read_only_depends_on": "eval:doc.project == undefined"
+  },
+  {
+   "depends_on": "eval:doc.for_advance_payment",
+   "fieldname": "advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Advance Percentage",
+   "precision": "0"
+  },
+  {
+   "depends_on": "eval:doc.for_advance_payment",
+   "fieldname": "project_value",
+   "fieldtype": "Currency",
+   "label": "Project Gross Value"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -713,7 +727,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-11-25 18:36:34.557251",
+ "modified": "2024-11-26 11:30:32.812734",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

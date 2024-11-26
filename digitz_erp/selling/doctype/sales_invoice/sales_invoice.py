@@ -104,18 +104,33 @@ class SalesInvoice(Document):
                     _("Item '{0}' is not part of the Sales Order '{1}'. If this is an for advance payment check the 'for advnce payment' option to proceed further.")
                     .format(item.item, self.sales_order)
                 )
-    def validate_for_advance(self):
+    def validate_for_advance_for_progress_entries(self):
         
         if self.for_advance_payment:
             progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project})
             if progress_entry_exists:
                 frappe.throw(f"Project '{self.project}' already has progress entries. Advance amount will not be updated.", alert=True)
-                return
+                return 
+
+    def validate_duplicate_advance_entry_for_project(self):
+        existing_invoice = frappe.db.exists(
+                        "Sales Invoice",
+                        {
+                            "project": doc.project,
+                            "for_advance_payment": 1,
+                            "name": ["!=", doc.name],  # Exclude the current document in case it's being updated
+                            "docstatus": ["<", 2]  # Consider only Draft or Submitted documents
+                        }
+                        )
+        if existing_invoice:
+            frappe.throw(("An advance payment invoice already exists for the project '{0}'. Please review and update the existing invoice instead.").format(doc.project),
+            title=("Duplicate Advance Payment"))
 
     def validate(self):
         self.validate_item()
         self.validate_for_sales_order()
-        self.validate_for_advance()
+        self.validate_for_advance_for_progress_entries()
+        self.validate_duplicate_advance_entry_for_project()
         # self.validate_item_valuation_rates()
 
     def on_update(self):
@@ -133,6 +148,7 @@ class SalesInvoice(Document):
     def update_project_advance_amount(self,for_cancel=False):
         if self.for_advance_payment:
             frappe.db.set_value("Project", self.project, "advance_amount", self.gross_total if not for_cancel else 0)
+            frappe.db.set_value("Project", self.project, "advance_percentage", self.advance_percentage if not for_cancel else 0)
             frappe.msgprint("Advance amount updated in the project", alert=1)
 
     def on_submit(self):

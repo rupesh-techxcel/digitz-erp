@@ -80,6 +80,18 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			};
 		});
+
+		frm.set_query('project', function() {
+			console.log("project filter applies")
+            return {
+				
+                filters: {
+                    customer: frm.doc.customer,
+                    docstatus: 1,
+                    status: 'Open',
+                    disabled: 0
+                }
+            };});
 	},
 	assign_defaults(frm)
 	{
@@ -246,6 +258,12 @@ frappe.ui.form.on('Sales Invoice', {
                 if (project.sales_order) {
                     // Set the sales_order value in the form
                     frm.set_value('sales_order', project.sales_order);
+
+					frappe.db.get_doc('Sales Order', project.sales_order).then(so=>{
+
+						frm.set_value('project_value', so.gross_total)
+					})
+
                 }
             });
 
@@ -686,11 +704,11 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let total_to_display = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${total_to_display}</div>`;
 
 
     // Directly update the HTML content of the 'total_big' field
@@ -863,7 +881,17 @@ frappe.ui.form.on('Sales Invoice Item', {
 					row.conversion_factor = 1;
 
 					frm.item = row.item;
-					frm.warehouse = row.warehouse
+					frm.warehouse = row.warehouse					
+
+					let advance_filled = false
+					if(frm.doc.project && frm.doc.for_advance_payment && frm.doc.project_value>0 && frm.doc.advance_percentage>0)
+					{
+
+						advance_value = (frm.doc.project_value * frm.doc.advance_percentage / 100)
+						row.rate = advance_value
+						advance_filled = true
+					
+					}
 
 					frm.trigger("get_item_stock_balance");
 
@@ -925,7 +953,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					console.log(use_customer_last_price)
 
 					var use_price_list_price = 1
-					if(use_customer_last_price == 1)
+					if(use_customer_last_price == 1 && !advance_filled)
 					{
 						console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
 						frappe.call(
@@ -963,7 +991,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 						);
 					}
 
-					if(use_price_list_price ==1)
+					if(use_price_list_price ==1 && !advance_filled)
 					{
 						console.log("digitz_erp.api.item_price_api.get_item_price")
 						frappe.call(
