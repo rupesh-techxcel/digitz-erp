@@ -545,6 +545,7 @@ class ReceiptEntry(Document):
 	def revert_documents_paid_amount_for_receipt(self):
 		#print("onl here")
 		allocations = self.receipt_allocation
+		previous_paid_amount = 0
 		if(allocations):
 			for allocation in allocations:
 				#print("allocation.reference_type")
