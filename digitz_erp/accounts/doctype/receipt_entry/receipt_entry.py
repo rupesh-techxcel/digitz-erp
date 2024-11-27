@@ -542,6 +542,7 @@ class ReceiptEntry(Document):
 
 		return account
 
+
 	def revert_documents_paid_amount_for_receipt(self):
 		#print("onl here")
 		allocations = self.receipt_allocation
