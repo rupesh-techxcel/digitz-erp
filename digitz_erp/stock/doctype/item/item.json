@@ -32,9 +32,9 @@
   "item_valuation_rate",
   "stock_value",
   "section_break_20",
-  "units",
   "disabled",
   "customer_rates",
+  "units",
   "supplier_prices_tab",
   "supplier_rates",
   "do_not_update_price",
@@ -228,12 +228,13 @@
   {
    "fieldname": "units",
    "fieldtype": "Table",
+   "label": "Units",
    "options": "Item Unit"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-27 15:00:29.732610",
+ "modified": "2024-11-27 15:17:06.336114",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
