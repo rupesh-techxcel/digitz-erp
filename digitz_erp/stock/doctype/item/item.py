@@ -35,22 +35,23 @@ class Item(Document):
     
 	def before_validate(self):
      
+		frappe.msgprint("before_validate", alert=True)
 		base_unit_exists = False
 		# Loop through the rows in the child table 'Item Unit'
-		for row in self.units:
-			# Check if there is already a row with the base_unit
-			if row.unit == self.base_unit:
-				base_unit_exists = True
-				break
+		# for row in self.units:
+		# 	# Check if there is already a row with the base_unit
+		# 	if row.unit == self.base_unit:
+		# 		base_unit_exists = True
+		# 		break
 		
-		# If base_unit does not exist, add it with conversion factor 1
-		if not base_unit_exists:
-			self.append("units", {
-				"unit": self.base_unit,
-				"conversion_factor": 1
-			})	
+		# # If base_unit does not exist, add it with conversion factor 1
+		# if not base_unit_exists:
+		# 	self.append("units", {
+		# 		"unit": self.base_unit,
+		# 		"conversion_factor": 1
+		# 	})	
 
-			frappe.msgprint("Added an Item Unit entry for the base unit with a conversion factor of 1.", alert=1)
+		frappe.msgprint("Added an Item Unit entry for the base unit with a conversion factor of 1.", alert=1)
 	
 
 		
