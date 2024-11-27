@@ -16,7 +16,7 @@ def after_install():
     create_default_customer_group()
     create_default_price_lists()
     populate_area_data()
-    create_shift_payment_units()   
+    # create_shift_payment_units()   
     
 
 def insert_accounts():
@@ -543,19 +543,6 @@ def populate_area_data():
             print(f"Inserted Area: {area['Area']} in {area['Emirate']}")
         else:
             print(f"Area already exists: {area['Area']} in {area['Emirate']}")
-
-def create_shift_payment_units():
-    
-    unit = "HRS"
-    if not frappe.db.exists("Shift Payment Unit", {"name": unit}):
-        
-        shift_payment_unit = frappe.get_doc({
-            "doctype": "Shift Payment Unit",
-            "unit_name": unit            
-        })
-        
-        shift_payment_unit.insert()
-        print(f"Inserted Shift Payment Unit: {unit}")
 
 def create_default_items():
 
