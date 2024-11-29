@@ -2,14 +2,16 @@ import frappe
 from frappe.utils import get_datetime
 
 @frappe.whitelist()
-def get_customer_pending_documents(customer, reference_type, receipt_no,only_unpaid=False, exclude_advance_invoices=False):
+def get_customer_pending_documents(customer, reference_type, receipt_no,only_unpaid=False, exclude_advance_in_the_other_document=False):
     
     print("reference type")
     print(reference_type)
     
     filter_paid_condition = "AND paid_amount = 0" if only_unpaid else ""
     
-    exclude_advance_invoices_condition = "AND (for_advance_payment == 0 OR for_advance_payment IS NULL)" if exclude_advance_invoices else "" if exclude_advance_invoices else ""
+    exclude_advance_invoices_condition = "AND (advance_received_with_sales_order = 0 OR advance_received_with_sales_order IS NULL)" if exclude_advance_in_the_other_document else "" if exclude_advance_in_the_other_document else ""
+    
+    exclude_advance_orders_condition = "AND (advance_received_with_sales_invoice = 0 OR advance_received_with_sales_invoice IS NULL)" if exclude_advance_in_the_other_document else "" if exclude_advance_in_the_other_document else ""
 
     if reference_type == 'Sales Invoice':
 
@@ -32,10 +34,9 @@ def get_customer_pending_documents(customer, reference_type, receipt_no,only_unp
                 customer = '{0}'
                 AND docstatus = 1
                 AND credit_sale = 1
-                AND rounded_total > paid_amount
-                {1}
-                {2}
-        """.format(customer, filter_paid_condition, exclude_advance_invoices_condition)
+                AND rounded_total > paid_amount                
+                {1}{2}         
+        """.format(customer, filter_paid_condition,exclude_advance_invoices_condition)
 
         # Additional Query for Receipt Allocation (if receipt_no is not None)
         receipt_allocation_values = []
@@ -104,7 +105,8 @@ def get_customer_pending_documents(customer, reference_type, receipt_no,only_unp
                 AND docstatus = 1
                 AND credit_sale = 1
                 AND rounded_total > paid_amount
-        """.format(customer)
+                {1}
+        """.format(customer,exclude_advance_orders_condition)
 
         # Additional Query for Receipt Allocation (if receipt_no is not None)
         receipt_allocation_values = []

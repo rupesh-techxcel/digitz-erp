@@ -103,6 +103,96 @@ class ReceiptEntry(Document):
 		self.check_allocations_and_totals()
 		self.check_excess_allocation()
 		self.validate_multiple_sales_orders()
+  
+	def revert_for_advance_receipt(self):
+		"""
+		Reverts updates made to Sales Invoice and Sales Order fields during advance receipt processing.
+		This method resets:
+		- 'advance_received_with_sales_order' in Sales Invoice
+		- 'advance_received_with_sales_invoice' in Sales Order
+		"""
+		# Loop through the allocation table in the Receipt Entry
+		for allocation in self.receipt_allocation:
+			# Case 1: Allocation is for 'Sales Order'
+			if allocation.reference_type == "Sales Order":
+				sales_order = allocation.reference_name
+				
+				# Find the corresponding Sales Invoices linked to this Sales Order
+				sales_invoices = frappe.get_all(
+					"Sales Invoice",
+					filters={
+						"sales_order": sales_order,
+						"for_advance_payment": 1  # True in database
+					},
+					fields=["name"]
+				)
+				
+				# Reset the 'advance_received_with_sales_order' field in each linked Sales Invoice
+				for invoice in sales_invoices:
+					frappe.db.set_value("Sales Invoice", invoice["name"], "advance_received_with_sales_order", 0)
+
+			# Case 2: Allocation is for 'Sales Invoice'
+			elif allocation.reference_type == "Sales Invoice":
+				sales_invoice = allocation.reference_name
+
+				# Check if the Sales Invoice is marked as 'for_advance_payment'
+				for_advance_payment = frappe.db.get_value("Sales Invoice", sales_invoice, "for_advance_payment")
+				
+				if for_advance_payment:
+					# Get the linked Sales Order for the Sales Invoice
+					sales_order = frappe.db.get_value("Sales Invoice", sales_invoice, "sales_order")
+					
+					if sales_order:
+						# Reset the 'advance_received_with_sales_invoice' field in the Sales Order
+						frappe.db.set_value("Sales Order", sales_order, "advance_received_with_sales_invoice", 0)
+
+		# Commit changes to the database
+		frappe.db.commit()
+
+  
+	def update_for_advance_receipt(self):
+		"""
+		Updates Sales Invoice and Sales Order fields based on allocations in the Receipt Entry
+		for advance receipt scenarios.
+		"""
+		# Loop through the allocation table in the Receipt Entry
+		for allocation in self.receipt_allocation:
+			# Case 1: Allocation is for 'Sales Order'
+			if allocation.reference_type == "Sales Order":
+				sales_order = allocation.reference_name
+				
+				# Find the corresponding Sales Invoices linked to this Sales Order
+				sales_invoices = frappe.get_all(
+					"Sales Invoice",
+					filters={
+						"sales_order": sales_order,
+						"for_advance_payment": 1  # True in database
+					},
+					fields=["name"]
+				)
+				
+				# Update the 'advance_received_with_sales_order' field in each linked Sales Invoice
+				for invoice in sales_invoices:
+					frappe.db.set_value("Sales Invoice", invoice["name"], "advance_received_with_sales_order", 1)
+
+			# Case 2: Allocation is for 'Sales Invoice'
+			elif allocation.reference_type == "Sales Invoice":
+				sales_invoice = allocation.reference_name
+
+				# Check if the Sales Invoice is marked as 'for_advance_payment'
+				for_advance_payment = frappe.db.get_value("Sales Invoice", sales_invoice, "for_advance_payment")
+				
+				if for_advance_payment:
+					# Get the linked Sales Order for the Sales Invoice
+					sales_order = frappe.db.get_value("Sales Invoice", sales_invoice, "sales_order")
+					
+					if sales_order:
+						# Update the 'advance_received_with_sales_invoice' field in the Sales Order
+						frappe.db.set_value("Sales Order", sales_order, "advance_received_with_sales_invoice", 1)
+
+		# Commit changes to the database
+		frappe.db.commit()
+
 	
 	def validate_multiple_sales_orders(self):
  
@@ -287,6 +377,7 @@ class ReceiptEntry(Document):
 		self.update_progressive_sales_invoices()
 		self.update_sales_return()
 		self.update_credit_note()
+		self.update_for_advance_receipt()
 
 	def on_submit(self):
 		# self.do_posting()
@@ -512,6 +603,7 @@ class ReceiptEntry(Document):
 
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_receipt()
+		self.revert_for_advance_receipt()
 
 	def on_cancel(self):
 		cancel_bank_reconciliation("Receipt Entry", self.name)
@@ -519,6 +611,7 @@ class ReceiptEntry(Document):
 		self.revert_documents_paid_amount_for_receipt()
 
 		delete_gl_postings_for_cancel_doc_type('Receipt Entry',self.name)
+		self.revert_for_advance_receipt()
 
 		# frappe.db.delete("GL Posting",
 		# 		{"Voucher_type": "Receipt Entry",

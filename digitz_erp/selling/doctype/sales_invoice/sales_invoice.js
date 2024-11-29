@@ -1,7 +1,11 @@
 // Copyright (c) 2023, Rupesh P and contributors
 // For license information, please see license.txt
 
+// import { general_ledgers } from '/assets/digitz_erp/js/digitz_common.js';
+
 frappe.ui.form.on('Sales Invoice', {
+
+	
 
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
@@ -1268,6 +1272,8 @@ let general_ledgers = function (frm) {
                               '</thead>' +
                               '<tbody>';
 
+			console.log("gl_postings",gl_postings)
+
             gl_postings.forEach(function (gl_posting) {
                 let remarksText = gl_posting.remarks || '';
                 let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
@@ -1312,7 +1318,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); 
+            d.$wrapper.find('.modal-dialog').css('max-width', '90%'); 
 
             d.show();
         }

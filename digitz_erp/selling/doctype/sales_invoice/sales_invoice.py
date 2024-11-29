@@ -86,6 +86,8 @@ class SalesInvoice(Document):
         # from Sales Invoice. So adding a duplicate field for printing purpose
         self.location_to_print = self.ship_to_location
         
+        self.update_advance_received_with_sales_order()
+        
     def validate_for_sales_order(self):
         # Ensure the Sales Invoice is linked to a Sales Order
         if not (self.sales_order) or self.for_advance_payment or self.for_retention_recovery :
@@ -132,6 +134,28 @@ class SalesInvoice(Document):
         self.validate_for_advance_for_progress_entries()
         self.validate_duplicate_advance_entry_for_project()
         # self.validate_item_valuation_rates()
+    
+    def update_advance_received_with_sales_order(self):
+        """
+        Checks if the linked Sales Order of this Sales Invoice has an allocation
+        in any Receipt Entry and updates the 'advance_received_with_sales_order' field.
+        """
+        # Ensure this Sales Invoice is linked to a Sales Order
+        if not self.sales_order:
+            return  # No linked Sales Order, nothing to check
+
+        # Check if there is an allocation in Receipt Entry for this Sales Order
+        allocation_exists = frappe.db.exists(
+            "Receipt Entry Allocation",  # Doctype name
+            {
+                "reference_type": "Sales Order",
+                "reference_name": self.sales_order
+            }
+        )
+
+        # Update the 'advance_received_with_sales_order' field based on the allocation
+        self.advance_received_with_sales_order = 1 if allocation_exists else 0
+
 
     def on_update(self):
 

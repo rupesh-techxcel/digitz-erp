@@ -45,7 +45,7 @@
   "lpo_no",
   "lpo_date",
   "payment_status",
-  "submitted_record",
+  "advance_received_with_sales_order",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -598,12 +598,6 @@
    "fieldtype": "HTML"
   },
   {
-   "default": "0",
-   "fieldname": "submitted_record",
-   "fieldtype": "Check",
-   "label": "Submitted Record"
-  },
-  {
    "description": "This is a duplicate field for ship_to_location and getting saved from the server side. It is added because of 'Customer Delivery Location' is a child table for customer and cannot have access here",
    "fieldname": "location_to_print",
    "fieldtype": "Data",
@@ -707,6 +701,13 @@
    "fieldname": "project_value",
    "fieldtype": "Currency",
    "label": "Project Gross Value"
+  },
+  {
+   "default": "0",
+   "fieldname": "advance_received_with_sales_order",
+   "fieldtype": "Check",
+   "label": "Advance Received With Sales Order",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -727,7 +728,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-11-26 11:30:32.812734",
+ "modified": "2024-11-28 09:28:36.784597",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

@@ -234,46 +234,70 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 			 frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
 		}
 	 },
+	receipt_type: function(frm, cdt, cdn) {
+		console.log("hitting receipt_type");
 
-receipt_type: function(frm, cdt, cdn) {
-	console.log("hitting receipt_type");
+		var row = locals[cdt][cdn];
+		if (row.receipt_type === "Customer") {
+			frappe.call({
+				method: 'frappe.client.get_value',
+				args: {
+					doctype: 'Global Settings',
+					fieldname: 'default_company'
+				},
+				callback: (response) => {
+					if (response && response.message) {
 
-	var row = locals[cdt][cdn];
-	if (row.receipt_type === "Customer") {
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				doctype: 'Global Settings',
-				fieldname: 'default_company'
-			},
-			callback: (response) => {
-				if (response && response.message) {
+						console.log("response", response);
+						frappe.db.get_value(
+							"Company",
+							response.message.default_company,
+							["default_receivable_account", "default_advance_billed_but_not_received_account"]
+						).then((res) => {
+							console.log("res", res);
 
-					console.log("response",response)
-					frappe.db.get_value(
-						"Company",
-						response.message.default_company,
-						["default_receivable_account", "default_advance_billed_but_not_received_account"]
-					).then((res) => {
+							if (res && res.message) {
+								var default_receivable_account = res.message.default_receivable_account;
+								var default_advance_billed_but_not_received_account = res.message.default_advance_billed_but_not_received_account;
 
-						console.log("res",res)
-						
-						if (res && res.message) {
-							var default_receivable_account = res.message.default_receivable_account;
-							var default_advance_billed_but_not_received_account = res.message.default_advance_billed_but_not_received_account;
+								if (row.reference_type === "Sales Order") {
+									// For Sales Order, allocate to advance billed but not received account
+									frappe.model.set_value(cdt, cdn, 'account', default_advance_billed_but_not_received_account);
+								} else if (row.reference_type === "Sales Invoice") {
+									// For Sales Invoice, check if it's marked for advance payment
+									frappe.call({
+										method: 'frappe.client.get_value',
+										args: {
+											doctype: "Sales Invoice",
+											filters: { name: row.reference_name },
+											fieldname: "for_advance_payment"
+										},
+										callback: (inv_response) => {
+											if (inv_response && inv_response.message) {
+												var for_advance_payment = inv_response.message.for_advance_payment;
 
-							if (row.reference_type === "Sales Order") {
-								frappe.model.set_value(cdt, cdn, 'account', default_advance_billed_but_not_received_account);
-							} else {
-								frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
+												if (for_advance_payment) {
+													// If for advance payment, allocate to advance billed but not received account
+													frappe.model.set_value(cdt, cdn, 'account', default_advance_billed_but_not_received_account);
+												} else {
+													// Otherwise, allocate to receivable account
+													frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
+												}
+											}
+										}
+									});
+								} else {
+									// Default allocation for other reference types
+									frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
+								}
 							}
-						}
-					});
+						});
+					}
 				}
-			}
-		});
-	}
+			});
+		}
 },
+	
 reference_type: function(frm, cdt, cdn) {
 	frm.trigger("receipt_type", cdt, cdn); // Correct way to trigger another function
 },
@@ -394,7 +418,7 @@ allocations: function(frm, cdt, cdn)
 			customer: selected_customer,
 			reference_type: selected_reference_type,
 			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name,
-			exclude_advance_invoices:true
+			exclude_advance_in_the_other_document:true
 		},
 		callback:(r) => {
 

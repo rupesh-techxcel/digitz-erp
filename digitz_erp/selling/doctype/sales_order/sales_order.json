@@ -36,6 +36,7 @@
   "lpo_no",
   "order_status",
   "default_cost_center",
+  "advance_received_with_sales_invoice",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -454,6 +455,13 @@
    "fieldname": "boq",
    "fieldtype": "Read Only",
    "label": "BOQ"
+  },
+  {
+   "default": "0",
+   "fieldname": "advance_received_with_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Advance Received With Sales Invoice",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -472,7 +480,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-23 16:17:35.981156",
+ "modified": "2024-11-28 09:48:13.756270",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

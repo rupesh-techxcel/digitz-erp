@@ -55,6 +55,7 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 			}
 		}
 	})
+	
 	frm.set_query("default_advance_paid_account",function(){
 		return{
 			"filters": {

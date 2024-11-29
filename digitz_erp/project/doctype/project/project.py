@@ -15,7 +15,7 @@ class Project(Document):
     def on_update(self):
          
         progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project_name})
-        if not progress_entry_exists:     
+        if not progress_entry_exists and self.docstatus ==0:     
             frappe.msgprint("Submit the document to create the first 'Progress Entry' for the project.", alert=True)
 
     def update_advance_amount(self):

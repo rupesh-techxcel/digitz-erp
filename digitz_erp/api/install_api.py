@@ -146,7 +146,7 @@ def create_demo_company():
             "default_work_in_progress_account": "Work In Progress",
             "supplier_terms": "",
             "customer_terms": "",            
-            "use_custom_item_group_description_in_estimation": 1,
+            "use_custom_item_group_description_in_estimation": 0,
             "overheads_based_on_percentage": 1
         })
 

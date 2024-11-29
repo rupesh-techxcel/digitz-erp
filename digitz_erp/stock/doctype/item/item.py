@@ -35,7 +35,6 @@ class Item(Document):
     
 	def before_validate(self):
      
-		frappe.msgprint("before_validate", alert=True)
 		base_unit_exists = False
 		# Loop through the rows in the child table 'Item Unit'
 		for row in self.units:
