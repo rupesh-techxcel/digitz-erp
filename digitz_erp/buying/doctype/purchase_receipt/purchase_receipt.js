@@ -1143,7 +1143,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); 
+            d.$wrapper.find('.modal-dialog').css('max-width', '90%'); 
 
             d.show();
         }

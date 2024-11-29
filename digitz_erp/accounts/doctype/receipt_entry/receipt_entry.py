@@ -296,7 +296,7 @@ class ReceiptEntry(Document):
 		if(receipt_details):
 			for receipt_detail in receipt_details:
 
-				total_amount_in_rows = total_amount_in_rows+ receipt_detail.amount
+				total_amount_in_rows = total_amount_in_rows+ receipt_detail.amount if receipt_detail.amount else 0
 
 				if receipt_detail.receipt_type != "Customer":
 					continue
