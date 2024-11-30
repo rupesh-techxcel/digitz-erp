@@ -781,6 +781,8 @@ let general_ledgers = function (frm) {
                               '</thead>' +
                               '<tbody>';
 
+			console.log("gl_postings",gl_postings)
+
             gl_postings.forEach(function (gl_posting) {
                 let remarksText = gl_posting.remarks || '';
                 let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);

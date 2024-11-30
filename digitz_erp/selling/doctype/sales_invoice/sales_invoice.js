@@ -5,8 +5,14 @@
 
 frappe.ui.form.on('Sales Invoice', {
 
-	
-
+	show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
 
@@ -892,13 +898,16 @@ frappe.ui.form.on('Sales Invoice Item', {
 
 					let advance_filled = false
 					if(frm.doc.project && frm.doc.for_advance_payment && frm.doc.project_value>0 && frm.doc.advance_percentage>0)
-					{
+						{
+	
+							advance_value = (frm.doc.project_value * frm.doc.advance_percentage / 100)
+							row.rate = advance_value
+							advance_filled = true
 
-						advance_value = (frm.doc.project_value * frm.doc.advance_percentage / 100)
-						row.rate = advance_value
-						advance_filled = true
-					
-					}
+							var message = frm.doc.advance_percentage + "% advance = " + advance_value + " allocated in the line item.";
+							
+							frm.events.show_a_message(frm,message);
+						}
 
 					frm.trigger("get_item_stock_balance");
 

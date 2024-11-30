@@ -175,6 +175,8 @@ let general_ledgers = function (frm) {
                               '</thead>' +
                               '<tbody>';
 
+			console.log("gl_postings",gl_postings)
+
             gl_postings.forEach(function (gl_posting) {
                 let remarksText = gl_posting.remarks || '';
                 let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
@@ -195,8 +197,8 @@ let general_ledgers = function (frm) {
 
             // Add totals row
             htmlContent += '<tr>' +
-						   '<td></td>'+
                            '<td style="font-weight: bold;">Total</td>' +
+						   '<td></td>'+
                            `<td style="text-align: right; font-weight: bold;">${totalDebit}</td>` +
                            `<td style="text-align: right; font-weight: bold;">${totalCredit}</td>` +
                            '<td colspan="5"></td>' +

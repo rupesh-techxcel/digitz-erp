@@ -47,4 +47,8 @@ frappe.ui.form.on("Prospect", {
             }
         });
     },
+    emirate: function (frm) 
+    {
+        frm.set_value("area","")
+    },
 });
