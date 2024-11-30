@@ -294,20 +294,3 @@ class ExpenseEntry(Document):
 
 
 		frappe.db.commit()
-
-@frappe.whitelist()
-def get_gl_postings(expense_entry):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": expense_entry},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings
