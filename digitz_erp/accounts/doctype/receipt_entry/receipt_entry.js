@@ -3,7 +3,21 @@
 
 frappe.ui.form.on('Receipt Entry', {
 
+	show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
 	refresh:function(frm){
+
+		// Initialize the previous project value when the form loads
+        if (!frm._previous_project) {
+            frm._previous_project = frm.doc.project;
+        }
+
 		create_custom_buttons(frm)
 
 		frm.set_query("warehouse", function() {
@@ -153,6 +167,37 @@ frappe.ui.form.on('Receipt Entry', {
 	{
 		frm.trigger("calculate_total_and_set_fields");
 	},
+	project: function (frm) {
+        // Check if a project has been previously assigned and stored
+        const previous_project = frm._previous_project || null;
+
+        // If a previous project exists and it differs from the current one
+        if (previous_project && frm.doc.project !== previous_project) {
+            frappe.confirm(
+                __(
+                    "Changing the project will automatically change the project field in the 'Receipt Entry Details' rows. Do you want to continue?"
+                ),
+                function () {
+                    // User confirmed the change
+                    frm._previous_project = frm.doc.project; // Update the stored project value
+                    
+                    // Update all rows in the Receipt Entry Details child table
+                    (frm.doc.receipt_entry_details || []).forEach((row) => {
+                        row.project = frm.doc.project;
+                    });
+
+                    frm.refresh_field("receipt_entry_details");
+                },
+                function () {
+                    // User canceled the change
+                    frm.set_value("project", previous_project); // Revert the project field
+                }
+            );
+        } else {
+            // No previous project exists, or the project hasn't changed
+            frm._previous_project = frm.doc.project; // Store the current project value
+        }
+    },    
 	clean_allocations(frm)
 	{
 		var allocations = cur_frm.doc.receipt_allocation;
@@ -324,6 +369,7 @@ receipt_entry_details_add:function(frm,cdt,cdn)
 	row.reference_type = "Sales Invoice"
 	row.reference_no = frm.doc.reference_no
 	row.reference_date = frm.doc.reference_date
+	row.project = frm.doc.project
 	frm.refresh_field("receipt_entry_details")
 },
 receipt_entry_details_remove: function(frm,cdt,cdn)
@@ -687,7 +733,7 @@ allocations: function(frm, cdt, cdn)
 
 				if(element.paying_amount>0)
 				{
-					var row_allocation = frappe.model.get_new_doc('Payment Allocation');
+					var row_allocation = frappe.model.get_new_doc('Receipt Allocation');
 					row_allocation.customer = element.customer
 
 					row_allocation.reference_type = element.reference_type
@@ -711,14 +757,33 @@ allocations: function(frm, cdt, cdn)
 					row_allocation.balance_amount = element.balance_amount
 					totalPay = totalPay + element.paying_amount
 					row_allocation.receipt_entry_detail = frm.doc.receipt_entry_details[row.idx]
-					
+	
+					if (element.reference_type && element.reference_name) {
+						frappe.call({
+							method: "digitz_erp.api.receipt_entry_api.get_project_for_allocation", // Update with actual Python method path
+							async:false,
+							args: {
+								doc_type: element.reference_type,
+								doc_name: element.reference_name
+							},
+							callback: function(response) {
+								if (response.message) {
+									// Handle the returned project value
+									const proj = response.message;
+									
+									row_allocation.project = proj
+									// frm.events.show_a_message(frm, `Project ${proj} assigned to the allocation.`);
+									
+								}
+							}
+						});
+					}
 
+
+					console.log("row_allocation", row_allocation)
 					cur_frm.add_child('receipt_allocation', row_allocation);
 
-					cur_frm.refresh_field('receipt_allocation');
-
-					console.log("row_allocation")
-					console.log(row_allocation)
+					cur_frm.refresh_field('receipt_allocation');					
 
 				}
 			}
@@ -731,6 +796,8 @@ allocations: function(frm, cdt, cdn)
 			frm.trigger("calculate_total_and_set_fields");
 
 			cur_frm.refresh_field('receipt_allocation');
+
+			console.log("receipt allocation",frm.doc.receipt_allocation)
 
 			dialog.hide();
 		},
@@ -834,21 +901,3 @@ let general_ledgers = function (frm) {
     });
 };
 
-
-frappe.ui.form.on("Receipt Entry",{
-    refresh: function(frm){
-        let prev_customer = localStorage.getItem('prev_customer')
-        let prev_project = localStorage.getItem('prev_project')
-        
-        if(prev_customer && prev_project){
-            console.log("Receipt Entry With Custom Data.")
-			frm.set_df_property("advance_section_break","hidden",0);
-            frm.set_value('project', prev_project);
-            frm.set_value('customer', prev_customer);
-            frm.set_value('advance_payment',1)
-        }
-		localStorage.removeItem('prev_customer');
-		localStorage.removeItem('prev_project');
-
-    }
-})

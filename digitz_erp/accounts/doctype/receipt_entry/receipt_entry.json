@@ -20,6 +20,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "default_cost_center",
+  "project",
   "column_break_dxaps",
   "amount",
   "allocated_amount",
@@ -33,7 +34,6 @@
   "advance_payment",
   "customer",
   "column_break_twrj",
-  "project",
   "section_break_yppjt",
   "receipt_entry_details",
   "show_allocations",
@@ -207,14 +207,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Project",
-   "options": "Project",
-   "read_only": 1
-  },
-  {
    "fieldname": "advance_section_break",
    "fieldtype": "Section Break",
    "hidden": 1,
@@ -237,12 +229,19 @@
    "fieldtype": "Link",
    "label": "Company",
    "options": "Company"
+  },
+  {
+   "description": "Primarily for the 'On Account' reference type, the 'Project' field will remain as is. For other reference types, the 'Project' field will be overridden by the value associated with the corresponding document.",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-11-18 18:00:35.211074",
+ "modified": "2024-11-30 22:43:58.968811",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

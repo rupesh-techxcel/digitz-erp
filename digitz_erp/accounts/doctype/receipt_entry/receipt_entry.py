@@ -515,22 +515,42 @@ class ReceiptEntry(Document):
 					invoice_total = previous_paid_amount + allocation.paying_amount
 
 					frappe.db.set_value("Credit Note", allocation.reference_name, {'paid_amount': invoice_total})
+     
+    
+	def check_projects(self):
+		projects = False
+		for row in self.receipt_entry_details:
+			if row.project:
+				projects = True
+				break
+
+		if not projects:
+			for row in self.receipt_allocation:
+				if row.project:
+					projects = True
+					break
+
+		return projects
+
     
 	def insert_gl_records(self):
 
-		#print("From insert gl records")
+		if self.check_projects():
+			print("Calling insert_gl_records_for_projects")
+			self.insert_gl_records_for_projects()
+			return
 
-		# default_company = frappe.db.get_single_value(
-		# 	"Global Settings", "default_company")
+		default_company = frappe.db.get_single_value(
+			"Global Settings", "default_company")
 
-		# default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
-		# 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
+		default_accounts = frappe.get_value("Company", default_company, ['default_receivable_account', 'default_inventory_account',
+		 																	'default_income_account', 'cost_of_goods_sold_account', 'round_off_account', 'tax_account'], as_dict=1)
 		idx = 0
 
 		receipt_details = self.receipt_entry_details
   
 		for_return_amount = 0
-
+  
 		if(receipt_details):
 			for receipt_entry in receipt_details:
 				if(receipt_entry.receipt_type == "Customer"):
@@ -555,7 +575,7 @@ class ReceiptEntry(Document):
 					gl_doc.remarks = self.remarks
 					gl_doc.insert()
 
-				else:
+				else: #Other Receipt Type
 					idx = idx + 1
 					gl_doc = frappe.new_doc('GL Posting')
 					gl_doc.voucher_type = "Receipt Entry"
@@ -563,12 +583,13 @@ class ReceiptEntry(Document):
 					gl_doc.idx = idx
 					gl_doc.posting_date = self.posting_date
 					gl_doc.posting_time = self.posting_time
-					gl_doc.account = receipt_entry.account if receipt_entry.account else "Trade Receivable"
+					gl_doc.account = receipt_entry.account if receipt_entry.account else default_accounts.default_receivable_account
 					gl_doc.credit_amount = receipt_entry.amount
 					gl_doc.against_account = self.account
 					gl_doc.remarks = self.remarks
 					gl_doc.insert()
      
+		# Credit for the return with payment mode (cash/bank/etc).
 		if for_return_amount >0:
 
 			gl_doc = frappe.new_doc('GL Posting')
@@ -580,27 +601,176 @@ class ReceiptEntry(Document):
 			gl_doc.account = self.account
 			gl_doc.credit_amount = for_return_amount
 			gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-			gl_doc.remarks = self.remarks
-			# gl_doc.party_type = "Customer"
-			# gl_doc.party = self.customer
-			# gl_doc.against_account = default_accounts.default_income_account
+			gl_doc.remarks = self.remarks			
 			gl_doc.insert()
    
-		gl_doc = frappe.new_doc('GL Posting')
-		gl_doc.voucher_type = "Receipt Entry"
-		gl_doc.voucher_no = self.name
-		gl_doc.idx = idx
-		gl_doc.posting_date = self.posting_date
-		gl_doc.posting_time = self.posting_time
-		gl_doc.account = self.account
-		gl_doc.debit_amount = self.amount -for_return_amount
-		gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-		gl_doc.remarks = self.remarks
-		# gl_doc.party_type = "Customer"
-		# gl_doc.party = self.customer
-		# gl_doc.against_account = default_accounts.default_income_account
-		gl_doc.insert()
+		# Avoid zero
+		# Debit for the payment mode cash/bank/etc
+		if (self.amount -for_return_amount) > 0:
+			gl_doc = frappe.new_doc('GL Posting')
+			gl_doc.voucher_type = "Receipt Entry"
+			gl_doc.voucher_no = self.name
+			gl_doc.idx = idx
+			gl_doc.posting_date = self.posting_date
+			gl_doc.posting_time = self.posting_time
+			gl_doc.account = self.account
+			gl_doc.debit_amount = self.amount -for_return_amount
+			gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
+			gl_doc.remarks = self.remarks			
+			gl_doc.insert()
 
+
+	def insert_gl_records_for_projects(self):
+     
+		default_company = frappe.db.get_single_value("Global Settings", "default_company")
+		default_accounts = frappe.get_value(
+			"Company",
+			default_company,
+			[
+				"default_receivable_account",
+				"default_inventory_account",
+				"default_income_account",
+				"cost_of_goods_sold_account",
+				"round_off_account",
+				"tax_account",
+			],
+			as_dict=1,
+		)
+
+		idx = 0
+		project_account_wise_payment_total = {}  # For 'Other' receipt types
+		project_customer_account_wise_return_total = {}  # For returns (#+ Customer + Account key)
+		project_customer_account_wise_payment_total = {}  # For else cases (Project + Customer + Account key)
+
+		receipt_details = self.receipt_entry_details
+		receipt_allocation = getattr(self, "receipt_allocation", None)	
+		print("receipt_allocation")
+		print(receipt_allocation)
+
+		if receipt_details:
+			for receipt_entry in receipt_details:
+				 # Handle 'Other' Receipt Type (Project + Account-based)
+				if receipt_entry.receipt_type == "Other":
+					project_account_key = (receipt_entry.project, receipt_entry.account)
+					project_account_wise_payment_total[project_account_key] = project_account_wise_payment_total.get(project_account_key, 0) + receipt_entry.amount
+
+					print("project_account_wise_payment_total")
+					print(project_account_wise_payment_total)
+
+				# Handle Returns (Project + Customer + Account key)
+				elif receipt_entry.reference_type in ["Sales Return", "Credit Note"]:
+					if receipt_allocation:
+						filtered_returns = [
+							allocation
+							for allocation in receipt_allocation
+							if allocation.customer == receipt_entry.customer
+							and allocation.reference_type == receipt_entry.reference_type
+						]
+						for allocation in filtered_returns:
+							return_key = (allocation.project, allocation.customer, receipt_entry.account)
+							project_customer_account_wise_return_total[return_key] = project_customer_account_wise_return_total.get(return_key, 0) + allocation.amount
+
+				# Handle Allocations for Receipt Type "Customer!"
+				elif receipt_entry.receipt_type == "Customer":
+					if receipt_allocation:
+						filtered_allocations = [
+							allocation
+							for allocation in receipt_allocation
+							if allocation.customer == receipt_entry.customer
+							and allocation.reference_type == receipt_entry.reference_type
+						]
+						for allocation in filtered_allocations:
+							allocation_key = (allocation.project, allocation.customer, receipt_entry.account)
+							project_customer_account_wise_payment_total[allocation_key] = project_customer_account_wise_payment_total.get(allocation_key, 0) + allocation.paying_amount
+
+						print("project_customer_account_wise_payment_total")
+						print(project_customer_account_wise_payment_total)
+
+		# Function to create GL Posting for Debit and Credit
+		def create_gl_postings(project, customer, account, amount, is_return=False):
+			nonlocal idx
+			if is_return:
+				# Create credit entry for the return
+				idx += 1
+				gl_doc_credit = frappe.new_doc("GL Posting")
+				gl_doc_credit.voucher_type = "Receipt Entry"
+				gl_doc_credit.voucher_no = self.name
+				gl_doc_credit.idx = idx
+				gl_doc_credit.posting_date = self.posting_date
+				gl_doc_credit.posting_time = self.posting_time
+				gl_doc_credit.project = project
+				gl_doc_credit.party_type = "Customer" if customer else None
+				gl_doc_credit.party = customer
+				gl_doc_credit.account = account  # Account from dictionary
+				gl_doc_credit.debit_amount = amount
+				gl_doc_credit.against_account = self.account
+				gl_doc_credit.remarks = self.remarks
+				gl_doc_credit.insert()
+
+				# Create debit entry for the return
+				idx += 1
+				gl_doc_debit = frappe.new_doc("GL Posting")
+				gl_doc_debit.voucher_type = "Receipt Entry"
+				gl_doc_debit.voucher_no = self.name
+				gl_doc_debit.idx = idx
+				gl_doc_debit.posting_date = self.posting_date
+				gl_doc_debit.posting_time = self.posting_time
+				gl_doc_debit.project = project
+				gl_doc_debit.account = self.account  # Account from `frm.doc.account`
+				gl_doc_debit.credit_amount = amount
+				gl_doc_debit.against_account = account
+				gl_doc_debit.remarks = self.remarks
+				gl_doc_debit.insert()
+			else:
+				# Create debit entry for payments
+				idx += 1
+				gl_doc_debit = frappe.new_doc("GL Posting")
+				gl_doc_debit.voucher_type = "Receipt Entry"
+				gl_doc_debit.voucher_no = self.name
+				gl_doc_debit.idx = idx
+				gl_doc_debit.posting_date = self.posting_date
+				gl_doc_debit.posting_time = self.posting_time
+				gl_doc_debit.project = project
+				gl_doc_debit.party_type = "Customer" if customer else None
+				gl_doc_debit.party = customer
+				gl_doc_debit.account = account  # Account from dictionary
+				gl_doc_debit.credit_amount = amount
+				gl_doc_debit.against_account = self.account
+				gl_doc_debit.remarks = self.remarks
+				gl_doc_debit.insert()
+
+				# Create credit entry for payments
+				idx += 1
+				gl_doc_credit = frappe.new_doc("GL Posting")
+				gl_doc_credit.voucher_type = "Receipt Entry"
+				gl_doc_credit.voucher_no = self.name
+				gl_doc_credit.idx = idx
+				gl_doc_credit.posting_date = self.posting_date
+				gl_doc_credit.posting_time = self.posting_time
+				gl_doc_credit.project = project
+				gl_doc_credit.account = self.account  # Account from `frm.doc.account`
+				gl_doc_credit.debit_amount = amount
+				gl_doc_credit.against_account = account
+				gl_doc_credit.remarks = self.remarks
+				gl_doc_credit.insert()
+
+		print("project_customer_account_wise_return_total")
+		print(project_customer_account_wise_return_total)
+		print("project_account_wise_payment_total")
+		print(project_account_wise_payment_total)
+
+		# Insert GL Entries for Returns
+		for (project, customer, account), return_amount in project_customer_account_wise_return_total.items():
+			create_gl_postings(project, customer, account, return_amount, is_return=True)
+
+		# Insert GL Entries for 'Other' Payments
+		for (project, account), payment_amount in project_account_wise_payment_total.items():
+			create_gl_postings(project, None, account, payment_amount, is_return=False)
+
+		# Insert GL Entries for Allocations
+		for (project, customer, account), payment_amount in project_customer_account_wise_payment_total.items():
+			create_gl_postings(project, customer, account, payment_amount, is_return=False)
+	
 	def on_trash(self):
 		self.revert_documents_paid_amount_for_receipt()
 		self.revert_for_advance_receipt()

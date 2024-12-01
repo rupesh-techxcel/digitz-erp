@@ -80,7 +80,7 @@ def get_gl_postings(voucher,voucher_no):
             "account":posting.account,
             "debit_amount": posting.debit_amount,
             "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
+            "against_account": posting.against_account if posting.against_account else "",
             "remarks": posting.remarks,
             "project":posting.project if posting.project else "",
             "cost_center":posting.cost_center if posting.cost_center else "",

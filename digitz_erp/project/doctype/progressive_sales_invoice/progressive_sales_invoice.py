@@ -118,10 +118,7 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = default_accounts.project_advance_received_account
-			gl_doc.debit_amount = self.deduction_against_advance
-			# + self.deduction_against_advance + self.deduction_for_retention
-			gl_doc.party_type = "Customer"
-			gl_doc.party = self.customer_name
+			gl_doc.debit_amount = self.deduction_against_advance						
 			gl_doc.against_account = self.revenue_account
 			gl_doc.remarks = remarks
 			gl_doc.project = self.project
@@ -138,10 +135,7 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.posting_date = self.posting_date
 			gl_doc.posting_time = self.posting_time
 			gl_doc.account = default_accounts.retention_receivable_account
-			gl_doc.debit_amount = self.deduction_for_retention
-			# + self.deduction_against_advance + self.deduction_for_retention
-			gl_doc.party_type = "Customer"
-			gl_doc.party = self.customer_name
+			gl_doc.debit_amount = self.deduction_for_retention						
 			gl_doc.against_account = self.revenue_account
 			gl_doc.remarks = remarks
 			gl_doc.project = self.project
@@ -288,7 +282,7 @@ class ProgressiveSalesInvoice(Document):
 
 		# Provide a default template if gl_narration is empty
 		if not gl_narration:
-			gl_narration = "Sales to {customer_name}"
+			gl_narration = "Progressive Sales to {customer_name}"
 
 		# Replace placeholders with actual values
 		narration = gl_narration.format(payment_mode=payment_mode, customer_name=customer_name)

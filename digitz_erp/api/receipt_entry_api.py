@@ -463,3 +463,20 @@ def get_receipts_unallocated(customer):
 
     return data
 
+@frappe.whitelist()
+def get_project_for_allocation(doc_type, doc_name):
+    """
+    Retrieve the associated project based on the document type and document name.
+    """
+    project = None
+
+    # Check for valid document types
+    if doc_type in ["Sales Invoice", "Progressive Sales Invoice", "Credit Note", "Sales Return"]:
+        # Retrieve the project field from the given document type and name
+        project = frappe.get_value(doc_type, doc_name, "project")  # Ensure the field name matches your database schema
+    elif doc_type == "Sales Order":
+        # Retrieve the project associated with a Sales Order
+        project = frappe.get_value("Project", {"sales_order": doc_name}, "name")
+    
+    return project
+
