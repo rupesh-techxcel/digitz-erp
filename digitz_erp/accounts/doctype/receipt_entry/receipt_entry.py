@@ -554,6 +554,9 @@ class ReceiptEntry(Document):
 		if(receipt_details):
 			for receipt_entry in receipt_details:
 				if(receipt_entry.receipt_type == "Customer"):
+        
+					remarks = f"{self.payment_mode} receipt from {receipt_entry.customer}"
+     
 					idx = idx + 1
 					gl_doc = frappe.new_doc('GL Posting')
 					gl_doc.voucher_type = "Receipt Entry"
@@ -572,10 +575,13 @@ class ReceiptEntry(Document):
 					gl_doc.party_type = "Customer"
 					gl_doc.party = receipt_entry.customer
 					gl_doc.against_account = self.account
-					gl_doc.remarks = self.remarks
+					gl_doc.remarks = self.remarks if self.remarks else remarks
 					gl_doc.insert()
 
 				else: #Other Receipt Type
+        
+					remarks = f"{self.payment_mode} receipt"
+     
 					idx = idx + 1
 					gl_doc = frappe.new_doc('GL Posting')
 					gl_doc.voucher_type = "Receipt Entry"
@@ -586,11 +592,12 @@ class ReceiptEntry(Document):
 					gl_doc.account = receipt_entry.account if receipt_entry.account else default_accounts.default_receivable_account
 					gl_doc.credit_amount = receipt_entry.amount
 					gl_doc.against_account = self.account
-					gl_doc.remarks = self.remarks
+					gl_doc.remarks = self.remarks if self.remarks else remarks
 					gl_doc.insert()
      
 		# Credit for the return with payment mode (cash/bank/etc).
 		if for_return_amount >0:
+			remarks = f"{self.payment_mode} receipt adjustment for return"
 
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.voucher_type = "Receipt Entry"
@@ -601,12 +608,13 @@ class ReceiptEntry(Document):
 			gl_doc.account = self.account
 			gl_doc.credit_amount = for_return_amount
 			gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-			gl_doc.remarks = self.remarks			
+			gl_doc.remarks = self.remarks if self.remarks else remarks		
 			gl_doc.insert()
    
 		# Avoid zero
 		# Debit for the payment mode cash/bank/etc
 		if (self.amount -for_return_amount) > 0:
+			remarks = f"{self.payment_mode} receipt"
 			gl_doc = frappe.new_doc('GL Posting')
 			gl_doc.voucher_type = "Receipt Entry"
 			gl_doc.voucher_no = self.name
@@ -616,7 +624,7 @@ class ReceiptEntry(Document):
 			gl_doc.account = self.account
 			gl_doc.debit_amount = self.amount -for_return_amount
 			gl_doc.against_account = self.GetAccountForTheHighestAmountInPayments()
-			gl_doc.remarks = self.remarks			
+			gl_doc.remarks = self.remarks if self.remarks else remarks		
 			gl_doc.insert()
 
 
@@ -637,10 +645,12 @@ class ReceiptEntry(Document):
 			as_dict=1,
 		)
 
+		remarks = f"{self.payment_mode} Receipt"
 		idx = 0
 		project_account_wise_payment_total = {}  # For 'Other' receipt types
 		project_customer_account_wise_return_total = {}  # For returns (#+ Customer + Account key)
 		project_customer_account_wise_payment_total = {}  # For else cases (Project + Customer + Account key)
+		project_on_account_payment_total = {}   # For On Account payments
 
 		receipt_details = self.receipt_entry_details
 		receipt_allocation = getattr(self, "receipt_allocation", None)	
@@ -670,8 +680,14 @@ class ReceiptEntry(Document):
 							return_key = (allocation.project, allocation.customer, receipt_entry.account)
 							project_customer_account_wise_return_total[return_key] = project_customer_account_wise_return_total.get(return_key, 0) + allocation.amount
 
+				elif receipt_entry.reference_type  == "On Account":
+					reference_key = (receipt_entry.project,receipt_entry.account)
+					project_on_account_payment_total[reference_key] = project_on_account_payment_total.get(reference_key, 0) + receipt_entry.amount					
+        
+					# project_on_account_payment_total
 				# Handle Allocations for Receipt Type "Customer!"
 				elif receipt_entry.receipt_type == "Customer":
+        
 					if receipt_allocation:
 						filtered_allocations = [
 							allocation
@@ -689,6 +705,22 @@ class ReceiptEntry(Document):
 		# Function to create GL Posting for Debit and Credit
 		def create_gl_postings(project, customer, account, amount, is_return=False):
 			nonlocal idx
+
+			remarks = ""
+
+			if self.remarks:
+				remarks = self.remarks
+    
+			elif project and customer:
+				remarks = f"{self.payment_mode} receipt from {customer} for the project {project}"
+
+			elif customer:
+				remarks = f"{self.payment_mode} receipt from {customer}"
+
+			else:
+				remarks = f"{self.payment_mode} receipt"       
+       
+   
 			if is_return:
 				# Create credit entry for the return
 				idx += 1
@@ -704,7 +736,7 @@ class ReceiptEntry(Document):
 				gl_doc_credit.account = account  # Account from dictionary
 				gl_doc_credit.debit_amount = amount
 				gl_doc_credit.against_account = self.account
-				gl_doc_credit.remarks = self.remarks
+				gl_doc_credit.remarks = remarks
 				gl_doc_credit.insert()
 
 				# Create debit entry for the return
@@ -719,7 +751,7 @@ class ReceiptEntry(Document):
 				gl_doc_debit.account = self.account  # Account from `frm.doc.account`
 				gl_doc_debit.credit_amount = amount
 				gl_doc_debit.against_account = account
-				gl_doc_debit.remarks = self.remarks
+				gl_doc_debit.remarks = remarks
 				gl_doc_debit.insert()
 			else:
 				# Create debit entry for payments
@@ -736,7 +768,7 @@ class ReceiptEntry(Document):
 				gl_doc_debit.account = account  # Account from dictionary
 				gl_doc_debit.credit_amount = amount
 				gl_doc_debit.against_account = self.account
-				gl_doc_debit.remarks = self.remarks
+				gl_doc_debit.remarks = remarks
 				gl_doc_debit.insert()
 
 				# Create credit entry for payments
@@ -751,7 +783,7 @@ class ReceiptEntry(Document):
 				gl_doc_credit.account = self.account  # Account from `frm.doc.account`
 				gl_doc_credit.debit_amount = amount
 				gl_doc_credit.against_account = account
-				gl_doc_credit.remarks = self.remarks
+				gl_doc_credit.remarks = remarks
 				gl_doc_credit.insert()
 
 		print("project_customer_account_wise_return_total")
@@ -765,6 +797,10 @@ class ReceiptEntry(Document):
 
 		# Insert GL Entries for 'Other' Payments
 		for (project, account), payment_amount in project_account_wise_payment_total.items():
+			create_gl_postings(project, None, account, payment_amount, is_return=False)
+   
+		# Insert GL Entries for 'On Account' Payments
+		for (project, account), payment_amount in project_on_account_payment_total.items():
 			create_gl_postings(project, None, account, payment_amount, is_return=False)
 
 		# Insert GL Entries for Allocations

@@ -19,7 +19,7 @@ frappe.ui.form.on("Budget", {
             var child = locals[cdt][cdn];
             var filters = {};
 
-            if (child.reference_type === 'Item') {
+            if (child.reference_type === 'Item' || child.reference_type == "Designation") {
                 filters = {
                     'disabled': 0 // Show active items
                 };            
@@ -41,6 +41,13 @@ frappe.ui.form.on("Budget", {
 	},
     setup(frm) {
         frm.trigger('get_default_company_and_warehouse');
+    },
+    validate: function(frm) {
+        frm.doc.budget_items.forEach(item => {
+            if (item.budget_against === 'Labour' && frm.doc.budget_against !== 'Project') {
+                frappe.throw(__('Labour budget items are only allowed when Budget Against is set to Project.'));
+            }
+        });
     },
 
     get_default_company_and_warehouse(frm) {
@@ -71,6 +78,17 @@ frappe.ui.form.on("Budget Item", {
     budget_against: function(frm, cdt, cdn) {
         // Clear the reference_type when budget_against changes
         frappe.model.set_value(cdt, cdn, 'reference_type', "");
+    
+        let row = frappe.get_doc(cdt, cdn);
+        
+        if (row.budget_against === 'Labour' && frm.doc.budget_against !== 'Project') {
+            frappe.msgprint({
+                title: __('Not Allowed'),
+                message: __('Labour can only be selected if Budget Against is set to Project in the parent.'),
+                indicator: 'red'
+            });
+            frappe.model.set_value(cdt, cdn, 'budget_against', '');
+        }    
     },
 
     reference_type: function(frm, cdt, cdn) {

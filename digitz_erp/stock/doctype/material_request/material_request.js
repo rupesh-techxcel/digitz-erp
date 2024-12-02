@@ -178,6 +178,8 @@ frappe.ui.form.on('Material Request Item', {
             return;
         }
     
+        check_budget_utilization(frm, cdt, cdn);
+
         // Set conversion factor to 1
         row.conversion_factor = 1;
         console.log("Item selected: ", row.item);
@@ -254,3 +256,41 @@ frappe.ui.form.on('Material Request Item', {
     }
 });
 
+function check_budget_utilization(frm, cdt, cdn) {
+    const row = frappe.get_doc(cdt, cdn);
+
+    if (!row.item) {
+        return; // Skip if item_code is not selected
+    }
+
+    frappe.call({
+        method: 'app.module_name.fetch_budget_utilization', // Update with your app/module path
+        args: {
+            budget_against: frm.doc.budget_against || 'Purchase',
+            reference_type: 'Item',
+            reference_value: row.item,
+            company: frm.doc.company,
+            project: frm.doc.project || null,
+            cost_center: frm.doc.cost_center || null,
+            from_date: frm.doc.from_date || null,
+            to_date: frm.doc.to_date || null,
+        },
+        callback: function(r) {
+            if (r.message) {
+                if (r.message.no_budget) {
+                    frappe.msgprint(__('No budget exists for the selected criteria.'));
+                    return;
+                }
+
+                const utilized = r.message.utilized || 0;
+                const budget = r.message.budget || 0;
+
+                if (utilized > budget) {
+                    frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                } else {
+                    frappe.msgprint(__('Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                }
+            }
+        },
+    });
+}

@@ -411,6 +411,21 @@ def create_budget_reference_types():
         frappe.db.commit()
         print(f"Budget reference Type, '{reference_type}' created successfully.")
         
+    reference_type = "Designation"
+    
+    if not frappe.db.exists("Budget Reference Type", reference_type):
+        # Create a new Payment Mode if it doesn't exist
+        budget_reference_type = frappe.get_doc({
+            "doctype": "Budget Reference Type",
+            "reference_type": reference_type,
+            "budget_against": "Labour"        
+        })
+    
+        # Insert the payment mode into the database
+        budget_reference_type.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Budget reference Type, '{reference_type}' created successfully.")
+        
 def create_default_price_lists():
     
     price_list_name = "Standard Buying"

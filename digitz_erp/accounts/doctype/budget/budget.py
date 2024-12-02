@@ -13,7 +13,12 @@ class Budget(Document):
     
 	def before_insert(self):
      
-		if not self.budget_name: #If the user manually input name then skip this logic
+		if not self.budget_name:
+			self.generate_budget_name()		
+  
+	def generate_budget_name(self):
+     
+		if not self.budget_name:  # If the user manually input the name, skip this logic
 			# Define prefixes for different `budget_against` types
 			prefixes = {
 				"Project": "PROJ",
@@ -23,29 +28,37 @@ class Budget(Document):
 
 			# Determine the prefix based on the `budget_against` field
 			prefix = prefixes.get(self.budget_against)
+			if not prefix:
+				frappe.throw("Invalid 'Budget Against' value for Budget.")
 
 			# Extract the relevant entity based on the `budget_against` type
 			if self.budget_against == "Project":
-				entity = self.project_short_name  # Assuming `project` is the field name for Project
+				entity = self.project_short_name  # Assuming `project_short_name` is set
 			elif self.budget_against == "Company":
-				entity = self.company  # Assuming `company` is the field name for Company
+				entity = self.company  # Assuming `company` is set
 			elif self.budget_against == "Cost Center":
-				entity = self.cost_center  # Assuming `cost_center` is the field name for Cost Center
+				entity = self.cost_center  # Assuming `cost_center` is set
+
+			# Handle date formatting only if `budget_against` is 'Company'
+			if self.budget_against == "Company":
+				# Convert from_date and to_date to datetime objects if needed
+				if not self.from_date or not self.to_date:
+					frappe.throw("For 'Company', both 'From Date' and 'To Date' are mandatory.")
+
+				from_date = datetime.strptime(self.from_date, "%Y-%m-%d") if isinstance(self.from_date, str) else self.from_date
+				to_date = datetime.strptime(self.to_date, "%Y-%m-%d") if isinstance(self.to_date, str) else self.to_date
+
+				# Format dates in 'DD-MM-YYYY' format
+				formatted_from_date = from_date.strftime("%d-%m-%Y")
+				formatted_to_date = to_date.strftime("%d-%m-%Y")
+
+				# Construct the name with dates
+				self.name = f"{prefix}-{entity}-{formatted_from_date}-to-{formatted_to_date}"
 			else:
-				frappe.throw("Invalid 'Budget Against' value for Budget.")
+				# Construct the name without dates for other `budget_against` types
+				self.name = f"{prefix}-{entity}"
 
-			# Convert from_date and to_date from string to datetime if needed
-			from_date = datetime.strptime(self.from_date, "%Y-%m-%d") if isinstance(self.from_date, str) else self.from_date
-			to_date = datetime.strptime(self.to_date, "%Y-%m-%d") if isinstance(self.to_date, str) else self.to_date
-
-			# Format dates for inclusion in the name in 'DD-MM-YYYY' format
-			formatted_from_date = from_date.strftime("%d-%m-%Y")
-			formatted_to_date = to_date.strftime("%d-%m-%Y")
-
-			# Construct the custom name
-			self.name = f"{prefix}-{entity}-{formatted_from_date}-to-{formatted_to_date}"
-
-			# Log the generated name for debugging purposes
+			# Log the generated name for debugging
 			frappe.logger().debug(f"Generated custom name for Budget: {self.name}")
    
 	def check_for_overlapping_budget(doc):

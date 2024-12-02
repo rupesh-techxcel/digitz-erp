@@ -648,6 +648,9 @@ frappe.ui.form.on('Purchase Receipt Item', {
 
 	item(frm, cdt, cdn) {
 		var child = locals[cdt][cdn];
+
+		check_budget_utilization(frm, cdt, cdn);
+		
 		if (frm.doc.default_cost_center) {
 			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
 		}
@@ -1217,3 +1220,43 @@ let stock_ledgers = function (frm) {
         }
     });
 };
+
+
+function check_budget_utilization(frm, cdt, cdn) {
+    const row = frappe.get_doc(cdt, cdn);
+
+    if (!row.item) {
+        return; // Skip if item_code is not selected
+    }
+
+    frappe.call({
+        method: 'app.module_name.fetch_budget_utilization', // Update with your app/module path
+        args: {
+            budget_against: frm.doc.budget_against || 'Purchase',
+            reference_type: 'Item',
+            reference_value: row.item,
+            company: frm.doc.company,
+            project: frm.doc.project || null,
+            cost_center: frm.doc.cost_center || null,
+            from_date: frm.doc.from_date || null,
+            to_date: frm.doc.to_date || null,
+        },
+        callback: function(r) {
+            if (r.message) {
+                if (r.message.no_budget) {
+                    frappe.msgprint(__('No budget exists for the selected criteria.'));
+                    return;
+                }
+
+                const utilized = r.message.utilized || 0;
+                const budget = r.message.budget || 0;
+
+                if (utilized > budget) {
+                    frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                } else {
+                    frappe.msgprint(__('Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                }
+            }
+        },
+    });
+}
