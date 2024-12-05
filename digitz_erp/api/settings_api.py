@@ -3,6 +3,9 @@ from frappe.utils import add_days, add_months, cint, cstr, flt, formatdate, get_
 import math
 from dateutil.relativedelta import relativedelta
 
+@frappe.whitelist()
+def add_seconds_to_time():
+    return
 
 @frappe.whitelist()
 def get_default_company():
