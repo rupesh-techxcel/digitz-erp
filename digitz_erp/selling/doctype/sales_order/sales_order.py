@@ -11,9 +11,8 @@ from frappe.utils import money_in_words
 class SalesOrder(Document):
 	 
 	def before_validate(self):
-		self.in_words = money_in_words(self.net_total,"AED")
-		self.in_words_copy = money_in_words(self.net_total_copy,"AED")
-
+		self.in_words = money_in_words(self.rounded_total,"AED")
+		
 		if self.is_new():
 			for item in self.items:
 				item.qty_sold_in_base_unit = 0
@@ -160,7 +159,7 @@ def generate_do(sales_order_name):
 		'sales_order': sales_order_doc.name
 	})
 
-	print(delivery_note_doc)
+	#print(delivery_note_doc)
 
 	idx = 0
 
@@ -200,7 +199,7 @@ def generate_do(sales_order_name):
 	delivery_note_doc.insert()
 	frappe.db.commit()
 
-	print(delivery_note_doc)
+	#print(delivery_note_doc)
 
 	frappe.msgprint("Delivery Note generated successfully, in draft mode.",indicator="green", alert=True)
 	return delivery_note_doc.name
@@ -240,7 +239,8 @@ def generate_sales_invoice(sales_order_name):
 					'discount_percentage', 'discount_amount', 'net_amount', 'unit_conversion_details']:
 			setattr(sales_invoice_item, field, getattr(item, field, None))
 
-		sales_invoice_item.qty = round((item.qty_in_base_unit - item.qty_sold_in_base_unit) / item.conversion_factor, 2)
+		conversion_factor = 1
+		sales_invoice_item.qty = round((item.qty_in_base_unit - item.qty_sold_in_base_unit) / conversion_factor, 2)
 		sales_invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
 		sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_sold_in_base_unit
 		sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit

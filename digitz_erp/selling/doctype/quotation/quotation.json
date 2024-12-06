@@ -32,6 +32,10 @@
   "salesman_code",
   "column_break_giic",
   "company",
+  "project_name",
+  "project_short_name",
+  "based_on",
+  "enquiry",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -43,7 +47,6 @@
   "column_break_fomo",
   "section_break_19",
   "items",
-  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_iwxfb",
@@ -59,21 +62,16 @@
   "column_break_yzqc",
   "round_off",
   "rounded_total",
-  "in_words",
   "column_break_ufpf",
   "total_big",
-  "section_break_33",
-  "taxes",
+  "in_words",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
   "tab_break_50",
   "data_53",
-  "address_line_1",
-  "address_line_2",
-  "area_name",
-  "country",
-  "amended_from"
+  "amended_from",
+  "boq"
  ],
  "fields": [
   {
@@ -298,17 +296,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "taxes",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Taxes",
-   "options": "Purchase Invoice Tax"
-  },
-  {
    "fieldname": "terms_and_conditions_section",
    "fieldtype": "Section Break",
    "label": "Terms And Conditions"
@@ -327,7 +314,6 @@
   {
    "fieldname": "tab_break_50",
    "fieldtype": "Tab Break",
-   "hidden": 1,
    "label": "References"
   },
   {
@@ -343,26 +329,6 @@
    "options": "Quotation",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "address_line_1",
-   "fieldtype": "Data",
-   "label": "Address Line 1"
-  },
-  {
-   "fieldname": "address_line_2",
-   "fieldtype": "Data",
-   "label": "Address Line 2"
-  },
-  {
-   "fieldname": "area_name",
-   "fieldtype": "Data",
-   "label": "Area Name"
-  },
-  {
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "label": "Country"
   },
   {
    "fieldname": "customer_display_name",
@@ -423,14 +389,40 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "label": "Item Table",
-   "options": "Quotation New Item Details",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.based_on==\"Enquiry\"",
+   "fieldname": "enquiry",
+   "fieldtype": "Link",
+   "label": "Enquiry",
+   "link_filters": "[]",
+   "mandatory_depends_on": "eval:doc.based_on==\"Enquiry\"",
+   "options": "Enquiry"
+  },
+  {
+   "fieldname": "based_on",
+   "fieldtype": "Select",
+   "label": "Based On",
+   "options": "Enquiry\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Data",
+   "label": "BOQ",
    "read_only": 1
   }
  ],
@@ -450,7 +442,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-08-08 11:54:30.444290",
+ "modified": "2024-11-17 16:56:14.398899",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

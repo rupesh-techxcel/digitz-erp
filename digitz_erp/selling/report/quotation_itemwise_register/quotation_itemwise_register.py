@@ -10,8 +10,8 @@ def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     chart = get_chart_data(filters)
-    print("chart")
-    print(chart)
+    #print("chart")
+    #print(chart)
     return columns, data, None, chart
 
 def get_chart_data(filters=None):

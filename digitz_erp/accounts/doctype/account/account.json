@@ -72,10 +72,9 @@
    "fieldname": "account_type",
    "fieldtype": "Select",
    "label": "Account Type",
-   "options": "\nDuties and Taxes\nStock\nCash\nBank\nReceivable\nPayable\nStock Received But Not Billed\nRound Off\nFixed Asset\nAccumulated Depreciation\nDepreciation\nCost Of Goods Sold\nLong Term Liability\nEquity\nAccrued Expense\nDeferred Income\nInvestment\nLoans Given\nUnearned Revenue"
+   "options": "\nDuties and Taxes\nStock\nCash\nBank\nReceivable\nPayable\nStock Received But Not Billed\nRound Off\nFixed Asset\nAccumulated Depreciation\nDepreciation\nCost Of Goods Sold\nLong Term Liability\nEquity\nAccrued Expense\nDeferred Income\nInvestment\nLoans Given\nUnearned Revenue\nWork In Progress\nRetention Receivable\nAdvance Billed But Not Received"
   },
   {
-   "fetch_from": "parent_account.root_type",
    "fieldname": "root_type",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -113,7 +112,7 @@
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2024-08-09 09:09:42.515772",
+ "modified": "2024-11-23 16:51:25.072470",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",

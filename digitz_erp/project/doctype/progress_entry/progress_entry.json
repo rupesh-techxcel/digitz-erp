@@ -10,39 +10,40 @@
  "engine": "InnoDB",
  "field_order": [
   "project_details_section",
+  "project_column",
   "project",
+  "project_retention_amount",
+  "project_advance_amount",
+  "project_advance_percentage",
   "column_break_zubf",
   "sales_order",
-  "progress_entry_details_section",
+  "sales_order_date",
+  "sales_order_net_total",
+  "column_break_xtqn",
   "is_prev_progress_exists",
   "previous_progress_entry",
+  "boq_total",
+  "column_break_ivtt",
+  "company",
   "section_break_qxfb",
   "naming_series",
   "customer",
   "customer_name",
   "customer_display_name",
-  "customer_balance",
+  "column_break_kscq",
   "customer_address",
+  "tax_id",
   "column_break_6",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "reference_no",
-  "ship_to_location",
-  "tax_id",
-  "column_break_4",
-  "price_list",
-  "rate_includes_tax",
-  "warehouse",
   "salesman",
-  "salesman_code",
-  "column_break_kscq",
-  "company",
-  "lpo_date",
-  "lpo_no",
-  "order_status",
+  "column_break_4",
+  "rate_includes_tax",
+  "tax_excluded",
+  "tax",
+  "tax_rate",
   "default_cost_center",
-  "sales_order_id",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -55,54 +56,38 @@
   "remarks",
   "column_break_kjrk",
   "section_break_19",
-  "items",
-  "item_table",
   "progress_entry_items",
-  "average_of_completion",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
   "column_break_ywbh",
-  "section_break_25",
+  "section_break_hgqy",
+  "column_break_ejhs",
   "gross_total",
-  "tax_total",
-  "net_total",
+  "retention_percentage",
+  "deduction_for_retention",
+  "deduction_against_advance",
   "column_break_33",
-  "total_discount_in_line_items",
+  "taxable_amount",
+  "tax_total",
   "additional_discount",
   "column_break_xkzu",
+  "net_total",
   "round_off",
   "rounded_total",
-  "in_words",
-  "column_break_engq",
+  "previous_completion_percentage",
+  "total_completion_percentage",
+  "column_break_ygse",
   "total_big",
-  "total_details_section",
-  "gross_total_copy",
-  "tax_total_copy",
-  "net_total_copy",
-  "column_break_pjwt",
-  "total_discount_in_line_items_copy",
-  "additional_discount_copy",
-  "column_break_wnka",
-  "round_off_copy",
-  "rounded_total_copy",
-  "in_words_copy",
-  "column_break_euvi",
-  "amount",
-  "section_break_33",
-  "taxes",
-  "terms_and_conditions_section",
-  "terms",
-  "terms_and_conditions",
+  "in_words",
   "tab_break_50",
   "data_53",
   "quotation",
-  "address_line_1",
-  "address_line_2",
-  "area_name",
-  "country",
-  "amended_from"
+  "boq",
+  "lpo_no",
+  "amended_from",
+  "lpo_date"
  ],
  "fields": [
   {
@@ -133,12 +118,6 @@
    "label": "Customer Display Name"
   },
   {
-   "fieldname": "customer_balance",
-   "fieldtype": "Currency",
-   "label": "Customer Balance",
-   "read_only": 1
-  },
-  {
    "fieldname": "customer_address",
    "fieldtype": "Small Text",
    "label": "Address"
@@ -151,6 +130,7 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date",
    "read_only": 1
   },
@@ -158,7 +138,6 @@
    "default": "Now",
    "fieldname": "posting_time",
    "fieldtype": "Time",
-   "in_list_view": 1,
    "label": "Posting Time",
    "read_only": 1
   },
@@ -167,17 +146,6 @@
    "fieldname": "edit_posting_date_and_time",
    "fieldtype": "Check",
    "label": "Edit Posting Date And Time"
-  },
-  {
-   "fieldname": "reference_no",
-   "fieldtype": "Data",
-   "label": "Reference No"
-  },
-  {
-   "fieldname": "ship_to_location",
-   "fieldtype": "Link",
-   "label": "Ship To Location",
-   "options": "Customer Delivery Location"
   },
   {
    "fieldname": "tax_id",
@@ -189,37 +157,17 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Standard Selling",
-   "fieldname": "price_list",
-   "fieldtype": "Link",
-   "label": "Price List",
-   "options": "Price List"
-  },
-  {
    "default": "0",
    "fieldname": "rate_includes_tax",
    "fieldtype": "Check",
    "label": "Rate includes tax"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1
-  },
-  {
+   "fetch_from": "sales_order.salesman",
    "fieldname": "salesman",
    "fieldtype": "Link",
    "label": "Salesman",
    "options": "Employee"
-  },
-  {
-   "fetch_from": "salesman.employee_code",
-   "fieldname": "salesman_code",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Salesman Code"
   },
   {
    "fieldname": "column_break_kscq",
@@ -233,20 +181,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "lpo_date",
-   "fieldtype": "Date",
-   "label": "LPO Date"
-  },
-  {
+   "fetch_from": "sales_order.lpo_no",
    "fieldname": "lpo_no",
    "fieldtype": "Data",
    "label": "LPO No"
-  },
-  {
-   "fieldname": "order_status",
-   "fieldtype": "Select",
-   "label": "Order Status",
-   "options": "Pending\nPartial\nCompleted"
   },
   {
    "fieldname": "default_cost_center",
@@ -265,7 +203,6 @@
    "default": "0",
    "fieldname": "credit_sale",
    "fieldtype": "Check",
-   "in_standard_filter": 1,
    "label": "Credit Sale"
   },
   {
@@ -325,22 +262,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "depends_on": "eval: doc.items != undefined || doc.items.length>0",
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Items",
-   "options": "Sales Order Item"
-  },
-  {
-   "depends_on": "eval: doc.item_table != undefined && doc.item_table.length>0 && doc.quotation_id != undefined && doc.quotation_id != \"\"",
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Item Table",
-   "options": "Sales Order New Item Details"
-  },
-  {
    "fieldname": "section_break_29",
    "fieldtype": "Section Break",
    "hidden": 1
@@ -364,26 +285,24 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_25",
-   "fieldtype": "Section Break",
-   "label": "Totals"
-  },
-  {
    "fieldname": "gross_total",
    "fieldtype": "Currency",
    "label": "Gross Total",
+   "precision": "2",
    "read_only": 1
   },
   {
    "fieldname": "tax_total",
    "fieldtype": "Currency",
    "label": "Tax Total",
+   "precision": "2",
    "read_only": 1
   },
   {
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "label": "Net Total",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -391,18 +310,15 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "total_discount_in_line_items",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
-  },
-  {
    "fieldname": "additional_discount",
    "fieldtype": "Currency",
-   "label": "Additional Discount"
+   "label": "Additional Discount",
+   "precision": "2"
   },
   {
    "fieldname": "column_break_xkzu",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Total"
   },
   {
    "fieldname": "round_off",
@@ -414,124 +330,15 @@
   {
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Rounded Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "in_words",
-   "fieldtype": "Data",
-   "label": "In Words"
-  },
-  {
-   "fieldname": "column_break_engq",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_big",
-   "fieldtype": "HTML"
-  },
-  {
-   "depends_on": "eval: (doc.item_table != undefined ) && (doc.item_table.length > 0)",
-   "fieldname": "total_details_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Total Details"
-  },
-  {
-   "default": "0",
-   "fieldname": "gross_total_copy",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "tax_total_copy",
-   "fieldtype": "Currency",
-   "label": "Tax Total",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "net_total_copy",
-   "fieldtype": "Currency",
-   "label": "Net Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_pjwt",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_discount_in_line_items_copy",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
-  },
-  {
-   "fieldname": "additional_discount_copy",
-   "fieldtype": "Currency",
-   "label": "Additional Discount"
-  },
-  {
-   "fieldname": "column_break_wnka",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "round_off_copy",
-   "fieldtype": "Float",
-   "label": "Round Off",
    "precision": "2",
    "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "rounded_total_copy",
-   "fieldtype": "Currency",
-   "label": "Rounded Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "in_words_copy",
-   "fieldtype": "Data",
+   "fieldname": "in_words",
+   "fieldtype": "Small Text",
    "label": "In Words"
-  },
-  {
-   "fieldname": "column_break_euvi",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "HTML",
-   "label": "Amount"
-  },
-  {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "taxes",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Taxes",
-   "options": "Purchase Invoice Tax"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "terms_and_conditions_section",
-   "fieldtype": "Section Break",
-   "label": "Terms And Conditions"
-  },
-  {
-   "fieldname": "terms",
-   "fieldtype": "Link",
-   "label": "Terms",
-   "options": "Terms And Conditions"
-  },
-  {
-   "fieldname": "terms_and_conditions",
-   "fieldtype": "Text Editor",
-   "label": "Terms and Conditions"
   },
   {
    "fieldname": "tab_break_50",
@@ -544,38 +351,11 @@
    "label": "Related Documents"
   },
   {
+   "fetch_from": "sales_order.quotation",
    "fieldname": "quotation",
    "fieldtype": "Link",
    "label": "Quotation",
    "options": "Quotation"
-  },
-  {
-   "fetch_from": "customer.address_line_1",
-   "fieldname": "address_line_1",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 1"
-  },
-  {
-   "fetch_from": "customer.address_line_2",
-   "fieldname": "address_line_2",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 2"
-  },
-  {
-   "fetch_from": "customer.area_name",
-   "fieldname": "area_name",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Area Name"
-  },
-  {
-   "fetch_from": "customer.country",
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Country"
   },
   {
    "fieldname": "amended_from",
@@ -588,16 +368,11 @@
    "search_index": 1
   },
   {
+   "description": "Input the 'Total Completion Percentage' to indicate the most recent progress of the project.",
    "fieldname": "progress_entry_items",
    "fieldtype": "Table",
    "label": "Progress Entry Items",
-   "options": "Progress Entry Items"
-  },
-  {
-   "fieldname": "sales_order_id",
-   "fieldtype": "Data",
-   "label": "Sales Order ID",
-   "read_only": 1
+   "options": "Progress Entry Item"
   },
   {
    "fieldname": "project_details_section",
@@ -607,22 +382,22 @@
   {
    "fieldname": "project",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"docstatus\",\"=\",\"1\"],[\"Project\",\"status\",\"=\",\"Open\"]]",
    "options": "Project"
   },
   {
-   "fieldname": "average_of_completion",
-   "fieldtype": "Percent",
-   "label": "Average % Of Completion"
-  },
-  {
    "fieldname": "column_break_zubf",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Sales Order"
   },
   {
    "fetch_from": "project.sales_order",
    "fieldname": "sales_order",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Sales Order",
    "options": "Sales Order",
    "read_only": 1
@@ -632,37 +407,175 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "progress_entry_details_section",
-   "fieldtype": "Section Break",
-   "label": "Progress Entry Details"
-  },
-  {
    "default": "0",
    "fieldname": "is_prev_progress_exists",
    "fieldtype": "Check",
-   "label": "Previous Progress Entry Exists"
+   "label": "Previous Progress Entry Exists",
+   "read_only": 1
   },
   {
    "depends_on": "eval: doc.is_prev_progress_exists == 1",
    "fieldname": "previous_progress_entry",
    "fieldtype": "Link",
    "label": "Previous Progress Entry",
-   "options": "Progress Entry"
-  }
- ],
- "index_web_pages_for_search": 1,
- "is_submittable": 1,
- "links": [
-  {
-   "link_doctype": "Delivery Note",
-   "link_fieldname": "sales_order"
+   "options": "Progress Entry",
+   "read_only": 1
   },
   {
-   "link_doctype": "Sales Invoice",
-   "link_fieldname": "sales_order"
+   "fieldname": "section_break_hgqy",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "column_break_xtqn",
+   "fieldtype": "Column Break",
+   "label": "Previous Progress"
+  },
+  {
+   "fetch_from": "sales_order.net_total",
+   "fieldname": "sales_order_net_total",
+   "fieldtype": "Float",
+   "label": "Sales Order Net Total",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_completion_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Project Completion Percentage",
+   "precision": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ygse",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ivtt",
+   "fieldtype": "Column Break",
+   "label": "Company"
+  },
+  {
+   "fieldname": "column_break_ejhs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
+  },
+  {
+   "fetch_from": "project.boq",
+   "fieldname": "boq",
+   "fieldtype": "Data",
+   "label": "BOQ"
+  },
+  {
+   "fieldname": "boq_total",
+   "fieldtype": "Currency",
+   "label": "BOQ Total"
+  },
+  {
+   "fetch_from": "sales_order.posting_date",
+   "fieldname": "sales_order_date",
+   "fieldtype": "Date",
+   "label": "Sales Order Date"
+  },
+  {
+   "fetch_from": "sales_order.lpo_date",
+   "fieldname": "lpo_date",
+   "fieldtype": "Date",
+   "label": "LPO Date"
+  },
+  {
+   "fieldname": "previous_completion_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Previous Completion Percentage",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project.retention_percentage",
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage",
+   "precision": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deduction_against_advance",
+   "fieldtype": "Currency",
+   "label": "Deduction against advance received"
+  },
+  {
+   "fieldname": "deduction_for_retention",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retention"
+  },
+  {
+   "fetch_from": "project.retention_amount",
+   "fieldname": "project_retention_amount",
+   "fieldtype": "Currency",
+   "label": "Project Retention Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_column",
+   "fieldtype": "Column Break",
+   "label": "Project"
+  },
+  {
+   "fetch_from": "project.advance_amount",
+   "fieldname": "project_advance_amount",
+   "fieldtype": "Currency",
+   "label": "Project Advance Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "label": "Taxable Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Percent",
+   "label": "Tax Rate"
+  },
+  {
+   "fetch_from": "project.advance_percentage",
+   "fieldname": "project_advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Advance Percentage"
   }
  ],
- "modified": "2024-08-12 13:00:52.478572",
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Proforma Invoice",
+   "link_fieldname": "progress_entry"
+  },
+  {
+   "link_doctype": "Progressive Sales Invoice",
+   "link_fieldname": "progress_entry"
+  }
+ ],
+ "modified": "2024-11-26 11:45:18.398742",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

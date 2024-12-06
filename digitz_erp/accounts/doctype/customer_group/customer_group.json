@@ -2,20 +2,12 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:customer_group_name",
- "creation": "2022-12-21 16:42:56.869386",
- "default_view": "List",
+ "creation": "2024-11-12 12:23:52.340660",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "customer_group_name",
-  "lft",
-  "rgt",
-  "parent_customer_group",
-  "credit_days",
-  "credit_amount",
-  "is_active",
-  "default_price_list"
+  "disabled"
  ],
  "fields": [
   {
@@ -26,58 +18,18 @@
   },
   {
    "default": "0",
-   "fieldname": "is_active",
+   "fieldname": "disabled",
    "fieldtype": "Check",
-   "label": "is Active"
-  },
-  {
-   "fieldname": "lft",
-   "fieldtype": "Int",
-   "hidden": 1,
-   "label": "Left",
-   "no_copy": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "rgt",
-   "fieldtype": "Int",
-   "hidden": 1,
-   "label": "Right",
-   "no_copy": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "parent_customer_group",
-   "fieldtype": "Link",
-   "label": "Parent Customer Group",
-   "options": "Customer Group"
-  },
-  {
-   "fieldname": "credit_days",
-   "fieldtype": "Int",
-   "label": "Credit Days"
-  },
-  {
-   "fieldname": "credit_amount",
-   "fieldtype": "Float",
-   "label": "Credit Amount"
-  },
-  {
-   "fieldname": "default_price_list",
-   "fieldtype": "Link",
-   "label": "Default Price LIst",
-   "options": "Price List"
+   "label": "Disabled"
   }
  ],
  "index_web_pages_for_search": 1,
- "is_tree": 1,
  "links": [],
- "modified": "2022-12-21 18:48:38.093086",
+ "modified": "2024-11-12 12:27:35.922304",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer Group",
  "naming_rule": "By fieldname",
- "nsm_parent_field": "parent_customer_group",
  "owner": "Administrator",
  "permissions": [
   {

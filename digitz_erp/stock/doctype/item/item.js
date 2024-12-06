@@ -14,6 +14,12 @@ frappe.ui.form.on('Item', {
 						frm.set_value('maintain_stock', 1);
 				}
 			});
+
+			frappe.db.get_value('Company', frm.doc.company, 'default_product_expense_account', function(r) {
+				if (r && r.default_product_expense_account) {
+						frm.set_value('default_expense_account', r.default_product_expense_account);
+				}
+			});
 	}
  },
 	 setup: function(frm) {
@@ -21,6 +27,14 @@ frappe.ui.form.on('Item', {
 			return {
 				"filters": {
 					"disabled": 0
+				}
+			};
+		});
+		frm.set_query("default_expense_account", function () {
+			return {
+				"filters": {
+					"root_type":"Expense",
+					"is_group":0
 				}
 			};
 		});
@@ -45,6 +59,11 @@ frappe.ui.form.on('Item', {
 		   frm.doc.tax ="";
 		   frm.refresh_field("tax");
 	   }
+	},
+	item_group: function(frm) {
+		if (frm.doc.item_group && frm.doc.item_group.default_expense_account) {
+			frm.set_value('default_expense_account', frm.doc.item_group.default_expense_account);
+		}
 	},
 	assign_default_tax(frm)
 	{
@@ -79,37 +98,37 @@ frappe.ui.form.on('Item', {
 	},
 	validate: function(frm)
 	{
-		console.log("validate event");
-		console.log("Base Unit");
-		console.log(frm.doc.base_unit);
+		// console.log("validate event");
+		// console.log("Base Unit");
+		// console.log(frm.doc.base_unit);
 
-		var baseUnitFound = false;
+		// var baseUnitFound = false;
 
-		try
-		{
-		frm.doc.units.forEach(function(entry) {
-			if(frm.doc.base_unit == entry.unit)
-			{
-				baseUnitFound= true;
-			}
-		});
-		}
-		catch(err)
-		{
+		// try
+		// {
+		// frm.doc.units.forEach(function(entry) {
+		// 	if(frm.doc.base_unit == entry.unit)
+		// 	{
+		// 		baseUnitFound= true;
+		// 	}
+		// });
+		// }
+		// catch(err)
+		// {
 
-		}
-		console.log("baseUnitFound");
-		console.log(baseUnitFound);
+		// }
+		// console.log("baseUnitFound");
+		// console.log(baseUnitFound);
 
-		if(!baseUnitFound)
-		{
-			var baseuom = frm.add_child("units");
-			baseuom.unit = frm.doc.base_unit;
-			baseuom.conversion_factor = 1;
-			baseuom.parent = frm.doc.item;
-			console.log("Base UOM")
-			console.log(baseuom);
-		}
+		// if(!baseUnitFound)
+		// {
+		// 	var baseuom = frm.add_child("units");
+		// 	baseuom.unit = frm.doc.base_unit;
+		// 	baseuom.conversion_factor = 1;
+		// 	baseuom.parent = frm.doc.item;
+		// 	console.log("Base UOM")
+		// 	console.log(baseuom);
+		// }
 	},
 	before_save: function(frm)
 	{
@@ -145,22 +164,16 @@ frappe.ui.form.on('Item', {
 
 
 		}
-	},
-	is_fixed_asset(frm)
+	},	
+	item_type(frm)
 	{
-		if(frm.doc.is_fixed_asset)
-		{			
-			frm.set_value("maintain_stock",false)
+		if (frm.doc.item_type === "Fixed Asset" || frm.doc.item_type === "Labour" || frm.doc.item_type === "Service" ) {
+			frm.set_value("maintain_stock", false);
 		}
-	},
-	maintain_stock(frm)
-	{
-		if(frm.doc.maintain_stock)
-		{
-			frm.set_value("is_fixed_asset",false)			
-		}
-
-	},
+		else{
+			frm.set_value("maintain_stock", true);
+		}		
+	},	
 	get_margin_from_rates(frm)
 	{
 		if(!isNaN(frm.doc.standard_buying_price) && !isNaN(frm.doc.standard_selling_price))

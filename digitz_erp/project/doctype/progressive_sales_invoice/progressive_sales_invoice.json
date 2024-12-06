@@ -1,0 +1,655 @@
+{
+ "actions": [],
+ "allow_copy": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-08-21 14:30:18.443045",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "project_details_section",
+  "project_details_column",
+  "project",
+  "project_retention_amount",
+  "project_advance_amount",
+  "project_advance_percentage",
+  "column_break_zubf",
+  "sales_order",
+  "sales_order_date",
+  "sales_order_net_total",
+  "column_break_xtqn",
+  "progress_entry",
+  "column_break_kuck",
+  "company",
+  "cost_center",
+  "section_break_qxfb",
+  "naming_series",
+  "customer",
+  "customer_name",
+  "customer_display_name",
+  "customer_balance",
+  "customer_address",
+  "column_break_6",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "ship_to_location",
+  "tax_id",
+  "column_break_kscq",
+  "lpo_date",
+  "lpo_no",
+  "order_status",
+  "payment_status",
+  "default_cost_center",
+  "accounts_section",
+  "credit_sale",
+  "credit_days",
+  "payment_mode",
+  "mode",
+  "payment_account",
+  "column_break_25",
+  "payment_terms",
+  "reference_no",
+  "reference_date",
+  "column_break_rkkd",
+  "retention_receivable_account",
+  "revenue_account",
+  "column_break_kjrk",
+  "remarks",
+  "section_break_19",
+  "progress_entry_items",
+  "section_break_25",
+  "gross_total",
+  "retention_percentage",
+  "deduction_for_retention",
+  "deduction_against_advance",
+  "column_break_33",
+  "taxable_amount",
+  "tax_total",
+  "additional_discount",
+  "column_break_xkzu",
+  "net_total",
+  "round_off",
+  "rounded_total",
+  "previous_completion_percentage",
+  "total_completion_percentage",
+  "column_break_xfiy",
+  "total_big",
+  "in_words",
+  "tab_break_50",
+  "data_53",
+  "quotation",
+  "address_line_1",
+  "address_line_2",
+  "area_name",
+  "country",
+  "column_break_4",
+  "price_list",
+  "rate_includes_tax",
+  "warehouse",
+  "salesman",
+  "salesman_code",
+  "amended_from",
+  "receipt_schedule_tab",
+  "paid_amount",
+  "table_zuhz"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "progress_entry",
+   "fieldtype": "Link",
+   "label": "Progress Entry",
+   "options": "Progress Entry"
+  },
+  {
+   "fieldname": "project_details_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "progress_entry.project",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0]]",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_zubf",
+   "fieldtype": "Column Break",
+   "label": "Sales Order Details"
+  },
+  {
+   "fetch_from": "project.sales_order",
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xtqn",
+   "fieldtype": "Column Break",
+   "label": "Progress Entry"
+  },
+  {
+   "fetch_from": "sales_order.net_total",
+   "fieldname": "sales_order_net_total",
+   "fieldtype": "Float",
+   "label": "Sales Order Net Total",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_qxfb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "PSI-.YYYY.-"
+  },
+  {
+   "fetch_from": "project.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_display_name",
+   "fieldtype": "Data",
+   "label": "Customer Display Name"
+  },
+  {
+   "fieldname": "customer_balance",
+   "fieldtype": "Currency",
+   "label": "Customer Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
+  },
+  {
+   "fieldname": "ship_to_location",
+   "fieldtype": "Link",
+   "label": "Ship To Location",
+   "options": "Customer Delivery Location"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax Id"
+  },
+  {
+   "fieldname": "column_break_kscq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lpo_date",
+   "fieldtype": "Date",
+   "label": "LPO Date"
+  },
+  {
+   "fieldname": "lpo_no",
+   "fieldtype": "Data",
+   "label": "LPO No"
+  },
+  {
+   "fieldname": "order_status",
+   "fieldtype": "Select",
+   "label": "Order Status",
+   "options": "Pending\nPartial\nCompleted"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_sale",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Credit Sale"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "default": "Cash",
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
+  },
+  {
+   "fetch_from": "payment_mode.account",
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "Payment Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_terms",
+   "fieldtype": "Data",
+   "label": "Payment Terms "
+  },
+  {
+   "fieldname": "column_break_rkkd",
+   "fieldtype": "Column Break",
+   "width": "150"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_kjrk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "progress_entry_items",
+   "fieldtype": "Table",
+   "label": "Progress Entry Items",
+   "options": "Progress Entry Item"
+  },
+  {
+   "fieldname": "total_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Completion Percentage",
+   "precision": "0"
+  },
+  {
+   "fieldname": "section_break_25",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break",
+   "label": "Deductions"
+  },
+  {
+   "fieldname": "additional_discount",
+   "fieldtype": "Currency",
+   "label": "Additional Discount"
+  },
+  {
+   "fieldname": "column_break_xkzu",
+   "fieldtype": "Column Break",
+   "label": "Total"
+  },
+  {
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rounded_total",
+   "fieldtype": "Currency",
+   "label": "Rounded Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Small Text",
+   "label": "In Words"
+  },
+  {
+   "fieldname": "tab_break_50",
+   "fieldtype": "Tab Break",
+   "label": "References"
+  },
+  {
+   "fieldname": "data_53",
+   "fieldtype": "Section Break",
+   "label": "Related Documents"
+  },
+  {
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "label": "Quotation",
+   "options": "Quotation"
+  },
+  {
+   "fetch_from": "customer.address_line_1",
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Address Line 1"
+  },
+  {
+   "fetch_from": "customer.address_line_2",
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Address Line 2"
+  },
+  {
+   "fetch_from": "customer.area_name",
+   "fieldname": "area_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Area Name"
+  },
+  {
+   "fetch_from": "customer.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Country"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Progressive Sales Invoice",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break",
+   "hidden": 1
+  },
+  {
+   "default": "Standard Selling",
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Price List",
+   "options": "Price List"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Rate includes tax"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "salesman",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Salesman",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "salesman.employee_code",
+   "fieldname": "salesman_code",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Salesman Code"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Progressive Sales Invoice",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_kuck",
+   "fieldtype": "Column Break",
+   "label": "Company"
+  },
+  {
+   "fieldname": "receipt_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Receipt Schedule"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "column_break_xfiy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gross_total",
+   "fieldtype": "Currency",
+   "label": "Gross Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Currency",
+   "label": "Tax Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Data",
+   "label": "Payment Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "link_filters": "[[\"Cost Center\",\"disabled\",\"=\",0]]",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "retention_receivable_account",
+   "fieldtype": "Link",
+   "label": "Retention Receivable Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"account_type\",\"=\",\"Retention Receivable\"]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "revenue_account",
+   "fieldtype": "Link",
+   "label": "Revenue Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "deduction_for_retention",
+   "fieldtype": "Currency",
+   "label": "Deduction For Retention"
+  },
+  {
+   "fieldname": "deduction_against_advance",
+   "fieldtype": "Currency",
+   "label": "Deduction Against Advance"
+  },
+  {
+   "fieldname": "previous_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Previous Completion Percentage"
+  },
+  {
+   "fieldname": "project_details_column",
+   "fieldtype": "Column Break",
+   "label": "Project Details"
+  },
+  {
+   "fieldname": "project_retention_amount",
+   "fieldtype": "Currency",
+   "label": "Project Retention Amount"
+  },
+  {
+   "fieldname": "project_advance_amount",
+   "fieldtype": "Currency",
+   "label": "Project Advance Amount"
+  },
+  {
+   "fetch_from": "sales_order.posting_date",
+   "fieldname": "sales_order_date",
+   "fieldtype": "Date",
+   "label": "Sales Order Date"
+  },
+  {
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage"
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "label": "Taxable Amount"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount"
+  },
+  {
+   "fieldname": "project_advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Project Advance Percentage"
+  },
+  {
+   "fieldname": "table_zuhz",
+   "fieldtype": "Table",
+   "options": "Sales Receipt Schedule"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Delivery Note",
+   "link_fieldname": "sales_order"
+  },
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "sales_order"
+  }
+ ],
+ "modified": "2024-11-26 16:27:55.487680",
+ "modified_by": "Administrator",
+ "module": "Project",
+ "name": "Progressive Sales Invoice",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

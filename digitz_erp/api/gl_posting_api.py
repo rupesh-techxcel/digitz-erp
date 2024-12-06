@@ -48,13 +48,13 @@ def update_all_account_balances():
 
 @frappe.whitelist()    
 def update_all_parent_accounts():
-    print("Asset data updation")
+    #print("Asset data updation")
     update_all_parent_accounts_for_the_root_type("Asset")
-    print("Liability data updation")
+    #print("Liability data updation")
     update_all_parent_accounts_for_the_root_type("Liability")
-    print("Income data updation")
+    #print("Income data updation")
     update_all_parent_accounts_for_the_root_type("Income")
-    print("Expense data updation")
+    #print("Expense data updation")
     update_all_parent_accounts_for_the_root_type("Expense")
         
 @frappe.whitelist()

@@ -21,7 +21,7 @@ class UserWarehouse(Document):
 @frappe.whitelist()
 def check_user_entry(user):
     user_warehouse_entry = frappe.db.exists("User Warehouse", {"user": user})
-    print('user_warehouse_entry:', user_warehouse_entry)
+    #print('user_warehouse_entry:', user_warehouse_entry)
     if user_warehouse_entry:
         return True
     else:

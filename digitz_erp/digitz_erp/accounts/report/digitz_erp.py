@@ -10,8 +10,8 @@ def filter_accounts(accounts, depth=20):
     parent_children_map = {}
     accounts_by_name = {}
     for d in accounts:
-        print("d")
-        print(d)
+        #print("d")
+        #print(d)
         accounts_by_name[d.name] = d
         parent_children_map.setdefault(d.parent_account or None, []).append(d)
     filtered_accounts = []
@@ -19,11 +19,11 @@ def filter_accounts(accounts, depth=20):
 
     def add_to_list(parent, level):
         
-        print("hitting this")
-        print("parent")
-        print(parent)
-        print("level")
-        print(level)
+        #print("hitting this")
+        #print("parent")
+        #print(parent)
+        #print("level")
+        #print(level)
         
         if level < depth:
             children = parent_children_map.get(parent) or []
@@ -34,12 +34,12 @@ def filter_accounts(accounts, depth=20):
                 
     add_to_list(None, 0)
     
-    print("filtered accounts")
-    print(filtered_accounts)
-    print("accounts_by_name")
-    print(accounts_by_name)
-    print("parent_Children_map")
-    print(parent_children_map)
+    #print("filtered accounts")
+    #print(filtered_accounts)
+    #print("accounts_by_name")
+    #print(accounts_by_name)
+    #print("parent_Children_map")
+    #print(parent_children_map)
     return filtered_accounts, accounts_by_name, parent_children_map
 
 @frappe.whitelist()

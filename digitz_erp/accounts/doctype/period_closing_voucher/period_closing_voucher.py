@@ -53,20 +53,3 @@ class PeriodClosingVoucher(Document):
 	def cancel_period_closing(self):
 
 		delete_gl_postings_for_cancel_doc_type('Period Closing Voucher',self.name)
-
-@frappe.whitelist()
-def get_gl_postings(period_closing_voucher):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": period_closing_voucher},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings

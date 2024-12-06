@@ -5,4 +5,8 @@
 from frappe.model.document import Document
 
 class ItemGroup(Document):
-	pass
+	def before_validate(self):
+
+		if not self.description:
+			self.description = self.item_group_name
+

@@ -9,7 +9,7 @@
    "label": "Stock Value Chart"
   }
  ],
- "content": "[{\"id\":\"P35bis_h5J\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Balance Chart\",\"col\":12}},{\"id\":\"kEpn_u8Iuq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Value Chart\",\"col\":12}},{\"id\":\"bN43W1AZ_O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"JuY8XBqiiU\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"c1jI1ri2Ym\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Unit\",\"col\":3}},{\"id\":\"S2zLryISBH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouse\",\"col\":3}},{\"id\":\"xfRygsGbrD\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Group\",\"col\":3}},{\"id\":\"mt9US6NL8e\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"u68e_pfdgz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"Oh-H9HKb8Z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Price List\",\"col\":3}},{\"id\":\"Ov1jRWf280\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item Price\",\"col\":3}},{\"id\":\"sym89ua4q7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fqq2c6C0A4\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Transactions\",\"col\":4}},{\"id\":\"67gHi3hgMc\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Reports\",\"col\":4}},{\"id\":\"5WLw2nFC8L\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Stock Reports\",\"col\":4}},{\"id\":\"MogKgLO7X9\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fKqMsUooYF\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Item\",\"col\":4}},{\"id\":\"RXVU_-O_8_\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Item Group\",\"col\":4}},{\"id\":\"8YkcXaYhZI\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Warehouse\",\"col\":4}}]",
+ "content": "[{\"id\":\"P35bis_h5J\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Balance Chart\",\"col\":12}},{\"id\":\"kEpn_u8Iuq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Stock Value Chart\",\"col\":12}},{\"id\":\"bN43W1AZ_O\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fqq2c6C0A4\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Transactions\",\"col\":4}},{\"id\":\"eP9RkvR2rw\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"0dbfSOlpTT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"qXGVOatyD2\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Stock Reports</span>\",\"col\":12}},{\"id\":\"07tneMtBVz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Report\",\"col\":3}},{\"id\":\"hRihaUJldj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance Register\",\"col\":3}},{\"id\":\"9sND_zSPlR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Summary Report\",\"col\":3}},{\"id\":\"7AtAAubNP0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Movement Report\",\"col\":3}},{\"id\":\"egpgBqovdU\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"JzXjJ30KHm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b><span class=\\\"h4\\\">Other Stock Reports</span></b></span>\",\"col\":12}},{\"id\":\"JuKMV_Vaod\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Stock Report\",\"col\":3}},{\"id\":\"BKCjlYocwT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Stock Report Summary\",\"col\":3}},{\"id\":\"aPs6G80xkg\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fKqMsUooYF\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Item\",\"col\":4}},{\"id\":\"RXVU_-O_8_\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Item Group\",\"col\":4}},{\"id\":\"8YkcXaYhZI\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Warehouse\",\"col\":4}}]",
  "creation": "2024-02-05 14:33:23.946661",
  "custom_blocks": [],
  "docstatus": 0,
@@ -53,8 +53,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Other Stock Reports",
-   "link_count": 2,
+   "label": "Masters",
+   "link_count": 6,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -62,74 +62,65 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Daily  Stock Report",
+   "label": "Warehouse",
    "link_count": 0,
-   "link_to": "Daily Stock Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Daily Stock Report Summary",
-   "link_count": 0,
-   "link_to": "Daily Stock Report Summary",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Stock Reports",
-   "link_count": 4,
+   "link_to": "Warehouse",
    "link_type": "DocType",
    "onboard": 0,
-   "type": "Card Break"
+   "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Stock Current Balance Register",
+   "label": "Item",
    "link_count": 0,
-   "link_to": "Stock Balance Register",
-   "link_type": "Report",
+   "link_to": "Item",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Stock ledger Report",
+   "label": "Item Group",
    "link_count": 0,
-   "link_to": "Stock Ledger Report",
-   "link_type": "Report",
+   "link_to": "Item Group",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Stock Ledger Summary Report",
+   "label": "Unit",
    "link_count": 0,
-   "link_to": "Stock Ledger Summary Report",
-   "link_type": "Report",
+   "link_to": "Unit",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Stock Movement Report",
+   "label": "Price List",
    "link_count": 0,
-   "link_to": "Stock Movement Report",
-   "link_type": "Report",
+   "link_to": "Price List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Item Price",
+   "link_count": 0,
+   "link_to": "Item Price",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2024-04-15 22:37:39.376625",
+ "modified": "2024-11-25 15:53:03.170775",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Stock",
@@ -162,52 +153,46 @@
  "sequence_id": 1.0,
  "shortcuts": [
   {
-   "color": "Blue",
+   "color": "Grey",
    "doc_view": "List",
-   "label": "Unit",
-   "link_to": "Unit",
-   "stats_filter": "[]",
-   "type": "DocType"
+   "label": "Daily Stock Report",
+   "link_to": "Daily Stock Report",
+   "type": "Report"
   },
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Warehouse",
-   "link_to": "Warehouse",
-   "stats_filter": "[]",
-   "type": "DocType"
+   "label": "Stock Ledger Summary Report",
+   "link_to": "Stock Ledger Summary Report",
+   "type": "Report"
   },
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Item Group",
-   "link_to": "Item Group",
-   "stats_filter": "[]",
-   "type": "DocType"
+   "label": "Daily Stock Report Summary",
+   "link_to": "Daily Stock Report Summary",
+   "type": "Report"
   },
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Item",
-   "link_to": "Item",
-   "stats_filter": "[]",
-   "type": "DocType"
+   "label": "Stock Movement Report",
+   "link_to": "Stock Movement Report",
+   "type": "Report"
   },
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Price List",
-   "link_to": "Price List",
-   "stats_filter": "[]",
-   "type": "DocType"
+   "label": "Stock Ledger Report",
+   "link_to": "Stock Ledger Report",
+   "type": "Report"
   },
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Item Price",
-   "link_to": "Item Price",
-   "stats_filter": "[]",
-   "type": "DocType"
+   "label": "Stock Balance Register",
+   "link_to": "Stock Balance Register",
+   "type": "Report"
   }
  ],
  "title": "Stock"

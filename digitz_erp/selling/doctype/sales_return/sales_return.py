@@ -33,8 +33,8 @@ class SalesReturn(Document):
 
                 si_item = frappe.get_doc("Sales Invoice Item", docitem.si_item_reference)
 
-                print(total_returned_qty_not_in_this_sr)
-                print(docitem.qty)
+                #print(total_returned_qty_not_in_this_sr)
+                #print(docitem.qty)
 
                 if total_returned_qty_not_in_this_sr:
                     if(si_item.qty_in_base_unit < (total_returned_qty_not_in_this_sr + docitem.qty_in_base_unit)):
@@ -372,11 +372,11 @@ class SalesReturn(Document):
 
     def cancel_sales_return(self):
 
-        print("from cancel sales return")
+        #print("from cancel sales return")
 
         self.update_sales_invoice_quantities_before_delete_or_cancel()
 
-        print("before do_cancel_stock_posting")
+        #print("before do_cancel_stock_posting")
 
         self.do_cancel_stock_posting()
 
@@ -401,7 +401,7 @@ class SalesReturn(Document):
 
         for docitem in self.items:
             maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
-            print('MAINTAIN STOCK :', maintain_stock)
+            #print('MAINTAIN STOCK :', maintain_stock)
             if(maintain_stock == 1):
 
         # Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
@@ -524,30 +524,30 @@ class SalesReturn(Document):
 
         # Iterate on each item from the cancelling Purchase Return
         for docitem in self.items:
-            print("more_records_for_item 1")
-            print(docitem.item)
+            #print("more_records_for_item 1")
+            #print(docitem.item)
 
             more_records_for_item = frappe.db.count('Stock Ledger',{'item':docitem.item,
                 'warehouse':docitem.warehouse, 'posting_date':['>', posting_date_time]})
             more_records = more_records + more_records_for_item
 
-            print("more_records_for_item 2")
+            #print("more_records_for_item 2")
 
-            print("docitem.item")
-            print(docitem.item)
-            print("previous stock ledger for item checking")
+            #print("docitem.item")
+            #print(docitem.item)
+            #print("previous stock ledger for item checking")
             previous_stock_ledger_name = frappe.db.get_value('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
                         , 'posting_date':['<', posting_date_time]},['name'], order_by='posting_date desc', as_dict=True)
 
-            print("previous stock ledger for item checked")
+            #print("previous stock ledger for item checked")
 
-            print("more")
-            print(more_records_for_item)
+            #print("more")
+            #print(more_records_for_item)
 
             # If any items in the collection has more records
             if(more_records_for_item>0):
 
-                print("before append stock recalc record")
+                #print("before append stock recalc record")
 
                 if(previous_stock_ledger_name):
                     stock_recalc_voucher.append('records',{'item': docitem.item,
@@ -560,9 +560,9 @@ class SalesReturn(Document):
                                                             'base_stock_ledger': "No Previous Ledger"
                                                             })
             else:
-                print("before get stockc balance")
+                #print("before get stockc balance")
                 stock_balance = frappe.get_value('Stock Balance', {'item':docitem.item, 'warehouse':docitem.warehouse}, ['name'] )
-                print("after get stock balance")
+                #print("after get stock balance")
                 balance_qty =0
                 balance_value =0
                 valuation_rate  = 0
@@ -579,16 +579,16 @@ class SalesReturn(Document):
                 stock_balance_for_item.stock_value = balance_value
                 stock_balance_for_item.valuation_rate = valuation_rate
                 stock_balance_for_item.save()
-                # print("item_name")
+                # #print("item_name")
 
                 # item_name = frappe.get_value("Item", docitem.item,['item_name'])
 
-                # print(item_name)
+                # #print(item_name)
 
                 update_stock_balance_in_item(docitem.item)
 
 
-        print("before delete stock ledger")
+        #print("before delete stock ledger")
         # Delete the stock ledger before recalculate, to avoid it to be recalculated again
         frappe.db.delete("Stock Ledger",
             {"voucher": "Sales Return",
@@ -597,7 +597,7 @@ class SalesReturn(Document):
 
         if(more_records>0):
             stock_recalc_voucher.insert()
-            print("going to recalculate")
+            #print("going to recalculate")
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
 
     def get_cost_of_goods_sold(self):
@@ -616,25 +616,8 @@ class SalesReturn(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_sales')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
-
-@frappe.whitelist()
-def get_gl_postings(sales_return):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": sales_return},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings
 
 @frappe.whitelist()
 def get_stock_ledgers(sales_return):
@@ -653,5 +636,5 @@ def get_stock_ledgers(sales_return):
             "balance_qty": ledgers.balance_qty,
             "balance_value": ledgers.balance_value
         })
-    print(formatted_stock_ledgers)
+    #print(formatted_stock_ledgers)
     return formatted_stock_ledgers

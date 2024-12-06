@@ -87,7 +87,8 @@ frappe.ui.form.on('Purchase Invoice', {
 		if(frm.is_new())
 		{
 			// Remove the initial blank item row
-			frm.clear_table('items');
+			if (frm.doc.purchase_order== undefined)
+				frm.clear_table('items');
 
 			frm.trigger("get_default_company_and_warehouse");
 
@@ -581,6 +582,9 @@ frappe.ui.form.on('Purchase Invoice Item', {
 
 	item(frm, cdt, cdn) {
 		var child = locals[cdt][cdn];
+		
+		check_budget_utilization(frm, cdt, cdn);
+
 		if (frm.doc.default_cost_center) {
 			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
 		}
@@ -1015,48 +1019,91 @@ let create_custom_buttons = function(frm){
 		}, 'Postings');
 		}
 	}
+
+	if(!frm.is_new() && frm.doc.docstatus==1){
+		frm.add_custom_button('Create Material Issue', ()=>{
+			frappe.new_doc("Material Issue",{},(mi)=>{
+				mi.warehouse = frm.doc.warehouse;
+				let net_total = 0;
+				frm.doc.items.forEach((pi_row)=>{
+					let mi_item = frappe.model.add_child(mi, 'items');
+					mi_item.item = pi_row.item;
+					mi_item.item_name = pi_row.item_name;
+					mi_item.display_name = pi_row.display_name;
+					mi_item.qty = pi_row.qty;
+					mi_item.unit = pi_row.unit;
+					mi_item.base_unit = pi_row.base_unit;
+					mi_item.rate = pi_row.rate;
+					mi_item.qty_in_base_unit = pi_row.qty_in_base_unit;
+					mi_item.rate_in_base_unit = pi_row.rate_in_base_unit;
+					mi_item.conversion_factor = pi_row.conversion_factor;
+					mi_item.net_amount = (pi_row.rate * pi_row.qty);
+
+					net_total+=mi_item.net_amount;
+				});
+				mi.net_total = net_total;
+			});
+		},'Actions');
+	}
 }
 
 let general_ledgers = function (frm) {
     frappe.call({
         method: "digitz_erp.api.accounts_api.get_gl_postings",
         args: {
-			voucher: frm.doc.doctype,
+            voucher: frm.doc.doctype,
             voucher_no: frm.doc.name
         },
         callback: function (response) {
-            let gl_postings = response.message;
+            let gl_postings = response.message.gl_postings;
+            let totalDebit = parseFloat(response.message.total_debit).toFixed(2);
+            let totalCredit = parseFloat(response.message.total_credit).toFixed(2);
 
             // Generate HTML content for the popup
-            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+            let htmlContent = '<div style="max-height: 680px; overflow-y: auto;">' +
                               '<table class="table table-bordered" style="width: 100%;">' +
                               '<thead>' +
                               '<tr>' +
-                              '<th style="width: 20%;">Account</th>' +
-                              '<th style="width: 15%;">Debit Amount</th>' +
-                              '<th style="width: 15%;">Credit Amount</th>' +
-                              '<th style="width: 25%;">Against Account</th>' +
-                              '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 15%;">Account</th>' +
+							  '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 10%;">Debit Amount</th>' +
+                              '<th style="width: 10%;">Credit Amount</th>' +
+							  '<th style="width: 10%;">Party</th>' +
+                              '<th style="width: 10%;">Against Account</th>' +                              
+                              '<th style="width: 10%;">Project</th>' +
+                              '<th style="width: 10%;">Cost Center</th>' +                              
                               '</tr>' +
                               '</thead>' +
                               '<tbody>';
 
-							  gl_postings.forEach(function (gl_posting) {
-								// Handling null values for remarks
-								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+			console.log("gl_postings",gl_postings)
 
-								// Ensure debit_amount and credit_amount are treated as floats and format them
-								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
-								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+            gl_postings.forEach(function (gl_posting) {
+                let remarksText = gl_posting.remarks || '';
+                let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+                let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
 
-								htmlContent += '<tr>' +
-											   `<td>${gl_posting.account}</td>` +
-											   `<td style="text-align: right;">${debitAmount}</td>` +
-											   `<td style="text-align: right;">${creditAmount}</td>` +
-											   `<td>${gl_posting.against_account}</td>` +
-											   `<td>${remarksText}</td>` +
-											   '</tr>';
-							});
+                htmlContent += '<tr>' +
+                               `<td>${gl_posting.account}</td>` +
+							   `<td>${remarksText}</td>` +
+                               `<td style="text-align: right;">${debitAmount}</td>` +
+                               `<td style="text-align: right;">${creditAmount}</td>` +
+							   `<td>${gl_posting.party}</td>` +
+                               `<td>${gl_posting.against_account}</td>` +                               
+                               `<td>${gl_posting.project}</td>` +
+                               `<td>${gl_posting.cost_center}</td>` +
+                               
+                               '</tr>';
+            });
+
+            // Add totals row
+            htmlContent += '<tr>' +
+                           '<td style="font-weight: bold;">Total</td>' +
+						   '<td></td>'+
+                           `<td style="text-align: right; font-weight: bold;">${totalDebit}</td>` +
+                           `<td style="text-align: right; font-weight: bold;">${totalCredit}</td>` +
+                           '<td colspan="5"></td>' +
+                           '</tr>';
 
             htmlContent += '</tbody></table></div>';
 
@@ -1075,7 +1122,7 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '90%'); 
 
             d.show();
         }
@@ -1147,3 +1194,42 @@ let stock_ledgers = function (frm) {
         }
     });
 };
+
+function check_budget_utilization(frm, cdt, cdn) {
+    const row = frappe.get_doc(cdt, cdn);
+
+    if (!row.item) {
+        return; // Skip if item_code is not selected
+    }
+
+    frappe.call({
+        method: 'app.module_name.fetch_budget_utilization', // Update with your app/module path
+        args: {
+            budget_against: frm.doc.budget_against || 'Purchase',
+            reference_type: 'Item',
+            reference_value: row.item,
+            company: frm.doc.company,
+            project: frm.doc.project || null,
+            cost_center: frm.doc.cost_center || null,
+            from_date: frm.doc.from_date || null,
+            to_date: frm.doc.to_date || null,
+        },
+        callback: function(r) {
+            if (r.message) {
+                if (r.message.no_budget) {
+                    frappe.msgprint(__('No budget exists for the selected criteria.'));
+                    return;
+                }
+
+                const utilized = r.message.utilized || 0;
+                const budget = r.message.budget || 0;
+
+                if (utilized > budget) {
+                    frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                } else {
+                    frappe.msgprint(__('Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                }
+            }
+        },
+    });
+}

@@ -13,10 +13,10 @@ class GLPosting(Document):
 @frappe.whitelist()
 def get_party_balance(party_type, party):
     
-	print("party_type")
-	print(party_type)
-	print("party")
-	print(party)
+	#print("party_type")
+	#print(party_type)
+	#print("party")
+	#print(party)
  
 	party_balance = 0
 

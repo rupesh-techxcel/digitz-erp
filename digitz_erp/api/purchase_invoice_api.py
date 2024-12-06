@@ -31,7 +31,7 @@ def get_allocations_for_invoice(purchase_invoice_no, payment_no):
     
 @frappe.whitelist()
 def check_balance_qty_to_return_for_purchase_invoice(purchase_invoice):
-    print("check balance")
+    #print("check balance")
     result = frappe.db.sql("""
         SELECT name 
         FROM `tabPurchase Invoice Item` 

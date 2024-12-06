@@ -12,6 +12,8 @@ from digitz_erp.api.document_posting_status_api import init_document_posting_sta
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_on_update
 from digitz_erp.api.settings_api import get_gl_narration
+from digitz_erp.api.settings_api import add_seconds_to_time
+
 class DeliveryNote(Document):
 
     def Voucher_In_The_Same_Time(self):
@@ -19,13 +21,9 @@ class DeliveryNote(Document):
         return possible_invalid
 
     def Set_Posting_Time_To_Next_Second(self):
-        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+        # Add 12 seconds to self.posting_time and update it
+        self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
-        # Add one second to the datetime object
-        new_datetime = datetime_object + timedelta(seconds=1)
-
-        # Extract the new time as a string
-        self.posting_time = new_datetime.strftime('%H:%M:%S')
 
     def before_validate(self):
         self.in_words = money_in_words(self.rounded_total,"AED")
@@ -102,7 +100,7 @@ class DeliveryNote(Document):
     def on_submit(self):
 
         init_document_posting_status(self.doctype,self.name)
-       
+        
         self.do_postings_on_submit()
 
 
@@ -117,7 +115,7 @@ class DeliveryNote(Document):
 
     def validate_item(self):
 
-        print("DN validate item")
+        #print("DN validate item")
 
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
 
@@ -263,7 +261,7 @@ class DeliveryNote(Document):
 
         frappe.db.commit()
 
-        print(sales_invoice_doc.name)
+        #print(sales_invoice_doc.name)
 
         si =  frappe.get_doc('Sales Invoice',sales_invoice_doc.name)
 
@@ -307,9 +305,9 @@ class DeliveryNote(Document):
         delete_gl_postings_for_cancel_doc_type('Delivery Note', self.name)
 
         # frappe.db.delete("GL Posting",
-		# 		{"Voucher_type": "Delivery Note",
-		# 		 "voucher_no":self.name
-		# 		})
+        # 		{"Voucher_type": "Delivery Note",
+        # 		 "voucher_no":self.name
+        # 		})
 
     def do_stock_posting(self):
 
@@ -330,7 +328,7 @@ class DeliveryNote(Document):
 
         for docitem in self.items:
             maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
-            print('MAINTAIN STOCK :', maintain_stock)
+            #print('MAINTAIN STOCK :', maintain_stock)
             if(maintain_stock == 1):
 
                 posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
@@ -424,8 +422,8 @@ class DeliveryNote(Document):
                     new_stock_balance.insert()
 
                     # item_name = frappe.get_value("Item", docitem.item,['item_name'])
-                    # print("item_name")
-                    # print(item_name)
+                    # #print("item_name")
+                    # #print(item_name)
                     update_stock_balance_in_item(docitem.item)
                 else:
                     stock_recalc_voucher.append('records',{'item': docitem.item,
@@ -459,7 +457,7 @@ class DeliveryNote(Document):
             cost_of_goods_sold = cog_data[0].cost_of_goods_sold
 
         return cost_of_goods_sold
-    
+
     def get_narration(self):
         
         # Assign supplier, invoice_no, and remarks
@@ -491,7 +489,7 @@ class DeliveryNote(Document):
         
         remarks = self.get_narration()
 
-        print("From insert gl records")
+        #print("From insert gl records")
 
         default_company = frappe.db.get_single_value("Global Settings", "default_company")
 
@@ -549,6 +547,10 @@ class DeliveryNote(Document):
         more_records = 0
 
         for docitem in self.items:
+            
+            balance_qty = 0
+            balance_value = 0
+            valuation_rate = 0
 
             # For cancel delivery note balance qty logic is safe because it only add the qty back to the stock.
             more_record_for_item = frappe.db.count('Stock Ledger', {'item': ['=', docitem.item], 'warehouse':['=', docitem.warehouse]
@@ -609,57 +611,40 @@ class DeliveryNote(Document):
             update_posting_status(self.doctype,self.name, 'stock_recalc_on_cancel_time')
 
 
-@frappe.whitelist()
-def get_sales_order_items(sales_orders):
-    if isinstance(sales_orders, str):
-        sales_orders = frappe.parse_json(sales_orders)
-    items = []
-    for sales_order in sales_orders:
-        sales_order_items = frappe.get_all('Sales Order Item',
-                                           filters={'parent': sales_order},
-                                           fields=['name', 'item', 'qty', 'warehouse', 'item_name', 'display_name', 'unit', 'rate', 'base_unit',
-                                           'qty_in_base_unit', 'rate_in_base_unit', 'conversion_factor', 'rate_includes_tax', 'gross_amount',
-                                           'tax_excluded', 'tax_rate', 'tax_amount', 'discount_percentage', 'discount_amount', 'net_amount'
-                                           ])
-        for so_item in sales_order_items:
-            so_item['sales_order_item_reference_no'] = so_item['name']
-            items.append(so_item)
+    @frappe.whitelist()
+    def get_sales_order_items(sales_orders):
+        if isinstance(sales_orders, str):
+            sales_orders = frappe.parse_json(sales_orders)
+        items = []
+        for sales_order in sales_orders:
+            sales_order_items = frappe.get_all('Sales Order Item',
+                                                filters={'parent': sales_order},
+                                                fields=['name', 'item', 'qty', 'warehouse', 'item_name', 'display_name', 'unit', 'rate', 'base_unit',
+                                                'qty_in_base_unit', 'rate_in_base_unit', 'conversion_factor', 'rate_includes_tax', 'gross_amount',
+                                                'tax_excluded', 'tax_rate', 'tax_amount', 'discount_percentage', 'discount_amount', 'net_amount'
+                                                ])
+            for so_item in sales_order_items:
+                so_item['sales_order_item_reference_no'] = so_item['name']
+                items.append(so_item)
 
-    return items
-
-@frappe.whitelist()
-def get_gl_postings(delivery_note):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": delivery_note},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings
-
-@frappe.whitelist()
-def get_stock_ledgers(delivery_note):
-    stock_ledgers = frappe.get_all("Stock Ledger",
-                                    filters={"voucher_no": delivery_note},
-                                    fields=["name", "item", "warehouse", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
-    formatted_stock_ledgers = []
-    for ledgers in stock_ledgers:
-        formatted_stock_ledgers.append({
-            "stock_ledger": ledgers.name,
-            "item": ledgers.item,
-            "warehouse": ledgers.warehouse,
-            "qty_in": ledgers.qty_in,
-            "qty_out": ledgers.qty_out,
-            "valuation_rate": ledgers.valuation_rate,
-            "balance_qty": ledgers.balance_qty,
-            "balance_value": ledgers.balance_value
-        })
-    print(formatted_stock_ledgers)
-    return formatted_stock_ledgers
+        return items
+    
+    @frappe.whitelist()
+    def get_stock_ledgers(delivery_note):
+        stock_ledgers = frappe.get_all("Stock Ledger",
+                                        filters={"voucher_no": delivery_note},
+                                        fields=["name", "item", "warehouse", "qty_in", "qty_out", "valuation_rate", "balance_qty", "balance_value"])
+        formatted_stock_ledgers = []
+        for ledgers in stock_ledgers:
+            formatted_stock_ledgers.append({
+                "stock_ledger": ledgers.name,
+                "item": ledgers.item,
+                "warehouse": ledgers.warehouse,
+                "qty_in": ledgers.qty_in,
+                "qty_out": ledgers.qty_out,
+                "valuation_rate": ledgers.valuation_rate,
+                "balance_qty": ledgers.balance_qty,
+                "balance_value": ledgers.balance_value
+            })
+        #print(formatted_stock_ledgers)
+        return formatted_stock_ledgers

@@ -28,13 +28,15 @@
   "warehouse",
   "salesman",
   "salesman_code",
+  "project_name_from_boq",
+  "project_short_name_from_boq",
   "column_break_kscq",
   "company",
   "lpo_date",
   "lpo_no",
   "order_status",
   "default_cost_center",
-  "quotation_id",
+  "advance_received_with_sales_invoice",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -48,7 +50,6 @@
   "column_break_kjrk",
   "section_break_19",
   "items",
-  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
@@ -64,34 +65,17 @@
   "column_break_xkzu",
   "round_off",
   "rounded_total",
-  "in_words",
+  "paid_amount",
   "column_break_engq",
   "total_big",
-  "total_details_section",
-  "gross_total_copy",
-  "tax_total_copy",
-  "net_total_copy",
-  "column_break_pjwt",
-  "total_discount_in_line_items_copy",
-  "additional_discount_copy",
-  "column_break_wnka",
-  "round_off_copy",
-  "rounded_total_copy",
-  "in_words_copy",
-  "column_break_euvi",
-  "amount",
-  "section_break_33",
-  "taxes",
+  "in_words",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
   "tab_break_50",
   "data_53",
   "quotation",
-  "address_line_1",
-  "address_line_2",
-  "area_name",
-  "country",
+  "boq",
   "amended_from"
  ],
  "fields": [
@@ -127,34 +111,6 @@
    "label": "Address"
   },
   {
-   "fetch_from": "customer.address_line_1",
-   "fieldname": "address_line_1",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 1"
-  },
-  {
-   "fetch_from": "customer.address_line_2",
-   "fieldname": "address_line_2",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Address Line 2"
-  },
-  {
-   "fetch_from": "customer.area_name",
-   "fieldname": "area_name",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Area Name"
-  },
-  {
-   "fetch_from": "customer.country",
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Country"
-  },
-  {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
   },
@@ -162,6 +118,7 @@
    "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date",
    "read_only": 1
   },
@@ -188,6 +145,7 @@
   {
    "fieldname": "salesman",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Salesman",
    "options": "Employee"
   },
@@ -305,7 +263,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "depends_on": "eval: doc.items != undefined || doc.items.length>0",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -373,17 +330,6 @@
    "fieldtype": "Currency",
    "label": "Rounded Total",
    "read_only": 1
-  },
-  {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "taxes",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Taxes",
-   "options": "Purchase Invoice Tax"
   },
   {
    "collapsible": 1,
@@ -482,7 +428,7 @@
   },
   {
    "fieldname": "in_words",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "In Words"
   },
   {
@@ -490,92 +436,31 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "eval: (doc.item_table != undefined ) && (doc.item_table.length > 0)",
-   "fieldname": "total_details_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Total Details"
-  },
-  {
-   "default": "0",
-   "fieldname": "gross_total_copy",
-   "fieldtype": "Currency",
-   "label": "Gross Total",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "tax_total_copy",
-   "fieldtype": "Currency",
-   "label": "Tax Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_pjwt",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_discount_in_line_items_copy",
-   "fieldtype": "Currency",
-   "label": "Total Discount In Line Items"
-  },
-  {
-   "fieldname": "additional_discount_copy",
-   "fieldtype": "Currency",
-   "label": "Additional Discount"
-  },
-  {
-   "fieldname": "column_break_wnka",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "round_off_copy",
-   "fieldtype": "Float",
-   "label": "Round Off",
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "rounded_total_copy",
-   "fieldtype": "Currency",
-   "label": "Rounded Total",
-   "read_only": 1
-  },
-  {
-   "fieldname": "in_words_copy",
+   "fieldname": "project_name_from_boq",
    "fieldtype": "Data",
-   "label": "In Words"
+   "label": "Project Name (from BOQ)"
   },
   {
-   "fieldname": "column_break_euvi",
-   "fieldtype": "Column Break"
+   "fieldname": "project_short_name_from_boq",
+   "fieldtype": "Data",
+   "label": "Project Short Name (from BOQ)"
   },
   {
-   "fieldname": "quotation_id",
-   "fieldtype": "Link",
-   "label": "Quotation ID",
-   "options": "Quotation",
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
    "read_only": 1
   },
   {
-   "depends_on": "eval: doc.item_table != undefined && doc.item_table.length>0 && doc.quotation_id != undefined && doc.quotation_id != \"\"",
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "label": "Item Table",
-   "options": "Sales Order New Item Details"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "HTML",
-   "label": "Amount"
+   "fieldname": "boq",
+   "fieldtype": "Read Only",
+   "label": "BOQ"
   },
   {
    "default": "0",
-   "fieldname": "net_total_copy",
-   "fieldtype": "Currency",
-   "label": "Net Total",
+   "fieldname": "advance_received_with_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Advance Received With Sales Invoice",
    "read_only": 1
   }
  ],
@@ -589,9 +474,13 @@
   {
    "link_doctype": "Sales Invoice",
    "link_fieldname": "sales_order"
+  },
+  {
+   "link_doctype": "Project",
+   "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-08-06 11:31:02.968617",
+ "modified": "2024-11-28 09:48:13.756270",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

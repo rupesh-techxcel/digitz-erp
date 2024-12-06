@@ -10,6 +10,7 @@
   "customer_name",
   "customer_group",
   "tax_id",
+  "prospect",
   "section_break_4",
   "salesman",
   "salesman_name",
@@ -19,6 +20,7 @@
   "credit_days",
   "credit_amount",
   "last_transaction_date",
+  "default_currency",
   "section_break_20",
   "address",
   "address_line_1",
@@ -53,11 +55,12 @@
    "reqd": 1
   },
   {
-   "default": "All Customer Groups",
+   "default": "Default Customer Group",
    "fieldname": "customer_group",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer Group",
+   "link_filters": "[[\"Customer Group\",\"disabled\",\"=\",0]]",
    "options": "Customer Group",
    "reqd": 1
   },
@@ -246,11 +249,23 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "prospect",
+   "fieldtype": "Link",
+   "label": "Prospect",
+   "options": "Prospect"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-16 08:47:34.581943",
+ "modified": "2024-11-12 12:42:50.714211",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",

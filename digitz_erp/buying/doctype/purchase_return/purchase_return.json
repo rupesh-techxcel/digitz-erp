@@ -19,7 +19,6 @@
   "posting_time",
   "edit_posting_date_and_time",
   "price_list",
-  "default_cost_center",
   "rate_includes_tax",
   "column_break_10",
   "supplier_inv_no",
@@ -29,6 +28,8 @@
   "column_break_gbjl",
   "company",
   "warehouse",
+  "default_cost_center",
+  "project",
   "accounts_section",
   "credit_purchase",
   "credit_days",
@@ -417,6 +418,12 @@
   {
    "fieldname": "column_break_ktbt",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -430,7 +437,7 @@
    "table_fieldname": "payment_allocation"
   }
  ],
- "modified": "2024-04-23 17:47:01.516644",
+ "modified": "2024-11-19 14:22:15.648902",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Return",

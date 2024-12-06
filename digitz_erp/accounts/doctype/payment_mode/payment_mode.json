@@ -33,7 +33,7 @@
    "options": "Cash\nBank\nCard\nOther"
   },
   {
-   "depends_on": "eval:(doc.mode in [\"Bank\",\"Card\"]",
+   "depends_on": "eval:doc.mode in [\"Bank\",\"Card\"]",
    "fieldname": "bank_account",
    "fieldtype": "Link",
    "label": "Bank Account",
@@ -42,7 +42,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-29 21:03:52.647583",
+ "modified": "2024-11-20 19:04:39.582726",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Mode",

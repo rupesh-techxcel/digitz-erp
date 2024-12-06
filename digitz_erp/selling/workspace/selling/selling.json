@@ -9,7 +9,7 @@
    "label": "Top Customers"
   }
  ],
- "content": "[{\"id\":\"wuZpQSlRT6\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":12}},{\"id\":\"r8G2KrYoVs\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Sales Trends\",\"col\":12}},{\"id\":\"wvc__ptX0n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"9dB0JdsKyv\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"tzCU3Rv8EL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"jAs2mp2HTC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Group\",\"col\":3}},{\"id\":\"BEEHIJaYB9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Area\",\"col\":3}},{\"id\":\"JEltu7TKmr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oKGdnQzqrM\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"6IH-OA7xgY\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"RpBClxo7Vk\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
+ "content": "[{\"id\":\"wuZpQSlRT6\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":12}},{\"id\":\"r8G2KrYoVs\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Sales Trends\",\"col\":12}},{\"id\":\"wvc__ptX0n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"9dB0JdsKyv\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"tzCU3Rv8EL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"jAs2mp2HTC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Group\",\"col\":3}},{\"id\":\"BEEHIJaYB9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Area\",\"col\":3}},{\"id\":\"JEltu7TKmr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"lVBMZ7Pcxz\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"oKGdnQzqrM\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"AXSEwoyRND\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Transactions\",\"col\":4}},{\"id\":\"kXMmqz_AiT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"K-GC9xr-t5\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Reports</span>\",\"col\":12}},{\"id\":\"weSnfN0O6Z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Register\",\"col\":3}},{\"id\":\"srMzpaAqHB\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Itemwise Register\",\"col\":3}},{\"id\":\"_ImzAyKIiA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Itemwise Summary Report\",\"col\":3}},{\"id\":\"R0WNfi2G6Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oy4anwvhY3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Register\",\"col\":3}},{\"id\":\"dyiq7jyRla\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Itemwise Register\",\"col\":3}},{\"id\":\"zMjt6glnu6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Itemwise Summary Report\",\"col\":3}},{\"id\":\"0hMebdcIN7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Bm5yEaiGp0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Register\",\"col\":3}},{\"id\":\"22SLfnTJsc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Itemwise Register\",\"col\":3}},{\"id\":\"5mmFmcEq3x\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Itemwise Summary Report\",\"col\":3}},{\"id\":\"nmBwQKS8xd\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"L78A4ZGXcY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Register\",\"col\":3}},{\"id\":\"wQOJaxEjPo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Itemwise Register\",\"col\":3}},{\"id\":\"EjPHUAVef_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Itemwise Summary Report\",\"col\":3}},{\"id\":\"Q9_8-JG3MB\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_QyVxDFaqT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Register\",\"col\":3}},{\"id\":\"nvJbMwXQGt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Itemwise Register\",\"col\":3}},{\"id\":\"H5QKyI1PeR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Itemwise Summary Report\",\"col\":3}},{\"id\":\"xkabYmkNUT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"dVsCFDvg-w\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Chart   Top Customer Sales\",\"col\":3}},{\"id\":\"xkYZVBbrZQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Transaction Ageing Report\",\"col\":3}}]",
  "creation": "2024-02-06 11:37:44.222236",
  "custom_blocks": [],
  "docstatus": 0,
@@ -94,8 +94,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Reports",
-   "link_count": 9,
+   "label": "Other Transactions",
+   "link_count": 3,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -103,98 +103,38 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Sales Register",
+   "label": "Progress Entry",
    "link_count": 0,
-   "link_to": "Sales Register",
-   "link_type": "Report",
+   "link_to": "Progress Entry",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Sales Itemwise Register",
+   "label": "Proforma Invoice",
    "link_count": 0,
-   "link_to": "Sales Itemwise Register",
-   "link_type": "Report",
+   "link_to": "Proforma Invoice",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Sales Itemwise Summary Report",
+   "label": "Progressive Sales Invoice",
    "link_count": 0,
-   "link_to": "Sales Itemwise Summary Report",
-   "link_type": "Report",
+   "link_to": "Progressive Sales Invoice",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Delivery Note Register",
-   "link_count": 0,
-   "link_to": "Delivery Note Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Delivery Note Itemwise Register",
-   "link_count": 0,
-   "link_to": "Delivery Note Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Delivery Note Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Delivery Note Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Return Register",
-   "link_count": 0,
-   "link_to": "Sales Return Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Return Itemwise Register",
-   "link_count": 0,
-   "link_to": "Sales Return Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Return Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Sales Return Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Other Reports",
-   "link_count": 7,
+   "label": "Masters",
+   "link_count": 3,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -202,75 +142,35 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Quotation Register",
+   "label": "Customer",
    "link_count": 0,
-   "link_to": "Quotation Register",
-   "link_type": "Report",
+   "link_to": "Customer",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Quotation Itemwise Register",
+   "label": "Customer Group",
    "link_count": 0,
-   "link_to": "Quotation Itemwise Register",
-   "link_type": "Report",
+   "link_to": "Customer Group",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Quotation Itemwise Summary Report",
+   "label": "Area",
    "link_count": 0,
-   "link_to": "Quotation Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order Register",
-   "link_count": 0,
-   "link_to": "Sales Order Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order Itemwise Register",
-   "link_count": 0,
-   "link_to": "Sales Order Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Sales Order Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Customer Transaction Ageing Report",
-   "link_count": 0,
-   "link_to": "Customer Transaction Ageing Report",
-   "link_type": "Report",
+   "link_to": "Area",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2024-04-10 12:53:41.619603",
+ "modified": "2024-11-25 16:19:17.790388",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -285,10 +185,94 @@
   {
    "color": "Grey",
    "doc_view": "List",
+   "label": "Customer Transaction Ageing Report",
+   "link_to": "Customer Transaction Ageing Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Quotation Register",
+   "link_to": "Quotation Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Return Register",
+   "link_to": "Sales Return Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Order Register",
+   "link_to": "Sales Order Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Chart   Top Customer Sales",
+   "link_to": "Sales Chart - Top Customer Sales",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Delivery Note Register",
+   "link_to": "Delivery Note Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Register",
+   "link_to": "Sales Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
    "label": "Area",
    "link_to": "Area",
    "stats_filter": "[]",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Delivery Note Itemwise Summary Report",
+   "link_to": "Delivery Note Itemwise Summary Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Order Itemwise Register",
+   "link_to": "Sales Order Itemwise Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Return Itemwise Register",
+   "link_to": "Sales Return Itemwise Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Quotation Itemwise Register",
+   "link_to": "Quotation Itemwise Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Itemwise Register",
+   "link_to": "Sales Itemwise Register",
+   "type": "Report"
   },
   {
    "color": "Grey",
@@ -301,10 +285,45 @@
   {
    "color": "Grey",
    "doc_view": "List",
+   "label": "Sales Itemwise Summary Report",
+   "link_to": "Sales Itemwise Summary Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Order Itemwise Summary Report",
+   "link_to": "Sales Order Itemwise Summary Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Return Itemwise Summary Report",
+   "link_to": "Sales Return Itemwise Summary Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Delivery Note Itemwise Register",
+   "link_to": "Delivery Note Itemwise Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
    "label": "Customer Group",
    "link_to": "Customer Group",
    "stats_filter": "[]",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Quotation Itemwise Summary Report",
+   "link_to": "Quotation Itemwise Summary Report",
+   "type": "Report"
   }
  ],
  "title": "Selling"

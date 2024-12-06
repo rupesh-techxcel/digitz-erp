@@ -148,8 +148,8 @@ def get_data(filters= None):
         
     # filter_accounts(accounts)
     accounts  = sort_accounts(accounts)
-    print("accounts sorted")
-    print(accounts)
+    #print("accounts sorted")
+    #print(accounts)
     
     data =[]
     
@@ -261,9 +261,9 @@ def get_data(filters= None):
     
     data.append(gp_data)
     
-    print("data")
+    #print("data")
     
-    print(data)
+    #print(data)
     
     columns = get_columns(period_list)
         

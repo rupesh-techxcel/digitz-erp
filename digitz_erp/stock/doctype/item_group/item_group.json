@@ -9,32 +9,47 @@
  "engine": "InnoDB",
  "field_order": [
   "item_group_name",
-  "parent_group",
-  "image"
+  "description",
+  "column_break_itzn",
+  "image",
+  "default_expense_account"
  ],
  "fields": [
   {
    "fieldname": "item_group_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Item Group Name",
    "unique": 1
-  },
-  {
-   "fieldname": "parent_group",
-   "fieldtype": "Link",
-   "label": "Parent Group",
-   "options": "Item Group"
   },
   {
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "label": "Image"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_itzn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_expense_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Default Expense Account",
+   "options": "Account"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-21 06:25:42.247201",
+ "modified": "2024-11-12 12:36:39.291061",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item Group",

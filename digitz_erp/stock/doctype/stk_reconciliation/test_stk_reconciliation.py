@@ -11,8 +11,8 @@ class StkReconciliation(Document):
     def before_submit(self):
         
         stock_adjustment_value =  self.add_stock_reconciliation()
-        print("new stock change value")
-        print(stock_adjustment_value)
+        #print("new stock change value")
+        #print(stock_adjustment_value)
         if(stock_adjustment_value !=0):
             self.insert_gl_records(stock_adjustment_value)
       
@@ -89,8 +89,8 @@ class StkReconciliation(Document):
 
             new_stock_ledger.qty_in = qty_in
             
-            print("qty_in")
-            print(qty_in)
+            #print("qty_in")
+            #print(qty_in)
             
             new_stock_ledger.qty_out = qty_out            
             new_stock_ledger.unit = docitem.base_unit
@@ -143,8 +143,8 @@ class StkReconciliation(Document):
             stock_recalc_voucher.insert()
             recalculate_stock_ledgers(stock_recalc_voucher, self.posting_date, self.posting_time)
         
-        print("from method")
-        print(stock_adjustment_value)
+        #print("from method")
+        #print(stock_adjustment_value)
         return stock_adjustment_value
     
     def on_cancel(self):        	
@@ -369,7 +369,7 @@ class StkReconciliation(Document):
     
     def insert_gl_records(self, stock_adjustment_value):
 
-        print("From insert gl records")
+        #print("From insert gl records")
 
         default_company = frappe.db.get_single_value(
             "Global Settings", "default_company")

@@ -9,13 +9,23 @@ from digitz_erp.api.item_price_api import update_item_price
 from frappe import _
 
 class Item(Document):
-
+    		
 	def validate(self):
-		if self.is_new():
-			return
-		if self.base_unit != frappe.db.get_value("Item", self.item_code, "base_unit"):
-			self.check_stock_ledgers_for_base_unit_change()
+     
+		if not self.is_new():
+			if self.base_unit != frappe.db.get_value("Item", self.item_code, "base_unit"):
+				self.check_stock_ledgers_for_base_unit_change()
+   
+   
+		default_company = frappe.db.get_single_value(
+			"Global Settings", "default_company")
+  
+		company_default = frappe.get_value("Company", default_company, ['default_product_expense_account'], as_dict=1)
 
+		if not company_default.default_product_expense_account:
+			frappe.throw("'Default Product Expense Account' is not configured for the company.")
+       
+   
 	def check_stock_ledgers_for_base_unit_change(self):
 		base_unit = self.base_unit
 		existing_stock_ledgers = frappe.db.get_all("Stock Ledger", filters={"item": self.item_code}, fields=["name", "unit"])
@@ -24,16 +34,36 @@ class Item(Document):
 				frappe.throw("Cannot change base unit as it's being used in stock ledgers.")
     
 	def before_validate(self):
+     
+		base_unit_exists = False
+		# Loop through the rows in the child table 'Item Unit'
+		for row in self.units:
+			# Check if there is already a row with the base_unit
+			if row.unit == self.base_unit:
+				base_unit_exists = True
+				break
 		
+		# If base_unit does not exist, add it with conversion factor 1
+		if not base_unit_exists:
+			self.append("units", {
+				"unit": self.base_unit,
+				"conversion_factor": 1
+			})	
+
+		frappe.msgprint("Added an Item Unit entry for the base unit with a conversion factor of 1.", alert=1)
+			
 		if not self.description:
 			self.description = self.item_name
-
+   
+		if self.item_type == "Fixed Asset" and self.maintain_stock:
+			self.maintain_stock = False
+			frappe.msgprint("Maintaining stock for fixed assets is not applicable. It has been set to false.",alert=True)
 
 	def update_standard_selling_price(self):
 
 		# unique_id = str(uuid.uuid4())
-		# print("unique_id crated")
-		# print(unique_id)
+		# #print("unique_id crated")
+		# #print(unique_id)
 		currency = get_default_currency()
 
 		if not frappe.db.exists("Item Price",{'item': self.item_code, 'price_list':'Standard Selling', 'currency':currency}):
@@ -104,8 +134,8 @@ class Item(Document):
 					item_price_to_update.save()
 					frappe.msgprint(f"Price list,'Standard Buying' updated for the item, {self.item_code}", alert= True)
 
-				# print("item_price_to_update")
-				# print(item_price_to_update)
+				# #print("item_price_to_update")
+				# #print(item_price_to_update)
 
 				# if(item_price_to_update.rate != self.standard_buying_price):
 				# 	sql = """

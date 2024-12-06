@@ -5,7 +5,7 @@
    "label": "Income Expense Chart"
   }
  ],
- "content": "[{\"id\":\"3HnbUReubQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounting</span>\",\"col\":12}},{\"id\":\"GPAeX9p5ZP\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Income Expense Chart\",\"col\":12}},{\"id\":\"dSibUPh1cA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"5HDjMU_zSF\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"q4dW7wWC4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Assets\",\"col\":4}},{\"id\":\"oC5fHvHqir\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SbxYxVPKcw\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"8-417abdgm\",\"type\":\"card\",\"data\":{\"card_name\":\"Financial Reports\",\"col\":4}},{\"id\":\"b-drBnIcUA\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
+ "content": "[{\"id\":\"3HnbUReubQ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Accounting</span>\",\"col\":12}},{\"id\":\"GPAeX9p5ZP\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Income Expense Chart\",\"col\":12}},{\"id\":\"dSibUPh1cA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"5HDjMU_zSF\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"q4dW7wWC4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Assets\",\"col\":4}},{\"id\":\"2kI07fibhT\",\"type\":\"card\",\"data\":{\"card_name\":\"Budget\",\"col\":4}},{\"id\":\"oC5fHvHqir\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SbxYxVPKcw\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"X90Y8EjebP\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Transactions\",\"col\":4}},{\"id\":\"BkD5IJV_6J\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Financial Reports</span>\",\"col\":12}},{\"id\":\"xKlTekJpJw\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"wwYu-OyrfQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Trial Balance\",\"col\":3}},{\"id\":\"d07qdzTAOh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Profit And Loss Statement\",\"col\":3}},{\"id\":\"THiwqMdTQG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Balance Sheet\",\"col\":3}},{\"id\":\"4CoFW1lByi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Cash Flow Report\",\"col\":3}},{\"id\":\"-d-S4hqQsr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"General Ledger Report\",\"col\":3}},{\"id\":\"bY_XloVyMK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Account Ledger Report\",\"col\":3}},{\"id\":\"WWPIqiml1r\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Account Summary Report\",\"col\":3}},{\"id\":\"OeXE9gSose\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"dGbrQb8UY2\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Other Reports</span>\",\"col\":12}},{\"id\":\"j7G8vIhjIh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Statement Of Account\",\"col\":3}},{\"id\":\"DxlcYrP9hQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier Statement Of Account\",\"col\":3}},{\"id\":\"XzEnogpd3x\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Allocation Report\",\"col\":3}},{\"id\":\"sXX0ScW3ok\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Allocation Report\",\"col\":3}},{\"id\":\"clGG-WC9re\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"WweFu3H0LR\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Schedules</span>\",\"col\":12}},{\"id\":\"BWF3ijdzxB\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Schedule Report\",\"col\":3}},{\"id\":\"VSHrdombyq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Schedule Report\",\"col\":3}}]",
  "creation": "2024-03-25 08:07:42.632063",
  "custom_blocks": [],
  "docstatus": 0,
@@ -35,6 +35,7 @@
    "link_to": "Chart Of Accounts",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Account",
    "type": "Link"
   },
   {
@@ -208,8 +209,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Financial Reports",
-   "link_count": 7,
+   "label": "Budget",
+   "link_count": 1,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -217,78 +218,18 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Trial Balance",
+   "label": "Budget",
    "link_count": 0,
-   "link_to": "Trial Balance",
-   "link_type": "Report",
+   "link_to": "Budget",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Profit and Loss Statement",
-   "link_count": 0,
-   "link_to": "Profit and Loss Statement",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Balance Sheet",
-   "link_count": 0,
-   "link_to": "Balance Sheet",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Cash Flow Report",
-   "link_count": 0,
-   "link_to": "Cash Flow Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "General Ledger Report",
-   "link_count": 0,
-   "link_to": "General Ledger Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Account Ledger Report",
-   "link_count": 0,
-   "link_to": "Account Ledger Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Account Summary Report",
-   "link_count": 0,
-   "link_to": "Account Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Other Reports",
-   "link_count": 7,
+   "label": "Other Transactions",
+   "link_count": 2,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -296,75 +237,25 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Customer SOA",
+   "label": "Receipt Entry",
    "link_count": 0,
-   "link_to": "Customer Statement Of Account",
-   "link_type": "Report",
+   "link_to": "Receipt Entry",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Supplier SOA",
+   "label": "Payment Entry",
    "link_count": 0,
-   "link_to": "Supplier Statement Of Account",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Consolidated Tax Report",
-   "link_count": 0,
-   "link_to": "Consolidated Tax Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Payment Allocations",
-   "link_count": 0,
-   "link_to": "Payment Allocation Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Receipt Allocations",
-   "link_count": 0,
-   "link_to": "Receipt Allocation Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Payment Schedule",
-   "link_count": 0,
-   "link_to": "Payment Schedule Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Receipt Schedule",
-   "link_count": 0,
-   "link_to": "Receipt Schedule Report",
-   "link_type": "Report",
+   "link_to": "Payment Entry",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2024-04-29 16:30:26.310667",
+ "modified": "2024-11-25 16:35:00.238308",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
@@ -375,6 +266,98 @@
  "quick_lists": [],
  "roles": [],
  "sequence_id": 5.0,
- "shortcuts": [],
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Customer Statement Of Account",
+   "link_to": "Customer Statement Of Account",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Payment Allocation Report",
+   "link_to": "Payment Allocation Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Trial Balance",
+   "link_to": "Trial Balance",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Receipt Allocation Report",
+   "link_to": "Receipt Allocation Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Profit And Loss Statement",
+   "link_to": "Profit and Loss Statement",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Supplier Statement Of Account",
+   "link_to": "Supplier Statement Of Account",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Balance Sheet",
+   "link_to": "Balance Sheet",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Receipt Schedule Report",
+   "link_to": "Receipt Schedule Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Cash Flow Report",
+   "link_to": "Cash Flow Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Payment Schedule Report",
+   "link_to": "Payment Schedule Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "General Ledger Report",
+   "link_to": "General Ledger Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Account Ledger Report",
+   "link_to": "Account Ledger Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Account Summary Report",
+   "link_to": "Account Summary Report",
+   "type": "Report"
+  }
+ ],
  "title": "Accounting"
 }

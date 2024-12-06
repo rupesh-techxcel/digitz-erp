@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:budget_name",
+ "creation": "2024-10-14 15:22:28.726823",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_behm",
+  "budget_name",
+  "budget_against",
+  "project",
+  "project_short_name",
+  "cost_center",
+  "amended_from",
+  "column_break_gwyb",
+  "fiscal_year",
+  "from_date",
+  "to_date",
+  "purchase_cost_control",
+  "material_request",
+  "purchase_order",
+  "purchase_invoice",
+  "column_break_vrmg",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_vvmj",
+  "company",
+  "section_break_lfob",
+  "budget_items",
+  "section_break_lakh",
+  "column_break_imss",
+  "column_break_dpvt",
+  "column_break_dgrv",
+  "column_break_hgfj",
+  "total_budget_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_behm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Budget",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Project",
+   "fieldname": "budget_against",
+   "fieldtype": "Select",
+   "label": "Budget Against",
+   "options": "Company\nProject\nCost Center"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Project\"",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"status\",\"=\",\"Open\"],[\"Project\",\"docstatus\",\"=\",\"1\"]]",
+   "mandatory_depends_on": "eval:doc.budget_against == \"Project\"",
+   "options": "Project"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Company\"",
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "mandatory_depends_on": "eval:doc.budget_against == \"Company\"",
+   "options": "Fiscal Year"
+  },
+  {
+   "fieldname": "column_break_gwyb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "column_break_vrmg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vvmj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Cost Center\"",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Company\"",
+   "fetch_from": "fiscal_year.year_start_date",
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "mandatory_depends_on": "eval:doc.budget_against == \"Company\""
+  },
+  {
+   "depends_on": "eval:doc.budget_against == \"Company\"",
+   "fetch_from": "fiscal_year.year_end_date",
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "mandatory_depends_on": "eval:doc.budget_against == \"Company\""
+  },
+  {
+   "fetch_from": "project.project_short_name",
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name",
+   "read_only": 1
+  },
+  {
+   "description": "Leave this field blank to generate the name automatically while saving",
+   "fieldname": "budget_name",
+   "fieldtype": "Data",
+   "label": "Budget Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_lfob",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "budget_items",
+   "fieldtype": "Table",
+   "label": "Budget Items",
+   "options": "Budget Item"
+  },
+  {
+   "fieldname": "section_break_lakh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_imss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dpvt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dgrv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hgfj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_budget_amount",
+   "fieldtype": "Currency",
+   "label": "Total Budget Amount"
+  },
+  {
+   "fieldname": "purchase_cost_control",
+   "fieldtype": "Heading",
+   "label": "Purchase Cost Control"
+  },
+  {
+   "default": "1",
+   "fieldname": "material_request",
+   "fieldtype": "Check",
+   "label": "Material Request"
+  },
+  {
+   "default": "1",
+   "fieldname": "purchase_order",
+   "fieldtype": "Check",
+   "label": "Purchase Order"
+  },
+  {
+   "default": "1",
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Check",
+   "label": "Purchase Invoice"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-12-02 18:16:43.634196",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Budget",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class ExpenseEntry(Document):
 
@@ -14,13 +15,9 @@ class ExpenseEntry(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
-		# Add one second to the datetime object
-		new_datetime = datetime_object + timedelta(seconds=1)
-
-		# Extract the new time as a string
-		self.posting_time = new_datetime.strftime('%H:%M:%S')
 
 	def before_validate(self):
 
@@ -103,18 +100,18 @@ class ExpenseEntry(Document):
 
 		# Debit Tax Amounts
 		taxes = self.get_tax_totals()
-		print("taxes")
-		print(taxes)
+		#print("taxes")
+		#print(taxes)
 
 		for key, tax_amount  in taxes.items():
 
-			print("key")
-			print(key)
+			#print("key")
+			#print(key)
 
 			tax_for_expense, expense_date = key.split('_')
 
-			print("tax_for_expense")
-			print(tax_for_expense)
+			#print("tax_for_expense")
+			#print(tax_for_expense)
 
 			tax = frappe.get_doc("Tax", tax_for_expense)
 
@@ -200,21 +197,21 @@ class ExpenseEntry(Document):
 				tax_amount = expense_entry.get("tax_amount")
 				expense_date = expense_entry.get("expense_date")
 
-				print("tax from get_tax_totals")
-				print(tax)
+				#print("tax from get_tax_totals")
+				#print(tax)
 
 				# Use the expense_date in the key along with tax, separated by an underscore
 				key = f"{tax}_{expense_date}"
-				print("key from get_tax_totals")
-				print(key)
+				#print("key from get_tax_totals")
+				#print(key)
 
 				if key in tax_dictionary:
 					tax_dictionary[key] += tax_amount
 				else:
 					tax_dictionary[key] = tax_amount
 
-		print("tax_dictionary")
-		print(tax_dictionary)
+		#print("tax_dictionary")
+		#print(tax_dictionary)
 		return tax_dictionary
 
 	def insert_payment_postings(self):
@@ -275,8 +272,8 @@ class ExpenseEntry(Document):
 				frappe.log_error("Error deleting payment schedule: " + str(e))
 
 
-		print("self.payment_schedule")
-		print(self.payment_schedule)
+		#print("self.payment_schedule")
+		#print(self.payment_schedule)
 
 		for payment_schedule in self.payment_schedule:
 
@@ -297,20 +294,3 @@ class ExpenseEntry(Document):
 
 
 		frappe.db.commit()
-
-@frappe.whitelist()
-def get_gl_postings(expense_entry):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": expense_entry},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings

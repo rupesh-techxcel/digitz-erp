@@ -56,13 +56,13 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
             """.format(supplier, payment_no)
 
             payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
-            print("payment_allocation_values")
-            print(payment_allocation_values)
+            #print("payment_allocation_values")
+            #print(payment_allocation_values)
 
         # Execute Purchase Invoice Query
         documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("expense values")
-        print(documents_values)
+        #print("expense values")
+        #print(documents_values)
         if payment_allocation_values !=[]:
             #  Avoid duplicates before combine
             documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
@@ -74,7 +74,7 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
             return documents_values
 
     elif reference_type == 'Expense Entry':
-        print("Get documents for expense entry")
+        #print("Get documents for expense entry")
         # Purchase Invoice Query
         documents_query = """
             SELECT
@@ -99,8 +99,8 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
 
          # Execute Purchase Invoice Query
         documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("expense_values")
-        print(documents_values)
+        #print("expense_values")
+        #print(documents_values)
 
         # Additional Query for Payment Allocation (if payment_no is not None)
         payment_allocation_values = []
@@ -130,8 +130,8 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
 
             # Execute Additional Query
             payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
-            print("payment_allocation_values")
-            print(payment_allocation_values)
+            #print("payment_allocation_values")
+            #print(payment_allocation_values)
 
         if payment_allocation_values !=[]:
             documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
@@ -189,13 +189,13 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
             """.format(supplier, payment_no)
 
             payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
-            print("payment_allocation_values")
-            print(payment_allocation_values)
+            #print("payment_allocation_values")
+            #print(payment_allocation_values)
 
         # Execute Purchase Return Query
         documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("expense values")
-        print(documents_values)
+        #print("expense values")
+        #print(documents_values)
         if payment_allocation_values !=[]:
             documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
             combined_values = documents_values + payment_allocation_values
@@ -248,13 +248,13 @@ def get_supplier_pending_documents(supplier,reference_type, payment_no=""):
             """.format(supplier, payment_no)
 
             payment_allocation_values = frappe.db.sql(payment_allocation_query, as_dict=1)
-            print("payment_allocation_values")
-            print(payment_allocation_values)
+            #print("payment_allocation_values")
+            #print(payment_allocation_values)
 
 
         documents_values = frappe.db.sql(documents_query, as_dict=1)
-        print("expense values")
-        print(documents_values)
+        #print("expense values")
+        #print(documents_values)
         if payment_allocation_values !=[]:
             documents_values = [invoice for invoice in documents_values if invoice['reference_name'] not in [pa['reference_name'] for pa in payment_allocation_values]]
             combined_values = documents_values + payment_allocation_values
@@ -295,10 +295,10 @@ def get_all_supplier_pending_payment_allocations_with_other_payments(supplier, r
 
             return {'values': values}
         elif reference_type == "Expense Entry":
-            print("values-expenses-allocations")
+            #print("values-expenses-allocations")
             values = frappe.db.sql("""SELECT distinct pa.reference_name,pa.parent as  payment_no,ee.total as invoice_amount,pa.paying_amount FROM `tabPayment Allocation` pa inner join  `tabExpense Entry Details` ee ON ee.name= pa.reference_name and pa.reference_type='Expense Entry Details' WHERE pa.supplier = '{0}' AND pa.parent!='{1}' AND (pa.docstatus= 1 or pa.docstatus=0) AND ee.docstatus=1 AND ((ee.paid_amount<ee.total) or ee.name in (select distinct reference_name from `tabPayment Allocation` where reference_type='Expense Entry' and parent='{1}')) ORDER BY pa.reference_name """.format(supplier, payment_no),as_dict=1)
 
-            print(values)
+            #print(values)
             return {'values': values}
 
         elif reference_type == 'Debit Note':

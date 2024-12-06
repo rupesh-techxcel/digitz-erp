@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:warehouse_name",
  "creation": "2023-01-11 10:16:40.251317",
  "default_view": "List",
  "doctype": "DocType",
@@ -8,27 +9,49 @@
  "engine": "InnoDB",
  "field_order": [
   "warehouse_name",
-  "disabled"
+  "disabled",
+  "column_break_catn",
+  "company",
+  "project"
  ],
  "fields": [
   {
    "fieldname": "warehouse_name",
    "fieldtype": "Data",
-   "label": "Warehouse Name"
+   "label": "Warehouse Name",
+   "unique": 1
   },
   {
    "default": "0",
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "column_break_catn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-16 08:44:38.297654",
+ "modified": "2024-08-26 09:10:25.995309",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Warehouse",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

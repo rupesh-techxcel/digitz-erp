@@ -1,0 +1,165 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:prospect_name",
+ "creation": "2024-07-18 09:28:23.855981",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "prospect_name",
+  "customer_group",
+  "company_name",
+  "website",
+  "column_break_xbqn",
+  "phone",
+  "mobile_no",
+  "email_id",
+  "market_segment",
+  "industry",
+  "column_break_pgsi",
+  "address_line_1",
+  "address_line_2",
+  "country",
+  "emirate",
+  "area",
+  "column_break_ydag",
+  "territory",
+  "disabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Company Name"
+  },
+  {
+   "fieldname": "customer_group",
+   "fieldtype": "Link",
+   "label": "Customer Group",
+   "options": "Customer Group"
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website"
+  },
+  {
+   "fieldname": "column_break_xbqn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "market_segment",
+   "fieldtype": "Data",
+   "label": "Market Segment"
+  },
+  {
+   "fieldname": "industry",
+   "fieldtype": "Data",
+   "label": " Industry "
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "label": " Territory ",
+   "options": "Territory"
+  },
+  {
+   "description": "The contact person in the company",
+   "fieldname": "prospect_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": " Prospect Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_ydag",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pgsi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Phone",
+   "label": "Phone"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Phone",
+   "label": "Mobile No"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email Id"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Link",
+   "label": "Area",
+   "options": "Area",
+   "reqd": 1
+  },
+  {
+   "fieldname": "emirate",
+   "fieldtype": "Select",
+   "label": "Emirate",
+   "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
+  },
+  {
+   "fieldname": "address_line_1",
+   "fieldtype": "Data",
+   "label": "Address Line 1"
+  },
+  {
+   "fieldname": "address_line_2",
+   "fieldtype": "Data",
+   "label": "Address Line 2"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Customer",
+   "link_fieldname": "prospect"
+  }
+ ],
+ "modified": "2024-11-14 12:58:20.100196",
+ "modified_by": "Administrator",
+ "module": "Digitz ERP",
+ "name": "Prospect",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

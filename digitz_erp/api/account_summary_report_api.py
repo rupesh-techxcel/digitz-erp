@@ -99,7 +99,7 @@ def get_accounts_data(from_date,to_date, root_type, account_ledger,account_group
         
         def get_parent_accounts(account):
             
-            print(account)
+            #print(account)
             
             if account == "Accounts":
                 return

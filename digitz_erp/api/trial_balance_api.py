@@ -8,8 +8,8 @@ def get_accounts_data(from_date,to_date, root_type):
             SELECT parent_account,account_name from `tabAccount` where is_group = 0 and root_type=%s
             """
     data = frappe.db.sql(query,(root_type), as_dict=True)
-    print("data")
-    print(data)
+    #print("data")
+    #print(data)
     
     accounts = {}
     
@@ -102,7 +102,7 @@ def re_process_account_data(accounts):
         
         parent_account = frappe.db.get_value('Account',account,['parent_account'])
         
-        print(accounts[account]['opening_debit'])     
+        #print(accounts[account]['opening_debit'])     
         account_data = {'name':account,'parent_account':parent_account, 'opening_debit':accounts[account]['opening_debit'], 'opening_credit':accounts[account]['opening_credit'], 'debit':accounts[account]['debit'], 'credit':accounts[account]['credit'],'closing_debit': accounts[account]['closing_debit'],'closing_credit':accounts[account]['closing_credit']}
         
         data.append(account_data)

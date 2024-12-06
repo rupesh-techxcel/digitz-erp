@@ -1,57 +1,79 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:name1",
+ "autoname": "field:project_name",
  "creation": "2024-07-01 14:50:14.136177",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "name1",
+  "project_name",
+  "project_short_name",
   "project_type",
-  "project_delivery_date",
-  "status",
   "column_break_juec",
   "expected_start_date",
   "expected_end_date",
+  "actual_start_date",
+  "actual_end_date",
+  "column_break_llof",
   "priority",
+  "reference_no",
+  "column_break_chgg",
+  "project_delivery_date",
+  "status",
+  "disabled",
   "customer_details_section",
   "customer",
   "sales_order",
+  "boq",
   "column_break_nzbm",
-  "advance_entry",
+  "advance_percentage",
   "advance_amount",
-  "section_break_pgei",
-  "retentation_percentage",
-  "retentation_amt",
-  "column_break_tlzb",
-  "amount_after_retentation",
-  "project_amount",
+  "column_break_wszi",
+  "retention_percentage",
+  "retention_amount",
+  "column_break_nqui",
+  "amount_after_retention",
+  "project_gross_value",
+  "project_value",
   "section_break_updt",
   "progress_entry",
   "column_break_xcaf",
-  "average__of_completion",
   "section_break_snci",
   "project_stage_table",
   "notes_section",
-  "notes"
+  "notes",
+  "employees_tab",
+  "project_team",
+  "section_break_eaqi",
+  "employees",
+  "tasks_tab",
+  "task_template",
+  "section_break_xjll",
+  "tasks",
+  "statistics_tab",
+  "sales_order_value",
+  "purchase_cost",
+  "work_in_progress_value",
+  "column_break_zbcd",
+  "material_cost",
+  "labour_cost",
+  "overheads",
+  "column_break_vusx",
+  "total_billed_amount",
+  "amended_from"
  ],
  "fields": [
   {
-   "fieldname": "name1",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Project Name",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
    "fieldname": "project_delivery_date",
    "fieldtype": "Date",
-   "label": "Project Delivery Date"
+   "label": "Project Delivery Date",
+   "reqd": 1
   },
   {
+   "default": "Open",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
    "options": "\nOpen\nCompleted\nCancelled"
   },
@@ -63,13 +85,17 @@
    "bold": 1,
    "fieldname": "expected_start_date",
    "fieldtype": "Date",
-   "label": "Expected Start Date"
+   "in_list_view": 1,
+   "label": "Expected Start Date",
+   "reqd": 1
   },
   {
    "bold": 1,
    "fieldname": "expected_end_date",
    "fieldtype": "Date",
-   "label": "Expected End Date"
+   "in_list_view": 1,
+   "label": "Expected End Date",
+   "reqd": 1
   },
   {
    "fieldname": "priority",
@@ -80,7 +106,7 @@
   {
    "fieldname": "customer_details_section",
    "fieldtype": "Section Break",
-   "label": "Customer Details"
+   "label": "Details"
   },
   {
    "fieldname": "customer",
@@ -92,53 +118,12 @@
    "fieldname": "sales_order",
    "fieldtype": "Link",
    "label": "Sales Order",
-   "options": "Sales Order"
+   "options": "Sales Order",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_nzbm",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "advance_entry",
-   "fieldtype": "Data",
-   "label": "Advance Entry",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_pgei",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "retentation_percentage",
-   "fieldtype": "Percent",
-   "label": "Retentation Percentage",
-   "precision": "2"
-  },
-  {
-   "fieldname": "retentation_amt",
-   "fieldtype": "Float",
-   "label": "Retentation Amount",
-   "non_negative": 1,
-   "precision": "2"
-  },
-  {
-   "fieldname": "column_break_tlzb",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "amount_after_retentation",
-   "fieldtype": "Float",
-   "label": "Amount After Retentation",
-   "non_negative": 1,
-   "precision": "2"
-  },
-  {
-   "fetch_from": "sales_order.net_total_copy",
-   "fieldname": "project_amount",
-   "fieldtype": "Float",
-   "label": "Project Amount",
-   "non_negative": 1,
-   "precision": "2"
   },
   {
    "fieldname": "section_break_updt",
@@ -147,6 +132,7 @@
    "label": "Progress Details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "project_stage_table",
    "fieldtype": "Table",
    "label": "Project Stage",
@@ -165,7 +151,7 @@
   {
    "fieldname": "advance_amount",
    "fieldtype": "Float",
-   "label": "Advance Amount",
+   "label": "Advance Amount(Gross Amount)",
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
@@ -174,7 +160,8 @@
    "fieldname": "project_type",
    "fieldtype": "Select",
    "label": "Project Type",
-   "options": "\nSupply\nService\nBoth"
+   "options": "\nSupply\nService\nSupply and Service\nProduction\nOther",
+   "reqd": 1
   },
   {
    "fieldname": "progress_entry",
@@ -183,38 +170,249 @@
    "options": "Progress Entry"
   },
   {
-   "fetch_from": "progress_entry.average_of_completion",
-   "fieldname": "average__of_completion",
-   "fieldtype": "Percent",
-   "label": "Average % Of Completion",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_xcaf",
    "fieldtype": "Column Break"
   },
   {
+   "description": "\nFirst, generate progress entries using the 'Create Progress Entry' button, and then you can create the 'Proforma Invoice' and 'Sales Invoice' within the progress entry.",
    "fieldname": "section_break_snci",
    "fieldtype": "Section Break",
    "label": "Progress Details Section"
+  },
+  {
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Short Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_llof",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_chgg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wszi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nqui",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Data",
+   "label": "BOQ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employees_tab",
+   "fieldtype": "Tab Break",
+   "label": "Employees"
+  },
+  {
+   "description": "Save the project to apply the selected employee details.",
+   "fieldname": "employees",
+   "fieldtype": "Table",
+   "label": "Employees",
+   "options": "Project Employee"
+  },
+  {
+   "fieldname": "tasks_tab",
+   "fieldtype": "Tab Break",
+   "label": "Tasks"
+  },
+  {
+   "fieldname": "tasks",
+   "fieldtype": "Table",
+   "label": "Tasks",
+   "options": "Project Task"
+  },
+  {
+   "fieldname": "task_template",
+   "fieldtype": "Link",
+   "label": "Task Template",
+   "link_filters": "[[\"Task Template\",\"disabled\",\"=\",0]]",
+   "options": "Task Template"
+  },
+  {
+   "fieldname": "section_break_xjll",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_eaqi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "project_team",
+   "fieldtype": "Link",
+   "label": "Project Team ",
+   "link_filters": "[[\"Project Team\",\"disabled\",\"=\",0]]",
+   "options": "Project Team"
+  },
+  {
+   "fieldname": "statistics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Statistics"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_order_value",
+   "fieldtype": "Currency",
+   "label": "Sales Order Value"
+  },
+  {
+   "description": "Based on Purchase Receipt",
+   "fieldname": "purchase_cost",
+   "fieldtype": "Currency",
+   "label": "Purchase Cost"
+  },
+  {
+   "fieldname": "column_break_zbcd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Based On Material Issue",
+   "fieldname": "material_cost",
+   "fieldtype": "Currency",
+   "label": "Material Cost"
+  },
+  {
+   "fieldname": "column_break_vusx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Based on Timesheet Entry",
+   "fieldname": "labour_cost",
+   "fieldtype": "Currency",
+   "label": "Labour Cost"
+  },
+  {
+   "description": "Based On Expense Entry",
+   "fieldname": "overheads",
+   "fieldtype": "Currency",
+   "label": "Overheads"
+  },
+  {
+   "allow_on_submit": 1,
+   "description": "Record a journal entry to clear the work in progress after the project's invoicing is completed.",
+   "fieldname": "work_in_progress_value",
+   "fieldtype": "Currency",
+   "label": "Work In Progress Value",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_billed_amount",
+   "fieldtype": "Currency",
+   "label": "Total Billed Amount"
+  },
+  {
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage",
+   "precision": "0"
+  },
+  {
+   "fieldname": "retention_amount",
+   "fieldtype": "Float",
+   "label": "Retention Amount",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "amount_after_retention",
+   "fieldtype": "Float",
+   "label": "Amount After Retention",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Project",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Advance Percentage",
+   "precision": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_gross_value",
+   "fieldtype": "Currency",
+   "label": "Project Gross Value",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fetch_from": "sales_order.net_total",
+   "fieldname": "project_value",
+   "fieldtype": "Float",
+   "label": "Project Value",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "actual_start_date",
+   "fieldtype": "Date",
+   "label": "Actual Start Date"
+  },
+  {
+   "fieldname": "actual_end_date",
+   "fieldtype": "Date",
+   "label": "Actual End Date"
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [
-  {
-   "link_doctype": "Advance Entry",
-   "link_fieldname": "project"
-  },
   {
    "link_doctype": "Progress Entry",
    "link_fieldname": "project"
   },
   {
-   "link_doctype": "Progressive Invoice",
+   "link_doctype": "Proforma Invoice",
+   "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "project"
+  },
+  {
+   "link_doctype": "Progressive Sales Invoice",
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-08-13 14:10:58.297755",
+ "modified": "2024-11-29 11:13:05.459425",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

@@ -73,9 +73,6 @@ frappe.ui.form.on('Quotation', {
 					alreadyUsed = false
 				}
 
-				console.log("alreadyused")
-				console.log(alreadyUsed)
-
 				//Have a button to create delivery note in case delivery note is not integrated with SI
 				if (!alreadyUsed) {
 
@@ -96,7 +93,7 @@ frappe.ui.form.on('Quotation', {
 
 						});
 
-					});
+					},"Actions");
 
 					frm.add_custom_button('Create Delivery Note', () => {
 
@@ -115,7 +112,7 @@ frappe.ui.form.on('Quotation', {
 
 						});
 
-					});
+					},"Actions");
 
 					frm.add_custom_button('Create Sales Invoice', () => {
 
@@ -132,7 +129,7 @@ frappe.ui.form.on('Quotation', {
 								}
 							}
 						});
-					});
+					}, "Actions");
 
 				}
 			}
@@ -178,6 +175,15 @@ frappe.ui.form.on('Quotation', {
 				"filters": {
 					"disabled": 0,
 					"status": ["!=", "On Boarding"]
+				}
+			};
+		});
+
+		frm.set_query("enquiry", function() {
+			return {
+				"filters": {					
+					"customer": frm.doc.customer,
+					"docstatus":1
 				}
 			};
 		});
@@ -334,7 +340,7 @@ frappe.ui.form.on('Quotation', {
 
 				// console.log(frm.doc.items)
 				// for(item in frm.doc.items){
-					gross_total += entry.gross_amount;entry.tax_amount;
+					gross_total += entry.gross_amount;
 					tax_total += entry.tax_amount;
 					net_total += entry.net_amount + entry.tax_amount;
 				// }
@@ -651,12 +657,11 @@ function set_default_payment_mode(frm)
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let rounded_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
-
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${rounded_total}</div>`;
 
     // Directly update the HTML content of the 'total_big' field
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);

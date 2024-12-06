@@ -31,11 +31,12 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "cost_center"
+  "cost_center",
+  "mr_item_reference"
  ],
  "fields": [
   {
-   "columns": 1,
+   "columns": 3,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -43,10 +44,8 @@
    "options": "Item"
   },
   {
-   "columns": 2,
    "fieldname": "display_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Display Name"
   },
   {
@@ -188,17 +187,21 @@
    "allow_on_submit": 1,
    "fieldname": "qty_purchased_in_base_unit",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Qty Purchased",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mr_item_reference",
+   "fieldtype": "Link",
+   "label": "MR Item Reference",
+   "options": "Material Request Item",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
-
- "modified": "2024-03-14 17:40:37.540436",
-
+ "modified": "2024-10-17 12:23:02.910724",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

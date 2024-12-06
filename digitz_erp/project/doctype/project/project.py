@@ -3,44 +3,54 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe import _
+import frappe.model.rename_doc as rd
 
 
 class Project(Document):
-    def before_save(self):
-        net_total = frappe.db.get_value("Sales Order", self.sales_order, "net_total")
-        self.project_amount = net_total
+    
+    def before_validate(self):
+        self.update_advance_amount()     
+            
+    def on_update(self):
+         
+        progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project_name})
+        if not progress_entry_exists and self.docstatus ==0:     
+            frappe.msgprint("Submit the document to create the first 'Progress Entry' for the project.", alert=True)
 
+    def update_advance_amount(self):
+        
+        advance_amount_query = frappe.db.sql("""
+        SELECT gross_total, advance_percentage
+        FROM `tabSales Invoice`
+        WHERE for_advance_payment = 1 AND sales_order = %s AND docstatus = 1
+        """, (self.sales_order,), as_dict=True)
 
+        # Handle cases where no matching invoices are found
+        advance_amount = advance_amount_query[0].get("gross_total", 0) if advance_amount_query else 0
+        advance_percentage = advance_amount_query[0].get("advance_percentage", 0) if advance_amount_query else 0
+        self.advance_amount = advance_amount
+        self.advance_percentage = advance_percentage
+            
+    
 @frappe.whitelist()
-def create_project_via_sales_order(sales_order_id):
-    print(sales_order_id)
-
-    sales_doc = frappe.get_doc("Sales Order", sales_order_id)
-
-    return {
-        "customer": sales_doc.customer,
-        "sales_order": sales_doc.name,
-        "project_amount": sales_doc.net_total,
-        "sales_order_id": sales_order_id,
-    }
-
-
-@frappe.whitelist()
-def calculate_rest_amt(sales_order_id, retentation_percentage):
+def calculate_retention_amt(sales_order_id, retention_percentage):
     sales_doc = frappe.get_doc("Sales Order", sales_order_id)
 
     try:
-        net_total = float(sales_doc.net_total)
-        retention_percentage = float(retentation_percentage)
+        net_total = float(sales_doc.gross_total)
+        retention_percentage = float(retention_percentage)
     except ValueError as e:
         frappe.throw(f"Invalid value provided: {e}")
 
     retention_amt = (net_total * retention_percentage) / 100
+    print("sales_order_amt", net_total)
+    print("retention_amt",retention_amt)
 
     return {
         "total_project_amt": net_total,
-        "retentation_amt": retention_amt,
-        "amount_after_retentation": net_total - retention_amt,
+        "retention_amt": retention_amt,
+        "amount_after_retention": net_total - retention_amt,
     }
 
 

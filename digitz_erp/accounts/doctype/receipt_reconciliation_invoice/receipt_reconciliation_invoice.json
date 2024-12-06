@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-19 15:44:47.669925",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reference_type",
+  "invoice_no",
+  "invoice_date",
+  "invoice_amount",
+  "allocated_amount",
+  "receipt_no",
+  "receipt_original_reference_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Invoice Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Invoice Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Invoice No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "allocated_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Allocated Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Receipt No",
+   "options": "Receipt Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_original_reference_type",
+   "fieldtype": "Data",
+   "label": "Receipt Original Reference Type"
+  },
+  {
+   "fieldname": "reference_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reference Type",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-10-20 15:15:51.835806",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Receipt Reconciliation Invoice",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

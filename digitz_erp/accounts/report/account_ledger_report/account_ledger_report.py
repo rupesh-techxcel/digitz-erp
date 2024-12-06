@@ -279,12 +279,12 @@ def get_data(filters):
 			WHERE account = '{account}' and pi.posting_date < '{from_date}'
 		""".format(account = filters.get('account'), from_date = filters.get('from_date'))
 
-		print(sql)
+		#print(sql)
 
 		opening_data = frappe.db.sql(sql, as_dict = True)
 
-		print("opening_data")
-		print(opening_data)
+		#print("opening_data")
+		#print(opening_data)
 
 		if opening_data and opening_data[0].difference:
 			opening_balance = opening_data[0].difference

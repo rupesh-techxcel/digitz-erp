@@ -7,9 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "progress_entry",
-  "date_of_creation",
-  "project_stage_defination",
-  "schedule_of_project",
+  "posting_date",
   "percentage_of_completion",
   "proforma_invoice",
   "sales_invoice",
@@ -17,44 +15,32 @@
  ],
  "fields": [
   {
-   "fieldname": "project_stage_defination",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Project Stage Defination"
-  },
-  {
-   "fieldname": "schedule_of_project",
-   "fieldtype": "Date",
-   "hidden": 1,
-   "label": "Schedule Of Project"
-  },
-  {
    "columns": 1,
-   "fetch_from": "progress_entry.average_of_completion",
+   "fetch_from": "progress_entry.total_completion_percentage",
    "fieldname": "percentage_of_completion",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Average Of Completion",
-   "precision": "2",
+   "label": "Completion Percentage",
+   "precision": "0",
    "read_only": 1
   },
   {
    "fieldname": "proforma_invoice",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Proforma Invoice",
-   "options": "Proforma Invoice"
+   "read_only": 1
   },
   {
    "fieldname": "sales_invoice",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Sales Invoice",
-   "options": "Sales Invoice"
+   "label": "Progressive Sales Invoice",
+   "read_only": 1
   },
   {
    "columns": 1,
-   "fetch_from": "sales_invoice.net_amount",
+   "fetch_from": "sales_invoice.net_total",
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -71,17 +57,17 @@
   },
   {
    "fetch_from": "progress_entry.posting_date",
-   "fieldname": "date_of_creation",
+   "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Date Of Creation",
+   "label": "Date",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-13 11:02:37.265301",
+ "modified": "2024-10-24 17:32:32.918288",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project Stage Table",

@@ -172,7 +172,7 @@ def get_data(filters):
             sub_query = "AND si.docstatus !=2 "
             query += sub_query
         
-        print(query)
+        #print(query)
 
         data = frappe.db.sql(query, as_dict=True)
 
@@ -221,7 +221,7 @@ def get_data(filters):
             query += sub_query
 
        
-        print(query)
+        #print(query)
 
 
         data = frappe.db.sql(query, as_dict=True)
@@ -268,7 +268,7 @@ def get_data(filters):
             query += sub_query
 
         
-        print(query)
+        #print(query)
 
         data = frappe.db.sql(query, as_dict=True)
 

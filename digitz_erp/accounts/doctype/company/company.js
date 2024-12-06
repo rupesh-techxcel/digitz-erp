@@ -20,7 +20,9 @@ frappe.ui.form.on('Company', {
 		   console.log("Tax excluded?");
 		   console.log(frm.doc.tax_excluded);
 		   frm.doc.tax ="";
+		   frm.doc.tax_account = ""
 		   frm.refresh_field("tax");
+		   frm.refresh_field("tax_account");
 	   }
 	}
 
@@ -48,13 +50,16 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 	frm.set_query("default_advance_received_account",function(){
 		return{
 			"filters": {
+				"is_group":0,
 				"root_type":"Liability"
 			}
 		}
 	})
+	
 	frm.set_query("default_advance_paid_account",function(){
 		return{
 			"filters": {
+				"is_group":0,
 				"root_type":"Asset"
 			}
 		}
@@ -92,6 +97,15 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 			"filters": {
 				"is_group": 0,
 				"root_type":"Income"
+			}
+		};
+	});
+
+	frm.set_query("default_product_expense_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"root_type":"Expense"
 			}
 		};
 	});

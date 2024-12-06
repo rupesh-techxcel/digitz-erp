@@ -1,0 +1,315 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "naming_series:[naming_series]",
+ "creation": "2024-10-13 14:16:22.831795",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "engine": "InnoDB",
+ "field_order": [
+  "type_section",
+  "naming_series",
+  "title",
+  "material_request_type",
+  "customer",
+  "column_break_2",
+  "schedule_date",
+  "project",
+  "approved",
+  "column_break_mfsc",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_iwsh",
+  "company",
+  "warehouse_section",
+  "source_warehouse",
+  "column_break5",
+  "target_warehouse",
+  "column_break_13",
+  "column_break_ifzk",
+  "items_section",
+  "items",
+  "connections_tab",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "type_section",
+   "fieldtype": "Section Break",
+   "options": "fa fa-pushpin"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "no_copy": 1,
+   "oldfieldname": "naming_series",
+   "oldfieldtype": "Select",
+   "options": "MR-.YYYY.-",
+   "print_hide": 1,
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "{material_request_type}",
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Title",
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "material_request_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Purpose",
+   "options": "Purchase\nStock Transfer",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.material_request_type==\"Customer Provided\"",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "oldfieldname": "company",
+   "oldfieldtype": "Link",
+   "options": "Company",
+   "print_hide": 1,
+   "print_width": "150px",
+   "remember_last_selected_value": 1,
+   "reqd": 1,
+   "search_index": 1,
+   "width": "150px"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "schedule_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Required By"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"status\",\"=\",\"Open\"],[\"Project\",\"docstatus\",\"=\",\"1\"]]",
+   "options": "Project"
+  },
+  {
+   "fieldname": "warehouse_section",
+   "fieldtype": "Section Break",
+   "hide_border": 1
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break5",
+   "fieldtype": "Column Break",
+   "oldfieldtype": "Column Break",
+   "print_width": "50%",
+   "width": "50%"
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "oldfieldtype": "Section Break",
+   "options": "fa fa-shopping-cart"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "oldfieldname": "indent_details",
+   "oldfieldtype": "Table",
+   "options": "Material Request Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Material Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Material Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.material_request_type == 'Stock Transfer'",
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Source Warehouse",
+   "mandatory_depends_on": "eval:doc.material_request_type == 'Stock Transfer'",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "target_warehouse",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Target Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_mfsc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "no_copy": 1,
+   "oldfieldname": "transaction_date",
+   "oldfieldtype": "Date",
+   "print_width": "100px",
+   "read_only": 1,
+   "reqd": 1,
+   "search_index": 1,
+   "width": "100px"
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_iwsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "column_break_ifzk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "approved",
+   "fieldtype": "Check",
+   "label": "Approved"
+  }
+ ],
+ "icon": "fa fa-ticket",
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Purchase Order",
+   "link_fieldname": "material_request"
+  }
+ ],
+ "modified": "2024-11-25 08:31:49.205894",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Material Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "show_name_in_global_search": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

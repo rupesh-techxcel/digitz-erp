@@ -91,7 +91,7 @@
    "label": "TRN No"
   },
   {
-   "default": "All Supplier Groups",
+   "default": "Default Supplier Group",
    "fieldname": "supplier_group",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -189,7 +189,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-16 08:47:07.999502",
+ "modified": "2024-11-12 12:42:18.869585",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

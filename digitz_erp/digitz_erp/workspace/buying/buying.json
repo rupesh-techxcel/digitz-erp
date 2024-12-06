@@ -39,6 +39,7 @@
    "link_to": "Purchase Order Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Order",
    "type": "Link"
   },
   {
@@ -49,6 +50,7 @@
    "link_to": "Purchase Order Itemwise Register",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Order",
    "type": "Link"
   },
   {
@@ -59,13 +61,14 @@
    "link_to": "Purchase Order Itemwise Summary Report",
    "link_type": "Report",
    "onboard": 0,
+   "report_ref_doctype": "Purchase Order",
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Transactions",
-   "link_count": 4,
+   "label": "Purchase Reports",
+   "link_count": 6,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -73,9 +76,104 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Purchase Register",
+   "link_count": 0,
+   "link_to": "Purchase Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Itemwise Register",
+   "link_count": 0,
+   "link_to": "Purchase Itemwise Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Itemwise Summary Report",
+   "link_count": 0,
+   "link_to": "Purchase Itemwise Summary Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Purchase Invoice",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Return Register",
+   "link_count": 0,
+   "link_to": "Purchase Return Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Purchase Return",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Return Itemwise Register",
+   "link_count": 0,
+   "link_to": "Purchase Return Itemwise Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Purchase Return",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Return Itemwise Summary Report",
+   "link_count": 0,
+   "link_to": "Purchase Return Itemwise Summary Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Purchase Return",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 6,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Material Requisition",
+   "link_count": 0,
+   "link_to": "Material Requisition",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Purchase Order",
    "link_count": 0,
    "link_to": "Purchase Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Receipt",
+   "link_count": 0,
+   "link_to": "Purchase Receipt",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -109,78 +207,9 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Reports",
-   "link_count": 6,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Register",
-   "link_count": 0,
-   "link_to": "Purchase Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Itemwise Register",
-   "link_count": 0,
-   "link_to": "Purchase Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Purchase Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Return Register",
-   "link_count": 0,
-   "link_to": "Purchase Return Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Return Itemwise Register",
-   "link_count": 0,
-   "link_to": "Purchase Return Itemwise Register",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Return Itemwise Summary Report",
-   "link_count": 0,
-   "link_to": "Purchase Return Itemwise Summary Report",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
   }
  ],
- "modified": "2024-04-10 12:53:41.512223",
+ "modified": "2024-10-25 14:19:14.021480",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Buying",

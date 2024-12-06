@@ -16,6 +16,7 @@ app_include_css = "/assets/digitz_erp/css/digitz_erp.css"
 # include js, css files in header of web template
 # web_include_css = "/assets/digitz_erp/css/digitz_erp.css"
 # web_include_js = "/assets/digitz_erp/js/digitz_erp.js"
+app_include_js = "/assets/digitz_erp/js/digitz_common.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "digitz_erp/public/scss/website"
@@ -63,7 +64,7 @@ fixtures = ["Custom Field", "Custom DocPerm"]
 # ------------
 
 # before_install = "digitz_erp.install.before_install"
-# after_install = "digitz_erp.install.after_install"
+after_install = "digitz_erp.api.install_api.after_install"
 
 # Uninstallation
 # ------------
