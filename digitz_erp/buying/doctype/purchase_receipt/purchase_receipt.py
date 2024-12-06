@@ -34,6 +34,54 @@ class PurchaseReceipt(Document):
 		if self.purchase_order:
 			#print("Calling update po qties b4 cancel or delete")
 			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
+	
+	def validate(self):
+		
+		self.validate_item_budgets()
+
+	def validate_items_budget(self):
+		for item in self.items:
+			# Check if Purchase Receipt validation is enabled in the budget
+			budget_settings = frappe.get_all(
+				"Budget",
+				filters={
+					"company": self.company,
+					"project": getattr(self, "project", None),
+					"cost_center": self.cost_center
+				},
+				fields=["name", "purchase_receipt"]
+			)
+
+			if not budget_settings:
+				continue
+
+			if not any(budget.get("purchase_receipt") for budget in budget_settings):
+				continue  # Skip validation if the checkbox is not enabled
+
+			# Check budget utilization
+			budget_utilization = fetch_budget_utilization(
+				reference_type="Item",
+				reference_value=item.item_code,
+				transaction_date=self.transaction_date or self.posting_date,
+				company=self.company,
+				project=getattr(self, "project", None),
+				cost_center=self.cost_center
+			)
+
+			# Validate budget utilization
+			if budget_utilization["no_budget"]:
+				frappe.throw(
+					_(f"No budget exists for the item {item.item_code} in the current context.")
+				)
+
+			utilized = budget_utilization["utilized"]
+			budget = budget_utilization["budget"]
+
+			if utilized > budget:
+				frappe.throw(
+					_(f"The item {item.item_code} exceeds its allocated budget. "
+						f"Utilized: {utilized}, Budget: {budget}")
+				)
    
 	def on_submit(self):
 		self.do_postings_on_submit()		

@@ -96,7 +96,8 @@ frappe.ui.form.on('Purchase Return', {
 				{
 					method: 'digitz_erp.api.accounts_api.get_supplier_balance',
 					args: {
-						'supplier': frm.doc.supplier
+						'supplier': frm.doc.supplier,
+						'date':frm.doc.posting_date
 					},
 					callback: (r) => {
 						frm.set_value('supplier_balance',r.message[0].supplier_balance)

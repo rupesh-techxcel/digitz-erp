@@ -3,6 +3,15 @@
 
 frappe.ui.form.on("Material Request", {
 
+    show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
+
     setup(frm)
     {
         frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
@@ -178,7 +187,7 @@ frappe.ui.form.on('Material Request Item', {
             return;
         }
     
-        check_budget_utilization(frm, cdt, cdn);
+        check_budget_utilization(frm, cdt, cdn,"Item");
 
         // Set conversion factor to 1
         row.conversion_factor = 1;
@@ -256,41 +265,41 @@ frappe.ui.form.on('Material Request Item', {
     }
 });
 
-function check_budget_utilization(frm, cdt, cdn) {
+function check_budget_utilization(frm, cdt, cdn, reference_type) {
     const row = frappe.get_doc(cdt, cdn);
 
     if (!row.item) {
-        return; // Skip if item_code is not selected
+        
+        return;
     }
 
     frappe.call({
-        method: 'app.module_name.fetch_budget_utilization', // Update with your app/module path
+        method: "digitz_erp.api.accounts_api.fetch_budget_utilization",  // Replace with the correct method path
         args: {
-            budget_against: frm.doc.budget_against || 'Purchase',
-            reference_type: 'Item',
+            reference_type: reference_type,
             reference_value: row.item,
+            transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
             company: frm.doc.company,
             project: frm.doc.project || null,
             cost_center: frm.doc.cost_center || null,
-            from_date: frm.doc.from_date || null,
-            to_date: frm.doc.to_date || null,
         },
         callback: function(r) {
             if (r.message) {
-                if (r.message.no_budget) {
+                const { no_budget, utilized, budget } = r.message;
+
+                if (no_budget) {
                     frappe.msgprint(__('No budget exists for the selected criteria.'));
-                    return;
-                }
-
-                const utilized = r.message.utilized || 0;
-                const budget = r.message.budget || 0;
-
-                if (utilized > budget) {
-                    frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
                 } else {
-                    frappe.msgprint(__('Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                    if (utilized > budget) {
+                        frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                    } else {
+						
+						const message = `A budget was found for the item <b>${row.item}</b> or its associated item group. The utilized amount is <b>${utilized}</b>, while the allocated budget is <b>${budget}</b>.`;
+
+                        frm.events.show_a_message(frm,message)
+                    }
                 }
             }
-        },
+        }
     });
 }
