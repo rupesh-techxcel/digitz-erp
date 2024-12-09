@@ -2,6 +2,14 @@
 // For license information, please see license.
 frappe.ui.form.on('Expense Entry', {
 
+  show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
   onload: function(frm)
   {
     assign_defaults(frm);
