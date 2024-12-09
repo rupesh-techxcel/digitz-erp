@@ -25,6 +25,7 @@
   "contact_mobile_no",
   "tax_id",
   "tax_not_applicable",
+  "bank_details",
   "column_break_04uh",
   "credit_days",
   "credit_amount",
@@ -185,11 +186,16 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "bank_details",
+   "fieldtype": "Small Text",
+   "label": "Bank Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-12 12:42:18.869585",
+ "modified": "2024-12-06 19:09:24.353572",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Supplier",

@@ -463,9 +463,25 @@ function update_total_amounts(frm){
   let gross_total = 0;
   let tax_total = 0;
   let net_total_before_deductions = 0;
-  frm.doc.progress_entry_items.forEach(element => {
-    gross_total += element.gross_amount;
-  });
+
+
+  // As per ValueStar calculation , find the gross amount from the sales order net amount by reducing tax since it may also include the additional discount.
+
+ 
+
+  
+
+  // if(frm.doc.sales_order_discount && frm.doc.sales_order_additional_discount>0)
+  //   {
+      
+  //   }
+  //   else
+  //   {
+  //     frm.doc.progress_entry_items.forEach(element => {
+  //       gross_total += element.gross_amount;
+  //     });
+  //   }
+ 
 
 
   let previous_completion_percentage = frm.doc.previous_completion_percentage;
@@ -480,7 +496,16 @@ function update_total_amounts(frm){
   // Validate the result of current_completion as well
   if (isNaN(current_completion)) {
       current_completion = 0; // Handle accordingly
-}
+  }
+
+  if(!frm.doc.tax_excluded && frm.doc.tax_rate>0)
+  {
+    gross_total = (frm.doc.sales_order_net_total * 100 / (100 + frm.doc.tax_rate)) * (current_completion /100)
+  }
+  else
+  {
+    gross_total = frm.doc.sales_order_net_total * (current_completion /100)
+  }
 
   let advance_amount = 0
   let retention_amount  = 0

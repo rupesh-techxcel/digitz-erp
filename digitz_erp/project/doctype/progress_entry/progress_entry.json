@@ -19,6 +19,7 @@
   "sales_order",
   "sales_order_date",
   "sales_order_net_total",
+  "sales_order_additional_discount",
   "column_break_xtqn",
   "is_prev_progress_exists",
   "previous_progress_entry",
@@ -437,7 +438,7 @@
    "fieldtype": "Float",
    "label": "Sales Order Net Total",
    "non_negative": 1,
-   "precision": "3",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -561,6 +562,12 @@
    "fieldname": "project_advance_percentage",
    "fieldtype": "Percent",
    "label": "Project Advance Percentage"
+  },
+  {
+   "fetch_from": "sales_order.additional_discount",
+   "fieldname": "sales_order_additional_discount",
+   "fieldtype": "Currency",
+   "label": "Sales Order Additional Discount"
   }
  ],
  "in_create": 1,
@@ -575,7 +582,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-11-26 11:45:18.398742",
+ "modified": "2024-12-06 20:18:34.762272",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

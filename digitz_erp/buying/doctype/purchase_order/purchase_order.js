@@ -942,33 +942,56 @@ function check_budget_utilization(frm, cdt, cdn, reference_type) {
         return;
     }
 
-    frappe.call({
-        method: "digitz_erp.api.accounts_api.fetch_budget_utilization",  // Replace with the correct method path
-        args: {
-            reference_type: reference_type,
-            reference_value: row.item,
-            transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
-            company: frm.doc.company,
-            project: frm.doc.project || null,
-            cost_center: frm.doc.cost_center || null,
-        },
-        callback: function(r) {
-            if (r.message) {
-                const { no_budget, utilized, budget } = r.message;
-
-                if (no_budget) {
-                    frappe.msgprint(__('No budget exists for the selected criteria.'));
-                } else {
-                    if (utilized > budget) {
-                        frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
-                    } else {
-						
-						const message = `A budget was found for the item <b>${row.item}</b> or its associated item group. The utilized amount is <b>${utilized}</b>, while the allocated budget is <b>${budget}</b>.`;
-
-                        frm.events.show_a_message(frm,message)
-                    }
-                }
-            }
-        }
-    });
+	frappe.call({
+		method: "digitz_erp.api.accounts_api.get_balance_budget_value",
+		args: {
+			reference_type: "Item",
+			reference_value: "ITEM-001",
+			transaction_date: "2024-12-08",
+			company: "My Company",
+			project: "Project Alpha",
+			cost_center: "Cost Center 1"
+		},
+		callback: function(response) {
+			if (response && response.message) {
+				const result = response.message;
+	
+				// Log the result to the console
+				console.log("Budget Result:", result);
+	
+				// Check if no budget is available
+				if (result.no_budget) {
+					frappe.msgprint({
+						title: __("No Budget Found"),
+						indicator: "orange",
+						message: __("No budget was found for the given parameters.")
+					});
+				} else {
+					// Display the utilized, budget, and remaining values
+					const utilized = result.utilized;
+					const budget = result.budget;
+					const remaining = result.remaining;
+					const details = result.details;
+	
+					frappe.msgprint({
+						title: __("Budget Details"),
+						indicator: "green",
+						message: `
+							<strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+							<strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+							<strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
+							<strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
+							<strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
+						`
+					});
+				}
+			} else {
+				frappe.msgprint({
+					title: __("Error"),
+					indicator: "red",
+					message: __("No response received from the server.")
+				});
+			}
+		}
+	});    
 }

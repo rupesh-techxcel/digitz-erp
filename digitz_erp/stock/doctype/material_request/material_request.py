@@ -40,9 +40,9 @@ class MaterialRequest(Document):
 				continue
 
             # Fetch the material_request checkbox value
-            budget_doc = frappe.get_doc("Budget", budget_name)
-            if not budget_doc.purchase_request:
-                continue  # Skip validation if the checkbox is not enabled
+			budget_doc = frappe.get_doc("Budget", budget_name)
+			if not budget_doc.purchase_request:
+				continue  # Skip validation if the checkbox is not enabled
 
 			# Check budget utilization
 			budget_utilization = fetch_budget_utilization(

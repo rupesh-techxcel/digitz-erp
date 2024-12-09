@@ -41,6 +41,7 @@
   "column_break_wyer",
   "delivery_locations",
   "disabled",
+  "bank_details",
   "section_break_24",
   "use_default_customer_terms",
   "default_terms",
@@ -261,11 +262,16 @@
    "fieldtype": "Link",
    "label": "Prospect",
    "options": "Prospect"
+  },
+  {
+   "fieldname": "bank_details",
+   "fieldtype": "Small Text",
+   "label": "Bank Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-12 12:42:50.714211",
+ "modified": "2024-12-06 19:09:47.711273",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
