@@ -124,175 +124,7 @@ import datetime
 import datetime
 import frappe
 
-
 @frappe.whitelist()
-def fetch_budget_utilization_for_report(budget_against,budget_for):
-    pass
-
-@frappe.whitelist()
-def fetch_budget_utilization(reference_type, reference_value, transaction_date=None, company=None, project=None, cost_center=None):
-
-    print("fetch_budget_utilization")
-
-    """
-    This method will calculate the actual utilization of the reference_value for the criterias passed 
-    like company, project, cost_center and transaction_date(transaction_date is relavant in case checking
-    is happening based on a company, sicne for budget's with company it belongs to a particular fiscal year).
-
-    :param reference_type: 'Item', 'Item Group', 'Account', 'Account Group', or 'Designation'
-    :param reference_value: The specific value of the reference type (e.g., Item name, Account name, Designation name)
-    :param transaction_date: Date of the transaction to find the applicable budget
-    :param company: Company to filter (optional)
-    :param project: Project to filter (optional)
-    :param cost_center: Cost center to filter (optional)
-    :return: A dictionary containing utilized, budget amount, and whether a budget exists
-    """
-    print("Params in fetch_budget_utilization")
-    print(reference_type)
-    print(reference_value)
-    print(transaction_date)
-    print(company)
-    print(project)
-    print(cost_center)
-
-    # Ensure transaction_date is a valid date
-    if company and isinstance(transaction_date, str):
-        transaction_date = datetime.datetime.strptime(transaction_date, "%Y-%m-%d").date()
-
-    # Step 1: Fetch budgets based on filters
-    budget_filters = {
-        "company": company,
-        "project": project,
-        "cost_center": cost_center
-    }
-
-    budgets = frappe.get_all(
-        "Budget",
-        filters={k: v for k, v in budget_filters.items() if v},
-        fields=["name", "from_date", "to_date", "budget_against"]
-    )
-
-    if not budgets:
-        return {"no_budget": True, "utilized": 0, "budget": 0}
-
-    # Initialize variables
-    total_budget = 0
-    total_utilized = 0
-    budget_against = None
-    budget_utilized_values = {}
-
-    for budget in budgets:
-        
-        budget_against_value = None
-        
-        if budget["budget_against"] == "Project":
-            budget_against_value = budget["project"]
-        elif budget["budget_against"] == "Cost Center":
-            budget_against_value = budget["cost_center"]
-        elif budget["budget_against"] == "Company":
-            budget_against_value = budget["company"]            
-        
-        from_date = None
-        to_date = None
-        
-        # Apply date range only for 'Company' budgets
-        if budget["budget_against"] == "Company":
-            from_date = budget.get("from_date")
-            to_date = budget.get("to_date")
-
-            # Ensure both from_date and to_date are valid
-            if isinstance(from_date, str):
-                from_date = datetime.datetime.strptime(from_date, "%Y-%m-%d").date()
-            if isinstance(to_date, str):
-                to_date = datetime.datetime.strptime(to_date, "%Y-%m-%d").date()
-
-            # Throw error if either date is still None
-            if not from_date or not to_date:
-                frappe.throw("Company budgets must have a valid date range (from_date and to_date).")
-
-            # Perform comparison only if all dates are valid
-            if not (from_date <= transaction_date <= to_date):
-                continue
-
-        # Fetch budget items related to the budget
-        budget_items = frappe.get_all(
-            "Budget Item",
-            filters={
-                "parent": budget["name"],                
-                "reference_type": reference_type,
-                "reference_value": reference_value
-            },
-            fields=["budget_against", "budget_amount"]
-        )
-
-        # Also check the actual value of the corresponding group's utilized value
-        group_budget_items = []
-        if reference_type == "Item":
-            item_group = frappe.db.get_value("Item", reference_value, "item_group")
-            if item_group:
-                group_budget_items = frappe.get_all(
-                    "Budget Item",
-                    filters={
-                        "parent": budget["name"],
-                        "reference_type": "Item Group",
-                        "reference_value": item_group
-                    },
-                    fields=["budget_against", "budget_amount"]
-                )
-                
-        # Note that while checking the parent_account of the account we dont consider the tree structure
-        # but only the immediate parent is considered.
-        if reference_type == "Account":
-            account_group = frappe.db.get_value("Account", reference_value, "parent_account")
-            if item_group:
-                group_budget_accounts = frappe.get_all(
-                    "Budget Item",
-                    filters={
-                        "parent": budget["name"],
-                        "reference_type": "Account Group",
-                        "reference_value": account_group
-                    },
-                    fields=["budget_against", "budget_amount"]
-                )
-
-        # Combine both Item and Item Group budgets
-        budget_items = budget_items + group_budget_items + group_budget_accounts
-
-        if not budget_items:
-            continue
-
-        for item in budget_items:
-            # Add to total budget
-            # total_budget += item.get("budget_amount", 0)
-            
-            print("item")
-            print(item)
-            
-            item_reference_type = item["reference_type"]
-            item_reference_value = item["reference_value"]
-            
-            # Step 3: Calculate utilization for this budget item
-            utilized = calculate_utilization(
-                budget["budget_against"],item["budget_against"], budget_against_value,  item_reference_type, item_reference_value,from_date,to_date
-            )           
-            
-            budget_utilized_values[budget_against_value] = utilized
-        
-    lowest_budget = None
-    lowest_budget_against = None       
-    if budget_utilized_values:   
-        # Iterate through the budget_utilized_values
-        lowest_budget_against = min(budget_utilized_values, key=budget_utilized_values.get)
-        lowest_budget = budget_utilized_values[lowest_budget]
-
-    # Step 4: Return results
-    return {
-        "no_budget": False,
-        "utilized": total_utilized,
-        "budget_against":lowest_budget_against,
-        "budget": lowest_budget
-    }
-
 def get_balance_budget_value(reference_type, reference_value, transaction_date=None, company=None, project=None, cost_center=None):
     """
     Identify the maximum allowable balance value based on the budget.
@@ -317,20 +149,39 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
     # Initialize variables
     min_balance_value = float("inf")
     minimum_budget = {}
+    
+    print(reference_type)
+    print(reference_value)
+    print(project)
+    
+    frappe.msgprint(project,alert=True)
 
     def process_budget(budget_against, budget_against_value, from_date=None, to_date=None):
         """
         Process budgets for a specific budget type (Project, Cost Center, or Company).
         """
-        nonlocal min_balance_value, minimum_budget
-
+        
+        print("from process_budget")
+        
+        print(budget_against)
+        
+        print("budget_against_value")
+        print(budget_against_value)
+        
         budgets = frappe.get_all(
             "Budget",
             filters={budget_against.lower(): budget_against_value},
             fields=["name", "budget_against", "from_date", "to_date"]
         )
 
+        print("budgets")
+        print(budgets)
+       
         for budget in budgets:
+            
+            print("budget")
+            print(budget)
+            
             # Validate date range for Company budgets
             if budget_against == "Company":
                 budget_from_date = budget.get("from_date")
@@ -346,7 +197,7 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
 
                 if transaction_date and not (budget_from_date <= transaction_date <= budget_to_date):
                     continue
-
+            
             budget_items = frappe.get_all(
                 "Budget Item",
                 filters={
@@ -356,6 +207,17 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
                 },
                 fields=["budget_against", "budget_amount"]
             )
+            
+            print("budget[name]")
+            print(budget["name"])
+            
+            print("reference_type")
+            print(reference_type)
+            print("reference_value")
+            print(reference_value)
+            
+            print("budget_items")
+            print(budget_items)
 
             for item in budget_items:
                 budget_amount = item.get("budget_amount", 0)
@@ -370,9 +232,9 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
                 )
 
                 balance_value = budget_amount - utilized
-
+                                 
                 # Considering lesser value here to restrict the actual input only upto that value
-                if min_balance_value > balance_value :
+                if not min_balance_value or (min_balance_value > balance_value) :
                     min_balance_value = balance_value
                     minimum_budget = {
                         "Budget Against": budget["budget_against"],
@@ -391,7 +253,7 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
                 
                 if reference_type == "Account":
                     account_group = frappe.db.get_value("Account", reference_value, "parent_account")
-                    if parent_account:
+                    if account_group:
                         process_account_group_budget(
                             budget["name"], budget["budget_against"], budget_against_value, account_group, from_date, to_date
                         )
@@ -400,8 +262,7 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
         """
         Process budgets for the item group related to an item.
         """
-        nonlocal min_balance_value, minimum_budget
-
+        
         budget_items_for_item_group = frappe.get_all(
             "Budget Item",
             filters={
@@ -426,7 +287,7 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
             balance_value = item2["budget_amount"] - utilized
 
             # Considering lesser value here to restrict the actual input only upto that value
-            if min_balance_value > balance_value:
+            if not min_balance_value or (min_balance_value > balance_value):
                 min_balance_value = balance_value
                 minimum_budget = {
                     "Budget Against": budget_against,
@@ -440,8 +301,12 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
         """
         Process budgets for the item group related to an item.
         """
-        nonlocal min_balance_value, minimum_budget
         
+        print("from process_account_group")
+        
+        print("parent_budget")
+        print(parent_budget)
+               
         budget_items_for_account_group = frappe.get_all(
             "Budget Item",
             filters={
@@ -451,6 +316,9 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
             },
             fields=["budget_against", "budget_amount"]
         )
+        
+        print("budget_items_for_account_group")
+        print(budget_items_for_account_group)
 
         for item3 in budget_items_for_account_group:
             utilized = calculate_utilization(
@@ -466,7 +334,7 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
             balance_value = item3["budget_amount"] - utilized
 
             # Considering lesser value here to restrict the actual input only upto that value
-            if min_balance_value > balance_value:
+            if not min_balance_value or (min_balance_value > balance_value):
                 min_balance_value = balance_value
                 minimum_budget = {
                     "Budget Against": budget_against,
@@ -484,8 +352,8 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
     if cost_center:
         process_budget("Cost_Center", cost_center)
 
-    if company:
-        process_budget("Company", company)
+    # if company:
+    #     process_budget("Company", company)
 
     # Return results
     if min_balance_value == float("inf"):
@@ -511,7 +379,7 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
         "details": minimum_budget
     }
 
-
+@frappe.whitelist()
 def calculate_utilization(
     budget_against,
     item_budget_against,
@@ -524,6 +392,13 @@ def calculate_utilization(
     """
     Helper function to calculate utilization based on budget type and dimensions.
     """
+    
+    print(budget_against)
+    print(item_budget_against)
+    print(budget_against_value)
+    print(reference_type)
+    print(reference_value)
+    
     utilized = 0
     conditions = []
 
@@ -543,7 +418,7 @@ def calculate_utilization(
     elif reference_type == "Item Group":
         conditions.append(f"item_table.item_group = '{reference_value}'")
     elif reference_type == "Account":
-        conditions.append(f"expense_table.account = '{reference_value}'")
+        conditions.append(f"expense_table.expense_account = '{reference_value}'")
     elif reference_type == "Account Group":
         conditions.append(
             f"""

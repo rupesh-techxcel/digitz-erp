@@ -58,7 +58,7 @@ def insert_accounts():
     {"account_name": "UAE VAT @ 5 %", "is_group": 0, "parent_account": "Duties & Taxes", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Accounts Payables", "is_group": 0, "parent_account": "Current Liabilities", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
     {"account_name": "Customer Advances", "is_group": 0, "parent_account": "Current Liabilities", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
-    {"account_name": "Work In Progress", "is_group": 0, "parent_account": "Current Liabilities", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
+    {"account_name": "Work In Progress", "is_group": 0, "parent_account": "Current Liabilities", "account_type": "Work In Progress", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
     
     {"account_name": "Labour Charges", "is_group": 0, "parent_account": "Current Liabilities", "account_type": "", "root_type": "Liability", "balance": 0, "balance_dr_cr": ""},
 

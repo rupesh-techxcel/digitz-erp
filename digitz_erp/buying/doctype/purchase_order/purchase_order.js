@@ -937,61 +937,53 @@ function update_total_big_display(frm) {
 function check_budget_utilization(frm, cdt, cdn, reference_type) {
     const row = frappe.get_doc(cdt, cdn);
 
+    // Ensure the item field is filled before proceeding
     if (!row.item) {
-        
         return;
     }
 
-	frappe.call({
-		method: "digitz_erp.api.accounts_api.get_balance_budget_value",
-		args: {
-			reference_type: "Item",
-			reference_value: "ITEM-001",
-			transaction_date: "2024-12-08",
-			company: "My Company",
-			project: "Project Alpha",
-			cost_center: "Cost Center 1"
-		},
-		callback: function(response) {
-			if (response && response.message) {
-				const result = response.message;
-	
-				// Log the result to the console
-				console.log("Budget Result:", result);
-	
-				// Check if no budget is available
-				if (result.no_budget) {
-					frappe.msgprint({
-						title: __("No Budget Found"),
-						indicator: "orange",
-						message: __("No budget was found for the given parameters.")
-					});
-				} else {
-					// Display the utilized, budget, and remaining values
-					const utilized = result.utilized;
-					const budget = result.budget;
-					const remaining = result.remaining;
-					const details = result.details;
-	
-					frappe.msgprint({
-						title: __("Budget Details"),
-						indicator: "green",
-						message: `
-							<strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
-							<strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
-							<strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
-							<strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
-							<strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
-						`
-					});
-				}
-			} else {
-				frappe.msgprint({
-					title: __("Error"),
-					indicator: "red",
-					message: __("No response received from the server.")
-				});
-			}
-		}
-	});    
+    // Call server method to get budget details
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_balance_budget_value",
+        args: {
+            reference_type: "Item",
+            reference_value: row.item,
+            transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
+            company: frm.doc.company,
+            project: frm.doc.project || null,
+            cost_center: frm.doc.cost_center || null
+        },
+        callback: function (response) {
+            if (response && response.message) {
+                const result = response.message;
+
+                // Log the response for debugging
+                console.log("Budget Result:", result);
+
+                if (!result.no_budget) {
+                    // Display budget details if available
+                    const details = result.details || {};
+                    const budgetMessage = `
+                        <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+                        <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+                        <strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
+                        <strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
+                        <strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
+                    `;
+
+                    // Custom method to display the message (replace with your own if needed)
+                   
+                    frm.events.show_a_message(frm,budgetMessage);
+                    
+                }
+            } else {
+                // Handle case where no response is received
+                frappe.msgprint({
+                    title: __("Error"),
+                    indicator: "red",
+                    message: __("No response received from the server.")
+                });
+            }
+        }
+    });
 }

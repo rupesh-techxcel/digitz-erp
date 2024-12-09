@@ -70,66 +70,53 @@ class PurchaseInvoice(Document):
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
 
-		self.validate_items_budget()
+		self.validate_item_budgets()
    
-	def validate_items_budget(self):
+	def validate_item_budgets(self):
+		"""
+		Validate Purchase Order items against the budget values and utilized amounts.
+
+		This method is intended to be called during the validate event of the Purchase Order.
+		"""
 		for item in self.items:
-			# Check if Material Request validation is enabled in the budget
-			budget_settings = frappe.get_all(
-				"Budget",
-				filters={
-					"company": self.company,
-					"project": getattr(self, "project", None),
-					"cost_center": self.cost_center
-				},
-				fields=["name", "purchase_invoice"]
+			# Fetch budget details for the item
+			budget_item = frappe.db.get_value(
+				"Budget Item",
+				{"reference_type": "Item", "reference_value": item.item},
+				["parent", "budget_amount"],
+				as_dict=True
 			)
 
-			if not budget_settings:
+			if not budget_item:
+				# Skip validation if no budget exists for the item
 				continue
 
-			budget_name = frappe.get_value(
-				"Budget",
-				filters={
-					"company": self.company,
-					"project": getattr(self, "project", None),
-					"cost_center": self.cost_center
-				},
-				fieldname="name"
-			)
+			# Get the parent budget details
+			budget = frappe.get_doc("Budget", budget_item["parent"])
 
-			if not budget_name:
-				continue
-
-			# Fetch the material_request checkbox value
-			budget_doc = frappe.get_doc("Budget", budget_name)
-			if not budget_doc.purchase_request:
-				continue  # Skip validation if the checkbox is not enabled
-
-			# Check budget utilization
-			budget_utilization = fetch_budget_utilization(
+			# Fetch utilized amount
+			utilized_amount = calculate_utilization(
+				budget_against=budget.budget_against,
+				item_budget_against="Purchase",
+				budget_against_value=getattr(budget, budget.budget_against.lower()),
 				reference_type="Item",
-				reference_value=item.item_code,
-				transaction_date=self.transaction_date or self.posting_date,
-				company=self.company,
-				project=getattr(self, "project", None),
-				cost_center=self.cost_center
+				reference_value=item.item,
+				from_date=budget.from_date,
+				to_date=budget.to_date,
 			)
 
-			# Validate budget utilization
-			if budget_utilization["no_budget"]:
+			# Calculate total utilized
+			total_utilized = utilized_amount + item.gross_amount
+
+			# Check if total utilized exceeds budget amount
+			if total_utilized > budget_item["budget_amount"]:
 				frappe.throw(
-					_(f"No budget exists for the item {item.item_code} in the current context.")
+					f"Item {item.item} exceeds its budget limit. "
+					f"Budget Amount: {budget_item['budget_amount']}, "
+					f"Utilized: {utilized_amount}, "
+					f"Gross Amount in Purchase Order: {item.gross_amount}, "
+					f"Total Utilized: {total_utilized}."
 				)
-
-			utilized = budget_utilization["utilized"]
-			budget = budget_utilization["budget"]
-
-			if utilized > budget:
-				frappe.throw(
-					_(f"The item {item.item_code} exceeds its allocated budget. "
-						f"Utilized: {utilized}, Budget: {budget}")
-     				)
 
 	def validate_supplier_inv_no(self):
 

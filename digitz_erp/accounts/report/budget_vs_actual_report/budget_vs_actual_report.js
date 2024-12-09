@@ -2,38 +2,43 @@
 // For license information, please see license.txt
 
 frappe.query_reports["Budget Vs Actual Report"] = {
-	"filters": [
-		{
+	
+		"filters": [
+		  {
 			"fieldname": "budget_against",
 			"label": "Budget Against",
 			"fieldtype": "Select",
-			"options": "Company\nProject\nCost Center",
+			"options": "\nProject\nCost Center\nCompany",
 			"reqd": 1
-		},
-		{
-			"fieldname": "company",
-			"label": "Company",
-			"fieldtype": "Link",
-			"options": "Company",
-			"depends_on": "eval:doc.budget_against == 'Company'",
-			"reqd": 0
-		},
-		{
+		  },		  
+		  {
 			"fieldname": "project",
 			"label": "Project",
 			"fieldtype": "Link",
 			"options": "Project",
-			"depends_on": "eval:doc.budget_against == 'Project'",
-			"reqd": 0
-		},
-		{
+			"depends_on": "eval:doc.budget_against == 'Project'"
+		  },
+		  {
 			"fieldname": "cost_center",
 			"label": "Cost Center",
 			"fieldtype": "Link",
 			"options": "Cost Center",
-			"depends_on": "eval:doc.budget_against == 'Cost Center'",
-			"reqd": 0
-		}
-	]
-	
-};
+			"depends_on": "eval:doc.budget_against == 'Cost Center'"
+		  },
+		  {
+			"fieldname": "company",
+			"label": "Company",
+			"fieldtype": "Link",
+			"options": "Company",
+			"depends_on": "eval:doc.budget_against == 'Company'"
+		  },
+		  {
+			"fieldname": "fiscal_year",
+			"label": "Fiscal Year",
+			"fieldtype": "Link",
+			"options": "Fiscal Year",
+			"depends_on": "eval:doc.budget_against == 'Company'"
+		  }
+		]
+	  }
+	  
