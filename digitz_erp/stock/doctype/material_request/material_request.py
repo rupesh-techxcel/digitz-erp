@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from digitz_erp.api.accounts_api import calculate_utilization
 
 
 class MaterialRequest(Document):
