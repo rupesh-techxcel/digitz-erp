@@ -644,23 +644,6 @@ def get_default_payment_mode():
     return default_payment_mode
 
 @frappe.whitelist()
-def get_gl_postings(purchase_return):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": purchase_return},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings
-
-@frappe.whitelist()
 def get_stock_ledgers(purchase_return):
     stock_ledgers = frappe.get_all("Stock Ledger",
                                     filters={"voucher_no": purchase_return},

@@ -4,17 +4,20 @@
 import frappe
 from frappe.model.document import Document
 from datetime import datetime
+from frappe.utils import getdate
 
 class Budget(Document):
 
 	def validate(self):
      
 		self.check_for_overlapping_budget()     
-    
-	def before_insert(self):
+  
+	# def before_validate(self):
      
-		if not self.budget_name:
-			self.generate_budget_name()		
+		# frappe.msgprint("from before_validate")
+  
+		# if not self.budget_name:
+		# 	self.generate_budget_name()		
   
 	def generate_budget_name(self):
      

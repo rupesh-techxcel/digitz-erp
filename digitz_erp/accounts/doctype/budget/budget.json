@@ -17,9 +17,9 @@
   "fiscal_year",
   "from_date",
   "to_date",
-  "purchase_cost_control",
   "material_request",
   "purchase_order",
+  "purchase_receipt",
   "purchase_invoice",
   "column_break_vrmg",
   "posting_date",
@@ -83,7 +83,8 @@
   },
   {
    "fieldname": "column_break_gwyb",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Cost Control"
   },
   {
    "default": "Today",
@@ -188,11 +189,6 @@
    "label": "Total Budget Amount"
   },
   {
-   "fieldname": "purchase_cost_control",
-   "fieldtype": "Heading",
-   "label": "Purchase Cost Control"
-  },
-  {
    "default": "1",
    "fieldname": "material_request",
    "fieldtype": "Check",
@@ -209,12 +205,18 @@
    "fieldname": "purchase_invoice",
    "fieldtype": "Check",
    "label": "Purchase Invoice"
+  },
+  {
+   "default": "0",
+   "fieldname": "purchase_receipt",
+   "fieldtype": "Check",
+   "label": "Purchase Receipt"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-12-02 18:16:43.634196",
+ "modified": "2024-12-04 19:18:11.134371",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget",

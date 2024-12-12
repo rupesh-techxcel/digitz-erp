@@ -3,6 +3,14 @@
 
 frappe.ui.form.on('Purchase Invoice', {
 
+	show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
 	refresh:function (frm) {
 
 		create_custom_buttons(frm)
@@ -157,13 +165,15 @@ frappe.ui.form.on('Purchase Invoice', {
 		{
 			method: 'digitz_erp.api.accounts_api.get_supplier_balance',
 			args: {
-				'supplier': frm.doc.supplier
+				'supplier': frm.doc.supplier,
+				'date':frm.doc.posting_date
 			},
 			callback: (r) => {
 				frm.set_value('supplier_balance',r.message[0].supplier_balance)
 				frm.refresh_field("supplier_balance");
 			}
 		});
+
 		frappe.call(
 			{
 				method:'digitz_erp.api.settings_api.get_supplier_terms',
@@ -583,7 +593,7 @@ frappe.ui.form.on('Purchase Invoice Item', {
 	item(frm, cdt, cdn) {
 		var child = locals[cdt][cdn];
 		
-		check_budget_utilization(frm, cdt, cdn);
+		check_budget_utilization(frm, cdt, cdn,"Item");
 
 		if (frm.doc.default_cost_center) {
 			frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
@@ -1195,41 +1205,56 @@ let stock_ledgers = function (frm) {
     });
 };
 
-function check_budget_utilization(frm, cdt, cdn) {
+function check_budget_utilization(frm, cdt, cdn, reference_type) {
     const row = frappe.get_doc(cdt, cdn);
 
+    // Ensure the item field is filled before proceeding
     if (!row.item) {
-        return; // Skip if item_code is not selected
+        return;
     }
 
+    // Call server method to get budget details
     frappe.call({
-        method: 'app.module_name.fetch_budget_utilization', // Update with your app/module path
+        method: "digitz_erp.api.accounts_api.get_balance_budget_value",
         args: {
-            budget_against: frm.doc.budget_against || 'Purchase',
-            reference_type: 'Item',
+            reference_type: "Item",
             reference_value: row.item,
+            transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
             company: frm.doc.company,
             project: frm.doc.project || null,
-            cost_center: frm.doc.cost_center || null,
-            from_date: frm.doc.from_date || null,
-            to_date: frm.doc.to_date || null,
+            cost_center: frm.doc.cost_center || null
         },
-        callback: function(r) {
-            if (r.message) {
-                if (r.message.no_budget) {
-                    frappe.msgprint(__('No budget exists for the selected criteria.'));
-                    return;
-                }
+        callback: function (response) {
+            if (response && response.message) {
+                const result = response.message;
 
-                const utilized = r.message.utilized || 0;
-                const budget = r.message.budget || 0;
+                // Log the response for debugging
+                console.log("Budget Result:", result);
 
-                if (utilized > budget) {
-                    frappe.throw(__('Budget exceeded! Utilized amount: {0}, Budget: {1}', [utilized, budget]));
-                } else {
-                    frappe.msgprint(__('Utilized amount: {0}, Budget: {1}', [utilized, budget]));
+                if (!result.no_budget) {
+                    // Display budget details if available
+                    const details = result.details || {};
+                    const budgetMessage = `
+                        <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+                        <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+                        <strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
+                        <strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
+                        <strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
+                    `;
+
+                    // Custom method to display the message (replace with your own if needed)
+                   
+                    frm.events.show_a_message(frm,budgetMessage);
+                    
                 }
+            } else {
+                // Handle case where no response is received
+                frappe.msgprint({
+                    title: __("Error"),
+                    indicator: "red",
+                    message: __("No response received from the server.")
+                });
             }
-        },
+        }
     });
 }

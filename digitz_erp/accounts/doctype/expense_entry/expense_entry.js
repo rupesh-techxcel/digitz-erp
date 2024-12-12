@@ -2,6 +2,14 @@
 // For license information, please see license.
 frappe.ui.form.on('Expense Entry', {
 
+  show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
   onload: function(frm)
   {
     assign_defaults(frm);
@@ -135,6 +143,11 @@ frappe.ui.form.on('Expense Entry', {
 
 frappe.ui.form.on('Expense Entry Details',{
 
+  expense_account:function(frm,cdt,cdn)
+  {
+      check_budget_utilization(frm, cdt, cdn,"Account");
+      
+  },
   amount: function(frm, cdt, cdn){
 
     console.log("amount")
@@ -499,4 +512,58 @@ function set_payment_visibility(frm)
     });
 };
   
+function check_budget_utilization(frm, cdt, cdn, reference_type) {
+  const row = frappe.get_doc(cdt, cdn);
+
+  // Ensure the item field is filled before proceeding
+  if (!row.expense_account) {
+      return;
+  }
+
+  console.log("project",frm.doc.project)
   
+  // Call server method to get budget details
+  frappe.call({
+      method: "digitz_erp.api.accounts_api.get_balance_budget_value",
+      args: {
+          reference_type: reference_type,
+          reference_value: row.expense_account,
+          transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
+          company: frm.doc.company,
+          project: frm.doc.project || null,
+          cost_center: frm.doc.cost_center || null
+      },
+      callback: function (response) {
+          if (response && response.message) {
+              const result = response.message;
+
+              // Log the response for debugging
+              console.log("Budget Result:", result);
+
+              if (!result.no_budget) {
+                  // Display budget details if available
+                  const details = result.details || {};
+                  const budgetMessage = `
+                      <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+                      <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+                      <strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
+                      <strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
+                      <strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
+                  `;
+
+                  // Custom method to display the message (replace with your own if needed)
+                 
+                  frm.events.show_a_message(frm,budgetMessage);
+                  
+              }
+          } else {
+              // Handle case where no response is received
+              frappe.msgprint({
+                  title: __("Error"),
+                  indicator: "red",
+                  message: __("No response received from the server.")
+              });
+          }
+      }
+  });
+}

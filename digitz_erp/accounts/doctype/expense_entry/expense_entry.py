@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.settings_api import add_seconds_to_time
+from digitz_erp.api.accounts_api import calculate_utilization
 
 class ExpenseEntry(Document):
 
@@ -17,6 +18,56 @@ class ExpenseEntry(Document):
 	def Set_Posting_Time_To_Next_Second(self):
 		# Add 12 seconds to self.posting_time and update it
 		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
+  
+	
+	def validate_expense_budgets(self):
+		"""
+		Validate Expense Entry accounts against the budget values and utilized amounts.
+
+		This method is intended to be called during the validate event of the Expense Entry.
+		"""
+		for expense in self.expense_entry_details:
+			# Fetch budget details for the expense account
+			budget_item = frappe.db.get_value(
+				"Budget Item",
+				{"reference_type": "Account", "reference_value": expense.expense_account},
+				["parent", "budget_amount"],
+				as_dict=True
+			)
+
+			if not budget_item:
+				# Skip validation if no budget exists for the expense account
+				continue
+
+			# Get the parent budget details
+			budget = frappe.get_doc("Budget", budget_item["parent"])
+
+			# Fetch utilized amount
+			utilized_amount = calculate_utilization(
+				budget_against=budget.budget_against,
+				item_budget_against="Expense",
+				budget_against_value=getattr(budget, budget.budget_against.lower()),
+				reference_type="Account",
+				reference_value=expense.expense_account,
+				from_date=budget.from_date,
+				to_date=budget.to_date,
+			)
+
+			# Calculate total utilized
+			total_utilized = utilized_amount + expense.amount
+
+			# Check if total utilized exceeds budget amount
+			if total_utilized > budget_item["budget_amount"]:
+				frappe.throw(
+					f"Expense Account {expense.expense_account} exceeds its budget limit. "
+					f"Budget Amount: {budget_item['budget_amount']}, "
+					f"Utilized: {utilized_amount}, "
+					f"Expense Amount in Entry: {expense.amount}, "
+					f"Total Utilized: {total_utilized}."
+				)
+
+	def validate(self):
+		self.validate_expense_budgets()     
 
 
 	def before_validate(self):
