@@ -624,9 +624,11 @@ frappe.ui.form.on('Purchase Order Item', {
 		}
 	},
 	qty(frm, cdt, cdn) {
+		check_budget_utilization(frm, cdt, cdn,"Item");
 		frm.trigger("make_taxes_and_totals");
 	},
 	rate(frm, cdt, cdn) {
+		check_budget_utilization(frm, cdt, cdn,"Item");
 		frm.trigger("make_taxes_and_totals");
 	},
 	rate_includes_tax(frm, cdt, cdn) {
@@ -637,6 +639,8 @@ frappe.ui.form.on('Purchase Order Item', {
 
 		console.log("Item");
 		console.log(row.item);
+
+		check_budget_utilization(frm, cdt, cdn,"Item");
 
 		//  frappe.call(
 		//  	{

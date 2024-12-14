@@ -27,6 +27,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Expense Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"root_type\",\"=\",\"Expense\"]]",
    "options": "Account",
    "reqd": 1
   },
@@ -63,7 +64,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-16 14:09:45.223782",
+ "modified": "2024-12-14 11:14:15.537234",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Head",

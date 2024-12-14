@@ -79,10 +79,12 @@ def update_progress_entries_for_project(project_name):
 
     # Fetch progress entries related to the project
     progress_entries = frappe.get_all(
-        'Progress Entry',
-        filters={'project': project_name},
-        fields=['name', 'posting_date', 'total_completion_percentage', 'net_total']  # Include the fields you want
+    'Progress Entry',
+    filters={'project': project_name},
+    fields=['name', 'posting_date', 'total_completion_percentage', 'net_total'],  # Include the fields you want
+    order_by='posting_date DESC'  # Order by posting_date in descending order
     )
+
 
     progress_any = False
     # Iterate through progress entries and fetch related details
@@ -102,10 +104,15 @@ def update_progress_entries_for_project(project_name):
             'percentage_of_completion': entry['total_completion_percentage'],
             'net_total': entry['net_total']
         })
+        
+        project_doc.set('progress_percentage', entry['total_completion_percentage'])
+        
         progress_any = True
     
     if progress_any:
         frappe.msgprint("Progress entries successfully updated in the project.", alert=True)
+
+
 
     # Save the updated project document
     project_doc.save()

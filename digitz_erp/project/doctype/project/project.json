@@ -31,6 +31,7 @@
   "column_break_wszi",
   "retention_percentage",
   "retention_amount",
+  "progress_percentage",
   "column_break_nqui",
   "amount_after_retention",
   "project_gross_value",
@@ -255,6 +256,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "default": "0",
    "fieldname": "disabled",
    "fieldtype": "Check",
@@ -390,6 +392,14 @@
    "fieldname": "actual_end_date",
    "fieldtype": "Date",
    "label": "Actual End Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "progress_percentage",
+   "fieldtype": "Percent",
+   "label": "Progress Percentage",
+   "precision": "0",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -412,7 +422,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-11-29 11:13:05.459425",
+ "modified": "2024-12-14 07:27:27.262958",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

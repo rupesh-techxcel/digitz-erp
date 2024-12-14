@@ -2,7 +2,7 @@ import frappe
 from frappe.utils import *
 
 @frappe.whitelist()
-def get_accounts_data(from_date,to_date, root_type):
+def get_accounts_data(from_date,to_date, root_type,project=None):
     
     query = """
             SELECT parent_account,account_name from `tabAccount` where is_group = 0 and root_type=%s
@@ -166,39 +166,91 @@ def update_parent_accounts_recursive(account, accounts, account_name):
             
     update_parent_accounts_recursive(parent_account,accounts,account_name)
         
-def get_opening_balance(account, from_date):
-    
-    query="""
-    SELECT sum(debit_amount)-sum(credit_amount) as opening_balance from `tabGL Posting` gl where gl.account = %s and posting_date < %s
+def get_opening_balance(account, from_date, project=None):
+    # Initialize query and values
+    query = """
+        SELECT 
+            SUM(debit_amount) - SUM(credit_amount) AS opening_balance 
+        FROM 
+            `tabGL Posting` gl 
+        WHERE 
+            gl.account = %s AND gl.posting_date < %s
     """
-    
-    data = frappe.db.sql(query,(account,from_date), as_dict=True)
+    values = [account, from_date]
+
+    # Add the optional project filter
+    if project:  # Check if the project filter is provided
+        query += " AND gl.project = %s"
+        values.append(project)
+
+    # Execute the query with parameterized values
+    data = frappe.db.sql(query, values, as_dict=True)
+
+    # Return the opening balance or 0 if no data is found
     if data and data[0]:
-        return data[0].opening_balance
+        return data[0].get('opening_balance', 0)
     else:
         return 0
 
-def get_transaction_debit(account, from_date, to_date):
-    
-    query="""
-    SELECT sum(debit_amount) as debit_amount from `tabGL Posting` gl where gl.account = '{account}' and posting_date >= '{from_date}' and posting_date<='{to_date}'
-    """.format(account=account,from_date=from_date, to_date=to_date)
-    
-    data = frappe.db.sql(query, as_dict=True)
+def get_transaction_debit(account, from_date, to_date, project=None):
+    # Base query
+    query = """
+        SELECT 
+            SUM(debit_amount) AS debit_amount 
+        FROM 
+            `tabGL Posting` gl 
+        WHERE 
+            gl.account = %s 
+            AND gl.posting_date >= %s 
+            AND gl.posting_date <= %s
+    """
+
+    # Parameters for the query
+    values = [account, from_date, to_date]
+
+    # Add the optional project filter
+    if project:  # Check if a project filter is provided
+        query += " AND gl.project = %s"
+        values.append(project)
+
+    # Execute the query with parameterized values
+    data = frappe.db.sql(query, values, as_dict=True)
+
+    # Return the debit amount or 0 if no data is found
     if data and data[0]:
-        return data[0].debit_amount
+        return data[0].get('debit_amount', 0)
     else:
         return 0
 
-def get_transaction_credit(account, from_date, to_date):
+
+def get_transaction_credit(account, from_date, to_date, project=None):
+    # Base query
+    query = """
+        SELECT 
+            SUM(credit_amount) AS credit_amount 
+        FROM 
+            `tabGL Posting` gl 
+        WHERE 
+            gl.account = %s 
+            AND posting_date >= %s 
+            AND posting_date <= %s
+    """
+
+    # Parameters for the query
+    values = [account, from_date, to_date]
+
+    # Add the optional project filter
+    if project:  # Check if a project filter is provided
+        query += " AND gl.project = %s"
+        values.append(project)
+
+    # Execute the query with parameterized values
+    data = frappe.db.sql(query, values, as_dict=True)
     
-    query="""
-    SELECT sum(credit_amount) as credit_amount from `tabGL Posting` gl where gl.account = '{account}' and posting_date >= '{from_date}' and posting_date<='{to_date}'
-    """.format(account=account,from_date=from_date, to_date=to_date)
-    
-    data = frappe.db.sql(query, as_dict=True)
+    # Return the credit amount or 0 if no data is found
     if data and data[0]:
-        return data[0].credit_amount
+        return data[0].get('credit_amount', 0)
     else:
         return 0
+
     
