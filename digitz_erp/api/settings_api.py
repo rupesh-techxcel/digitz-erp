@@ -4,6 +4,9 @@ import math
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 
+@frappe.whitelist()
+def add_seconds_to_time():
+    return
 
 @frappe.whitelist()
 def get_default_company():
