@@ -1,0 +1,108 @@
+{
+ "charts": [
+  {
+   "chart_name": "Top Suppliers",
+   "label": "Top Suppliers"
+  },
+  {
+   "chart_name": "Buying Trends",
+   "label": "Buying Trends"
+  }
+ ],
+ "content": "[{\"id\":\"eH9LDL0GMJ\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Buying</span>\",\"col\":12}},{\"id\":\"wlNpH8IcSE\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Suppliers\",\"col\":12}},{\"id\":\"ObAWYvy84s\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Buying Trends\",\"col\":12}},{\"id\":\"-onvnzZQ5B\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"c3hvsghwdf\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Transactions</span>\",\"col\":12}},{\"id\":\"4RlcDLW0K6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Material Request\",\"col\":3}},{\"id\":\"QBf0sza0h3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Order\",\"col\":3}},{\"id\":\"WcFWMKUPGc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Receipt\",\"col\":3}},{\"id\":\"Hmw2HFxt3i\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"u06h9WAO_n\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Return\",\"col\":3}},{\"id\":\"_Fv9tNiVUZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Credit Note\",\"col\":3}},{\"id\":\"bhTNZazbbK\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_bXrNoMpuz\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Reports</span>\",\"col\":12}},{\"id\":\"YkHB3KG-Cw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Register\",\"col\":3}},{\"id\":\"KYZiGuU76T\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Itemwise Summary Report\",\"col\":3}},{\"id\":\"n6TttpY8Fi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Itemwise Register\",\"col\":3}}]",
+ "creation": "2024-12-15 10:32:14.087921",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "buying",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Buying",
+ "links": [],
+ "modified": "2024-12-15 10:47:41.939237",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Buying",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 4.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Itemwise Register",
+   "link_to": "Purchase Itemwise Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Order",
+   "link_to": "Purchase Order",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Material Request",
+   "link_to": "Material Request",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Invoice",
+   "link_to": "Purchase Invoice",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Itemwise Summary Report",
+   "link_to": "Purchase Itemwise Summary Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Register",
+   "link_to": "Purchase Register",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Receipt",
+   "link_to": "Purchase Receipt",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Purchase Return",
+   "link_to": "Purchase Return",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Credit Note",
+   "link_to": "Credit Note",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Buying"
+}
