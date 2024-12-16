@@ -10,7 +10,8 @@ from digitz_erp.api.project_api import update_progress_entries_for_project
 class ProgressEntry(Document):
     
 	def before_validate(self):
-		self.in_words = money_in_words(self.rounded_total,"AED")
+		if self.rounded_total:
+			self.in_words = money_in_words(self.rounded_total,"AED")
 
 	def validate(self):
 		if(self.previous_progress_entry == self.name):
