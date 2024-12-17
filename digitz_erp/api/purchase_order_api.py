@@ -193,7 +193,7 @@ def create_purchase_receipt_for_purchase_order(purchase_order):
     purchase_receipt.supplier_inv_no = purchase_doc.supplier_inv_no
     purchase_receipt.rate_includes_tax = purchase_doc.rate_includes_tax
     purchase_receipt.credit_purchase = purchase_doc.credit_purchase
-    purchase_receipt.default_cost_center = purchase_doc.cost_center
+    purchase_receipt.default_cost_center = purchase_doc.default_cost_center
     purchase_receipt.project = purchase_doc.project
 
     purchase_receipt.credit_days = purchase_doc.credit_days

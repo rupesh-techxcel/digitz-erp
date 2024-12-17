@@ -535,7 +535,7 @@ def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 	purchase_invoice.supplier = purchase_doc.supplier
 	purchase_invoice.company = purchase_doc.company
 	purchase_invoice.project = purchase_doc.project
-	purchase_invoice.cost_center = purchase_doc.cost_center
+	purchase_invoice.default_cost_center = purchase_doc.default_cost_center
 	purchase_invoice.supplier_address = purchase_doc.supplier_address
 	purchase_invoice.tax_id = purchase_doc.tax_id
 	purchase_invoice.posting_date = purchase_doc.posting_date
