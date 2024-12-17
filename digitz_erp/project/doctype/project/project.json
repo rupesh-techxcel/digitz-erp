@@ -34,7 +34,6 @@
   "progress_percentage",
   "column_break_nqui",
   "amount_after_retention",
-  "project_gross_value",
   "project_value",
   "section_break_updt",
   "progress_entry",
@@ -53,14 +52,16 @@
   "tasks",
   "statistics_tab",
   "sales_order_value",
-  "purchase_cost",
+  "purchase_cost_gross",
   "work_in_progress_value",
   "column_break_zbcd",
+  "project_gross_value",
   "material_cost",
   "labour_cost",
   "overheads",
   "column_break_vusx",
   "total_billed_amount",
+  "total_billed_amount_gross",
   "amended_from"
  ],
  "fields": [
@@ -281,12 +282,6 @@
    "label": "Sales Order Value"
   },
   {
-   "description": "Based on Purchase Receipt",
-   "fieldname": "purchase_cost",
-   "fieldtype": "Currency",
-   "label": "Purchase Cost"
-  },
-  {
    "fieldname": "column_break_zbcd",
    "fieldtype": "Column Break"
   },
@@ -400,6 +395,19 @@
    "label": "Progress Percentage",
    "precision": "0",
    "read_only": 1
+  },
+  {
+   "description": "Prior to deducting the advance portion, retention amount, and applicable taxes.",
+   "fieldname": "total_billed_amount_gross",
+   "fieldtype": "Currency",
+   "label": "Total Billed Amount (Gross)",
+   "precision": "2"
+  },
+  {
+   "description": "Based on Purchase Receipt",
+   "fieldname": "purchase_cost_gross",
+   "fieldtype": "Currency",
+   "label": "Purchase Cost (Gross)"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -422,7 +430,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-12-14 07:27:27.262958",
+ "modified": "2024-12-16 21:50:34.352138",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

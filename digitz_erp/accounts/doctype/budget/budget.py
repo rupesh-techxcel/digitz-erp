@@ -10,14 +10,7 @@ class Budget(Document):
 
 	def validate(self):
      
-		self.check_for_overlapping_budget()     
-  
-	# def before_validate(self):
-     
-		# frappe.msgprint("from before_validate")
-  
-		# if not self.budget_name:
-		# 	self.generate_budget_name()		
+		self.validate_budget()     
   
 	def generate_budget_name(self):
      
@@ -64,28 +57,51 @@ class Budget(Document):
 			# Log the generated name for debugging
 			frappe.logger().debug(f"Generated custom name for Budget: {self.name}")
    
-	def check_for_overlapping_budget(doc):
+   
+	def validate_budget(self):
 		"""
 		Check for overlapping budget periods based on 'budget_against' type.
 		"""
+		from frappe.utils import getdate
+
 		# Get the budget's from_date and to_date
-		from_date = getdate(doc.from_date)
-		to_date = getdate(doc.to_date)
+		from_date = getdate(self.from_date)
+		to_date = getdate(self.to_date)
 
-		# Construct a query to find overlapping budgets
-		overlapping_budgets = frappe.db.sql("""
-			SELECT name FROM `tabBudget`
-			WHERE
-				budget_against = %s
-				AND name != %s
-				AND (
-					(from_date <= %s AND to_date >= %s) OR
-					(from_date <= %s AND to_date >= %s) OR
-					(from_date >= %s AND to_date <= %s)
-				)
-		""", (doc.budget_against, doc.name, to_date, from_date, from_date, to_date, from_date, to_date))
+		if self.budget_against == "Company":
+			# Construct a query to find overlapping budgets for "Company"
+			overlapping_budgets = frappe.db.sql("""
+				SELECT name FROM `tabBudget`
+				WHERE
+					budget_against = %s
+					AND name != %s
+					AND (
+						(from_date <= %s AND to_date >= %s) OR
+						(from_date <= %s AND to_date >= %s) OR
+						(from_date >= %s AND to_date <= %s)
+					)
+			""", (self.budget_against, self.name, to_date, from_date, from_date, to_date, from_date, to_date))
 
-		# If any overlapping budget records are found, raise an error
-		if overlapping_budgets:
-			frappe.throw(f"An overlapping budget exists for {doc.budget_against} from {from_date} to {to_date}. "
+			# If any overlapping budget records are found, raise an error
+			if overlapping_budgets:
+				frappe.throw(f"An overlapping budget exists for {self.budget_against} from {from_date} to {to_date}. "
 							"Please adjust the date range to avoid conflicts.")
+
+		elif self.budget_against in ["Project", "Cost Center"]:
+			# Determine the field for budget_against value
+			budget_against_field = "project" if self.budget_against == "Project" else "cost_center"
+
+			# Check for an existing budget for the same project or cost center
+			duplicate_budget = frappe.db.sql(f"""
+				SELECT name FROM `tabBudget`
+				WHERE
+					budget_against = %s
+					AND {budget_against_field} = %s
+					AND name != %s
+			""", (self.budget_against, getattr(self, budget_against_field), self.name))
+
+			# If a duplicate budget is found, raise an error
+			if duplicate_budget:
+				frappe.throw(f"A budget already exists for {self.budget_against} '{getattr(self, budget_against_field)}'. "
+							"Only one budget is allowed for the same Project or Cost Center.")
+

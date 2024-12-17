@@ -84,6 +84,9 @@ class ExpenseEntry(Document):
 
 						if(self.Voucher_In_The_Same_Time()):
 							frappe.throw("Voucher with same time already exists.")
+    
+		if not self.credit_expense:
+			self.paid_amount = self.grand_total      
 
 	def on_submit(self):
 
@@ -98,12 +101,14 @@ class ExpenseEntry(Document):
 		# 	frappe.enqueue(self.do_postings_on_submit, queue="long")
 
 		self.do_postings_on_submit()
+		self.update_project_expenses()
 
 	def on_cancel(self):
 
 		update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
 
 		self.cancel_expense()
+		self.update_project_expenses(cancel=True)
 
 	def cancel_expense(self):
 
@@ -145,6 +150,7 @@ class ExpenseEntry(Document):
 			gl_doc.account = expense_entry.expense_account
 			gl_doc.debit_amount = expense_entry.amount
 			gl_doc.remarks = self.remarks;
+			gl_doc.project = self.project
 			gl_doc.insert()
 
 			idx += 1
@@ -175,6 +181,7 @@ class ExpenseEntry(Document):
 				gl_doc.account = tax.account
 				gl_doc.debit_amount = tax_amount
 				gl_doc.remarks = self.remarks;
+				gl_doc.project = self.project
 				gl_doc.insert()
 				idx += 1
 
@@ -195,6 +202,7 @@ class ExpenseEntry(Document):
 			gl_doc.party = supplier
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
+			gl_doc.project = self.project
 			gl_doc.insert()
 			idx += 1
 
@@ -343,5 +351,67 @@ class ExpenseEntry(Document):
 				frappe.log_error("Error creating payment schedule: " + str(e))
 				frappe.msgprint("An error occured while inserting payment schedule",indicator="red", alert = True)
 
-
 		frappe.db.commit()
+  
+	def update_project_expenses(self, cancel=False):
+     
+		if self.project:
+			# Exclude the current document and include only submitted documents
+			filters = {
+				"project": self.project,
+				"name": ["!=", self.name],  # Exclude the current document
+				"docstatus": 1  # Include only submitted documents
+			}
+
+			# Fetch all submitted expenses related to the project, excluding the current document
+			expenses = frappe.get_all(
+				"Expense Entry",
+				filters=filters,
+				fields=["name"]
+			)
+
+			total_excluded_tax = 0
+	
+			print(expenses)
+
+			# Iterate through each expense (other than the current document)
+			for expense in expenses:
+				# Fetch items for the current expense
+				expense_items = frappe.get_all(
+					"Expense Entry Details",
+					filters={"parent": expense.name},
+					fields=["amount_excluded_tax"]
+				)
+    
+				print("expense_items")
+				print(expense_items)
+
+				# Sum up the amount_excluded_tax for the items in this expense
+				for item in expense_items:
+					total_excluded_tax += item.get("amount_excluded_tax", 0)
+
+			# If not cancelling, add the current document's contribution
+			if not cancel:
+				# # Fetch items for the current document
+				# current_expense_items = frappe.get_all(
+				# 	"Expense Entry Details",
+				# 	filters={"parent": self.name},
+				# 	fields=["amount_excluded_tax"]
+				# )
+
+				# Add the current document's contribution to the total
+				for item in self.expense_entry_details:
+					total_excluded_tax += item.get("amount_excluded_tax", 0)
+
+			# Update the 'overheads' column in the Project
+			frappe.db.set_value(
+				"Project",
+				self.project,
+				"overheads",
+				total_excluded_tax
+			)
+
+			# Optional: Feedback or logging
+			frappe.msgprint(
+				f"The 'overheads' field of project {self.project} has been updated to {total_excluded_tax}.",alert=True
+			)

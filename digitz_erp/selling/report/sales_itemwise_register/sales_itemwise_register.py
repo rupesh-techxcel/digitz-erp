@@ -16,7 +16,7 @@ def get_chart_data(filters=None):
     query = """
         SELECT
             item_group,
-            sum(net_amount)
+            sum(sii.net_amount)
         FROM
             `tabSales Invoice Item` sii
         INNER JOIN
@@ -83,7 +83,7 @@ def get_data(filters):
             rate,
             gross_amount AS 'Amount',
             tax_amount AS 'Tax Amount',
-            net_amount AS 'Net Amount'
+            sii.net_amount AS 'Net Amount'
         FROM
             `tabSales Invoice Item` sii
         INNER JOIN

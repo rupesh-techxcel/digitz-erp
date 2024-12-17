@@ -22,10 +22,12 @@ class ProgressiveSalesInvoice(Document):
 
 	def on_submit(self):
 		self.do_postings_on_submit()
+		self.update_project_billed_amounts()
   
 	def on_cancel(self):
 		update_progress_entries_for_project(self.project)
 		delete_gl_postings_for_cancel_doc_type('Progressive Sales Invoice',self.name)
+		self.update_project_billed_amounts(cancel=True)
   
 	def on_trash(self):
 		update_progress_entries_for_project(self.project)
@@ -262,10 +264,10 @@ class ProgressiveSalesInvoice(Document):
 			gl_doc.insert()
 
 	def fill_cost_centers(self,gl_doc):
- 
+
 		gl_doc.project = self.project
 		gl_doc.cost_center = self.cost_center
-  
+
 	def get_narration(self):
 		
 		# Assign supplier, invoice_no, and remarks
@@ -291,4 +293,63 @@ class ProgressiveSalesInvoice(Document):
 		if remarks:
 			narration += f", {remarks}"
 
-		return narration    
+		return narration
+
+	def update_project_billed_amounts(self, cancel=False):
+		
+		if self.project:
+			# Define filters to fetch submitted invoices excluding the current document
+			filters = {
+				"project": self.project,
+				"name": ["!=", self.name],  # Exclude the current document
+				"docstatus": 1  # Include only submitted documents
+			}
+
+			total_billed_amount = 0
+			total_billed_amount_gross = 0
+
+			# Fetch all submitted Progressive Sales Invoices related to the project
+			progressive_sales_invoices = frappe.get_all(
+				"Progressive Sales Invoice",
+				filters=filters,
+				fields=["gross_total", "rounded_total"]
+			)
+
+			# Fetch all submitted Sales Invoices related to the project
+			sales_invoices = frappe.get_all(
+				"Sales Invoice",
+				filters=filters,
+				fields=["gross_total", "rounded_total"]
+			)
+
+			# Iterate through Progressive Sales Invoices
+			for invoice in progressive_sales_invoices:
+				total_billed_amount += invoice.get("rounded_total", 0)
+				total_billed_amount_gross += invoice.get("gross_total", 0)
+
+			# Iterate through Sales Invoices
+			for invoice in sales_invoices:
+				total_billed_amount += invoice.get("rounded_total", 0)
+				total_billed_amount_gross += invoice.get("gross_total", 0)
+
+			# If not cancelling, add the current document's contribution
+			if not cancel:
+				# Add the current document's gross_total and rounded_total
+				total_billed_amount += self.rounded_total or 0
+				total_billed_amount_gross += self.gross_total or 0
+
+			# Update the 'total_billed_amount' and 'total_billed_amount_gross' fields in the Project
+			frappe.db.set_value(
+				"Project",
+				self.project,
+				{
+					"total_billed_amount": total_billed_amount,
+					"total_billed_amount_gross": total_billed_amount_gross
+				}
+			)
+
+			# Optional: Feedback or logging
+			frappe.msgprint(
+				f"The 'total_billed_amount' and 'total_billed_amount_gross' fields of project {self.project} "
+				f"have been updated to {total_billed_amount} and {total_billed_amount_gross}, respectively.", alert=True
+			)

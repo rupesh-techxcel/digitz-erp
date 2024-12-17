@@ -589,8 +589,17 @@ frappe.ui.form.on('Purchase Order Item', {
 	// cdt is Child DocType name i.e Quotation Item
 	// cdn is the row name for e.g bbfcb8da6a
 	item(frm,cdt,cdn){
-		check_budget_utilization(frm, cdt, cdn,"Item");
-		update_item_row(frm,cdt,cdn);
+		let row = frappe.get_doc(cdt, cdn);
+		if(frm.doc.supplier)
+		{
+			check_budget_utilization(frm, cdt, cdn,"Item");
+			update_item_row(frm,cdt,cdn);
+		}
+		else{
+			frappe.msgprint("Select supplier to proceed further.")
+			row.item = ""
+		}
+		
 	},
 	tax_excluded(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
@@ -939,6 +948,7 @@ function update_total_big_display(frm) {
 }
 
 function check_budget_utilization(frm, cdt, cdn, reference_type) {
+
     const row = frappe.get_doc(cdt, cdn);
 
     // Ensure the item field is filled before proceeding

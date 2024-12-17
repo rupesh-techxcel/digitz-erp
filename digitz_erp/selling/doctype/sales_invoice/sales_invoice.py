@@ -111,7 +111,7 @@ class SalesInvoice(Document):
         if self.for_advance_payment:
             progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project})
             if progress_entry_exists:
-                frappe.throw(f"Project '{self.project}' already has progress entries. Advance amount will not be updated.", alert=True)
+                frappe.throw(f"Project '{self.project}' already has progress entries. Advance amount will not be updated.")
                 return 
 
     def validate_duplicate_advance_entry_for_project(self):
@@ -187,6 +187,7 @@ class SalesInvoice(Document):
             # frappe.enqueue(self.do_postings_on_submit, queue="long")
             # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
         self.do_postings_on_submit()
+        self.update_project_billed_amounts()
         
 
         # if(self.auto_generate_delivery_note):
@@ -319,6 +320,7 @@ class SalesInvoice(Document):
             check_and_update_sales_order_status(self.name, "Sales Invoice")
         self.cancel_sales_invoice()
         self.update_project_advance_amount(for_cancel=True)
+        self.update_project_billed_amounts(cancel=True)
 
     def on_trash(self):
 
@@ -1255,6 +1257,7 @@ class SalesInvoice(Document):
                 frappe.delete_doc("Receipt Schedule", entry.name)
             except Exception as e:
                 frappe.log_error("Error deleting receipt schedule: " + str(e))
+                
         if self.credit_sale and self.receipt_schedule:
             for schedule in self.receipt_schedule:
                 new_receipt_schedule = frappe.new_doc("Receipt Schedule")
@@ -1268,6 +1271,65 @@ class SalesInvoice(Document):
                     new_receipt_schedule.insert()
                 except Exception as e:
                     frappe.log_error("Error creating receipt schedule: " + str(e))
+                    
+    def update_project_billed_amounts(self, cancel=False):
+            
+        if self.project:
+            # Define filters to fetch submitted invoices excluding the current document
+            filters = {
+                "project": self.project,
+                "name": ["!=", self.name],  # Exclude the current document
+                "docstatus": 1  # Include only submitted documents
+            }
+
+            total_billed_amount = 0
+            total_billed_amount_gross = 0
+
+            # Fetch all submitted Sales Invoices related to the project
+            sales_invoices = frappe.get_all(
+                "Sales Invoice",
+                filters=filters,
+                fields=["gross_total", "rounded_total"]
+            )
+
+            # Fetch all submitted Progressive Sales Invoices related to the project
+            progressive_sales_invoices = frappe.get_all(
+                "Progressive Sales Invoice",
+                filters=filters,
+                fields=["gross_total", "rounded_total"]
+            )
+
+            # Iterate through Sales Invoices
+            for invoice in sales_invoices:
+                total_billed_amount += invoice.get("rounded_total", 0)
+                total_billed_amount_gross += invoice.get("gross_total", 0)
+
+            # Iterate through Progressive Sales Invoices
+            for invoice in progressive_sales_invoices:
+                total_billed_amount += invoice.get("rounded_total", 0)
+                total_billed_amount_gross += invoice.get("gross_total", 0)
+
+            # If not cancelling, add the current document's contribution
+            if not cancel:
+                # Add the current document's gross_total and rounded_total
+                total_billed_amount += self.rounded_total or 0
+                total_billed_amount_gross += self.gross_total or 0
+
+            # Update the 'total_billed_amount' and 'total_billed_amount_gross' fields in the Project
+            frappe.db.set_value(
+                "Project",
+                self.project,
+                {
+                    "total_billed_amount": total_billed_amount,
+                    "total_billed_amount_gross": total_billed_amount_gross
+                }
+            )
+
+            # Optional: Feedback or logging
+            frappe.msgprint(
+                f"The 'total_billed_amount' and 'total_billed_amount_gross' fields of project {self.project} "
+                f"have been updated to {total_billed_amount} and {total_billed_amount_gross}, respectively.", alert= True
+            )
 
     @frappe.whitelist()
     def generate_sales_invoice(self):
@@ -1393,3 +1455,4 @@ class SalesInvoice(Document):
             })
 
         return formatted_stock_ledgers
+    
