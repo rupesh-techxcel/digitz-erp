@@ -11,7 +11,8 @@ from frappe.utils import money_in_words
 class SalesOrder(Document):
 	 
 	def before_validate(self):
-		self.in_words = money_in_words(self.rounded_total,"AED")
+		if self.rounded_total:
+			self.in_words = money_in_words(self.rounded_total,"AED")
 		
 		if self.is_new():
 			for item in self.items:
