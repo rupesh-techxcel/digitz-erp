@@ -91,10 +91,10 @@
   "warehouse",
   "salesman",
   "salesman_code",
-  "amended_from",
   "receipt_schedule_tab",
   "paid_amount",
-  "table_zuhz"
+  "table_zuhz",
+  "amended_from"
  ],
  "fields": [
   {
@@ -629,7 +629,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-26 16:27:55.487680",
+ "modified": "2024-12-16 22:32:35.137561",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",
