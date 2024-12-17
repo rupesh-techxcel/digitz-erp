@@ -14,7 +14,6 @@
   "customer",
   "column_break_2",
   "schedule_date",
-  "project",
   "approved",
   "approve_all_items",
   "column_break_mfsc",
@@ -23,6 +22,8 @@
   "edit_posting_date_and_time",
   "column_break_iwsh",
   "company",
+  "project",
+  "default_cost_center",
   "warehouse_section",
   "source_warehouse",
   "column_break5",
@@ -103,7 +104,8 @@
    "fieldname": "schedule_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Required By"
+   "label": "Required By",
+   "reqd": 1
   },
   {
    "fieldname": "project",
@@ -237,6 +239,12 @@
    "fieldname": "approve_all_items",
    "fieldtype": "Button",
    "label": "Approve all items"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "icon": "fa fa-ticket",
@@ -247,7 +255,7 @@
    "link_fieldname": "material_request"
   }
  ],
- "modified": "2024-12-17 12:02:32.622950",
+ "modified": "2024-12-17 17:32:15.529694",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",

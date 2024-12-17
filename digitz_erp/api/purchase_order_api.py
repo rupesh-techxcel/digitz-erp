@@ -104,6 +104,7 @@ def create_purchase_order_from_material_request(material_request):
 
     # Set basic fields from Material Request
     po.project = material_request_doc.project
+    po.default_cost_center = material_request_doc.default_cost_center
     po.warehouse = material_request_doc.target_warehouse
     po.company = material_request_doc.company
     po.due_date = material_request_doc.schedule_date
@@ -192,7 +193,7 @@ def create_purchase_receipt_for_purchase_order(purchase_order):
     purchase_receipt.supplier_inv_no = purchase_doc.supplier_inv_no
     purchase_receipt.rate_includes_tax = purchase_doc.rate_includes_tax
     purchase_receipt.credit_purchase = purchase_doc.credit_purchase
-    purchase_receipt.cost_center = purchase_doc.cost_center
+    purchase_receipt.default_cost_center = purchase_doc.cost_center
     purchase_receipt.project = purchase_doc.project
 
     purchase_receipt.credit_days = purchase_doc.credit_days
@@ -282,6 +283,8 @@ def create_purchase_invoice_for_purchase_order(purchase_order):
     purchase_invoice = frappe.new_doc("Purchase Invoice")
     purchase_invoice.supplier = purchase_doc.supplier
     purchase_invoice.company = purchase_doc.company
+    purchase_invoice.project = purchase_doc.project
+    purchase_invoice.default_cost_center = purchase_doc.default_cost_center
     purchase_invoice.supplier_address = purchase_doc.supplier_address
     purchase_invoice.tax_id = purchase_doc.tax_id
     purchase_invoice.posting_date = purchase_doc.posting_date

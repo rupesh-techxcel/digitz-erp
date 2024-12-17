@@ -27,9 +27,9 @@
   "do_no",
   "column_break_kkhx",
   "company",
-  "warehouse",
   "default_cost_center",
   "project",
+  "warehouse",
   "accounts_section",
   "credit_purchase",
   "credit_days",
@@ -477,7 +477,7 @@
    "link_fieldname": "purchase_receipt"
   }
  ],
- "modified": "2024-11-19 14:20:27.074552",
+ "modified": "2024-12-17 16:49:13.115543",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt",

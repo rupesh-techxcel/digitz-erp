@@ -24,10 +24,11 @@
   "warehouse",
   "order_status",
   "due_date",
-  "project",
   "material_request",
   "column_break_qeth",
   "company",
+  "project",
+  "default_cost_center",
   "do_no",
   "supplier_inv_no",
   "accounts_section",
@@ -430,6 +431,12 @@
   {
    "fieldname": "total_big",
    "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
   }
  ],
  "is_submittable": 1,
@@ -443,7 +450,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2024-11-25 08:30:42.817707",
+ "modified": "2024-12-17 16:58:14.413905",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",
