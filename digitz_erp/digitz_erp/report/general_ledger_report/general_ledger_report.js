@@ -42,7 +42,20 @@ frappe.query_reports["General Ledger Report"] = {
 			"fieldtype": "Date",
 			"label": "To Date",			
 			"default":frappe.datetime.month_end()	
-		},
+		},		
+		{		
+			"fieldname": "project",
+			"fieldtype": "Link",
+			"label": "Project",
+			"options": "Project",
+			"get_query": function() {
+				return {
+					filters: [
+						["disabled", "=", 0]  // Filter active projects
+					]
+				};
+			}
+		},		
 		{		
 			"fieldname": "order_by_account",
 			"fieldtype": "Check",

@@ -134,9 +134,9 @@ frappe.ui.form.on("Material Request", {
 						},
 						callback: (r2) => {
 
-							frm.doc.warehouse = r2.message.default_warehouse;
-							
-							frm.refresh_field("warehouse");							
+                            frm.set_value("target_warehouse", r2.message.default_warehouse)
+														
+							frm.refresh_field("target_warehouse");							
 
 						}
 					}

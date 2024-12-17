@@ -9,8 +9,8 @@
  "field_order": [
   "expense_type",
   "expense_head",
-  "expense_account",
   "tax_excluded",
+  "expense_account",
   "column_break_bdvm7",
   "tax",
   "tax_rate"
@@ -21,14 +21,6 @@
    "fieldtype": "Data",
    "label": "Expense Head",
    "unique": 1
-  },
-  {
-   "fieldname": "expense_account",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Expense Account",
-   "options": "Account",
-   "reqd": 1
   },
   {
    "default": "0",
@@ -59,11 +51,17 @@
    "fieldtype": "Select",
    "label": "Expense Type",
    "options": "Expense\nWork In Progress"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Account",
+   "options": "Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-16 14:09:45.223782",
+ "modified": "2024-12-16 20:55:23.828193",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Head",

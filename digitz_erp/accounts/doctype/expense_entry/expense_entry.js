@@ -138,7 +138,24 @@ frappe.ui.form.on('Expense Entry', {
   {
     fill_payment_schedule(frm)
   },
+  work_order:function(frm){
 
+    if(frm.doc.work_order !=undefined)
+      {
+        frappe.call({
+          method: 'frappe.client.get_value',
+          args: {
+            'doctype': 'Work Order',
+            'filter':{'name':frm.doc.work_order},
+            'fieldname': 'project'
+          },
+          callback: (r) => {
+            project = r.message.project
+            frm.set_value('project',project);            
+          }
+          });
+      }
+  },
 });
 
 frappe.ui.form.on('Expense Entry Details',{

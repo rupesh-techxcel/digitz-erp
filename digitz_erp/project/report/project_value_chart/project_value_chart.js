@@ -13,7 +13,7 @@ frappe.query_reports["Project Value Chart"] = {
                 return {
                     filters: {
                         status: "Open",
-                        cancelled: 0,
+                        docstatus: ['<', 0],
                     }
                 };
             }

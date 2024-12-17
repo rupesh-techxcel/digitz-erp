@@ -17,6 +17,14 @@ class Project(Document):
         progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project_name})
         if not progress_entry_exists and self.docstatus ==0:     
             frappe.msgprint("Submit the document to create the first 'Progress Entry' for the project.", alert=True)
+            
+    def before_cancel(self):
+        # Check if rows exist in the 'project_stage_table'
+        if self.project_stage_table:
+            frappe.throw(
+                _("Cannot cancel the Project because there are rows in the 'Project Progress' table. "
+                "Please delete the project progress entries before cancelling.")
+            )
 
     def update_advance_amount(self):
         

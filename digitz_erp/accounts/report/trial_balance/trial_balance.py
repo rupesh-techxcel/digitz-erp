@@ -40,8 +40,8 @@ def execute(filters=None):
  
 def get_data_for_root_type(filters, root_type):
      # data = get_data(filters)
-	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type)
-	 
+	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type,project=filters.get('project') )
+ 	 
 	accounts_from_table = frappe.db.sql(
     """
 		SELECT

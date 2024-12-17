@@ -32,20 +32,23 @@ class ProgressEntry(Document):
 		project.reload()
   
 	def on_trash(self):
-			
+					
 		"""
 		Override the on_trash event to remove the progress entry from the associated project first.
 		"""
 		if self.project:
 			# Fetch the linked project
 			project_doc = frappe.get_doc('Project', self.project)
+   
+			# If the project is already in a cancelled state, system will note allow to edit it. so check it
+			if project_doc.docstatus < 2:
 
-			# Remove the progress entry reference from the child table
-			project_doc.project_stage_table = [
-				stage for stage in project_doc.project_stage_table if stage.progress_entry != self.name
-			]
+				# Remove the progress entry reference from the child table
+				project_doc.project_stage_table = [
+					stage for stage in project_doc.project_stage_table if stage.progress_entry != self.name
+				]
 
-			# Save the project to reflect the changes
-			project_doc.save(ignore_permissions=True)
+				# Save the project to reflect the changes
+				project_doc.save(ignore_permissions=True)
 
 		
