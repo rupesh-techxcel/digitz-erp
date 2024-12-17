@@ -522,7 +522,7 @@ class PurchaseReceipt(Document):
 			
 			# Optional: Feedback or logging
 			frappe.msgprint(
-				f"The 'Purchase Cost' of project {self.project} have been updated successfully"
+				f"The 'Purchase Cost' of project {self.project} have been updated successfully", alert=True
 			)
 
 @frappe.whitelist()
