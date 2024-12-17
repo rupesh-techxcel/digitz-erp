@@ -413,5 +413,5 @@ class ExpenseEntry(Document):
 
 			# Optional: Feedback or logging
 			frappe.msgprint(
-				f"The 'overheads' field of project {self.project} has been updated to {total_excluded_tax}.",alert=True
+				f"The 'overheads' of project {self.project} has been updated successfully.",alert=True
 			)

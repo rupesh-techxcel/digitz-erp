@@ -16,6 +16,7 @@
   "schedule_date",
   "project",
   "approved",
+  "approve_all_items",
   "column_break_mfsc",
   "posting_date",
   "posting_time",
@@ -231,6 +232,11 @@
    "fieldname": "approved",
    "fieldtype": "Check",
    "label": "Approved"
+  },
+  {
+   "fieldname": "approve_all_items",
+   "fieldtype": "Button",
+   "label": "Approve all items"
   }
  ],
  "icon": "fa fa-ticket",
@@ -241,7 +247,7 @@
    "link_fieldname": "material_request"
   }
  ],
- "modified": "2024-11-25 08:31:49.205894",
+ "modified": "2024-12-17 12:02:32.622950",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",
