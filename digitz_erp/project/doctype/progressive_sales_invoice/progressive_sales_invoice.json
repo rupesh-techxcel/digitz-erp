@@ -93,8 +93,7 @@
   "salesman_code",
   "amended_from",
   "receipt_schedule_tab",
-  "paid_amount",
-  "table_zuhz"
+  "paid_amount"
  ],
  "fields": [
   {
@@ -610,11 +609,6 @@
    "fieldname": "project_advance_percentage",
    "fieldtype": "Percent",
    "label": "Project Advance Percentage"
-  },
-  {
-   "fieldname": "table_zuhz",
-   "fieldtype": "Table",
-   "options": "Sales Receipt Schedule"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -629,7 +623,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-26 16:27:55.487680",
+ "modified": "2024-12-18 12:27:54.630211",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",
