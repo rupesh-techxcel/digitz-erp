@@ -489,6 +489,42 @@ class PurchaseReceipt(Document):
 
 		update_posting_status(self.doctype, self.name, 'posting_status', 'Completed')
 
+	def update_project_purchase_amount(self, cancel=False):
+		if self.project:
+			# Define filters to fetch submitted purchase receipts excluding the current document
+			filters = {
+				"project": self.project,
+				"name": ["!=", self.name],  # Exclude the current document
+				"docstatus": 1  # Include only submitted documents
+			}
+
+			total_received_amount_gross = 0
+
+			# Fetch all submitted Purchase Receipts related to the project
+			purchase_receipts = frappe.get_all(
+				"Purchase Receipt",
+				filters=filters,
+				fields=["rounded_total", "gross_total"]
+			)
+
+			# Iterate through Purchase Receipts
+			for receipt in purchase_receipts:				
+				total_received_amount_gross += receipt.get("gross_total", 0)
+
+			# If not cancelling, add the current document's contribution
+			if not cancel:
+       
+				# Add the current document's gross_total and rounded_total				
+				total_received_amount_gross += self.gross_total or 0
+
+			# Update the 'total_received_amount' and 'total_received_amount_gross' fields in the Project
+			frappe.db.set_value("Project",self.project,{"purchase_cost_gross": total_received_amount_gross})
+			
+			# Optional: Feedback or logging
+			frappe.msgprint(
+				f"The 'Purchase Cost' of project {self.project} have been updated successfully", alert=True
+			)
+
 @frappe.whitelist()
 def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 
@@ -498,6 +534,8 @@ def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 	purchase_invoice = frappe.new_doc("Purchase Invoice")
 	purchase_invoice.supplier = purchase_doc.supplier
 	purchase_invoice.company = purchase_doc.company
+	purchase_invoice.project = purchase_doc.project
+	purchase_invoice.default_cost_center = purchase_doc.default_cost_center
 	purchase_invoice.supplier_address = purchase_doc.supplier_address
 	purchase_invoice.tax_id = purchase_doc.tax_id
 	purchase_invoice.posting_date = purchase_doc.posting_date
@@ -580,48 +618,3 @@ def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 	# 	frappe.msgprint("Purchase Invoice cannot be created because there are no pending items in the Purchase Order.")
 	# 	return "No Pending Items"
 	
-def update_project_purchase_amount(self, cancel=False):
-	if self.project:
-		# Define filters to fetch submitted purchase receipts excluding the current document
-		filters = {
-			"project": self.project,
-			"name": ["!=", self.name],  # Exclude the current document
-			"docstatus": 1  # Include only submitted documents
-		}
-
-		total_received_amount = 0
-		total_received_amount_gross = 0
-
-		# Fetch all submitted Purchase Receipts related to the project
-		purchase_receipts = frappe.get_all(
-			"Purchase Receipt",
-			filters=filters,
-			fields=["rounded_total", "gross_total"]
-		)
-
-		# Iterate through Purchase Receipts
-		for receipt in purchase_receipts:
-			total_received_amount += receipt.get("rounded_total", 0)
-			total_received_amount_gross += receipt.get("gross_total", 0)
-
-		# If not cancelling, add the current document's contribution
-		if not cancel:
-			# Add the current document's gross_total and rounded_total
-			total_received_amount += self.rounded_total or 0
-			total_received_amount_gross += self.gross_total or 0
-
-		# Update the 'total_received_amount' and 'total_received_amount_gross' fields in the Project
-		frappe.db.set_value(
-			"Project",
-			self.project,
-			{
-				"total_received_amount": total_received_amount,
-				"total_received_amount_gross": total_received_amount_gross
-			}
-		)
-
-		# Optional: Feedback or logging
-		frappe.msgprint(
-			f"The 'total_received_amount' and 'total_received_amount_gross' fields of project {self.project} "
-			f"have been updated to {total_received_amount} and {total_received_amount_gross}, respectively."
-		)

@@ -349,7 +349,6 @@ class ProgressiveSalesInvoice(Document):
 			)
 
 			# Optional: Feedback or logging
-			frappe.msgprint(
-				f"The 'total_billed_amount' and 'total_billed_amount_gross' fields of project {self.project} "
-				f"have been updated to {total_billed_amount} and {total_billed_amount_gross}, respectively.", alert=True
-			)
+			frappe.msgprint(f"The billed amount has been successfully updated for the project: {self.project}", alert=True)
+
+			

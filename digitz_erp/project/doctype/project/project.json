@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:project_name",
+ "autoname": "field:project_short_name",
  "creation": "2024-07-01 14:50:14.136177",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -186,7 +186,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Project Short Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "project_name",
@@ -430,7 +431,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-12-16 21:50:34.352138",
+ "modified": "2024-12-18 12:25:59.475250",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

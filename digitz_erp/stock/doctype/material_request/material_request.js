@@ -96,6 +96,19 @@ frappe.ui.form.on("Material Request", {
             }
         }
     },    
+    approve_all_items: function(frm) {
+        // Iterate through all rows in the 'items' child table
+        $.each(frm.doc.items, function(index, row) {
+            row.qty_approved = row.qty; // Set approved_quantity to match quantity
+        });
+        
+        frm.set_value('approved',true)
+
+        // Refresh the child table to reflect the changes in the UI
+        frm.refresh_field('items');
+
+        frappe.msgprint(__('All quantities have been approved successfully.'));
+    },
     edit_posting_date_and_time(frm)
     {
         if (frm.doc.edit_posting_date_and_time == 1) {

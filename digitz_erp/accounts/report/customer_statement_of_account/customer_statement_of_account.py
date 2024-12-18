@@ -98,7 +98,7 @@ def get_data_customer_wise(filters):
 			posting_date
 		FROM `tabSales Invoice`
 		WHERE 
-			(docstatus = 1 or docstatus = 0) 
+			(docstatus = 1) 
 			AND credit_sale = 1 
 			AND {customer_condition}
 			AND ({date_condition} OR {opening_date_condition})

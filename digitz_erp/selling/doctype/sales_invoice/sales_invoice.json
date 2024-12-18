@@ -2,7 +2,7 @@
  "actions": [],
  "allow_copy": 1,
  "allow_rename": 1,
- "autoname": "naming_series:",
+ "autoname": "prompt",
  "creation": "2023-01-04 16:31:16.689825",
  "default_view": "List",
  "doctype": "DocType",
@@ -728,11 +728,11 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-11-28 09:28:36.784597",
+ "modified": "2024-12-18 12:26:52.116106",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
- "naming_rule": "By \"Naming Series\" field",
+ "naming_rule": "Set by user",
  "owner": "Administrator",
  "permissions": [
   {
