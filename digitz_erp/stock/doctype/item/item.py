@@ -65,8 +65,8 @@ class Item(Document):
 			"Global Settings", "default_company")
 
 			company_default = frappe.get_value("Company", default_company, ['default_product_expense_account'], as_dict=1)
-      
-  			if company_default.default_product_expense_account:
+		
+			if company_default.default_product_expense_account:
 				self.default_expense_account  = company_default.default_expense_account
 
 	def update_standard_selling_price(self):
