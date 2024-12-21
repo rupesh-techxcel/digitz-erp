@@ -2,7 +2,6 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Purchase Receipt", {
-
 	show_a_message: function (frm,message) {
 		frappe.call({
 			method: 'digitz_erp.api.settings_api.show_a_message',
@@ -75,8 +74,6 @@ frappe.ui.form.on('Purchase Receipt', {
 
 	refresh:function (frm) {
 		if (frm.doc.docstatus == 1) {
-
-
 			if (frappe.user.has_role('Management')) {
 				if(!frm.is_new() && (frm.doc.docstatus == 1)){
 				frm.add_custom_button('General Ledgers',() =>{
@@ -111,7 +108,43 @@ frappe.ui.form.on('Purchase Receipt', {
 					frappe.set_route("Form", "Purchase Invoice", r.message);
 				},
 			  });
-			});
+			}, "Action");
+			// create material issue button
+			frm.add_custom_button("Create Material Issue", () => {
+				// redirect to material issue form
+				frappe.route_options = {
+					"project": frm.doc.project,
+					"company":frm.doc.company,
+				};
+				frappe.new_doc('Material Issue');
+				// frappe.set_route("Form", "Material Issue", "new");
+			
+			  }, "Action");
+
+			  frm.add_custom_button("Create Purchase Invoice", () => {
+				frappe.call({
+				  method:
+					"digitz_erp.buying.doctype.purchase_receipt.purchase_receipt.generate_purchase_invoice_for_purchase_receipt",
+				  args: {
+					purchase_receipt: frm.doc.name,
+				  },
+				  callback: function (r) {
+					frappe.show_alert(
+					  {
+						message: __(
+						  "The purchase invoice has been successfully generated and saved in draft mode."
+						),
+						indicator: "green",
+					  },
+					  3
+					);
+					frm.reload_doc();
+					if (r.message != "No Pending Items")
+					  frappe.set_route("Form", "Purchase Invoice", r.message);
+				  },
+				});
+			  }, "Action");
+
 		  }
 
 		update_total_big_display(frm)
