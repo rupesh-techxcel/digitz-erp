@@ -34,7 +34,7 @@ class Item(Document):
 				frappe.throw("Cannot change base unit as it's being used in stock ledgers.")
     
 	def before_validate(self):
-     
+		
 		base_unit_exists = False
 		# Loop through the rows in the child table 'Item Unit'
 		for row in self.units:
@@ -54,10 +54,20 @@ class Item(Document):
 			
 		if not self.description:
 			self.description = self.item_name
-   
+
 		if self.item_type == "Fixed Asset" and self.maintain_stock:
 			self.maintain_stock = False
 			frappe.msgprint("Maintaining stock for fixed assets is not applicable. It has been set to false.",alert=True)
+
+		if not self.default_expense_account:
+      
+			default_company = frappe.db.get_single_value(
+			"Global Settings", "default_company")
+
+			company_default = frappe.get_value("Company", default_company, ['default_product_expense_account'], as_dict=1)
+		
+			if company_default.default_product_expense_account:
+				self.default_expense_account  = company_default.default_expense_account
 
 	def update_standard_selling_price(self):
 

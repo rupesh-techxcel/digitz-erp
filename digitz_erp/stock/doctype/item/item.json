@@ -54,6 +54,7 @@
    "in_global_search": 1,
    "in_standard_filter": 1,
    "label": "Item Name",
+   "reqd": 1,
    "unique": 1
   },
   {
@@ -61,7 +62,8 @@
    "fieldname": "base_unit",
    "fieldtype": "Link",
    "label": "Base Unit",
-   "options": "Unit"
+   "options": "Unit",
+   "reqd": 1
   },
   {
    "default": "Default Item Group",
@@ -201,7 +203,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Item Type",
-   "options": "Product\nService\nLabour\nMaterial\nFixed Asset\nBOQ Product\nBOM Product"
+   "options": "Product\nService\nLabour\nMaterial\nFixed Asset\nBOQ Product\nBOM Product",
+   "reqd": 1
   },
   {
    "fieldname": "default_expense_account",
@@ -234,7 +237,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-27 15:17:06.336114",
+ "modified": "2024-12-19 13:23:09.895302",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
