@@ -323,12 +323,14 @@
    "label": "Total Billed Amount"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "retention_percentage",
    "fieldtype": "Percent",
    "label": "Retention Percentage",
    "precision": "0"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "retention_amount",
    "fieldtype": "Float",
    "label": "Retention Amount",
@@ -431,7 +433,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-12-18 12:25:59.475250",
+ "modified": "2024-12-20 18:04:39.400140",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",
