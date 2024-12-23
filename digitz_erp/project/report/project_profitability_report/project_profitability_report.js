@@ -8,7 +8,15 @@ frappe.query_reports["Project Profitability Report"] = {
 			"label": "Project",
 			"fieldtype": "Link",
 			"options": "Project",
-			"reqd": 0
+			"reqd": 0,
+			"get_query": () => {
+                return {
+                    filters: {
+                        status: "Open",
+                        docstatus: 1,
+                    }
+                };
+            }
 		}
 	]
 };
