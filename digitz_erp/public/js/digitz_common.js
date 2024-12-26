@@ -144,5 +144,5 @@ let stock_ledgers = function (frm) {
 };
 
 // Export the function to make it reusable
-export { general_ledgers };
-export { stock_ledgers };
+// export { general_ledgers };
+// export { stock_ledgers };

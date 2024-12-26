@@ -115,7 +115,9 @@ frappe.ui.form.on('Purchase Receipt', {
 				frappe.route_options = {
 					"project": frm.doc.project,
 					"company":frm.doc.company,
+					// "items_data": JSON.stringify(frm.doc.items)
 				};
+				sessionStorage.setItem("items_material_issue_btn", JSON.stringify(frm.doc.items));
 				frappe.new_doc('Material Issue');
 				// frappe.set_route("Form", "Material Issue", "new");
 			
