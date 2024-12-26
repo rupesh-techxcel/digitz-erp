@@ -77,7 +77,7 @@
    "fieldtype": "Percent",
    "in_list_view": 1,
    "label": "Total Completion %",
-   "precision": "0"
+   "precision": "2"
   },
   {
    "fieldname": "sales_order_amt",
@@ -175,6 +175,7 @@
    "fieldname": "current_completion",
    "fieldtype": "Percent",
    "label": "Current Completion %",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -218,7 +219,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-11-24 08:14:13.986314",
+ "modified": "2024-12-25 11:38:00.505966",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry Item",

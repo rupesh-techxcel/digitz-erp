@@ -361,7 +361,7 @@
    "fieldname": "total_completion_percentage",
    "fieldtype": "Percent",
    "label": "Project Completion Percentage",
-   "precision": "0"
+   "precision": "2"
   },
   {
    "fieldname": "section_break_29",
@@ -552,7 +552,8 @@
   {
    "fieldname": "previous_completion_percentage",
    "fieldtype": "Percent",
-   "label": "Previous Completion Percentage"
+   "label": "Previous Completion Percentage",
+   "precision": "2"
   },
   {
    "fieldname": "deduction_for_retention",
@@ -592,7 +593,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-26 11:47:53.442564",
+ "modified": "2024-12-25 12:01:00.623656",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

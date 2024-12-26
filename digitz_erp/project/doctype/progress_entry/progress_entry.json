@@ -446,7 +446,7 @@
    "fieldtype": "Percent",
    "in_list_view": 1,
    "label": "Project Completion Percentage",
-   "precision": "0",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -494,6 +494,7 @@
    "fieldtype": "Percent",
    "in_list_view": 1,
    "label": "Previous Completion Percentage",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -582,7 +583,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-12-06 20:18:34.762272",
+ "modified": "2024-12-25 11:09:36.729820",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",
