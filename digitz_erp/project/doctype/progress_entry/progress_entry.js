@@ -417,15 +417,13 @@ function update_progress(frm) {
     }
   }
 
+  console.log("total_weighted_completion",total_weighted_completion)
+
   // Calculate average completion percentage based on item_net_amount
   let average_completion = total_item_net_amount > 0 ? (total_weighted_completion / total_item_net_amount) * 100 : 0;
 
-  let rounded_completion = Math.round(average_completion);
-
   // Set the average value in the form
-  frm.set_value("total_completion_percentage", rounded_completion);
-
-  console.log("new completion", rounded_completion) 
+  frm.set_value("total_completion_percentage", average_completion);
 
 }
 
