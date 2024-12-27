@@ -13,7 +13,7 @@ frappe.query_reports["Project Progress Report"] = {
                 return {
                     filters: {
                         status: "Open",
-                        cancelled: 0,
+                        docstatus: 1,
                     }
                 };
             }
