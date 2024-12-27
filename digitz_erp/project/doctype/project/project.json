@@ -338,6 +338,7 @@
    "precision": "2"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "amount_after_retention",
    "fieldtype": "Float",
    "label": "Amount After Retention",
@@ -433,7 +434,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2024-12-23 21:55:30.997197",
+ "modified": "2024-12-27 17:51:05.615174",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",
