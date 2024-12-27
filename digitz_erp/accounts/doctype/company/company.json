@@ -18,7 +18,6 @@
   "tax_id",
   "column_break_9",
   "company_logo",
-  "company_logo_display",
   "default_currency",
   "default_bank_account",
   "bank_ac_print_details",
@@ -125,11 +124,6 @@
    "fieldname": "company_logo",
    "fieldtype": "Attach Image",
    "label": "Company Logo"
-  },
-  {
-   "fieldname": "company_logo_display",
-   "fieldtype": "Image",
-   "label": "Company Logo Display"
   },
   {
    "fieldname": "inventory_settings_tab",
@@ -530,9 +524,10 @@
    "label": "Width and height applicable in estimate"
   }
  ],
+ "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-12-14 06:14:53.203868",
+ "modified": "2024-12-26 21:23:17.303206",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
