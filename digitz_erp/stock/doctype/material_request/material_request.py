@@ -70,3 +70,27 @@ class MaterialRequest(Document):
 
 		if not any_approved_qty:
 			frappe.throw("No items have approved quantities to allow the document to be submitted.")
+   
+	def before_validate(self):
+          
+		self.copy_budget_items_to_items()
+   
+	def copy_budget_items_to_items(self):
+	
+		for budget_item_row in self.budgeted_items:
+			item_row = self.append('items',{})
+			item_row.item = budget_item_row.item_code
+			item_row.item_name = budget_item_row.item_name
+			item_row.description  = budget_item_row.description
+			item_row.schedule_date = budget_item_row.schedule_date
+			item_row.unit = budget_item_row.unit
+			item_row.conversion_factor = item_row.conversion_factor if item_row.conversion_factor else 1		
+
+			item_row.qty = budget_item_row.qty
+			item_row.project = budget_item_row.project
+			item_row.target_warehouse = budget_item_row.target_warehouse
+			frappe.msgprint("Items selected form budgets added to the items collection, if you want to edit or delete you can do it from items table", alert=True)
+
+		# Clear the budgeted_items table
+		self.set('budgeted_items', [])
+	

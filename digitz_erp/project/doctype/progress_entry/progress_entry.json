@@ -24,6 +24,7 @@
   "is_prev_progress_exists",
   "previous_progress_entry",
   "boq_total",
+  "boq_with_manual_item_selection",
   "column_break_ivtt",
   "company",
   "section_break_qxfb",
@@ -569,6 +570,13 @@
    "fieldname": "sales_order_additional_discount",
    "fieldtype": "Currency",
    "label": "Sales Order Additional Discount"
+  },
+  {
+   "default": "0",
+   "fieldname": "boq_with_manual_item_selection",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "BOQ With manual item selection"
   }
  ],
  "in_create": 1,
@@ -583,7 +591,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2024-12-25 11:09:36.729820",
+ "modified": "2025-01-08 20:29:11.983136",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

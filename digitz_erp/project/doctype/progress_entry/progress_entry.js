@@ -97,8 +97,7 @@ frappe.ui.form.on("Progress Entry", {
 
         if (frm.doc.is_prev_progress_exists === 0) {
             frm.set_value("total_completion_percentage", 0);
-            
-
+     
             if (frm.doc.sales_order) {
 
                 // Fetch sales order and check if BOQ exists
@@ -610,11 +609,14 @@ function get_default_company_and_warehouse(frm) {
                   frappe.db.get_value(
                       "Company", 
                       frm.doc.company, 
-                      ["tax_excluded", "tax"]
+                      ["tax_excluded", "tax","boq_with_manual_item_selection"]
                   ).then((res) => {
                       if (res && res.message) {
                           frm.set_value('tax_excluded', res.message.tax_excluded);
                           frm.set_value('tax', res.message.tax);
+                          frm.set_value('boq_with_manual_item_selection',res.message.boq_with_manual_item_selection)
+
+
 
                           // Check if tax_excluded is false, then fetch tax_rate from Tax doctype
                           if (!res.message.tax_excluded) {
