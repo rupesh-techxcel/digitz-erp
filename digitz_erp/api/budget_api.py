@@ -22,4 +22,38 @@ def item_group_query(*args, **kwargs):
     """, as_dict=True)
     
     return data
-    
+
+@frappe.whitelist()
+def get_items_from_estimate(project):
+    if not project:
+        frappe.throw("Project parameter is required")
+
+    query = """
+        SELECT            
+            teiml.sub_item AS 'Item',
+            SUM(teiml.quantity) AS 'Quantity',
+            SUM(teiml.amount) / SUM(teiml.quantity) AS 'Rate',
+            SUM(teiml.amount) AS 'Amount'
+        FROM
+            `tabEstimation Item Material And Labour` AS teiml
+        INNER JOIN
+            `tabEstimate` AS e ON e.name = teiml.parent
+        WHERE
+            teiml.type = 'Material'
+            AND e.project_short_name = %s 
+            AND e.docstatus = 1
+            AND teiml.docstatus = 1
+        GROUP BY
+            teiml.sub_item
+    """
+    items = frappe.db.sql(query, project, as_dict=True)
+
+    # Return an empty list if no items are found
+    if not items:
+        return []
+
+    return items
+
+
+
+

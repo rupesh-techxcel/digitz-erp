@@ -80,7 +80,11 @@
   "system_tab",
   "delivery_note_integrated_with_sales_invoice",
   "use_custom_item_group_description_in_estimation",
-  "overheads_based_on_percentage"
+  "overheads_based_on_percentage",
+  "allow_estimated_items_budgeting",
+  "allow_budgeted_item_to_be_purchased",
+  "boq_with_manual_item_selection",
+  "allow_purchase_with_dimensions"
  ],
  "fields": [
   {
@@ -522,12 +526,36 @@
    "fieldname": "width_height_applicable_in_estimate",
    "fieldtype": "Check",
    "label": "Width and height applicable in estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_estimated_items_budgeting",
+   "fieldtype": "Check",
+   "label": "Allow estimated item to be budgeted"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_budgeted_item_to_be_purchased",
+   "fieldtype": "Check",
+   "label": "Allow budgeted item to be purchased"
+  },
+  {
+   "default": "0",
+   "fieldname": "boq_with_manual_item_selection",
+   "fieldtype": "Check",
+   "label": "BOQ with manual item selection in the Progress Entry"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_purchase_with_dimensions",
+   "fieldtype": "Check",
+   "label": "Allow Purchase with dimensions"
   }
  ],
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-12-26 21:23:17.303206",
+ "modified": "2025-01-09 09:36:29.702402",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

@@ -10,7 +10,7 @@ frappe.ui.form.on("Material Request", {
 				msg: message
 			}
 		});
-	},
+	},    
 
     setup(frm)
     {
@@ -21,6 +21,16 @@ frappe.ui.form.on("Material Request", {
                 }
             };
           }
+
+          frm.fields_dict['budgeted_items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
+            return {
+                filters: {
+                    project: frm.doc.project
+                }
+            };
+          }
+
+
 
           frm.set_query("source_warehouse", function() {
 			return {
@@ -51,6 +61,8 @@ frappe.ui.form.on("Material Request", {
                 }
             };
 		}
+        frm.fields_dict['items'].grid.set_column_disp('height', frm.doc.use_dimensions);
+        frm.fields_dict['items'].grid.set_column_disp('width', frm.doc.use_dimensions);
     },
 	refresh(frm) {
         if (!frm.is_new() && frm.doc.docstatus == 1) {
@@ -71,6 +83,11 @@ frappe.ui.form.on("Material Request", {
                         mr_no: frm.doc.name
                     },
                     callback: function(r) {
+                        
+                        console.log("r.message")
+
+                        console.log(r.message)
+
                         if (r.message === true) {  // Check if server-side method returned True
                             frm.add_custom_button(__("Create Purchase Order"), () => {
     
@@ -96,6 +113,20 @@ frappe.ui.form.on("Material Request", {
             }
         }
     },    
+    calculate_rows: function(frm) {
+
+        if (frm.doc.use_dimensions) {
+
+            frm.doc.items.forEach(function(entry) {
+                let width = entry.width || 0;
+                let height = entry.height || 0;
+                let area = entry.no_of_pieces || 0;
+                entry.qty = width * height * area;
+            });
+    
+            frm.refresh_field("items");
+        }
+    },
     approve_all_items: function(frm) {
         // Iterate through all rows in the 'items' child table
         $.each(frm.doc.items, function(index, row) {
@@ -143,13 +174,22 @@ frappe.ui.form.on("Material Request", {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice','allow_budgeted_item_to_be_purchased','allow_purchase_with_dimensions']
 						},
 						callback: (r2) => {
 
+                            console.log(r2, r2)
+
                             frm.set_value("target_warehouse", r2.message.default_warehouse)
 														
-							frm.refresh_field("target_warehouse");							
+							frm.refresh_field("target_warehouse");		
+                            
+                            frm.set_value("allow_against_budget",r2.message.allow_budgeted_item_to_be_purchased)
+
+                            console.log("allow_budgeted_item_to_be_purchased",r2.message.allow_budgeted_item_to_be_purchased)
+
+                            frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
+                            frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
 
 						}
 					}
@@ -191,6 +231,8 @@ frappe.ui.form.on('Material Request Item', {
     
     // Triggered when the item field is changed
     item: function(frm, cdt, cdn) {
+
+        console.log("item")
         
         let row = locals[cdt][cdn];
     
@@ -200,7 +242,7 @@ frappe.ui.form.on('Material Request Item', {
             return;
         }
     
-        check_budget_utilization(frm, cdt, cdn,"Item");
+        check_budget_utilization(frm, cdt, cdn,row.item);
 
         // Set conversion factor to 1
         row.conversion_factor = 1;
@@ -275,10 +317,32 @@ frappe.ui.form.on('Material Request Item', {
                 frm.refresh_field("items");
             }
         });
+    },
+    qty:function(frm, cdt, cdn) {
+        console.log("qty selected.")
+        let row = locals[cdt][cdn];
+        console.log("qty")
+        frm.trigger("calculate_rows");
+    },
+    height:function(frm, cdt, cdn) {
+        console.log("height")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_rows");
+    },
+    width:function(frm, cdt, cdn) {
+        console.log("width")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_rows");
+    },
+    no_of_pieces:function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        console.log("no_of_pieces")
+        frm.trigger("calculate_rows");
     }
+    
 });
 
-function check_budget_utilization(frm, cdt, cdn, reference_type) {
+function check_budget_utilization(frm, cdt, cdn, item) {
     const row = frappe.get_doc(cdt, cdn);
 
     // Ensure the item field is filled before proceeding
@@ -291,7 +355,7 @@ function check_budget_utilization(frm, cdt, cdn, reference_type) {
         method: "digitz_erp.api.accounts_api.get_balance_budget_value",
         args: {
             reference_type: "Item",
-            reference_value: row.item,
+            reference_value: item,
             transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
             company: frm.doc.company,
             project: frm.doc.project || null,
@@ -331,3 +395,33 @@ function check_budget_utilization(frm, cdt, cdn, reference_type) {
         }
     });
 }
+
+
+frappe.ui.form.on('Material Request Item Estimate', {
+
+    item: function(frm, cdt, cdn) {
+        
+        let row = locals[cdt][cdn];
+
+        console.log("row.item_code",row.item_code)
+        check_budget_utilization(frm, cdt, cdn,row.item_code);
+
+         // Ensure target warehouse is selected
+         if (!frm.doc.target_warehouse) {
+            row.item = ""; // Reset the item if target warehouse is not selected
+            frappe.msgprint("Please select target warehouse.");
+            frm.refresh_field("items"); // Refresh the items table to reflect changes
+            return; // Exit if target warehouse is not selected
+        }
+        
+        row.target_warehouse = frm.doc.target_warehouse;
+        row.project = frm.doc.project
+        row.schedule_date = frm.doc.schedule_date
+            
+        // Refresh the items table to reflect the changes
+        frm.refresh_field("budgeted_items");
+
+    }
+
+
+})
