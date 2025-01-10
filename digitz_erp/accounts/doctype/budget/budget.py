@@ -97,7 +97,7 @@ class Budget(Document):
 				WHERE
 					budget_against = %s
 					AND {budget_against_field} = %s
-					AND name != %s
+					AND name != %s AND docstatus <2
 			""", (self.budget_against, getattr(self, budget_against_field), self.name))
 
 			# If a duplicate budget is found, raise an error
@@ -105,3 +105,31 @@ class Budget(Document):
 				frappe.throw(f"A budget already exists for {self.budget_against} '{getattr(self, budget_against_field)}'. "
 							"Only one budget is allowed for the same Project or Cost Center.")
 
+
+	def on_submit(self):
+		"""
+		Trigger saving budget items to the Budget Item Entry Doctype on submit.
+		"""
+		if self.budget_against == 'Project':
+			self.save_budget_items()
+   
+	def on_cancel(self):
+     
+		if self.project:
+			frappe.db.delete("Project Budget Item", {"project": self.project})
+
+	def save_budget_items(self):
+		"""
+		Save budget items with 'Purchase' and 'Item' filters to the Budget Item Entry Doctype.
+		"""
+		for item in self.budget_items:
+			if item.budget_against == 'Purchase' and item.reference_type == 'Item':
+       
+				# Create a new Budget Item Entry record
+				new_entry = frappe.get_doc({
+					"doctype": "Project Budget Item",  # Replace with your target Doctype name
+					"project": self.project,
+					"item": item.reference_value,					
+					"amount": item.budget_amount,
+				})    
+				new_entry.insert()

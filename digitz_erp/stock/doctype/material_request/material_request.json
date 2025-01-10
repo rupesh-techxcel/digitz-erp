@@ -16,10 +16,12 @@
   "schedule_date",
   "approved",
   "approve_all_items",
+  "allow_against_budget",
   "column_break_mfsc",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
+  "use_dimensions",
   "column_break_iwsh",
   "company",
   "project",
@@ -30,6 +32,8 @@
   "target_warehouse",
   "column_break_13",
   "column_break_ifzk",
+  "section_break_elmj",
+  "budgeted_items",
   "items_section",
   "items",
   "connections_tab",
@@ -143,8 +147,7 @@
    "label": "Items",
    "oldfieldname": "indent_details",
    "oldfieldtype": "Table",
-   "options": "Material Request Item",
-   "reqd": 1
+   "options": "Material Request Item"
   },
   {
    "fieldname": "connections_tab",
@@ -245,6 +248,32 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "depends_on": "eval:doc.allow_against_budget == 1",
+   "description": "The items added to this table will be transferred to the item list below upon submission.",
+   "fieldname": "budgeted_items",
+   "fieldtype": "Table",
+   "label": "Budgeted Items",
+   "options": "Material Request Item Estimate"
+  },
+  {
+   "fieldname": "section_break_elmj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_against_budget",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Allow against budget",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "use_dimensions",
+   "fieldtype": "Check",
+   "label": "Use Dimensions"
   }
  ],
  "icon": "fa fa-ticket",
@@ -255,7 +284,7 @@
    "link_fieldname": "material_request"
   }
  ],
- "modified": "2024-12-17 17:32:15.529694",
+ "modified": "2025-01-09 09:59:01.277520",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",
@@ -321,7 +350,6 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "show_name_in_global_search": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

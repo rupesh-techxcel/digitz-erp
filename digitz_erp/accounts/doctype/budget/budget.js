@@ -4,6 +4,8 @@
 frappe.ui.form.on("Budget", {
 	refresh(frm) {
 
+
+
         frm.fields_dict['budget_items'].grid.get_field('reference_type').get_query = function(doc, cdt, cdn) {
             var child = locals[cdt][cdn]; // Get the current child row
             return {
@@ -38,6 +40,9 @@ frappe.ui.form.on("Budget", {
             };
         };
 
+
+        create_custom_buttons(frm)
+
 	},
     setup(frm) {
         frm.trigger('get_default_company_and_warehouse');
@@ -71,6 +76,7 @@ frappe.ui.form.on("Budget", {
 		})
 
 	},
+    
 });
 
 frappe.ui.form.on("Budget Item", {
@@ -125,6 +131,121 @@ frappe.ui.form.on("Budget Item", {
     }
 });
 
+let create_custom_buttons = function(frm){
+	
+    if(!frm.doc.company){
+        // Make sure default company is set
+        frm.trigger('get_default_company_and_warehouse');
 
+    }
+    if(frm.doc.docstatus < 1){
 
+        frappe.db.get_value('Company', frm.doc.company, 'allow_estimated_items_budgeting', function(r){
 
+            if(r.allow_estimated_items_budgeting)
+            {
+                frm.add_custom_button('Get Items from Estimate',() =>{
+                    get_items_from_estimate(frm)
+                });	
+            }
+        });
+    }
+}
+
+let get_items_from_estimate = function (frm) {
+    if (!frm.doc.project) {
+        frappe.msgprint('Please set the Project field in the document before fetching items.');
+        return;
+    }
+
+    frappe.call({
+        method: 'digitz_erp.api.budget_api.get_items_from_estimate',
+        args: {
+            project: frm.doc.project, // Use the project's field value from the document
+        },
+        callback: function (r) {
+            if (r.message) {
+                let data = r.message;
+                let dialog = new frappe.ui.Dialog({
+                    title: 'Select Estimation Items',
+                    fields: [
+                        {
+                            fieldtype: 'HTML',
+                            fieldname: 'instruction',
+                            options: `<p style="color: red; font-weight: bold;">Please select the items to add to the budget.</p>`,
+                        },
+                        {
+                            fieldtype: 'Table',
+                            fieldname: 'popup_table',
+                            label: 'Estimation Items',
+                            fields: [                                
+                                {
+                                    fieldtype: 'Data',
+                                    fieldname: 'Item',
+                                    label: 'Item',
+                                    read_only: 1,
+                                    in_list_view: 1,
+                                },
+                                {
+                                    fieldtype: 'Float',
+                                    fieldname: 'Quantity',
+                                    label: 'Quantity',
+                                    read_only: 1,
+                                    in_list_view: 1,
+                                },
+                                {
+                                    fieldtype: 'Currency',
+                                    fieldname: 'Rate',
+                                    label: 'Rate',
+                                    read_only: 1,
+                                    in_list_view: 1,
+                                },
+                                {
+                                    fieldtype: 'Currency',
+                                    fieldname: 'Amount',
+                                    label: 'Amount',
+                                    read_only: 1,
+                                    in_list_view: 1,
+                                },
+                            ],
+                            data: data,
+                            get_data: () => data,
+                        },
+                    ],
+                    primary_action_label: 'Save',
+                    primary_action: function () {
+                        let selected_items = dialog.fields_dict.popup_table.grid.get_selected_children();
+                        if (selected_items.length > 0) {
+                            selected_items.forEach(item => {
+                                // Check if the item already exists in the child table
+                                let exists = frm.doc.budget_items.some(existing_item => existing_item.reference_value === item.Item);
+                                
+                                if (!exists) {
+                                    // Populate the child table in Budgeting only if the item doesn't exist
+                                    let child = frm.add_child('budget_items');
+                                    frappe.model.set_value(child.doctype, child.name, {
+                                        budget_against: 'Purchase',
+                                        reference_type: 'Item',
+                                        reference_value: item.Item,
+                                        budget_amount: item.Amount,
+                                    });
+                                }
+                            });
+                            frm.refresh_field('budget_items'); // Refresh the field to show updated values
+                        } else {
+                            frappe.msgprint('Please select at least one item.');
+                        }
+                        dialog.hide();
+                    },
+                });
+
+                dialog.$wrapper.find('.modal-dialog').css("max-width", "90%").css("width", "65%");
+                
+                dialog.show();
+
+            } else {
+                frappe.msgprint('No items found for the selected project.');
+            }
+        },
+    });
+};
