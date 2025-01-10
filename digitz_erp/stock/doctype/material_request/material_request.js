@@ -3,100 +3,111 @@
 
 frappe.ui.form.on("Material Request", {
 
-    show_a_message: function (frm,message) {
-		frappe.call({
-			method: 'digitz_erp.api.settings_api.show_a_message',
-			args: {
-				msg: message
-			}
-		});
-	},    
-
-    setup(frm)
-    {
-        frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    item_type: ['in', ['BOQ Product', 'Product','Material']]
-                }
-            };
-          }
-
-          frm.fields_dict['budgeted_items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    project: frm.doc.project
-                }
-            };
-          }
-
-
-
-          frm.set_query("source_warehouse", function() {
-			return {
-				"filters": {
-					"disabled": 0
-				}
-			};
-		});
-		frm.set_query("target_warehouse", function() {
-			return {
-				"filters": {
-					"disabled": 0
-				}
-			};
-		});
-
-		frm.fields_dict['items'].grid.get_field('source_warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    disabled: 0
-                }
-            };
-		}
-		frm.fields_dict['items'].grid.get_field('target_warehouse').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    disabled: 0
-                }
-            };
-		}
-        frm.fields_dict['items'].grid.set_column_disp('height', frm.doc.use_dimensions);
-        frm.fields_dict['items'].grid.set_column_disp('width', frm.doc.use_dimensions);
+    show_a_message: function (frm, message) {
+        frappe.call({
+            method: 'digitz_erp.api.settings_api.show_a_message',
+            args: {
+                msg: message
+            }
+        });
     },
-	refresh(frm) {
-        if (!frm.is_new() && frm.doc.docstatus == 1) {
+
+    setup(frm) {
+        // frm.fields_dict['items'].grid.get_field('item').get_query = function (doc, cdt, cdn) {
+        //     return {
+        //         filters: {
+        //             item_type: ['in', ['BOQ Product', 'Product', 'Material']]
+        //         }
+        //     };
+        // }
+
+        // frm.fields_dict['budgeted_items'].grid.get_field('item').get_query = function (doc, cdt, cdn) {
+        //     return {
+        //         filters: {
+        //             project: frm.doc.project
+        //         }
+        //     };
+        // }
+
+
+
+        // frm.set_query("source_warehouse", function () {
+        //     return {
+        //         "filters": {
+        //             "disabled": 0
+        //         }
+        //     };
+        // });
+        // frm.set_query("target_warehouse", function () {
+        //     return {
+        //         "filters": {
+        //             "disabled": 0
+        //         }
+        //     };
+        // });
+
+        // frm.fields_dict['items'].grid.get_field('source_warehouse').get_query = function (doc, cdt, cdn) {
+        //     return {
+        //         filters: {
+        //             disabled: 0
+        //         }
+        //     };
+        // }
+        // frm.fields_dict['items'].grid.get_field('target_warehouse').get_query = function (doc, cdt, cdn) {
+        //     return {
+        //         filters: {
+        //             disabled: 0
+        //         }
+        //     };
+        // }
+        // frm.fields_dict['items'].grid.set_column_disp('height', frm.doc.use_dimensions);
+        // frm.fields_dict['items'].grid.set_column_disp('width', frm.doc.use_dimensions);
+    },
+    async onload(frm){
+        if(frm.is_new()){
+            frm.set_value('company', await frappe.db.get_single_value("Global Settings","default_company"));
+            let company = await frappe.db.get_doc("Company", cur_frm.doc.company);
+            await frm.set_value("target_warehouse", company.default_warehouse)
+            await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
+            await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased ? 0 : 1);
+            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions ? 0 : 1);
     
+        }
+
+    },
+    refresh(frm) {
+        if (!frm.is_new() && frm.doc.docstatus == 1) {
+
             // For Stock Transfer type
             if (frm.doc.material_request_type == "Stock Transfer") {
                 frm.add_custom_button(__("Stock Transfer"), () => {
                     console.log("Stock Transfer");
                 }, __("Action"));
             }
-    
+
             // For Purchase type, check if there are pending items
             if (frm.doc.material_request_type == "Purchase") {
-    
+
                 frappe.call({
                     method: "digitz_erp.api.purchase_order_api.check_pending_items_in_material_request",
                     args: {
                         mr_no: frm.doc.name
                     },
-                    callback: function(r) {
-                        
+                    callback: function (r) {
+
                         console.log("r.message")
 
                         console.log(r.message)
 
                         if (r.message === true) {  // Check if server-side method returned True
                             frm.add_custom_button(__("Create Purchase Order"), () => {
-    
+
                                 frappe.call({
                                     method: "digitz_erp.api.purchase_order_api.create_purchase_order_from_material_request",
                                     args: {
                                         material_request: frm.doc.name
                                     },
-                                    callback: function(r) {
+                                    callback: function (r) {
                                         if (r.message) {
                                             // Open the Purchase Order in the UI without saving it
                                             let po_doc = frappe.model.sync([r.message])[0];
@@ -104,150 +115,140 @@ frappe.ui.form.on("Material Request", {
                                         }
                                     }
                                 });
-    
+
                             });
                         }
                     }
                 });
-    
+
             }
         }
-    },    
-    calculate_rows: function(frm) {
+    },
+    calculate_rows: function (frm) {
 
-        if (frm.doc.use_dimensions) {
+        items.forEach(function (entry) {
+            let width = entry.width || 0;
+            let height = entry.height || 0;
+            let area = entry.no_of_pieces || 0;
+            entry.qty = width * height * area;
+        });      if (frm.doc.use_dimensions) {
 
-            frm.doc.items.forEach(function(entry) {
+            frm.doc.items.forEach(function (entry) {
                 let width = entry.width || 0;
                 let height = entry.height || 0;
                 let area = entry.no_of_pieces || 0;
                 entry.qty = width * height * area;
             });
-    
+
             frm.refresh_field("items");
         }
     },
-    approve_all_items: function(frm) {
+    approve_all_items: function (frm) {
         // Iterate through all rows in the 'items' child table
-        $.each(frm.doc.items, function(index, row) {
+        $.each(frm.doc.items, function (index, row) {
             row.qty_approved = row.qty; // Set approved_quantity to match quantity
         });
-        
-        frm.set_value('approved',true)
+
+        frm.set_value('approved', true)
 
         // Refresh the child table to reflect the changes in the UI
         frm.refresh_field('items');
 
         frappe.msgprint(__('All quantities have been approved successfully.'));
     },
-    edit_posting_date_and_time(frm)
-    {
+    edit_posting_date_and_time(frm) {
         if (frm.doc.edit_posting_date_and_time == 1) {
-			frm.set_df_property("posting_date", "read_only", 0);
-			frm.set_df_property("posting_time", "read_only", 0);
-		}
-		else {
-			frm.set_df_property("posting_date", "read_only", 1);
-			frm.set_df_property("posting_time", "read_only", 1);
-		}
+            frm.set_df_property("posting_date", "read_only", 0);
+            frm.set_df_property("posting_time", "read_only", 0);
+        }
+        else {
+            frm.set_df_property("posting_date", "read_only", 1);
+            frm.set_df_property("posting_time", "read_only", 1);
+        }
 
 
     },
-    get_default_company_and_warehouse(frm) {
+    // get_default_company_and_warehouse(frm) {
+    //     // var default_company = ""
+    //     frappe.call({
+    //         method: 'frappe.client.get_value',
+    //         args: {
+    //             'doctype': 'Global Settings',
+    //             'fieldname': 'default_company'
+    //         },
+    //         callback: (r) => {
+    //             // default_company = r.message.default_company
+    //             // frm.doc.company = r.message.default_company
+    //             // frm.refresh_field("company");
+    //             frappe.call(
+    //                 {
+    //                     method: 'frappe.client.get_value',
+    //                     args: {
+    //                         'doctype': 'Company',
+    //                         'filters': { 'company_name': default_company },
+    //                         'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice', 'allow_budgeted_item_to_be_purchased', 'allow_purchase_with_dimensions']
+    //                     },
+    //                     callback: (r2) => {
 
-		var default_company = ""
+    //                         console.log(r2, r2)
 
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
+    //                         // frm.set_value("target_warehouse", r2.message.default_warehouse)
 
-				default_company = r.message.default_company
-				frm.doc.company = r.message.default_company
-				frm.refresh_field("company");
-				frappe.call(
-					{
-						method: 'frappe.client.get_value',
-						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice','allow_budgeted_item_to_be_purchased','allow_purchase_with_dimensions']
-						},
-						callback: (r2) => {
+    //                         // frm.refresh_field("target_warehouse");
 
-                            console.log(r2, r2)
+    //                         // frm.set_value("allow_against_budget", r2.message.allow_budgeted_item_to_be_purchased)
 
-                            frm.set_value("target_warehouse", r2.message.default_warehouse)
-														
-							frm.refresh_field("target_warehouse");		
-                            
-                            frm.set_value("allow_against_budget",r2.message.allow_budgeted_item_to_be_purchased)
+    //                         // console.log("allow_budgeted_item_to_be_purchased", r2.message.allow_budgeted_item_to_be_purchased)
 
-                            console.log("allow_budgeted_item_to_be_purchased",r2.message.allow_budgeted_item_to_be_purchased)
+    //                         // frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
+    //                         // frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
 
-                            frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
-                            frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
-
-						}
-					}
-				)
-			}
-		})
-
-	},
-    assign_defaults(frm)
-	{
-		if(frm.is_new())
-		{
-			frm.trigger("get_default_company_and_warehouse");
-
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function(r) {
-				if (r && r.default_credit_sale === 1) {
-						// frm.set_value('credit_sale', 1);
-				}
-			});
-
-		}
-
-
-	},
-    item(frm)
-    {
-
-    }
+    //                     }
+    //                 }
+    //             )
+    //         }
+    //     })
+    // },
+    // assign_defaults(frm) {
+    //     if (frm.is_new()) {
+    //         frm.trigger("get_default_company_and_warehouse");
+    //         frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function (r) {
+    //             if (r && r.default_credit_sale === 1) {
+    //                 // frm.set_value('credit_sale', 1);
+    //             }
+    //         });
+    //     }
+    // },
 });
 
-frappe.ui.form.on("Material Request", "onload", function (frm) {
+// frappe.ui.form.on("Material Request", "onload", function (frm) {
 
-	frm.trigger("assign_defaults")	
+//     frm.trigger("assign_defaults")
 
-});
+// });
 
 
 frappe.ui.form.on('Material Request Item', {
-    
+
     // Triggered when the item field is changed
-    item: function(frm, cdt, cdn) {
+    item: function (frm, cdt, cdn) {
 
         console.log("item")
-        
+
         let row = locals[cdt][cdn];
-    
+
         // Ensure item is selected
         if (!row.item) {
             frappe.msgprint("Please select an item.");
             return;
         }
-    
-        check_budget_utilization(frm, cdt, cdn,row.item);
+
+        check_budget_utilization(frm, cdt, cdn, row.item);
 
         // Set conversion factor to 1
         row.conversion_factor = 1;
         console.log("Item selected: ", row.item);
-    
+
         // Ensure target warehouse is selected
         if (!frm.doc.target_warehouse) {
             row.item = ""; // Reset the item if target warehouse is not selected
@@ -255,7 +256,7 @@ frappe.ui.form.on('Material Request Item', {
             frm.refresh_field("items"); // Refresh the items table to reflect changes
             return; // Exit if target warehouse is not selected
         }
-    
+
         // If the purpose is "Stock Transfer", ensure source warehouse is selected
         if (frm.doc.purpose === "Stock Transfer") {
             if (!frm.doc.source_warehouse) {
@@ -265,20 +266,20 @@ frappe.ui.form.on('Material Request Item', {
                 return; // Exit if source warehouse is not selected
             }
         }
-    
+
         // Set source and target warehouses for the row
         row.source_warehouse = frm.doc.source_warehouse;
         row.target_warehouse = frm.doc.target_warehouse;
         row.project = frm.doc.project
         row.schedule_date = frm.doc.schedule_date
-    
+
         // Refresh the items table to reflect the changes
         frm.refresh_field("items");
     },
-    
+
 
     // Triggered when the unit field is changed
-    unit: function(frm, cdt, cdn) {
+    unit: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
 
         // Ensure the unit is selected
@@ -302,7 +303,7 @@ frappe.ui.form.on('Material Request Item', {
                 item: row.item,   // Send the item code
                 unit: row.unit    // Send the selected unit
             },
-            callback: function(r) {
+            callback: function (r) {
                 // If no valid UOM is found, display an error and reset the unit and conversion factor
                 if (r.message && r.message.length === 0) {
                     frappe.msgprint("Invalid unit, Unit does not exist for the selected item.");
@@ -318,28 +319,28 @@ frappe.ui.form.on('Material Request Item', {
             }
         });
     },
-    qty:function(frm, cdt, cdn) {
+    qty: function (frm, cdt, cdn) {
         console.log("qty selected.")
         let row = locals[cdt][cdn];
         console.log("qty")
         frm.trigger("calculate_rows");
     },
-    height:function(frm, cdt, cdn) {
+    height: function (frm, cdt, cdn) {
         console.log("height")
         let row = locals[cdt][cdn];
         frm.trigger("calculate_rows");
     },
-    width:function(frm, cdt, cdn) {
+    width: function (frm, cdt, cdn) {
         console.log("width")
         let row = locals[cdt][cdn];
         frm.trigger("calculate_rows");
     },
-    no_of_pieces:function(frm, cdt, cdn) {
+    no_of_pieces: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         console.log("no_of_pieces")
         frm.trigger("calculate_rows");
     }
-    
+
 });
 
 function check_budget_utilization(frm, cdt, cdn, item) {
@@ -380,9 +381,9 @@ function check_budget_utilization(frm, cdt, cdn, item) {
                     `;
 
                     // Custom method to display the message (replace with your own if needed)
-                   
-                    frm.events.show_a_message(frm,budgetMessage);
-                    
+
+                    frm.events.show_a_message(frm, budgetMessage);
+
                 }
             } else {
                 // Handle case where no response is received
@@ -399,25 +400,25 @@ function check_budget_utilization(frm, cdt, cdn, item) {
 
 frappe.ui.form.on('Material Request Item Estimate', {
 
-    item: function(frm, cdt, cdn) {
-        
+    item: function (frm, cdt, cdn) {
+
         let row = locals[cdt][cdn];
 
-        console.log("row.item_code",row.item_code)
-        check_budget_utilization(frm, cdt, cdn,row.item_code);
+        console.log("row.item_code", row.item_code)
+        check_budget_utilization(frm, cdt, cdn, row.item_code);
 
-         // Ensure target warehouse is selected
-         if (!frm.doc.target_warehouse) {
+        // Ensure target warehouse is selected
+        if (!frm.doc.target_warehouse) {
             row.item = ""; // Reset the item if target warehouse is not selected
             frappe.msgprint("Please select target warehouse.");
             frm.refresh_field("items"); // Refresh the items table to reflect changes
             return; // Exit if target warehouse is not selected
         }
-        
+
         row.target_warehouse = frm.doc.target_warehouse;
         row.project = frm.doc.project
         row.schedule_date = frm.doc.schedule_date
-            
+
         // Refresh the items table to reflect the changes
         frm.refresh_field("budgeted_items");
 
