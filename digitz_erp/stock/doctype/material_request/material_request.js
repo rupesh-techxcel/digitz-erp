@@ -12,7 +12,18 @@ frappe.ui.form.on("Material Request", {
         });
     },
 
-    setup(frm) {
+    async setup(frm) {
+        if(frm.is_new()){
+            frm.set_value('company', await frappe.db.get_single_value("Global Settings","default_company"));
+            let company = await frappe.db.get_doc("Company", cur_frm.doc.company);
+            console.log("Hello", company.allow_purchase_with_dimensions)
+            await frm.set_value("use_dimensions", company.allow_purchase_with_dimensions)
+            await frm.set_value("target_warehouse", company.default_warehouse)
+            await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
+            await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased);
+            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions);
+    
+        }
         // frm.fields_dict['items'].grid.get_field('item').get_query = function (doc, cdt, cdn) {
         //     return {
         //         filters: {
@@ -63,18 +74,7 @@ frappe.ui.form.on("Material Request", {
         // frm.fields_dict['items'].grid.set_column_disp('height', frm.doc.use_dimensions);
         // frm.fields_dict['items'].grid.set_column_disp('width', frm.doc.use_dimensions);
     },
-    async onload(frm){
-        if(frm.is_new()){
-            frm.set_value('company', await frappe.db.get_single_value("Global Settings","default_company"));
-            let company = await frappe.db.get_doc("Company", cur_frm.doc.company);
-            await frm.set_value("target_warehouse", company.default_warehouse)
-            await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
-            await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased ? 0 : 1);
-            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions ? 0 : 1);
-    
-        }
 
-    },
     refresh(frm) {
         if (!frm.is_new() && frm.doc.docstatus == 1) {
 
@@ -126,14 +126,14 @@ frappe.ui.form.on("Material Request", {
     },
     calculate_rows: function (frm) {
 
-        items.forEach(function (entry) {
+        frm.doc?.items.forEach(function (entry) {
             let width = entry.width || 0;
             let height = entry.height || 0;
             let area = entry.no_of_pieces || 0;
             entry.qty = width * height * area;
-        });      if (frm.doc.use_dimensions) {
-
-            frm.doc.items.forEach(function (entry) {
+        });      
+        if (frm.doc.use_dimensions) {
+            frm.doc?.items.forEach(function (entry) {
                 let width = entry.width || 0;
                 let height = entry.height || 0;
                 let area = entry.no_of_pieces || 0;
@@ -232,9 +232,6 @@ frappe.ui.form.on('Material Request Item', {
 
     // Triggered when the item field is changed
     item: function (frm, cdt, cdn) {
-
-        console.log("item")
-
         let row = locals[cdt][cdn];
 
         // Ensure item is selected
