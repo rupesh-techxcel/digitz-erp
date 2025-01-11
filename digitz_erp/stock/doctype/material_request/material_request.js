@@ -21,7 +21,7 @@ frappe.ui.form.on("Material Request", {
             await frm.set_value("target_warehouse", company.default_warehouse)
             await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
             await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased);
-            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions);
+            await frm.set_df_property("use_dimensions", "hidden", !company.allow_purchase_with_dimensions);
     
         }
         // frm.fields_dict['items'].grid.get_field('item').get_query = function (doc, cdt, cdn) {
