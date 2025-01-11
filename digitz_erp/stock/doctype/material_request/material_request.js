@@ -17,7 +17,6 @@ frappe.ui.form.on("Material Request", {
             frm.set_value('company', await frappe.db.get_single_value("Global Settings","default_company"));
             let company = await frappe.db.get_doc("Company", cur_frm.doc.company);
             console.log("Hello", company.allow_purchase_with_dimensions)
-            await frm.set_value("use_dimensions", company.allow_purchase_with_dimensions)
             await frm.set_value("target_warehouse", company.default_warehouse)
             await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
             await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased);
