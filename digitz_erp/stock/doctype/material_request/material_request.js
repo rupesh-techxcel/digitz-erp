@@ -20,58 +20,8 @@ frappe.ui.form.on("Material Request", {
             await frm.set_value("target_warehouse", company.default_warehouse)
             await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
             await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased);
-            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions?0:1);
-    
-        }
-        // frm.fields_dict['items'].grid.get_field('item').get_query = function (doc, cdt, cdn) {
-        //     return {
-        //         filters: {
-        //             item_type: ['in', ['BOQ Product', 'Product', 'Material']]
-        //         }
-        //     };
-        // }
-
-        // frm.fields_dict['budgeted_items'].grid.get_field('item').get_query = function (doc, cdt, cdn) {
-        //     return {
-        //         filters: {
-        //             project: frm.doc.project
-        //         }
-        //     };
-        // }
-
-
-
-        // frm.set_query("source_warehouse", function () {
-        //     return {
-        //         "filters": {
-        //             "disabled": 0
-        //         }
-        //     };
-        // });
-        // frm.set_query("target_warehouse", function () {
-        //     return {
-        //         "filters": {
-        //             "disabled": 0
-        //         }
-        //     };
-        // });
-
-        // frm.fields_dict['items'].grid.get_field('source_warehouse').get_query = function (doc, cdt, cdn) {
-        //     return {
-        //         filters: {
-        //             disabled: 0
-        //         }
-        //     };
-        // }
-        // frm.fields_dict['items'].grid.get_field('target_warehouse').get_query = function (doc, cdt, cdn) {
-        //     return {
-        //         filters: {
-        //             disabled: 0
-        //         }
-        //     };
-        // }
-        // frm.fields_dict['items'].grid.set_column_disp('height', frm.doc.use_dimensions);
-        // frm.fields_dict['items'].grid.set_column_disp('width', frm.doc.use_dimensions);
+            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions?0:1);    
+        }       
     },
 
     refresh(frm) {
@@ -140,6 +90,33 @@ frappe.ui.form.on("Material Request", {
             });
 
             frm.refresh_field("items");
+        }
+    },
+    calculate_rows_for_budgeted_items: function (frm) {
+
+        console.log(1)
+
+        frm.doc?.budgeted_items.forEach(function (entry) {
+            let width = entry.width || 0;
+            let height = entry.height || 0;
+            let area = entry.no_of_pieces || 0;
+            entry.qty = width * height * area;
+        });      
+        if (frm.doc.use_dimensions) {
+            frm.doc?.budgeted_items.forEach(function (entry) {
+
+                console.log("entry")
+                console.log(entry)
+
+                let width = entry.width || 0;
+                let height = entry.height || 0;
+                let area = entry.no_of_pieces || 0;
+                entry.qty = width * height * area;
+                console.log("entry.qty")
+                console.log(entry.qty)
+            });
+
+            frm.refresh_field("budgeted_items");
         }
     },
     approve_all_items: function (frm) {
@@ -315,12 +292,12 @@ frappe.ui.form.on('Material Request Item', {
             }
         });
     },
-    qty: function (frm, cdt, cdn) {
-        console.log("qty selected.")
-        let row = locals[cdt][cdn];
-        console.log("qty")
-        frm.trigger("calculate_rows");
-    },
+    // qty: function (frm, cdt, cdn) {
+    //     console.log("qty selected.")
+    //     let row = locals[cdt][cdn];
+    //     console.log("qty")
+    //     frm.trigger("calculate_rows");
+    // },
     height: function (frm, cdt, cdn) {
         console.log("height")
         let row = locals[cdt][cdn];
@@ -418,7 +395,27 @@ frappe.ui.form.on('Material Request Item Estimate', {
         // Refresh the items table to reflect the changes
         frm.refresh_field("budgeted_items");
 
+    },
+    // qty: function (frm, cdt, cdn) {
+    //     console.log("qty selected.")
+    //     let row = locals[cdt][cdn];
+    //     console.log("qty")
+    //     frm.trigger("calculate_rows_for_budgeted_items");
+    // },
+    height: function (frm, cdt, cdn) {
+        console.log("height")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_rows_for_budgeted_items");
+    },
+    width: function (frm, cdt, cdn) {
+        console.log("width")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_rows_for_budgeted_items");
+    },
+    no_of_pieces: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        console.log("no_of_pieces")
+        frm.trigger("calculate_rows_for_budgeted_items");
     }
-
 
 })
