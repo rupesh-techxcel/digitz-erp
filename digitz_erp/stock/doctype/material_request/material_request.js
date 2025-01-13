@@ -73,7 +73,7 @@ frappe.ui.form.on("Material Request", {
             }
         }
     },
-    calculate_rows: function (frm) {
+    calculate_qty: function (frm) {
 
         frm.doc?.items.forEach(function (entry) {
             let width = entry.width || 0;
@@ -92,7 +92,7 @@ frappe.ui.form.on("Material Request", {
             frm.refresh_field("items");
         }
     },
-    calculate_rows_for_budgeted_items: function (frm) {
+    calculate_qty_for_budgeted_items: function (frm) {
 
         console.log(1)
 
@@ -301,17 +301,17 @@ frappe.ui.form.on('Material Request Item', {
     height: function (frm, cdt, cdn) {
         console.log("height")
         let row = locals[cdt][cdn];
-        frm.trigger("calculate_rows");
+        frm.trigger("calculate_qty");
     },
     width: function (frm, cdt, cdn) {
         console.log("width")
         let row = locals[cdt][cdn];
-        frm.trigger("calculate_rows");
+        frm.trigger("calculate_qty");
     },
     no_of_pieces: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         console.log("no_of_pieces")
-        frm.trigger("calculate_rows");
+        frm.trigger("calculate_qty");
     }
 
 });
@@ -405,17 +405,17 @@ frappe.ui.form.on('Material Request Item Estimate', {
     height: function (frm, cdt, cdn) {
         console.log("height")
         let row = locals[cdt][cdn];
-        frm.trigger("calculate_rows_for_budgeted_items");
+        frm.trigger("calculate_qty_for_budgeted_items");
     },
     width: function (frm, cdt, cdn) {
         console.log("width")
         let row = locals[cdt][cdn];
-        frm.trigger("calculate_rows_for_budgeted_items");
+        frm.trigger("calculate_qty_for_budgeted_items");
     },
     no_of_pieces: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         console.log("no_of_pieces")
-        frm.trigger("calculate_rows_for_budgeted_items");
+        frm.trigger("calculate_qty_for_budgeted_items");
     }
 
 })

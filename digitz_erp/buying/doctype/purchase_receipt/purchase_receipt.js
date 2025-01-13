@@ -203,13 +203,16 @@ frappe.ui.form.on('Purchase Receipt', {
 
 			frm.trigger("get_default_company_and_warehouse");
 
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase','allow_purchase_with_dimensions', function(r) {
 
 				if (r && r.default_credit_purchase === 1) {
+
 					console.log("credit purchase from  assign_defaults")
 					console.log(r.default_credit_purchase)
 						frm.set_value('credit_purchase', 1);
 				}
+
+				frm.set_df_property("use_dimensions", "hidden", r.allow_purchase_with_dimensions?0:1);   
 
 			});
 
@@ -358,6 +361,25 @@ frappe.ui.form.on('Purchase Receipt', {
         }
     });
 	},
+	calculate_qty: function (frm) {
+
+        frm.doc?.items.forEach(function (entry) {
+            let width = entry.width || 0;
+            let height = entry.height || 0;
+            let area = entry.no_of_pieces || 0;
+            entry.qty = width * height * area;
+        });      
+        if (frm.doc.use_dimensions) {
+            frm.doc?.items.forEach(function (entry) {
+                let width = entry.width || 0;
+                let height = entry.height || 0;
+                let area = entry.no_of_pieces || 0;
+                entry.qty = width * height * area;
+            });
+
+            frm.refresh_field("items");
+        }
+    },
 	make_taxes_and_totals(frm) {
 		console.log("from make totals..")
 		frm.clear_table("taxes");
@@ -894,6 +916,21 @@ frappe.ui.form.on('Purchase Receipt Item', {
 				});
 		}
 	},
+	height: function (frm, cdt, cdn) {
+        console.log("height")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_qty");
+    },
+    width: function (frm, cdt, cdn) {
+        console.log("width")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_qty");
+    },
+    no_of_pieces: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        console.log("no_of_pieces")
+        frm.trigger("calculate_qty");
+    },
 	qty(frm, cdt, cdn) {
 		frm.trigger("make_taxes_and_totals");
 	},

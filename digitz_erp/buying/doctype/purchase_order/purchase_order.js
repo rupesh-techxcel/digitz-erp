@@ -133,6 +133,9 @@ frappe.ui.form.on('Purchase Order', {
             };
 		}
 
+
+		
+
 		// frm.doc.items.forEach((item)=>{
 		// 	console.log("hello")
 		// 	frappe.model.trigger("item", item.doctype, item.name);
@@ -164,7 +167,7 @@ frappe.ui.form.on('Purchase Order', {
 
 			frm.trigger("get_default_company_and_warehouse")
 			
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase', function(r) {
+			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase','allow_purchase_with_dimensions', function(r) {
 
 				console.log("assign defualts")
 				console.log(r)
@@ -172,6 +175,8 @@ frappe.ui.form.on('Purchase Order', {
 				if (r && r.default_credit_purchase === 1) {
 						frm.set_value('credit_purchase', 1);
 				}
+
+				frm.set_df_property("use_dimensions", "hidden", r.allow_purchase_with_dimensions?0:1);   
 
 			});
 
@@ -335,6 +340,25 @@ frappe.ui.form.on('Purchase Order', {
 		})
 	
 	},
+	calculate_qty: function (frm) {
+
+        frm.doc?.items.forEach(function (entry) {
+            let width = entry.width || 0;
+            let height = entry.height || 0;
+            let area = entry.no_of_pieces || 0;
+            entry.qty = width * height * area;
+        });      
+        if (frm.doc.use_dimensions) {
+            frm.doc?.items.forEach(function (entry) {
+                let width = entry.width || 0;
+                let height = entry.height || 0;
+                let area = entry.no_of_pieces || 0;
+                entry.qty = width * height * area;
+            });
+
+            frm.refresh_field("items");
+        }
+    },
 	make_taxes_and_totals(frm) {
 		console.log("from make totals..")
 		frm.clear_table("taxes");
@@ -632,6 +656,21 @@ frappe.ui.form.on('Purchase Order Item', {
 				});
 		}
 	},
+	height: function (frm, cdt, cdn) {
+        console.log("height")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_qty");
+    },
+    width: function (frm, cdt, cdn) {
+        console.log("width")
+        let row = locals[cdt][cdn];
+        frm.trigger("calculate_qty");
+    },
+    no_of_pieces: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        console.log("no_of_pieces")
+        frm.trigger("calculate_qty");
+    },
 	qty(frm, cdt, cdn) {
 		check_budget_utilization(frm, cdt, cdn,"Item");
 		frm.trigger("make_taxes_and_totals");
@@ -900,7 +939,7 @@ function update_item_row(frm,cdt,cdn){
 						);
 					}
 
-					if(use_price_list_price ==1)
+					if(use_price_list_price ==1 && frm.doc.price_list)
 					{
 						console.log("digitz_erp.api.item_price_api.get_item_price")
 						frappe.call(
