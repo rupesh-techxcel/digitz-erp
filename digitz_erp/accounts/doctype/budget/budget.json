@@ -10,7 +10,7 @@
   "budget_name",
   "budget_against",
   "project",
-  "project_short_name",
+  "project_name",
   "cost_center",
   "amended_from",
   "column_break_gwyb",
@@ -140,13 +140,6 @@
    "mandatory_depends_on": "eval:doc.budget_against == \"Company\""
   },
   {
-   "fetch_from": "project.project_short_name",
-   "fieldname": "project_short_name",
-   "fieldtype": "Data",
-   "label": "Project Short Name",
-   "read_only": 1
-  },
-  {
    "description": "Leave this field blank to generate the name automatically while saving",
    "fieldname": "budget_name",
    "fieldtype": "Data",
@@ -212,12 +205,19 @@
    "fieldname": "purchase_receipt",
    "fieldtype": "Check",
    "label": "Purchase Receipt"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-12-15 19:11:02.351137",
+ "modified": "2025-01-06 21:52:15.100573",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget",
