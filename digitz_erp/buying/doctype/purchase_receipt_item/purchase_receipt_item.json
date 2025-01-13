@@ -11,6 +11,9 @@
   "item",
   "item_name",
   "display_name",
+  "width",
+  "height",
+  "no_of_pieces",
   "qty",
   "unit",
   "rate",
@@ -205,12 +208,29 @@
    "label": "PO Item Reference",
    "options": "Purchase Order Item",
    "read_only": 1
+  },
+  {
+   "fieldname": "width",
+   "fieldtype": "Float",
+   "label": "Width",
+   "precision": "3"
+  },
+  {
+   "fieldname": "height",
+   "fieldtype": "Float",
+   "label": "Height",
+   "precision": "3"
+  },
+  {
+   "fieldname": "no_of_pieces",
+   "fieldtype": "Int",
+   "label": "No Of Pieces"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-28 15:52:44.016045",
+ "modified": "2025-01-11 12:38:12.804197",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt Item",

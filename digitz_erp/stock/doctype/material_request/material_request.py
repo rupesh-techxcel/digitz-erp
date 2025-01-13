@@ -86,6 +86,10 @@ class MaterialRequest(Document):
 			item_row.unit = budget_item_row.unit
 			item_row.conversion_factor = item_row.conversion_factor if item_row.conversion_factor else 1		
 
+			item_row.width = budget_item_row.width
+			item_row.height = budget_item_row.height
+			item_row.no_of_pieces = budget_item_row.no_of_pieces
+
 			item_row.qty = budget_item_row.qty
 			item_row.project = budget_item_row.project
 			item_row.target_warehouse = budget_item_row.target_warehouse

@@ -109,6 +109,8 @@ def create_purchase_order_from_material_request(material_request):
     po.company = material_request_doc.company
     po.due_date = material_request_doc.schedule_date
     po.material_request = material_request_doc.name
+    po.use_dimensions = material_request_doc.use_dimensions
+    
 
     # Add items where approved_quantity > 0
     for item in material_request_doc.items:
@@ -127,7 +129,11 @@ def create_purchase_order_from_material_request(material_request):
             po_item.item_name = item.item_name
             po_item.display_name = item.description  
             qty_approved_in_base_unit = item.qty_approved * item.conversion_factor          
+            
             po_item.qty = qty_approved_in_base_unit - item.qty_purchased_in_base_unit
+            po_item.width = item.width
+            po_item.height = item.height
+            po_item.no_of_pieces = item.no_of_pieces
             po_item.unit = item.unit
             po_item.warehouse = item.target_warehouse
             po_item.mr_item_reference = item.name        
@@ -222,6 +228,7 @@ def create_purchase_receipt_for_purchase_order(purchase_order):
     #print("purchase_order")
     #print(purchase_order)
     purchase_receipt.purchase_order = purchase_order
+    purchase_receipt.use_dimensions = purchase_doc.use_dimensions
 
     pending_item_exists = False
 
@@ -239,6 +246,9 @@ def create_purchase_receipt_for_purchase_order(purchase_order):
             invoice_item.rate = item.rate_in_base_unit * item.conversion_factor
             invoice_item.base_unit = item.base_unit
             invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_purchased_in_base_unit
+            invoice_item.width = item.width
+            invoice_item.height = item.height
+            invoice_item.no_of_pieces = item.no_of_pieces            
             invoice_item.rate_in_base_unit = item.rate_in_base_unit
             invoice_item.conversion_factor = item.conversion_factor
             invoice_item.rate_includes_tax = item.rate_includes_tax
