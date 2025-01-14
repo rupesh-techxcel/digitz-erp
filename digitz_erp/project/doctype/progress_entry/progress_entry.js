@@ -2,12 +2,12 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Progress Entry", {
+
   validate(frm) {
     if (frm.doc.previous_progress_entry === frm.doc.name) {
       frappe.throw("Choose a valid Progress Entry!");
     }
   },
-
   refresh(frm) {
     if (frm.is_new()) {
       get_default_company_and_warehouse(frm)

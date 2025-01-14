@@ -12,17 +12,17 @@ frappe.ui.form.on("Material Request", {
         });
     },
 
-    async setup(frm) {
-        if(frm.is_new()){
-            frm.set_value('company', await frappe.db.get_single_value("Global Settings","default_company"));
-            let company = await frappe.db.get_doc("Company", cur_frm.doc.company);
-            console.log("Hello", company.allow_purchase_with_dimensions)
-            await frm.set_value("target_warehouse", company.default_warehouse)
-            await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
-            await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased);
-            await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions?0:1);    
-        }       
-    },
+    // async setup(frm) {
+    //     if(frm.is_new()){
+    //         frm.set_value('company', await frappe.db.get_single_value("Global Settings","default_company"));
+    //         let company = await frappe.db.get_doc("Company", cur_frm.doc.company);
+    //         console.log("Hello", company.allow_purchase_with_dimensions)
+    //         await frm.set_value("target_warehouse", company.default_warehouse)
+    //         await frm.set_value("allow_against_budget", company.allow_budgeted_item_to_be_purchased)
+    //         await frm.set_df_property("allow_against_budget", "hidden", company.allow_budgeted_item_to_be_purchased);
+    //         await frm.set_df_property("use_dimensions", "hidden", company.allow_purchase_with_dimensions?0:1);    
+    //     }       
+    // },
 
     refresh(frm) {
         if (!frm.is_new() && frm.doc.docstatus == 1) {
@@ -141,67 +141,61 @@ frappe.ui.form.on("Material Request", {
             frm.set_df_property("posting_date", "read_only", 1);
             frm.set_df_property("posting_time", "read_only", 1);
         }
-
-
     },
-    // get_default_company_and_warehouse(frm) {
-    //     // var default_company = ""
-    //     frappe.call({
-    //         method: 'frappe.client.get_value',
-    //         args: {
-    //             'doctype': 'Global Settings',
-    //             'fieldname': 'default_company'
-    //         },
-    //         callback: (r) => {
-    //             // default_company = r.message.default_company
-    //             // frm.doc.company = r.message.default_company
-    //             // frm.refresh_field("company");
-    //             frappe.call(
-    //                 {
-    //                     method: 'frappe.client.get_value',
-    //                     args: {
-    //                         'doctype': 'Company',
-    //                         'filters': { 'company_name': default_company },
-    //                         'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice', 'allow_budgeted_item_to_be_purchased', 'allow_purchase_with_dimensions']
-    //                     },
-    //                     callback: (r2) => {
+    get_default_company_and_warehouse(frm) {
+        // var default_company = ""
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                'doctype': 'Global Settings',
+                'fieldname': 'default_company'
+            },
+            callback: (r) => {
+                default_company = r.message.default_company
+                frm.doc.company = r.message.default_company
+                frm.refresh_field("company");
+                frappe.call(
+                    {
+                        method: 'frappe.client.get_value',
+                        args: {
+                            'doctype': 'Company',
+                            'filters': { 'company_name': default_company },
+                            'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice', 'allow_budgeted_item_to_be_purchased', 'allow_purchase_with_dimensions']
+                        },
+                        callback: (r2) => {
 
-    //                         console.log(r2, r2)
+                            console.log(r2, r2)
 
-    //                         // frm.set_value("target_warehouse", r2.message.default_warehouse)
+                            frm.set_value("target_warehouse", r2.message.default_warehouse)
 
-    //                         // frm.refresh_field("target_warehouse");
+                            frm.refresh_field("target_warehouse");
 
-    //                         // frm.set_value("allow_against_budget", r2.message.allow_budgeted_item_to_be_purchased)
+                            frm.set_value("allow_against_budget", r2.message.allow_budgeted_item_to_be_purchased)
 
-    //                         // console.log("allow_budgeted_item_to_be_purchased", r2.message.allow_budgeted_item_to_be_purchased)
+                            console.log("allow_budgeted_item_to_be_purchased", r2.message.allow_budgeted_item_to_be_purchased)
 
-    //                         // frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
-    //                         // frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
+                            frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
+                            frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
 
-    //                     }
-    //                 }
-    //             )
-    //         }
-    //     })
-    // },
-    // assign_defaults(frm) {
-    //     if (frm.is_new()) {
-    //         frm.trigger("get_default_company_and_warehouse");
-    //         frappe.db.get_value('Company', frm.doc.company, 'default_credit_sale', function (r) {
-    //             if (r && r.default_credit_sale === 1) {
-    //                 // frm.set_value('credit_sale', 1);
-    //             }
-    //         });
-    //     }
-    // },
+                        }
+                    }
+                )
+            }
+        })
+    },
+    assign_defaults(frm) {
+        if (frm.is_new()) {
+            frm.trigger("get_default_company_and_warehouse");
+          
+        }
+    },
 });
 
-// frappe.ui.form.on("Material Request", "onload", function (frm) {
+frappe.ui.form.on("Material Request", "onload", function (frm) {
 
-//     frm.trigger("assign_defaults")
+    frm.trigger("assign_defaults")
 
-// });
+});
 
 
 frappe.ui.form.on('Material Request Item', {
