@@ -1,7 +1,8 @@
 import frappe
 from datetime import datetime
 from frappe.utils import getdate
-
+import csv
+from frappe.utils import cint, flt
 
 @frappe.whitelist()
 def check_invoices_for_purchase_order(purchase_order):
@@ -110,8 +111,8 @@ def create_purchase_order_from_material_request(material_request):
     po.due_date = material_request_doc.schedule_date
     po.material_request = material_request_doc.name
     po.use_dimensions = material_request_doc.use_dimensions
-    
-
+    po.use_dimensions_2 = material_request_doc.use_dimensions_2
+   
     # Add items where approved_quantity > 0
     for item in material_request_doc.items:
         
@@ -124,6 +125,7 @@ def create_purchase_order_from_material_request(material_request):
         qty_approved_in_base_unit = qty_approved * item.conversion_factor  
         
         if qty_approved_in_base_unit > 0 and (qty_approved_in_base_unit - item.qty_purchased_in_base_unit)>0 :
+            
             po_item = po.append("items", {})
             po_item.item = item.item
             po_item.item_name = item.item_name
@@ -134,6 +136,13 @@ def create_purchase_order_from_material_request(material_request):
             po_item.width = item.width
             po_item.height = item.height
             po_item.no_of_pieces = item.no_of_pieces
+            po_item.length = item.length
+            po_item.weight_per_meter = item.weight_per_meter
+            po_item.rate_per_kg = item.rate_per_kg
+            
+            print(po_item.weight_per_meter)
+            print(po_item.rate_per_kg)
+            
             po_item.unit = item.unit
             po_item.warehouse = item.target_warehouse
             po_item.mr_item_reference = item.name        
@@ -170,6 +179,8 @@ def check_pending_items_in_purchase_order(po_no):
 
 @frappe.whitelist()
 def create_purchase_receipt_for_purchase_order(purchase_order):
+    
+    print("create_purchase_receipt_for_purchase_order")
     
     linked_invoices = frappe.db.exists(
         'Purchase Invoice', 
@@ -234,8 +245,15 @@ def create_purchase_receipt_for_purchase_order(purchase_order):
 
     # Append items from Purchase Order to Purchase Receipt
     for item in purchase_doc.items:
+        
+        print("item.qty_in_base_unit")
+        print(item.qty_in_base_unit)
 
         if(item.qty_in_base_unit - item.qty_purchased_in_base_unit>0):
+            
+            print("item")
+            print(item)
+            
             pending_item_exists = True
             invoice_item = frappe.new_doc("Purchase Receipt Item")
             invoice_item.item = item.item
@@ -248,7 +266,10 @@ def create_purchase_receipt_for_purchase_order(purchase_order):
             invoice_item.qty_in_base_unit = item.qty_in_base_unit - item.qty_purchased_in_base_unit
             invoice_item.width = item.width
             invoice_item.height = item.height
-            invoice_item.no_of_pieces = item.no_of_pieces            
+            invoice_item.no_of_pieces = item.no_of_pieces  
+            invoice_item.length = item.length
+            invoice_item.weight_per_meter = item.weight_per_meter
+            invoice_item.rate_per_kg = item.rate_per_kg
             invoice_item.rate_in_base_unit = item.rate_in_base_unit
             invoice_item.conversion_factor = item.conversion_factor
             invoice_item.rate_includes_tax = item.rate_includes_tax
@@ -374,4 +395,85 @@ def create_purchase_invoice_for_purchase_order(purchase_order):
     else:
         frappe.msgprint("Purchase Invoice cannot be created because there are no pending items in the Purchase Order.")
         return "No Pending Items"
-        
+
+@frappe.whitelist()
+def update_item_rate_per_kg(file_url):
+    response = {"success": False, "message": "", "data": [], "errors": []}  # Structured response
+    try:
+        # Read the file content
+        content = readfile(file_url)
+
+        # Verify the uploaded file is a CSV file
+        if not file_url.endswith('.csv'):
+            response["message"] = "The uploaded file must be a CSV file."
+            return response
+
+        # Ensure content is a string
+        if isinstance(content, bytes):
+            content = content.decode('utf-8')  # Decode bytes to string
+
+        # Parse the CSV content
+        csv_reader = csv.DictReader(content.splitlines())
+
+        # Verify the header contains required columns
+        required_columns = {"item_code", "rate_per_kg"}
+        if not required_columns.issubset(csv_reader.fieldnames):
+            response["message"] = "The file must contain 'item_code' and 'rate_per_kg' columns."
+            return response
+
+        # Process each row and collect the data
+        items = []
+        errors = []
+        for row in csv_reader:
+            item_code = row.get("item_code")
+            rate_per_kg = flt(row.get("rate_per_kg"))
+
+            if not item_code or rate_per_kg <= 0:
+                errors.append(f"Invalid data for item_code: {item_code}, rate_per_kg: {rate_per_kg}")
+                continue
+
+            items.append({"item_code": item_code, "rate_per_kg": rate_per_kg})
+
+        response["data"] = items
+        response["errors"] = errors
+
+        if errors:
+            response["message"] = "Some items have invalid data. See errors for details."
+        else:
+            response["message"] = "Items processed successfully."
+        response["success"] = True
+
+    except Exception as e:
+        response["message"] = f"An error occurred: {str(e)}"
+        frappe.log_error(message=str(e), title="Error in update_item_rate_per_kg")
+
+    return response
+
+
+def readfile(file_url):
+    file_doc = frappe.get_doc("File", {"file_url": file_url})
+    return file_doc.get_content()
+
+@frappe.whitelist()
+def services_module_exists():
+    exists = frappe.db.exists("Module Def", {"name": 'Digitz Services'})
+    return bool(exists)
+
+@frappe.whitelist()
+def sub_contracting_order_exists(purchase_order):
+    """
+    Check if a Sub Contracting Order exists for the given Purchase Order.
+    :param purchase_order: The Purchase Order ID to check.
+    :return: Boolean value indicating existence.
+    """
+    if not purchase_order:
+        frappe.throw("Purchase Order is required.")
+
+    # Query for Sub Contracting Order linked to the Purchase Order
+    exists = frappe.db.exists(
+        "Sub Contracting Order",
+        {"purchase_order": purchase_order}
+    )
+
+    # Return True if exists, else False
+    return bool(exists)

@@ -16,6 +16,9 @@
   "width",
   "height",
   "no_of_pieces",
+  "length",
+  "weight_per_meter",
+  "rate_per_kg",
   "column_break_wqim",
   "qty",
   "qty_approved",
@@ -36,7 +39,6 @@
    "options": "Project"
   },
   {
-   "fetch_from": "item.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "in_global_search": 1,
@@ -69,7 +71,6 @@
    "width": "100px"
   },
   {
-   "fetch_from": "item.description",
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description",
@@ -183,12 +184,35 @@
    "fieldname": "no_of_pieces",
    "fieldtype": "Int",
    "label": "No Of Pieces"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "length",
+   "fieldtype": "Float",
+   "label": "Length",
+   "precision": "3"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fetch_from": "item.weight_per_meter",
+   "fieldname": "weight_per_meter",
+   "fieldtype": "Float",
+   "label": "Weight Per Meter",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "label": "Rate Per Kg",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-11 11:06:01.274241",
+ "modified": "2025-01-17 10:28:38.132175",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",

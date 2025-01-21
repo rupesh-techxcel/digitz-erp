@@ -75,12 +75,12 @@ frappe.ui.form.on("Material Request", {
     },
     calculate_qty: function (frm) {
 
-        frm.doc?.items.forEach(function (entry) {
-            let width = entry.width || 0;
-            let height = entry.height || 0;
-            let area = entry.no_of_pieces || 0;
-            entry.qty = width * height * area;
-        });      
+        // frm.doc?.items.forEach(function (entry) {
+        //     let width = entry.width || 0;
+        //     let height = entry.height || 0;
+        //     let area = entry.no_of_pieces || 0;
+        //     entry.qty = width * height * area;
+        // });      
         if (frm.doc.use_dimensions) {
             frm.doc?.items.forEach(function (entry) {
                 let width = entry.width || 0;
@@ -96,12 +96,12 @@ frappe.ui.form.on("Material Request", {
 
         console.log(1)
 
-        frm.doc?.budgeted_items.forEach(function (entry) {
-            let width = entry.width || 0;
-            let height = entry.height || 0;
-            let area = entry.no_of_pieces || 0;
-            entry.qty = width * height * area;
-        });      
+        // frm.doc?.budgeted_items.forEach(function (entry) {
+        //     let width = entry.width || 0;
+        //     let height = entry.height || 0;
+        //     let area = entry.no_of_pieces || 0;
+        //     entry.qty = width * height * area;
+        // });      
         if (frm.doc.use_dimensions) {
             frm.doc?.budgeted_items.forEach(function (entry) {
 
@@ -160,7 +160,7 @@ frappe.ui.form.on("Material Request", {
                         args: {
                             'doctype': 'Company',
                             'filters': { 'company_name': default_company },
-                            'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice', 'allow_budgeted_item_to_be_purchased', 'allow_purchase_with_dimensions']
+                            'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice', 'allow_budgeted_item_to_be_purchased', 'allow_purchase_with_dimensions', 'allow_purchase_with_dimensions_2']
                         },
                         callback: (r2) => {
 
@@ -176,6 +176,7 @@ frappe.ui.form.on("Material Request", {
 
                             frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
                             frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
+                            frm.set_df_property("use_dimensions_2", "hidden", r2.message.allow_purchase_with_dimensions_2 ? 0 : 1);
 
                         }
                     }
@@ -209,6 +210,22 @@ frappe.ui.form.on('Material Request Item', {
             frappe.msgprint("Please select an item.");
             return;
         }
+
+        frappe.db.get_value('Item', row.item, ['item_name', 'description'], (r) => {
+            if (r) {
+                
+                // Update the row with fetched values
+                frappe.model.set_value(cdt, cdn, 'item_name', r.item_name || '');
+                frappe.model.set_value(cdt, cdn, 'description', r.description || '');
+
+                // Refresh the field to ensure updates are visible in the child table
+                frm.refresh_field('items');
+
+                console.log("here")
+
+            }
+        });
+        
 
         check_budget_utilization(frm, cdt, cdn, row.item);
 

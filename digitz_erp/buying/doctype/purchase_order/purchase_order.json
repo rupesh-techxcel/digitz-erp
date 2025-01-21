@@ -20,12 +20,14 @@
   "edit_posting_date_and_time",
   "price_list",
   "rate_includes_tax",
+  "for_sub_contracting",
   "column_break_10",
   "warehouse",
   "order_status",
   "due_date",
   "material_request",
   "use_dimensions",
+  "use_dimensions_2",
   "column_break_qeth",
   "company",
   "project",
@@ -401,6 +403,7 @@
    "label": "In Words"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
@@ -444,6 +447,19 @@
    "fieldname": "use_dimensions",
    "fieldtype": "Check",
    "label": "Use DImensions"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_dimensions_2",
+   "fieldtype": "Check",
+   "label": "Use Dimensions 2"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "for_sub_contracting",
+   "fieldtype": "Check",
+   "label": "For sub contracting"
   }
  ],
  "is_submittable": 1,
@@ -457,7 +473,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2025-01-11 12:23:55.778037",
+ "modified": "2025-01-20 09:41:29.348126",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

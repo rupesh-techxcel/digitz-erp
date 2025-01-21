@@ -13,6 +13,26 @@ frappe.ui.form.on('Purchase Order', {
 	},
 	refresh:function(frm){
 
+		frappe.call({
+            method: "digitz_erp.api.purchase_order_api.services_module_exists",
+            args: {
+                module_name: "Digitz.Services"
+            },
+            callback: function(response) {
+
+                if (response.message) { 					
+					frm.set_df_property("for_sub_contracting", "hidden", 0);
+					create_sub_contract_button(frm);
+                }
+				else
+				{
+					frm.set_df_property("for_sub_contracting", "hidden", 1);
+				}
+				
+            }
+        });
+
+
 		if (frm.doc.docstatus == 1)
 
 			if (frm.doc.docstatus == 1) {
@@ -87,6 +107,8 @@ frappe.ui.form.on('Purchase Order', {
 					
 					);	
 
+				
+
 			}
 
 			update_total_big_display(frm)
@@ -141,6 +163,10 @@ frappe.ui.form.on('Purchase Order', {
 		// 	frappe.model.trigger("item", item.doctype, item.name);
 		// })
 	},
+	for_sub_contracting(frm)
+	{
+		create_sub_contract_button(frm);
+	},
 	assign_defaults(frm)
 	{
 		console.log("assign_defaults")
@@ -166,24 +192,8 @@ frappe.ui.form.on('Purchase Order', {
 			}
 
 			frm.trigger("get_default_company_and_warehouse")
-			
-			frappe.db.get_value('Company', frm.doc.company, 'default_credit_purchase','allow_purchase_with_dimensions', function(r) {
-
-				console.log("assign defualts")
-				console.log(r)
-
-				if (r && r.default_credit_purchase === 1) {
-						frm.set_value('credit_purchase', 1);
-				}
-
-				frm.set_df_property("use_dimensions", "hidden", r.allow_purchase_with_dimensions?0:1);   
-
-			});
-
+		
 			set_default_payment_mode(frm);
-
-			// Iterate through all the items in the Purchase Order
-			
 			
 		}
 	},
@@ -302,60 +312,100 @@ frappe.ui.form.on('Purchase Order', {
     });
 	},
 	get_default_company_and_warehouse(frm) {
-		var default_company = ""
-		console.log("From Get Default Warehouse Method in the parent form")
-	
+		
+		console.log("From Get Default Warehouse Method in the parent form");
+
 		frappe.call({
 			method: 'frappe.client.get_value',
 			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
+				doctype: 'Global Settings',
+				fieldname: 'default_company'
 			},
-			callback: (r) => {
-	
-				default_company = r.message.default_company
-				frm.doc.company = r.message.default_company
-				frm.refresh_field("company");
-				frappe.call(
-					{
+			callback: function (r) {
+				if (r && r.message && r.message.default_company) {
+					const default_company = r.message.default_company;
+					frm.set_value('company', default_company);
+
+					frappe.call({
 						method: 'frappe.client.get_value',
 						args: {
-							'doctype': 'Company',
-							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
+							doctype: 'Company',
+							filters: { company_name: default_company },
+							fieldname: ['default_warehouse', 'rate_includes_tax']
 						},
-						callback: (r2) => {
-							console.log("Before assign default warehouse");
-							console.log(r2.message.default_warehouse);
-							frm.doc.warehouse = r2.message.default_warehouse;
-							// console.log(frm.doc.warehouse);
-							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
-							frm.refresh_field("warehouse");
-							frm.refresh_field("rate_includes_tax");
+						callback: function (r2) {
+							if (r2 && r2.message) {
+								if (r2.message.default_warehouse) {
+									frm.set_value('warehouse', r2.message.default_warehouse);
+								}
+								if ('rate_includes_tax' in r2.message) {
+									frm.set_value('rate_includes_tax', r2.message.rate_includes_tax);
+								}
+							} else {
+								console.error('No data found for Company: ', default_company);
+							}
 						}
-					}
-	
-				)
+					});
+
+					frappe.db.get_value('Company', 
+						{ name: frm.doc.company }, 
+						['default_credit_purchase', 'allow_purchase_with_dimensions', 'allow_purchase_with_dimensions_2'], 
+						function (r) {
+							if (r) {
+								// Check and set the value for credit_purchase
+								if (r.default_credit_purchase === 1) {
+									frm.set_value('credit_purchase', 1);
+								}
+					
+								// Update field properties for "use_dimensions" and "use_dimensions_2"
+								frm.set_df_property("use_dimensions", "hidden", r.allow_purchase_with_dimensions ? 0 : 1);
+								frm.set_df_property("use_dimensions_2", "hidden", r.allow_purchase_with_dimensions_2 ? 0 : 1);
+
+								if(r.allow_purchase_with_dimensions_2)
+								{
+									console.log("creating button for rate update!!!")									
+									create_button_for_rate_per_kg(frm);
+								}
+
+							} else {
+								console.error("No data found for the selected company.");
+							}
+						}
+					);
+					
+
+				} else {
+					console.error('No default company found in Global Settings.');
+				}
 			}
-		})
-	
+		});
 	},
 	calculate_qty: function (frm) {
-
-        frm.doc?.items.forEach(function (entry) {
-            let width = entry.width || 0;
-            let height = entry.height || 0;
-            let area = entry.no_of_pieces || 0;
-            entry.qty = width * height * area;
-        });      
+    
         if (frm.doc.use_dimensions) {
             frm.doc?.items.forEach(function (entry) {
                 let width = entry.width || 0;
                 let height = entry.height || 0;
-                let area = entry.no_of_pieces || 0;
-                entry.qty = width * height * area;
+                let no_of_pieces = entry.no_of_pieces || 0;
+                entry.qty = width * height * no_of_pieces;
             });
 
+            frm.refresh_field("items");
+        }
+    },
+	calculate_rate: function (frm) {
+
+		if (frm.doc.use_dimensions_2) {
+        
+            frm.doc?.items.forEach(function (entry) {
+                let length = entry.length || 0;
+                let weight_per_meter = entry.weight_per_meter || 0;                
+				let rate_per_kg = entry.rate_per_kg || 0;
+                entry.rate = length * weight_per_meter * rate_per_kg;
+            });
+
+			frm.trigger("make_taxes_and_totals");
+			
             frm.refresh_field("items");
         }
     },
@@ -670,6 +720,16 @@ frappe.ui.form.on('Purchase Order Item', {
         let row = locals[cdt][cdn];
         console.log("no_of_pieces")
         frm.trigger("calculate_qty");
+    },
+	length: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        console.log("length")
+        frm.trigger("calculate_rate");
+    },
+	rate_per_kg: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+		console.log("rate_per_kg")        
+        frm.trigger("calculate_rate");
     },
 	qty(frm, cdt, cdn) {
 		check_budget_utilization(frm, cdt, cdn,"Item");
@@ -1040,3 +1100,128 @@ function check_budget_utilization(frm, cdt, cdn, reference_type) {
         }
     });
 }
+
+
+let create_button_for_rate_per_kg = function (frm) {
+    frm.add_custom_button('Import Excel with Rates', () => {
+
+        if (!(frm.doc.use_dimensions_2)) {
+            frappe.throw("Please enable 'Use Dimensions 2' to upload the Excel file for rates.");
+        }
+
+		if(!frm.doc.supplier)
+		{
+			frappe.throw("Please select Supplier first.");
+		}
+
+        const dialog = new frappe.ui.Dialog({
+            title: 'Upload Excel Sheet',
+            fields: [
+                {
+                    fieldname: 'excel_file',
+                    label: 'Excel File',
+                    fieldtype: 'Attach',
+                    reqd: 1
+                }
+            ],
+            primary_action_label: 'Upload and Update',
+            primary_action: function () {
+                const file = dialog.get_value('excel_file');
+                if (!file) {
+                    frappe.msgprint('Please upload a file.');
+                    return;
+                }
+
+                // Call server-side method to process the file
+                frappe.call({
+                    method: 'digitz_erp.api.purchase_order_api.update_item_rate_per_kg',
+                    args: { file_url: file },
+                    callback: function (response) {
+                        if (response.message.success) {
+                            const items = response.message.data;
+
+							console.log("items,",items)
+
+                            // Update the child table rows based on the returned data
+                            frm.doc.items.forEach(row => {
+								console.log("row,",row)
+                                const item_data = items.find(item => item.item_code === row.item);
+                                if (item_data) {
+									console.log("item_data,",item_data)                                    
+									frappe.model.set_value(row.doctype, row.name, 'rate_per_kg', item_data.rate_per_kg);
+                                }
+                            });
+
+							frm.trigger("calculate_rate");
+                            frm.trigger("make_taxes_and_totals");
+                            frm.refresh_field('items');
+
+                            // Notify the user
+                            frappe.msgprint({
+                                title: "Success",
+                                indicator: "green",
+                                message: "Rates have been updated successfully."
+                            });
+                        } else {
+                            frappe.msgprint({
+                                title: "Error",
+                                indicator: "red",
+                                message: response.message.message
+                            });
+
+                            if (response.message.errors && response.message.errors.length) {
+                                console.error("Errors:", response.message.errors);
+                            }
+                        }
+                    }
+                });
+
+                dialog.hide();
+            }
+        });
+
+        dialog.show();
+    });
+};
+
+let create_sub_contract_button = function(frm) {
+    // Check if the document is submitted and 'for_sub_contracting' is true
+    if (frm.doc.docstatus === 1 && frm.doc.for_sub_contracting) {
+        // Call the server-side method to check if the Sub Contracting Order exists
+
+        frappe.call({
+            method: "digitz_erp.api.purchase_order_api.sub_contracting_order_exists",
+            args: {
+                purchase_order: frm.doc.name
+            },
+            callback: function(response) {
+                if (!response.message) { // If Sub Contracting Order does not exist
+                    if (!frm.custom_buttons || !frm.custom_buttons["Create Sub Contract Order"]) {
+						
+                        frm.add_custom_button("Create Sub Contract Order", () => {
+
+							if(!frm.doc.project)
+							{
+								frappe.throw("Please select a project and save the document to proceed with the subcontracting order.")
+							}
+
+							if (frm.is_dirty()) {
+								frappe.throw("Form has unsaved changes. Save the document to continue..");
+							}
+
+                            // Use `frappe.new_doc` to create a new document in the UI
+                            frappe.new_doc("Sub Contracting Order", {
+                                purchase_order: frm.doc.name,
+								company:frm.doc.company,
+                                project: frm.doc.project, // Assign project from the current form
+                                supplier: frm.doc.supplier, // Assign supplier from the current form
+								material_issue_warehouse: frm.doc.warehouse,
+								material_return_warehouse: frm.doc.warehouse
+                            });
+                        });
+                    }
+                }
+            }
+        });
+    }
+};

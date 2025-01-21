@@ -60,7 +60,7 @@ class PurchaseOrder(Document):
 			)
 
 			# Calculate total utilized
-			total_utilized = utilized_amount + item.gross_amount
+			total_utilized = utilized_amount if utilized_amount else 0 + item.gross_amount if item.gross_amount else 0
 
 			# Check if total utilized exceeds budget amount
 			if total_utilized > budget_item["budget_amount"]:

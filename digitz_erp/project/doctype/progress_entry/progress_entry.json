@@ -79,6 +79,7 @@
   "round_off",
   "rounded_total",
   "previous_completion_percentage",
+  "current_completion_percentage",
   "total_completion_percentage",
   "column_break_ygse",
   "total_big",
@@ -577,6 +578,13 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "BOQ With manual item selection"
+  },
+  {
+   "fieldname": "current_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Current Completion Percentage",
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "in_create": 1,
@@ -591,7 +599,7 @@
    "link_fieldname": "progress_entry"
   }
  ],
- "modified": "2025-01-08 20:29:11.983136",
+ "modified": "2025-01-19 16:54:38.316135",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry",

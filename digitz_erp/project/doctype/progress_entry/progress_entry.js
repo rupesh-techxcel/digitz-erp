@@ -61,8 +61,13 @@ frappe.ui.form.on("Progress Entry", {
         }
       }
     });
+
+    highlight_deletion_rows(frm);
   },
- 
+  onload_post_render: function(frm) {
+    // Ensure styling is applied when the form is loaded
+    highlight_deletion_rows(frm);
+  }, 
   project(frm) {
 
     frm.set_value('progress_entry_items', []);
@@ -147,7 +152,17 @@ frappe.ui.form.on("Progress Entry", {
                         if (r.message && r.message.progress_entry_items) {
                             // Check if the total completion percentage is below 100
                             if (r.message.total_completion_percentage < 100) {
-                                update_from_previous_progress_entry(frm, r);
+
+                                if(frm.doc.boq)
+                                {
+                                  // Fetch the latest BOQ items (may be amended) and then update the previous progress for each line item.
+                                  fetch_boq_items(frm,frm.doc.boq)
+                                  update_from_previous_progress_entry_for_boq(frm,r)
+                                }
+                                else
+                                {
+                                  update_from_previous_progress_entry(frm, r);
+                                }
 
                                 // If previous progress entry exists, check for amendments
                                 // if (frm.doc.sales_order) {
@@ -175,6 +190,8 @@ frappe.ui.form.on("Progress Entry", {
                 });
             }
         }
+
+        update_total_big_display(frm);
     }
 },
 
@@ -289,6 +306,7 @@ function fetch_boq_items(frm, boq_name) {
           doctype: "BOQ",
           name: boq_name
       },
+      async:false,
       callback(r) {
           if (r.message && r.message.boq_items) {
 
@@ -312,6 +330,104 @@ function fetch_boq_items(frm, boq_name) {
       }
   });
 }
+
+function update_from_previous_progress_entry_for_boq(frm, r) {
+
+  // Ensure progress entry and its items exist
+  if (!r.message || !r.message.progress_entry_items) {
+    frappe.msgprint(__("No valid data found for the previous progress entry."));
+    return;
+  }
+  
+  // Set previous completion percentage from the previous progress entry
+  frm.set_value("previous_completion_percentage", r.message.total_completion_percentage);
+
+  // Loop through each row in the current child table
+  frm.doc.progress_entry_items.forEach(function (row) {
+    // Find matching item in progress_entry_items from the previous progress entry
+    const matching_item = r.message.progress_entry_items.find(item => item.item === row.item);
+
+    if (matching_item) {
+      // Update values if a match is found
+      row.sales_order_amt = frm.doc.sales_order_net_total;
+      row.prev_completion = matching_item.total_completion || 0;
+      row.total_completion = matching_item.total_completion || 0;
+      row.total_amount = matching_item.total_amount || 0;
+      row.prev_amount = matching_item.total_amount || 0;
+      row.item_name = matching_item.item_name;
+      
+      // Copy tax configurations from the previous progress entry
+      row.rate_includes_tax = matching_item.rate_includes_tax;
+      row.tax_excluded = matching_item.tax_excluded;
+      row.tax = matching_item.tax;
+      row.tax_rate = matching_item.tax_rate;
+      row.item_net_amount = matching_item.item_net_amount;
+      row.item_gross_amount = matching_item.item_gross_amount;
+      row.item_tax_amount = matching_item.item_tax_amount;
+    }
+    else
+    {
+      row.amendment_mode = "Addition";
+    }    
+  });
+
+  r.message.progress_entry_items.forEach(function (item) {
+    const existing_row = frm.doc.progress_entry_items.find(row => row.item === item.item);
+
+    if (existing_row == undefined) {
+
+      // Add a new row for unmatched items
+      const new_row = frm.add_child("progress_entry_items");
+      new_row.sales_order_amt = frm.doc.sales_order_net_total;
+      new_row.prev_completion = item.total_completion || 0;
+
+      new_row.total_completion = 100 || 0;
+
+      new_row.total_amount = item.total_amount || 0;
+      new_row.prev_amount = item.total_amount || 0;
+      new_row.item = item.item;
+      new_row.item_name = item.item_name;
+
+      // Copy tax configurations from the previous progress entry
+      new_row.rate_includes_tax = item.rate_includes_tax;
+      new_row.tax_excluded = item.tax_excluded;
+      new_row.tax = item.tax;
+      new_row.tax_rate = item.tax_rate;
+
+      //Change the item net_amount to previous entry's net_amount likewie, gross_amount and tax_amount
+      new_row.item_net_amount = item.net_amount;
+      new_row.item_gross_amount = item.gross_amount;
+      new_row.item_tax_amount = item.tax_amount;
+
+      // Set Amendment Mode to "Deletion" for new rows
+      new_row.amendment_mode = "Deletion";
+
+       // Make `total_completion` read-only for "Deletion" rows
+       frappe.run_serially([
+        () => {
+          frm.fields_dict["progress_entry_items"].grid.grid_rows_by_docname[new_row.name].toggle_editable("total_completion", false);
+        }
+      ]);
+    }
+  });
+
+  // Reset totals
+  frm.set_value('gross_total', 0);
+  frm.set_value('tax_total', 0);
+  frm.set_value('net_total', 0);
+  frm.set_value('rounded_total', 0);
+
+  // Refresh the field after setting new rows
+  frm.refresh_field("progress_entry_items");
+
+  // Alert if total completion percentage is already 100%
+  if (frm.doc.total_completion_percentage === 100) {
+    frappe.msgprint(__("The Completion Percentage is already 100%."));
+  }
+
+  highlight_deletion_rows(frm);
+}
+
 
 function update_from_previous_progress_entry(frm, r) {
 
@@ -369,7 +485,21 @@ frappe.ui.form.on("Progress Entry Item", {
  
   total_completion(frm,cdt,cdn){
 
+    console.log("total_completion")
+
     let row = frappe.get_doc(cdt, cdn);
+    
+    if (row.amendment_mode == "Deletion")
+    {
+      frappe.msgprint({
+        title: __("Validation Error"),
+        indicator: "red",
+        message: __("Deleted row % can't be edited."),
+      });
+
+      row.total_completion = 100;
+      return;
+    }
     
     if(row.total_completion< row.prev_completion)
     {
@@ -391,52 +521,92 @@ frappe.ui.form.on("Progress Entry Item", {
         indicator: "red",
         message: __("Completion % can't be more than 100%"),
       });
-    } else {       
-        row.current_completion = (row.total_completion - row.prev_completion);        
-        
-        update_progress(frm)
+    } else {      
+
+        if (row.amendment_mode == "Deletion")
+        {
+          row.current_completion = 0
+          // If the total_completion is edited by the user, put it back to 100
+          row.total_completion = 100 
+        }
+        else
+        {
+          row.current_completion = (row.total_completion - row.prev_completion);   
+        }
+
+        update_total_progress(frm)
+        console.log("eof update_total_progress")
+
         make_taxes_and_totals(frm,cdt,cdn);      
     }
   },
 });
 
-function update_progress(frm) {
+function update_total_progress(frm) {
+
+  console.log("from update_total_progress")
 
   let total_weighted_completion = 0;
   let total_item_net_amount = 0;
+  let total_gross_amount = 0;
+  let total_weighted_current_completion = 0;
   
   // Iterate through progress_entry_items
   for (let item of frm.doc.progress_entry_items) {
+
     // Sum up item_net_amount for all items
-    total_item_net_amount += item.item_net_amount;
+      total_item_net_amount += item.item_net_amount;
+      total_gross_amount += item.gross_amount
 
     // Calculate weighted completion only if total_completion is greater than 0
     if (item.total_completion > 0) {
-      total_weighted_completion += item.item_net_amount * (item.total_completion / 100); // Convert percentage to actual amount
+        
+        total_weighted_completion += item.item_net_amount * (item.total_completion / 100); // Convert percentage to actual amount
+    }
+
+    if (item.current_completion >0)
+    {      
+      total_weighted_current_completion += item.item_net_amount * (item.current_completion / 100); // Convert percentage to actual amount
     }
   }
 
+  console.log("total_weighted_current_completion",total_weighted_current_completion)
   console.log("total_weighted_completion",total_weighted_completion)
+
+  frm.set_value('gross_total', total_gross_amount)
 
   // Calculate average completion percentage based on item_net_amount
   let average_completion = total_item_net_amount > 0 ? (total_weighted_completion / total_item_net_amount) * 100 : 0;
-
   // Set the average value in the form
   frm.set_value("total_completion_percentage", average_completion);
+
+  // Current completion
+  let current_completion = total_item_net_amount > 0 ? (total_weighted_current_completion / total_item_net_amount) * 100 : 0
+  frm.set_value("current_completion_percentage", current_completion)
 
 }
 
 function make_taxes_and_totals(frm){
 
+  console.log("from make_taxes_and_totals")
+
+  total_gross_amount = 0
+
   // Tax configurations are using from the previous progress entry. So only consider taking the portion based on the current_completion
   frm.doc.progress_entry_items.forEach(row => {
+
+      console.log("current_completion", row.current_completion)
   
       if(row.current_completion > 0){
+
+        console.log("row in current completion:",row)
 
         row.gross_amount = (row.item_gross_amount * row.current_completion)/100;
         // Note that retention is not considering in the line item
         row.net_amount = (row.item_net_amount * row.current_completion)/100;
         row.tax_amount = row.item_tax_amount>0? (row.item_tax_amount * row.current_completion)/100:0
+
+        total_gross_amount += row.gross_amount
           
       }else{
        
@@ -448,8 +618,9 @@ function make_taxes_and_totals(frm){
       row.total_amount = row.prev_amount + row.net_amount
       
     })
+
+    frm.set_value('gross_total', total_gross_amount)
       
-    
     frm.refresh_field("progress_entry_items")
     update_total_amounts(frm);    
 
@@ -457,72 +628,27 @@ function make_taxes_and_totals(frm){
 
 function update_total_amounts(frm){
 
+  console.log("from update_total_amounts")
+
   let gross_total = 0;
   let tax_total = 0;
-  let net_total_before_deductions = 0;
-
-
-  // As per ValueStar calculation , find the gross amount from the sales order net amount by reducing tax since it may also include the additional discount.
-
- 
-
-  
-
-  // if(frm.doc.sales_order_discount && frm.doc.sales_order_additional_discount>0)
-  //   {
-      
-  //   }
-  //   else
-  //   {
-  //     frm.doc.progress_entry_items.forEach(element => {
-  //       gross_total += element.gross_amount;
-  //     });
-  //   }
- 
-
-
-  let previous_completion_percentage = frm.doc.previous_completion_percentage;
-
-  // Check if previous_completion_percentage is a valid number
-  if (isNaN(previous_completion_percentage)) {      
-      previous_completion_percentage = 0; // Assign a default value or handle it as required
-  }
-
-  let current_completion = frm.doc.total_completion_percentage - previous_completion_percentage;
-
-  // Validate the result of current_completion as well
-  if (isNaN(current_completion)) {
-      current_completion = 0; // Handle accordingly
-  }
-
-  if(!frm.doc.tax_excluded && frm.doc.tax_rate>0)
-  {
-    gross_total = (frm.doc.sales_order_net_total * 100 / (100 + frm.doc.tax_rate)) * (current_completion /100)
-  }
-  else
-  {
-    gross_total = frm.doc.sales_order_net_total * (current_completion /100)
-  }
 
   let advance_amount = 0
   let retention_amount  = 0
-  console.log("advance_amount",advance_amount)
-  console.log("current completion", current_completion)
 
-  console.log*("project_Advance", frm.doc.project_advance_amount)
+  current_completion = frm.doc.current_completion_percentage
 
   if(frm.doc.project_advance_amount > 0)
   {
-    advance_amount = (frm.doc.project_advance_amount * current_completion) / 100
-
-    console.log("frm.doc.project_advance_amount",frm.doc.project_advance_amount)
-
-    console.log("advance_amount",advance_amount)
+    advance_amount = (frm.doc.project_advance_amount * current_completion) / 100    
   }
+
+  gross_total = frm.doc.gross_total
 
   if(frm.doc.retention_percentage > 0)
   {
     retention_amount = (gross_total  * frm.doc.retention_percentage) /100
+    console.log(retention_amount)
   }
 
   let taxable_amount  = gross_total - advance_amount - retention_amount
@@ -539,7 +665,6 @@ function update_total_amounts(frm){
 
   net_total = taxable_amount + tax_total
 
-  frm.set_value('gross_total', gross_total);
   frm.set_value('tax_total', tax_total);
   frm.set_value('net_total', net_total);
   frm.set_value('rounded_total',0)
@@ -553,8 +678,7 @@ function update_total_amounts(frm){
     
     if (data && data.do_not_apply_round_off_in_si == 1) {
      	
-      frm.set_value('rounded_total',net_total)		
-
+      frm.set_value('rounded_total',net_total)
     }
     else {
      if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
@@ -574,23 +698,23 @@ function update_total_amounts(frm){
    update_total_big_display(frm)  
 
   });
-  0
+  
 }
 
 function update_total_big_display(frm) {
+  // Ensure `rounded_total` has a valid value; fallback to 0 if undefined or NaN
+  let roundedTotal = frm.doc.rounded_total || 0;
 
-	let display_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
+  // Safely parse the value to a number and round it off
+  let display_total = isNaN(parseFloat(roundedTotal)) ? 0 : parseFloat(roundedTotal).toFixed(0);
 
-    // Add 'AED' prefix and format net_total for display
+  // Add 'AED' prefix and format for display
+  let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${display_total}</div>`;
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${display_total}</div>`;
+  // Update the HTML content of the 'total_big' field
+  frm.fields_dict['total_big'].$wrapper.html(displayHtml);
 
-
-    // Directly update the HTML content of the 'total_big' field
-    frm.fields_dict['total_big'].$wrapper.html(displayHtml);
-
-    frm.refresh_field('total_big');
-
+  // No need to refresh `total_big` as it’s directly modified
 }
 
 function get_default_company_and_warehouse(frm) {
@@ -635,5 +759,27 @@ function get_default_company_and_warehouse(frm) {
               }
           }
       }
+  });
+}
+
+function highlight_deletion_rows(frm) {
+  // Loop through each child row
+  frm.doc.progress_entry_items.forEach(function(row) {
+    // Get the grid row
+    const grid_row = frm.fields_dict["progress_entry_items"].grid.grid_rows_by_docname[row.name];
+
+    if (row.amendment_mode === "Deletion") {
+      // Apply background color to the row for "Deletion"
+      $(grid_row.row).css({
+        "background-color": "#ffcccc", // Light red
+        "color": "#000000"            // Optional: black text for better readability
+      });
+    } else {
+      // Reset the background color for other rows
+      $(grid_row.row).css({
+        "background-color": "",
+        "color": ""
+      });
+    }
   });
 }

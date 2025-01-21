@@ -3,12 +3,9 @@
 
 frappe.ui.form.on('Item', {
 	refresh: function(frm) {
+		
 		if (frm.is_new()) {
-			// frappe.db.get_value('Company', frm.doc.company, 'tax_excluded', function(r) {
-			// 	if (r && r.tax_excluded === 1) {
-			// 		frm.set_value('tax_excluded', 1);
-			// 	}
-			// });
+
 			frappe.db.get_value('Company', frm.doc.company, 'maintain_stock', function(r) {
 				if (r && r.maintain_stock === 1) {
 						frm.set_value('maintain_stock', 1);
@@ -19,9 +16,30 @@ frappe.ui.form.on('Item', {
 				if (r && r.default_product_expense_account) {
 						frm.set_value('default_expense_account', r.default_product_expense_account);
 				}
-			});
-	}
- },
+			});	
+		}
+
+		frappe.db.get_value('Company', frm.doc.company, 'allow_purchase_with_dimensions_2', function(r) {
+			console.log("allow_purchase_with_dimensions_2")
+			
+			if (r && r.allow_purchase_with_dimensions_2) {
+				
+					frm.set_df_property("weight_per_meter", "hidden", 0);
+					frm.set_df_property("rate_per_kg", "hidden", 0);
+
+					console.log("not hidden")
+			}
+			else{
+
+				frm.set_df_property("weight_per_meter", "hidden", 1);
+				frm.set_df_property("rate_per_kg", "hidden", 1);
+
+				console.log("hidden")
+			}
+
+			console.log("here i am")
+		});	
+ 	},
 	 setup: function(frm) {
 		frm.set_query("asset_category", function () {
 			return {

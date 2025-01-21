@@ -50,7 +50,6 @@ class Item(Document):
 				"conversion_factor": 1
 			})	
 
-		frappe.msgprint("Added an Item Unit entry for the base unit with a conversion factor of 1.", alert=1)
 			
 		if not self.description:
 			self.description = self.item_name

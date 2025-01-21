@@ -14,6 +14,9 @@
   "width",
   "height",
   "no_of_pieces",
+  "length",
+  "weight_per_meter",
+  "rate_per_kg",
   "qty",
   "unit",
   "rate",
@@ -217,12 +220,35 @@
    "fieldname": "no_of_pieces",
    "fieldtype": "Int",
    "label": "No Of Pieces"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "length",
+   "fieldtype": "Float",
+   "label": "Length",
+   "precision": "3"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fetch_from": "item.weight_per_meter",
+   "fieldname": "weight_per_meter",
+   "fieldtype": "Float",
+   "label": "Weight Per Meter",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "label": "Rate Per Kg",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-11 12:31:40.628389",
+ "modified": "2025-01-18 09:54:03.648183",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

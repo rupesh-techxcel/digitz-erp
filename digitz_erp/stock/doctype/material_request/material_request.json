@@ -22,6 +22,7 @@
   "posting_time",
   "edit_posting_date_and_time",
   "use_dimensions",
+  "use_dimensions_2",
   "column_break_iwsh",
   "company",
   "project",
@@ -274,6 +275,12 @@
    "fieldname": "use_dimensions",
    "fieldtype": "Check",
    "label": "Use Dimensions"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_dimensions_2",
+   "fieldtype": "Check",
+   "label": "Use DImensions 2"
   }
  ],
  "icon": "fa fa-ticket",
@@ -284,7 +291,7 @@
    "link_fieldname": "material_request"
   }
  ],
- "modified": "2025-01-09 09:59:01.277520",
+ "modified": "2025-01-16 15:15:17.837149",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request",
