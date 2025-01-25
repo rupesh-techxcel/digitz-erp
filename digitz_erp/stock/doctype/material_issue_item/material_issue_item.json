@@ -11,8 +11,10 @@
   "item_name",
   "display_name",
   "qty",
-  "unit",
+  "qty_in_the_order",
+  "qty_finished",
   "rate",
+  "unit",
   "base_unit",
   "qty_in_base_unit",
   "rate_in_base_unit",
@@ -46,12 +48,15 @@
    "label": "Display Name"
   },
   {
+   "columns": 1,
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty"
+   "label": "Qty",
+   "precision": "2"
   },
   {
+   "columns": 1,
    "fieldname": "unit",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -59,6 +64,7 @@
    "options": "Unit"
   },
   {
+   "columns": 1,
    "fieldname": "rate",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -129,12 +135,30 @@
    "fieldtype": "Link",
    "label": "Sub contracting order item",
    "options": "Sub Contracting Order Item"
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty_finished",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Finished",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty_in_the_order",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty In The Order",
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-20 18:08:11.630115",
+ "modified": "2025-01-24 19:25:18.845093",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Issue Item",

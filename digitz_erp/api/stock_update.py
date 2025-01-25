@@ -566,7 +566,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
                     valuation_rate = balance_value/ balance_qty
                      
                                 
-        if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
+        if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return" or sl.voucher == "Stock Entry"):
             
             previous_balance_value = balance_value #Assign before change 
             balance_qty = balance_qty + sl.qty_in

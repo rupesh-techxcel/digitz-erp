@@ -471,9 +471,13 @@
   {
    "link_doctype": "Purchase Receipt",
    "link_fieldname": "purchase_order"
+  },
+  {
+   "link_doctype": "Sub Contracting Order",
+   "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2025-01-20 09:41:29.348126",
+ "modified": "2025-01-22 10:46:23.524240",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",
