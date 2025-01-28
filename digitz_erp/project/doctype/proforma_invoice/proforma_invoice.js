@@ -59,6 +59,11 @@ frappe.ui.form.on("Proforma Invoice", {
     
                     frm.refresh_field('progress_entry_items');
     
+                    frm.set_value('gross_total_before_addition', progress_entry.gross_total_before_addition);
+					frm.set_value('gross_for_addition', progress_entry.gross_for_addition);
+					frm.set_value('gross_total_for_removed_items', progress_entry.gross_total_for_removed_items);
+					frm.set_value('net_total_for_removed_items', progress_entry.net_total_for_removed_items);					
+                    
                     frm.set_value('project_retention_amount', progress_entry.project_retention_amount);
 					frm.set_value('project_advance_amount', progress_entry.project_advance_amount);
                     frm.set_value('project_advance_percentage', progress_entry.project_advance_percentage);

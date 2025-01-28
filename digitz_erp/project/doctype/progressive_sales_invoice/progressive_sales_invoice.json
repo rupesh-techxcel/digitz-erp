@@ -61,11 +61,19 @@
   "section_break_19",
   "progress_entry_items",
   "section_break_25",
+  "column_break_cmkt",
+  "boq_additions",
+  "gross_total_before_addition",
+  "gross_for_addition",
+  "removed_boq_items",
+  "gross_total_for_removed_items",
+  "net_total_for_removed_items",
+  "column_break_33",
+  "current_progress",
   "gross_total",
   "retention_percentage",
   "deduction_for_retention",
   "deduction_against_advance",
-  "column_break_33",
   "taxable_amount",
   "tax_total",
   "additional_discount",
@@ -346,8 +354,7 @@
   },
   {
    "fieldname": "column_break_33",
-   "fieldtype": "Column Break",
-   "label": "Deductions"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "additional_discount",
@@ -356,8 +363,7 @@
   },
   {
    "fieldname": "column_break_xkzu",
-   "fieldtype": "Column Break",
-   "label": "Total"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "round_off",
@@ -610,6 +616,45 @@
    "fieldname": "project_advance_percentage",
    "fieldtype": "Percent",
    "label": "Project Advance Percentage"
+  },
+  {
+   "fieldname": "current_progress",
+   "fieldtype": "Heading",
+   "label": "Current Progress"
+  },
+  {
+   "fieldname": "column_break_cmkt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "boq_additions",
+   "fieldtype": "Heading",
+   "label": "Additions In BOQ"
+  },
+  {
+   "fieldname": "gross_total_before_addition",
+   "fieldtype": "Currency",
+   "label": "Gross Total Before Addition"
+  },
+  {
+   "fieldname": "gross_for_addition",
+   "fieldtype": "Currency",
+   "label": "Gross Total For Additions"
+  },
+  {
+   "fieldname": "removed_boq_items",
+   "fieldtype": "Heading",
+   "label": "Removed BOQ Items"
+  },
+  {
+   "fieldname": "gross_total_for_removed_items",
+   "fieldtype": "Currency",
+   "label": "Gross Total For Removed Items"
+  },
+  {
+   "fieldname": "net_total_for_removed_items",
+   "fieldtype": "Currency",
+   "label": "Net Total For Removed Items"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -624,7 +669,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-12-29 13:14:56.730673",
+ "modified": "2025-01-28 12:47:49.462282",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progressive Sales Invoice",

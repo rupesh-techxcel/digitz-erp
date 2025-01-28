@@ -85,7 +85,8 @@
   "allow_budgeted_item_to_be_purchased",
   "boq_with_manual_item_selection",
   "allow_purchase_with_dimensions",
-  "allow_purchase_with_dimensions_2"
+  "allow_purchase_with_dimensions_2",
+  "enquiry_selection_in_quotation"
  ],
  "fields": [
   {
@@ -557,12 +558,18 @@
    "fieldname": "allow_purchase_with_dimensions_2",
    "fieldtype": "Check",
    "label": "Allow Purchase with dimensions 2"
+  },
+  {
+   "default": "0",
+   "fieldname": "enquiry_selection_in_quotation",
+   "fieldtype": "Check",
+   "label": "Enquiry selection in Quotation (As default)"
   }
  ],
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-16 14:48:02.745514",
+ "modified": "2025-01-28 09:14:46.820536",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

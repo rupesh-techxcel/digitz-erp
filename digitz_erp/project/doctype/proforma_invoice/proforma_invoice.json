@@ -61,11 +61,19 @@
   "item_units",
   "column_break_ywbh",
   "section_break_25",
+  "column_break_nwkf",
+  "additions_in_boq",
+  "gross_total_before_addition",
+  "gross_for_addition",
+  "removed_boq_items",
+  "gross_total_for_removed_items",
+  "net_total_for_removed_items",
+  "column_break_33",
+  "current_progress",
   "gross_total",
   "retention_percentage",
   "deduction_for_retention",
   "deduction_against_advance",
-  "column_break_33",
   "taxable_amount",
   "tax_total",
   "additional_discount",
@@ -579,6 +587,45 @@
    "fieldname": "project_advance_percentage",
    "fieldtype": "Percent",
    "label": "Project Advance Percentage"
+  },
+  {
+   "fieldname": "current_progress",
+   "fieldtype": "Heading",
+   "label": "Current Progress"
+  },
+  {
+   "fieldname": "column_break_nwkf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additions_in_boq",
+   "fieldtype": "Heading",
+   "label": "Additions In BOQ"
+  },
+  {
+   "fieldname": "gross_total_before_addition",
+   "fieldtype": "Currency",
+   "label": "Gross Total Before Addition"
+  },
+  {
+   "fieldname": "gross_for_addition",
+   "fieldtype": "Currency",
+   "label": "Gross Total For Additions"
+  },
+  {
+   "fieldname": "removed_boq_items",
+   "fieldtype": "Heading",
+   "label": "Removed BOQ Items"
+  },
+  {
+   "fieldname": "gross_total_for_removed_items",
+   "fieldtype": "Currency",
+   "label": "Gross Total For Removed Items"
+  },
+  {
+   "fieldname": "net_total_for_removed_items",
+   "fieldtype": "Currency",
+   "label": "Net Total For Removed Items"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -593,7 +640,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-12-25 12:01:00.623656",
+ "modified": "2025-01-28 12:46:58.368195",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",

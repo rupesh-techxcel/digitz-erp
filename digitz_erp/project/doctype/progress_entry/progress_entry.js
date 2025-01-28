@@ -62,11 +62,11 @@ frappe.ui.form.on("Progress Entry", {
       }
     });
 
-    highlight_deletion_rows(frm);
+    
   },
   onload_post_render: function(frm) {
     // Ensure styling is applied when the form is loaded
-    highlight_deletion_rows(frm);
+    highlight_amended_rows(frm);
   }, 
   project(frm) {
 
@@ -74,6 +74,15 @@ frappe.ui.form.on("Progress Entry", {
 
     if (frm.doc.project) {
 
+        // Steps
+        // 1. Set sales order when project selected
+        // 2. Check for previous progress entry already exists
+        // 3. If No
+        //       And if BOQ exists , load the items from boq Else load from Sales Order
+        //    If Yes
+        //       Fetch BOQ items and update progress from the previous PE
+
+        // Set Sales Order
         if(frm.doc.sales_order == undefined)
         {
 
@@ -87,6 +96,7 @@ frappe.ui.form.on("Progress Entry", {
               }}});
         }
 
+        // Get Last Progress Entry
         frappe.call({
             method: 'digitz_erp.api.project_api.get_last_progress_entry',
             args: { project_name: frm.doc.project },   
@@ -117,16 +127,20 @@ frappe.ui.form.on("Progress Entry", {
                             // Check if there is a BOQ linked in the Sales Order
                             if (r.message.boq) {
                                 fetch_boq_items(frm, r.message.boq);
+                                update_boq_deleted_items(frm,r.message.boq)
                             } else {
                                 // If no BOQ exists, fall back to Sales Order items
                                 fetch_sales_order_items(frm);
                             }
+                            highlight_amended_rows(frm);
                         } else {
                             frappe.msgprint(__("No items found for the selected Sales Order."));
                         }
                     }
                 });
             } else {
+
+              frappe.throw("Sales Order not found!!!")
                 
             }
         } else {
@@ -156,30 +170,17 @@ frappe.ui.form.on("Progress Entry", {
                                 if(frm.doc.boq)
                                 {
                                   // Fetch the latest BOQ items (may be amended) and then update the previous progress for each line item.
-                                  fetch_boq_items(frm,frm.doc.boq)
+                                  fetch_boq_items(frm,frm.doc.boq)                                  
                                   update_from_previous_progress_entry_for_boq(frm,r)
+                                  update_boq_deleted_items(frm,r.message.boq)
                                 }
-                                else
+                                else //If there is no BOQ exists and progress entry is creating with out BOQ
                                 {
                                   update_from_previous_progress_entry(frm, r);
                                 }
 
-                                // If previous progress entry exists, check for amendments
-                                // if (frm.doc.sales_order) {
-                                //     frappe.call({
-                                //         method: "frappe.client.get",
-                                //         args: {
-                                //             doctype: "Sales Order",
-                                //             name: frm.doc.sales_order
-                                //         },
-                                //         callback(r) {
-                                //             if (r.message && r.message.boq) {
-                                //                 // Check for BOQ Amendments after the progress entry date
-                                //                 check_boq_amendments_after_progress(frm, r.message.boq);
-                                //             }
-                                //         }
-                                //     });
-                                // }
+                                highlight_amended_rows(frm);
+                               
                             } else {
                                 frappe.msgprint(__("The previous progress entry is already 100% completed."));
                             }
@@ -311,6 +312,8 @@ function fetch_boq_items(frm, boq_name) {
           if (r.message && r.message.boq_items) {
 
               frm.clear_table("progress_entry_items");
+              let gross_before_addition = 0
+              let gross_for_addition = 0
               r.message.boq_items.forEach(function (item) {
                   let row = frm.add_child("progress_entry_items");
                   row.item = item.item;
@@ -321,8 +324,24 @@ function fetch_boq_items(frm, boq_name) {
                   row.tax_rate = item.tax_rate;
                   row.item_tax_amount = item.tax_amount;
                   row.item_gross_amount = item.gross_amount;
-                  row.item_net_amount = item.net_amount;
+                  row.item_net_amount = item.net_amount;                 
+
+                  if(item.addition)
+                  {
+                    row.amendment_mode = "Addition"
+                    gross_for_addition += item.gross_amount
+                  }
+                  else
+                  {
+                    gross_before_addition += item.gross_amount
+                  }
+
+                    
               });
+
+              frm.set_value('gross_total_before_addition', gross_before_addition)
+              frm.set_value('gross_for_addition', gross_for_addition)
+
               frm.refresh_field("progress_entry_items");
           } else {
               frappe.msgprint(__("No items found in the linked BOQ."));
@@ -330,6 +349,45 @@ function fetch_boq_items(frm, boq_name) {
       }
   });
 }
+
+function update_boq_deleted_items(frm, boq_name) {
+
+  frappe.call({
+      method: "frappe.client.get",
+      args: {
+          doctype: "BOQ",
+          name: boq_name
+      },
+      async:false,
+      callback(r) {
+
+          console.log(r.message.items_deleted)
+
+          if (r.message && r.message.items_deleted) {
+            
+              
+              let gross_total_for_removed = 0
+              let net_total_for_removed = 0
+
+              r.message.items_deleted.forEach(function (item) {
+                
+                gross_total_for_removed += item.gross_amount;
+                net_total_for_removed += item.net_amount
+                    
+              });
+
+              frm.set_value("gross_total_for_removed_items", gross_total_for_removed)
+              frm.set_value("net_total_for_removed_items", net_total_for_removed)
+
+
+              frm.refresh_field("progress_entry_items");
+          } else {
+              frappe.msgprint(__("No items found in the linked BOQ."));
+          }
+      }
+  });
+}
+
 
 function update_from_previous_progress_entry_for_boq(frm, r) {
 
@@ -342,7 +400,8 @@ function update_from_previous_progress_entry_for_boq(frm, r) {
   // Set previous completion percentage from the previous progress entry
   frm.set_value("previous_completion_percentage", r.message.total_completion_percentage);
 
-  // Loop through each row in the current child table
+  // Loop through each row in the current child table.
+  // This loop also identifies any 'Addition' happened after the previous progress entry
   frm.doc.progress_entry_items.forEach(function (row) {
     // Find matching item in progress_entry_items from the previous progress entry
     const matching_item = r.message.progress_entry_items.find(item => item.item === row.item);
@@ -364,16 +423,18 @@ function update_from_previous_progress_entry_for_boq(frm, r) {
       row.item_net_amount = matching_item.item_net_amount;
       row.item_gross_amount = matching_item.item_gross_amount;
       row.item_tax_amount = matching_item.item_tax_amount;
-    }
-    else
-    {
-      row.amendment_mode = "Addition";
-    }    
+    }      
   });
 
+  // Check each previous progress entry items is still in the BOQ items which is loaded already.
+  // If Not mark it's 'Amendment Mode' as 'Deletion'
+  // This scenario is not likely to occur since we dont allow to delete the item in the 'BOQ Amendment'
+  // if its already using in the progress entry
   r.message.progress_entry_items.forEach(function (item) {
     const existing_row = frm.doc.progress_entry_items.find(row => row.item === item.item);
 
+    // This condition is not likely to occur since in the current implementation, we dont allow
+    // to delete item when there is a progress entry already exists with the item
     if (existing_row == undefined) {
 
       // Add a new row for unmatched items
@@ -425,9 +486,8 @@ function update_from_previous_progress_entry_for_boq(frm, r) {
     frappe.msgprint(__("The Completion Percentage is already 100%."));
   }
 
-  highlight_deletion_rows(frm);
+  highlight_amended_rows(frm);
 }
-
 
 function update_from_previous_progress_entry(frm, r) {
 
@@ -762,7 +822,7 @@ function get_default_company_and_warehouse(frm) {
   });
 }
 
-function highlight_deletion_rows(frm) {
+function highlight_amended_rows(frm) {
   // Loop through each child row
   frm.doc.progress_entry_items.forEach(function(row) {
     // Get the grid row
@@ -774,7 +834,15 @@ function highlight_deletion_rows(frm) {
         "background-color": "#ffcccc", // Light red
         "color": "#000000"            // Optional: black text for better readability
       });
-    } else {
+    }
+    else if(row.amendment_mode =="Addition")
+    {
+      $(grid_row.row).css({
+        "background-color": "lightblue", // Light red
+        "color": "#000000"            // Optional: black text for better readability
+      });
+    }
+    else {
       // Reset the background color for other rows
       $(grid_row.row).css({
         "background-color": "",

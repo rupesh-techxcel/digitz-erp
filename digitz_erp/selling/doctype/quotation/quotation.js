@@ -560,7 +560,7 @@ frappe.ui.form.on('Quotation', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
+							'fieldname': ['default_warehouse', 'rate_includes_tax','default_credit_sale','enquiry_selection_in_quotation']
 						},
 						callback: (r2) => {
 							console.log("Before assign default warehouse");
@@ -570,6 +570,19 @@ frappe.ui.form.on('Quotation', {
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
+
+							frm.set_value('warehouse',r2.message.default_warehouse)
+							frm.set_value('rate_includes_tax',r2.message.rate_includes_tax)
+							frm.set_value('credit_sale', r2.message.default_credit_sale)
+							console.log("r2.message.enquiry_selection_in_quotation",r2.message.enquiry_selection_in_quotation)
+							if(r2.message.enquiry_selection_in_quotation)
+							{
+								frm.set_value("based_on", "Enquiry")
+							}
+							else
+							{
+								frm.set_value("based_on", "Other")
+							}
 						}
 					}
 
