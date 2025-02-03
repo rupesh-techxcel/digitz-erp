@@ -37,8 +37,10 @@ frappe.ui.form.on("Progressive Sales Invoice", {
                             "prev_completion": element.prev_completion,
                             "total_completion": element.total_completion,
                             "current_completion": element.current_completion,
-                            "total_amount": element.total_amount,
-                            "prev_amount": element.prev_amount,
+                            "total_net_amount": element.total_net_amount,
+                            "prev_net_amount": element.prev_net_amount,
+							"total_gross_amount": element.total_gross_amount,
+                            "prev_gross_amount": element.prev_gross_amount,
                             "tax": element.tax,
                             "tax_rate": element.tax_rate,
                             "tax_amount": element.tax_amount,
@@ -54,6 +56,22 @@ frappe.ui.form.on("Progressive Sales Invoice", {
                         frm.add_child('progress_entry_items', row);
                         frm.refresh_fields('progress_entry_items');
                     });
+
+					progress_entry.print_details.forEach(element =>{
+
+						let print_row = {
+
+							"detail": element.detail,
+							"total": element.total,
+							"previous": element.previous,
+							"current":element.current
+						}
+
+						frm.add_child('print_details',print_row)
+						frm.refresh_fields("print_details")
+					});
+
+					
 
 					frm.set_value('gross_total_before_addition', progress_entry.gross_total_before_addition);
 					frm.set_value('gross_for_addition', progress_entry.gross_for_addition);

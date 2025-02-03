@@ -309,7 +309,6 @@ frappe.ui.form.on('Purchase Receipt', {
 	warehouse(frm) {
 		console.log("warehouse set")
 		console.log(frm.doc.warehouse)
-
 	},
 	additional_discount(frm) {
 		frm.trigger("make_taxes_and_totals");

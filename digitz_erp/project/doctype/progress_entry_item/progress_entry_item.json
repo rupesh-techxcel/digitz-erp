@@ -25,10 +25,10 @@
   "tax_rate",
   "total_gross_amount",
   "total_tax_amount",
-  "total_amount",
+  "total_net_amount",
   "prev_gross_amount",
   "prev_tax_amount",
-  "prev_amount",
+  "prev_net_amount",
   "column_break_swfb",
   "gross_amount",
   "tax_amount",
@@ -59,7 +59,7 @@
    "fieldtype": "Currency",
    "label": "Gross Amount",
    "non_negative": 1,
-   "precision": "3"
+   "precision": "2"
   },
   {
    "default": "0",
@@ -67,7 +67,7 @@
    "fieldtype": "Currency",
    "label": "Tax Amount",
    "non_negative": 1,
-   "precision": "3",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -87,17 +87,6 @@
    "label": "Sales Order Amt.",
    "non_negative": 1,
    "precision": "3"
-  },
-  {
-   "columns": 1,
-   "default": "0",
-   "fieldname": "prev_amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Prev Amount",
-   "non_negative": 1,
-   "precision": "3",
-   "read_only": 1
   },
   {
    "columns": 1,
@@ -167,7 +156,7 @@
    "in_list_view": 1,
    "label": "Net Amount",
    "non_negative": 1,
-   "precision": "3"
+   "precision": "2"
   },
   {
    "columns": 1,
@@ -192,29 +181,30 @@
    "label": "Tax Excluded"
   },
   {
-   "fieldname": "total_amount",
-   "fieldtype": "Currency",
-   "label": "Total Amount"
-  },
-  {
    "fieldname": "total_gross_amount",
    "fieldtype": "Currency",
-   "label": "Total Gross Amount"
+   "in_list_view": 1,
+   "label": "Total Gross Amount",
+   "precision": "2"
   },
   {
    "fieldname": "total_tax_amount",
    "fieldtype": "Currency",
-   "label": "Total Tax Amount"
+   "label": "Total Tax Amount",
+   "precision": "2"
   },
   {
    "fieldname": "prev_gross_amount",
    "fieldtype": "Currency",
-   "label": "Prev Gross Amount"
+   "in_list_view": 1,
+   "label": "Prev Gross Amount",
+   "precision": "2"
   },
   {
    "fieldname": "prev_tax_amount",
    "fieldtype": "Currency",
-   "label": "Prev Tax Amount"
+   "label": "Prev Tax Amount",
+   "precision": "2"
   },
   {
    "default": "No Amendment",
@@ -223,12 +213,29 @@
    "label": "Amendment Mode",
    "options": "No Amendment\nAddition\nDeletion",
    "read_only": 1
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "prev_net_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Prev Net Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_net_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-18 19:13:14.897575",
+ "modified": "2025-02-03 08:16:17.525589",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Progress Entry Item",

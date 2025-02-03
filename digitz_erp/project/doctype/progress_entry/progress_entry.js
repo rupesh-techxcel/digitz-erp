@@ -411,8 +411,10 @@ function update_from_previous_progress_entry_for_boq(frm, r) {
       row.sales_order_amt = frm.doc.sales_order_net_total;
       row.prev_completion = matching_item.total_completion || 0;
       row.total_completion = matching_item.total_completion || 0;
-      row.total_amount = matching_item.total_amount || 0;
-      row.prev_amount = matching_item.total_amount || 0;
+      row.total_net_amount = matching_item.total_net_amount || 0;
+      row.prev_net_amount = matching_item.total_net_amount || 0;
+      row.total_gross_amount = matching_item.total_gross_amount || 0;
+      row.prev_gross_amount = matching_item.total_gross_amount || 0;
       row.item_name = matching_item.item_name;
       
       // Copy tax configurations from the previous progress entry
@@ -444,8 +446,12 @@ function update_from_previous_progress_entry_for_boq(frm, r) {
 
       new_row.total_completion = 100 || 0;
 
-      new_row.total_amount = item.total_amount || 0;
-      new_row.prev_amount = item.total_amount || 0;
+      new_row.total_gross_amount = item.prev_gross_amount || 0;
+      new_row.prev_gross_amount = item.prev_gross_amount || 0;
+
+      new_row.total_net_amount = item.total_net_amount || 0;
+      new_row.prev_net_amount = item.total_net_amount || 0;
+
       new_row.item = item.item;
       new_row.item_name = item.item_name;
 
@@ -508,8 +514,20 @@ function update_from_previous_progress_entry(frm, r) {
       row.sales_order_amt = frm.doc.sales_order_net_total;
       row.prev_completion = item.total_completion || 0;
       row.total_completion = item.total_completion || 0; //Default to previous completion
-      row.total_amount = item.total_amount || 0;
-      row.prev_amount = item.total_amount || 0;
+
+      // total_amount renamed to total_net_amount and previous_amount renamed to previous_net_amount
+      // Note that prev_gross_amount and total_gross_amount are already exist.
+
+      row.total_net_amount = item.total_net_amount || 0;
+      row.prev_net_amount = item.total_net_amount || 0;
+
+      console.log("item.gross_amount", item.gross_amount)
+      
+
+      row.prev_gross_amount = item.gross_amount|| 0;
+
+       
+      row.total_gross_amount =row.prev_gross_amount|| 0;
       row.item = item.item;
       row.item_name = item.item_name;
       
@@ -595,6 +613,7 @@ frappe.ui.form.on("Progress Entry Item", {
         }
 
         update_total_progress(frm)
+
         console.log("eof update_total_progress")
 
         make_taxes_and_totals(frm,cdt,cdn);      
@@ -659,32 +678,83 @@ function make_taxes_and_totals(frm){
   
       if(row.current_completion > 0){
 
-        console.log("row in current completion:",row)
+        console.log("row in current completion:", row)
 
-        row.gross_amount = (row.item_gross_amount * row.current_completion)/100;
-        // Note that retention is not considering in the line item
-        row.net_amount = (row.item_net_amount * row.current_completion)/100;
-        row.tax_amount = row.item_tax_amount>0? (row.item_tax_amount * row.current_completion)/100:0
+        // Handle NaN checks for gross_amount, net_amount, and tax_amount
+        row.gross_amount = isNaN((row.item_gross_amount * row.current_completion) / 100) ? 0 : (row.item_gross_amount * row.current_completion) / 100;
+        row.net_amount = isNaN((row.item_net_amount * row.current_completion) / 100) ? 0 : (row.item_net_amount * row.current_completion) / 100;
+        row.tax_amount = row.item_tax_amount > 0 ? (isNaN((row.item_tax_amount * row.current_completion) / 100) ? 0 : (row.item_tax_amount * row.current_completion) / 100) : 0;
 
         total_gross_amount += row.gross_amount
           
-      }else{
+      } else {
        
         row.gross_amount = 0
         row.tax_amount = 0
         row.net_amount = 0
       }
 
-      row.total_amount = row.prev_amount + row.net_amount
-      
+      // Handle NaN checks for prev_gross_amount and prev_net_amount
+      row.total_gross_amount = (isNaN(row.prev_gross_amount) ? 0 : row.prev_gross_amount) + row.gross_amount
+      row.total_net_amount = (isNaN(row.prev_net_amount) ? 0 : row.prev_net_amount) + row.net_amount
     })
 
     frm.set_value('gross_total', total_gross_amount)
       
     frm.refresh_field("progress_entry_items")
-    update_total_amounts(frm);    
+    update_total_amounts(frm);  
+    update_progress_print_values(frm)
+}
 
-  }
+function update_progress_print_values(frm) {
+
+    let progress = { total: 0, previous: 0, current: 0 };
+    let addition = { total: 0, previous: 0, current: 0 };
+    let deduction = { total: 0, previous: 0, current: 0 };
+
+    frm.doc.progress_entry_items.forEach(row => {
+      if (row.amendment_mode === "Addition") {
+        addition.current += row.gross_amount || 0;
+        addition.previous += row.prev_gross_amount || 0;        
+        addition.total += (row.gross_amount || 0) + (row.prev_gross_amount || 0)
+
+      } else if (row.amendment_mode === "No Amendment") {
+        progress.previous += row.prev_gross_amount || 0;
+        progress.current += row.gross_amount || 0;
+        progress.total += (row.gross_amount || 0) + (row.prev_gross_amount || 0)
+      }
+    });
+
+    deduction.total = frm.doc.gross_total_for_removed_items || 0;
+
+    // Clear existing data in print_details properly
+    frm.clear_table("print_details");
+
+    // Add new entries to print_details in the order: Progress → Addition → Deduction
+    frm.add_child("print_details", {
+      detail: "Progress Items",
+      total: progress.total,
+      previous: progress.previous,
+      current: progress.current
+    });
+
+    frm.add_child("print_details", {
+      detail: "Additions",
+      total: addition.total,
+      previous: addition.previous,
+      current: addition.current
+    });
+
+    frm.add_child("print_details", {
+      detail: "Deductions",
+      total: deduction.total,
+      previous: deduction.previous,
+      current: deduction.current
+    });
+
+    // Refresh the field to reflect changes in the UI
+    frm.refresh_field("print_details");
+}
 
 function update_total_amounts(frm){
 

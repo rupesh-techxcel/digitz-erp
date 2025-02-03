@@ -99,7 +99,9 @@
   "rate_includes_tax",
   "warehouse",
   "salesman",
-  "salesman_code"
+  "salesman_code",
+  "section_break_ustp",
+  "print_details"
  ],
  "fields": [
   {
@@ -626,6 +628,16 @@
    "fieldname": "net_total_for_removed_items",
    "fieldtype": "Currency",
    "label": "Net Total For Removed Items"
+  },
+  {
+   "fieldname": "section_break_ustp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "print_details",
+   "fieldtype": "Table",
+   "label": "Print Details",
+   "options": "Progress Entry Print Detail"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -640,7 +652,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2025-01-28 12:46:58.368195",
+ "modified": "2025-02-02 20:58:46.825818",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Proforma Invoice",
