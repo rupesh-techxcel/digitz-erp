@@ -882,7 +882,7 @@ function update_item_row(frm,cdt,cdn){
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded','height','width','area','length']
 				},
 				callback: (r) => {
 
@@ -895,6 +895,10 @@ function update_item_row(frm,cdt,cdn){
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;
 					row.unit = r.message.base_unit;
+					row.height = r.message.height
+					row.width = r.message.width
+					row.area = r.message.area
+					row.length = r.message.length
 					row.conversion_factor = 1;
 					frm.warehouse = row.warehouse
 					console.log("before trigger")

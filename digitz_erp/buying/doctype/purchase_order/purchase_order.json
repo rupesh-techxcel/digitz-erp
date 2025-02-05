@@ -446,13 +446,13 @@
    "default": "0",
    "fieldname": "use_dimensions",
    "fieldtype": "Check",
-   "label": "Use DImensions"
+   "label": "Use for Glass"
   },
   {
    "default": "0",
    "fieldname": "use_dimensions_2",
    "fieldtype": "Check",
-   "label": "Use Dimensions 2"
+   "label": "Use for Aluminium Profile"
   },
   {
    "allow_on_submit": 1,
@@ -477,7 +477,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2025-01-22 10:46:23.524240",
+ "modified": "2025-02-05 14:18:59.441849",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",

@@ -29,6 +29,12 @@
   "margin_",
   "standard_selling_price",
   "default_expense_account",
+  "use_for_glass",
+  "use_for_aluminium_profile",
+  "width",
+  "height",
+  "area",
+  "length",
   "column_break_izch",
   "stock_balance",
   "item_valuation_rate",
@@ -245,11 +251,51 @@
    "fieldname": "rate_per_kg",
    "fieldtype": "Currency",
    "label": "Rate Per Kg"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_for_glass",
+   "fieldtype": "Check",
+   "label": "Use for Glass"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_for_aluminium_profile",
+   "fieldtype": "Check",
+   "label": "Use for Aluminium Profile"
+  },
+  {
+   "depends_on": "eval:doc.use_for_glass",
+   "fieldname": "width",
+   "fieldtype": "Float",
+   "label": "Width",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.use_for_glass",
+   "fieldname": "height",
+   "fieldtype": "Float",
+   "label": "Height",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.use_for_glass",
+   "fieldname": "area",
+   "fieldtype": "Float",
+   "label": "Area",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.use_for_aluminium_profile",
+   "fieldname": "length",
+   "fieldtype": "Float",
+   "label": "Length",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-17 13:00:59.796011",
+ "modified": "2025-02-05 14:34:08.784564",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
