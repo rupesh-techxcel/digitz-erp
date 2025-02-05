@@ -903,6 +903,8 @@ function update_item_row(frm,cdt,cdn){
 					frm.warehouse = row.warehouse
 					console.log("before trigger")
 					frm.trigger("get_item_stock_balance");
+					frm.refresh_field("items");
+
 
 					console.log("r.message.tax_excluded")
 					console.log(r.message.tax_excluded)
