@@ -5,5 +5,4 @@ Setup
 Buying
 Selling
 General
-HR Base
 Project
