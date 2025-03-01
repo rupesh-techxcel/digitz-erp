@@ -71,7 +71,13 @@
   "tab_break_50",
   "data_53",
   "amended_from",
-  "boq"
+  "boq",
+  "tab_3_tab",
+  "attention",
+  "print_subject",
+  "print_lines",
+  "terms_to_print",
+  "terms_to_print_more"
  ],
  "fields": [
   {
@@ -424,6 +430,37 @@
    "fieldtype": "Data",
    "label": "BOQ",
    "read_only": 1
+  },
+  {
+   "fieldname": "tab_3_tab",
+   "fieldtype": "Tab Break",
+   "label": "Print Format"
+  },
+  {
+   "fieldname": "print_lines",
+   "fieldtype": "Table",
+   "options": "Quotation Formatting"
+  },
+  {
+   "default": "Line Item Format",
+   "fieldname": "print_subject",
+   "fieldtype": "Data",
+   "label": "Subject:"
+  },
+  {
+   "fieldname": "attention",
+   "fieldtype": "Data",
+   "label": "Attn:"
+  },
+  {
+   "fieldname": "terms_to_print",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "terms_to_print_more",
+   "fieldtype": "Text Editor",
+   "label": "More Terms"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -442,7 +479,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-11-17 16:56:14.398899",
+ "modified": "2025-02-28 13:12:07.324175",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

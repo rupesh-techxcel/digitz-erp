@@ -11,6 +11,10 @@ class Quotation(Document):
 	def before_validate(self):
 		if self.rounded_total>0:
 			self.in_words = money_in_words(self.rounded_total, "AED")
+   
+	def on_update(self):
+		self.update_print_lines()
+     
   
 	@frappe.whitelist()
 	def generate_quotation(self):
@@ -89,7 +93,72 @@ class Quotation(Document):
 		frappe.msgprint("Quotation duplicated successfully.",indicator="green", alert=True)
 		
 		return quotation.name
-  
+
+	def update_print_lines(self):
+		if not self.items:  # Ensure there are items to process
+			return
+
+		grouped_items = {}
+
+		# Step 1: Group items by item_group
+		for item in self.items:
+			item_group_name = item.item_group or "Ungrouped"
+			grouped_items.setdefault(item_group_name, []).append(item)
+
+		self.set("print_lines", [])  # Properly initialize the child table
+
+		sl_no = 1  # Initialize serial number for groups
+
+		print("Grouped Items:", grouped_items)
+
+		for group, items in grouped_items.items():
+      
+			print("Processing Group:", group)
+			print("items", items)
+
+			# Add group header as the first row with serial number
+			self.append("print_lines", {
+				"sl_no": str(sl_no),
+				"description": f"**{group}**",  # Group name as header
+				"qty": "",  # No quantity for group header
+				"rate": "",
+				"gross_amount": "",
+				"tax_amount": "",
+				"net_amount": ""
+			})
+   
+			# Add group header as the first row with serial number
+			self.append("print_lines", {
+				"sl_no": "",
+				"description": f"To supply & install:",  # Group name as header
+				"qty": "",  # No quantity for group header
+				"rate": "",
+				"gross_amount": "",
+				"tax_amount": "",
+				"net_amount": ""
+			})
+
+
+			# Add each item under the respective group
+			sub_sl_no = 1  # Sub-serial number for items
+			for item in items:
+       
+				item_sl_no = f"{sl_no}.{sub_sl_no}"  # Example: 1.1, 1.2, etc.
+
+				self.append("print_lines", {
+					"sl_no": item_sl_no,
+					"description": item.item_name or "",
+					"qty": item.qty or "",
+					"rate": f"{item.rate:.2f}" if item.rate else "",
+					"gross_amount": f"{item.gross_amount:.2f}" if item.gross_amount else "",
+					"tax_amount": f"{item.tax_amount:.2f}" if item.tax_amount else "",
+					"net_amount": f"{item.net_amount:.2f}" if item.net_amount else ""
+            	})
+    
+				sub_sl_no += 1  # Increment sub-serial number
+
+			sl_no += 1  # Increment main serial number for the next group
+
 
 @frappe.whitelist()
 def generate_sale_invoice(quotation):
@@ -290,6 +359,9 @@ def generate_sales_order(quotation):
     frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
 
     return new_so.name
+
+
+    
 
 
 
