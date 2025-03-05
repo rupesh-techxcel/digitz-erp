@@ -213,6 +213,9 @@ frappe.ui.form.on('Material Request Item', {
 
         frappe.db.get_value('Item', row.item, ['item_name', 'description','height','width','area','length'], (r) => {
             if (r) {
+
+                console.log("r")
+                console.log(r)
                 
                 // Update the row with fetched values
                 frappe.model.set_value(cdt, cdn, 'item_name', r.item_name || '');
@@ -232,11 +235,10 @@ frappe.ui.form.on('Material Request Item', {
         });
         
 
-        
-        row.height = r.message.height
-        row.width = r.message.width
-        row.area = r.message.area
-        row.length = r.message.length
+        // row.set_value("height", r.message.height);
+        // row.set_value("width", r.message.width);
+        // row.set_value("area", r.message.area);
+        // row.set_value("length", r.message.length);
 
         check_budget_utilization(frm, cdt, cdn, row.item);
 
