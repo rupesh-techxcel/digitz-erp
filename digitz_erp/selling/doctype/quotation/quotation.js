@@ -479,10 +479,21 @@ frappe.ui.form.on('Quotation', {
 			frm.doc.additional_discount = 0;
 		}
 
+		console.log("gross_total")
+		console.log(gross_total)
+
 		frm.doc.gross_total = gross_total;
 		frm.doc.net_total = gross_total + tax_total - frm.doc.additional_discount;
 		frm.doc.tax_total = tax_total;
 		frm.doc.total_discount_in_line_items = discount_total;
+
+		frm.doc.total_without_tax = gross_total + frm.doc.additional_discount;
+		frm.refresh_field("total_without_tax"); // Refresh before logging
+		console.log("Total Without Tax", frm.doc.total_without_tax);
+
+		console.log("Total Without Tax", frm.doc.total_without_tax)
+
+		
 		console.log("Net Total Before Round Off")
 		console.log(frm.doc.net_total)
 
@@ -492,6 +503,14 @@ frappe.ui.form.on('Quotation', {
 		}
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
+		}
+
+		if (frm.doc.total_without_tax != Math.round(frm.doc.total_without_tax)) {
+			
+			frm.doc.rounded_total_without_tax = Math.round(frm.doc.total_without_tax);
+		}
+		else {
+			frm.doc.rounded_total_without_tax = frm.doc.total_without_tax;
 		}
 
 		console.log("Totals");
@@ -510,6 +529,8 @@ frappe.ui.form.on('Quotation', {
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
+		frm.refresh_field("total_without_tax");
+		frm.refresh_field("rounded_total_without_tax");		
 
 		update_total_big_display(frm);
 

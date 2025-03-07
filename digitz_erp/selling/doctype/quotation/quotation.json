@@ -10,6 +10,8 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
+  "revno",
+  "rev_date",
   "customer",
   "customer_name",
   "customer_display_name",
@@ -23,6 +25,7 @@
   "ship_to_location",
   "reference_no",
   "remarks",
+  "qtn_validity",
   "column_break_4",
   "price_list",
   "rate_includes_tax",
@@ -62,6 +65,8 @@
   "column_break_yzqc",
   "round_off",
   "rounded_total",
+  "total_without_tax",
+  "rounded_total_without_tax",
   "column_break_ufpf",
   "total_big",
   "in_words",
@@ -75,9 +80,7 @@
   "tab_3_tab",
   "attention",
   "print_subject",
-  "print_lines",
-  "terms_to_print",
-  "terms_to_print_more"
+  "print_lines"
  ],
  "fields": [
   {
@@ -203,7 +206,7 @@
   },
   {
    "fieldname": "payment_terms",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Payment Terms "
   },
   {
@@ -439,6 +442,7 @@
   {
    "fieldname": "print_lines",
    "fieldtype": "Table",
+   "label": "Items To Print",
    "options": "Quotation Formatting"
   },
   {
@@ -453,14 +457,31 @@
    "label": "Attn:"
   },
   {
-   "fieldname": "terms_to_print",
-   "fieldtype": "Text Editor",
-   "label": "Terms and Conditions"
+   "fieldname": "revno",
+   "fieldtype": "Data",
+   "label": "Rev.No"
   },
   {
-   "fieldname": "terms_to_print_more",
-   "fieldtype": "Text Editor",
-   "label": "More Terms"
+   "fieldname": "qtn_validity",
+   "fieldtype": "Data",
+   "label": "Qtn Validity"
+  },
+  {
+   "fieldname": "total_without_tax",
+   "fieldtype": "Currency",
+   "label": "Total Without Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rounded_total_without_tax",
+   "fieldtype": "Currency",
+   "label": "Rounded Total Without Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rev_date",
+   "fieldtype": "Date",
+   "label": "Rev Date"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -479,7 +500,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2025-02-28 13:12:07.324175",
+ "modified": "2025-03-06 17:57:22.916105",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",
