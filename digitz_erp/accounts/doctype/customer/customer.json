@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "format:{customer_name}, {area}",
+ "autoname": "field:customer_name",
  "creation": "2022-12-21 17:08:13.855018",
  "default_view": "List",
  "doctype": "DocType",
@@ -25,10 +25,10 @@
   "address",
   "address_line_1",
   "address_line_2",
+  "country",
   "emirate",
   "area",
   "area_name",
-  "country",
   "column_break_27",
   "contact",
   "phone",
@@ -53,7 +53,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Customer Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "default": "Default Customer Group",
@@ -135,17 +136,19 @@
    "label": "Address Line 2"
   },
   {
+   "default": "Dubai",
+   "depends_on": "eval:doc.country==\"United Arab Emirates\"",
    "fieldname": "emirate",
    "fieldtype": "Select",
    "label": "Emirate",
    "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
   },
   {
+   "depends_on": "eval:doc.country==\"United Arab Emirates\"",
    "fieldname": "area",
    "fieldtype": "Link",
    "label": "Area",
-   "options": "Area",
-   "reqd": 1
+   "options": "Area"
   },
   {
    "fieldname": "country",
@@ -223,6 +226,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.country==\"United Arab Emirates\"",
    "fetch_from": "area.area",
    "fieldname": "area_name",
    "fieldtype": "Data",
@@ -271,11 +275,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-12-06 19:09:47.711273",
+ "modified": "2025-03-08 08:20:42.611432",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
- "naming_rule": "Expression",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
