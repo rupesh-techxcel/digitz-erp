@@ -43,9 +43,9 @@
    "fieldname": "prospect",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Prospect",
+   "label": "Sales Prospect",
    "mandatory_depends_on": "eval:doc.lead_from==\"Prospect\"",
-   "options": "Prospect"
+   "options": "Sales Prospect"
   },
   {
    "fieldname": "column_break_xesa",
@@ -145,7 +145,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2024-10-06 18:34:40.278297",
+ "modified": "2025-03-11 16:16:21.055135",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Enquiry",

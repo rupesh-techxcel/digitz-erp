@@ -19,6 +19,10 @@ def get_sales_invoice_exists(qtn_no):
    return frappe.db.exists('Sales Invoice', {'quotation': qtn_no,'docstatus': ('<', 2)})
 
 @frappe.whitelist()
+def get_customer_exists_for_prospect(prospect):    
+   return bool(frappe.db.exists('Customer', {'prospect': prospect}))
+
+@frappe.whitelist()
 def get_sales_order_exists(qtn_no):    
    return frappe.db.exists('Sales Order', {'quotation': qtn_no,'docstatus': ('<', 2)})
 

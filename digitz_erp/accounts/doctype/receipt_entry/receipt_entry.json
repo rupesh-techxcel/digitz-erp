@@ -58,7 +58,7 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "RE-.#####.-.MM.-.YYYY."
+   "options": "RCPT-.YYYY.-"
   },
   {
    "fieldname": "payment_mode",
@@ -241,7 +241,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-11-30 22:43:58.968811",
+ "modified": "2025-03-11 17:41:23.672536",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",

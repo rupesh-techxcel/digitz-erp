@@ -41,6 +41,7 @@
   "tax",
   "tax_account",
   "do_not_apply_round_off_in_si",
+  "area_mandatory_for_customer",
   "column_break_23",
   "accounts_settings",
   "default_income_account",
@@ -564,12 +565,19 @@
    "fieldname": "enquiry_selection_in_quotation",
    "fieldtype": "Check",
    "label": "Enquiry selection in Quotation (As default)"
+  },
+  {
+   "default": "0",
+   "description": "Enable this checkbox if you want to treat the same customer with multiple locations as separate entities",
+   "fieldname": "area_mandatory_for_customer",
+   "fieldtype": "Check",
+   "label": "Area mandatory for customer"
   }
  ],
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-05 14:24:44.908751",
+ "modified": "2025-03-11 20:04:29.780349",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

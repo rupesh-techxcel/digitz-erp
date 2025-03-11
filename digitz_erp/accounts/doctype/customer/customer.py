@@ -3,8 +3,20 @@
 
 import frappe
 from frappe.model.document import Document
+from digitz_erp.api.settings_api import get_default_company
 
 class Customer(Document):
+    
+    def before_validate(self):
+        
+        self.name = self.customer_name
+        company = get_default_company()
+        area_mandatory = frappe.get_value("Company",company,"area_mandatory_for_customer")
+        if area_mandatory and not self.area:
+            frappe.throw("Select Area.")
+        
+        if area_mandatory:
+            self.name = f"{self.customer_name}, {self.area}"
     
     def update_enquiries_for_prospect(prospect, customer_name):
         """
@@ -34,15 +46,16 @@ class Customer(Document):
 
         frappe.msgprint(f"Updated {len(enquiries)} enquiries linked to the prospect '{prospect}' with the customer '{customer_name}'", alert=True)
     
-    def on_update(self):
-        """
-        on_update hook for the Customer doctype.
-        Calls the method to update enquiries when a customer is created from a prospect.
-        """
+    # def on_update(self):
+        # """
+        # on_update hook for the Customer doctype.
+        # Calls the method to update enquiries when a customer is created from a prospect.
+        # """
+        
         # Ensure the customer is being created for the first time
-        if self.is_new():
+        # if self.is_new():
             # Call the separate method to update enquiries for the prospect
-            update_enquiries_for_prospect(doc.prospect, doc.name)
+            # update_enquiries_for_prospect(doc.prospect, doc.name)
 
 @frappe.whitelist()
 def merge_customer(current_customer, merge_customer):

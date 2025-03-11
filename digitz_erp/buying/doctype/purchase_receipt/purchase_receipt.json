@@ -84,7 +84,7 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "PINV-.YYYY.-"
+   "options": "PRCT-.YYYY.-"
   },
   {
    "fieldname": "supplier",
@@ -491,7 +491,7 @@
    "link_fieldname": "purchase_receipt"
   }
  ],
- "modified": "2025-01-16 18:21:55.108103",
+ "modified": "2025-03-11 17:37:58.408580",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt",

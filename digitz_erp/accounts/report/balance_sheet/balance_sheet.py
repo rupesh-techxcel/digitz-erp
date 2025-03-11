@@ -139,12 +139,12 @@ def get_data(filters=None):
         if account.name == "Accounts":
             continue
         
-        if account.name == "Asset":
+        if account.name == "Assets":
             assets_total = account[last_key]
         
         # Include profit in the liability
         # Include profit in the liability
-        if account['name'] == "Liability":
+        if account['name'] == "Liabilities":
             for period in period_list:
                 key = period['key']
                 # Ensure there's a default value of 0 for both account and gp_data before adding

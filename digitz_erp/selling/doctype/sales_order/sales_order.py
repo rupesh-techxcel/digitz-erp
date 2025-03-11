@@ -149,10 +149,8 @@ def generate_do(sales_order_name):
 	delivery_note_doc.rounded_total = sales_order_doc.rounded_total
 	delivery_note_doc.terms = sales_order_doc.terms
 	delivery_note_doc.terms_and_conditions = sales_order_doc.terms_and_conditions		
-	delivery_note_doc.address_line_1 = sales_order_doc.address_line_1
-	delivery_note_doc.address_line_2 = sales_order_doc.address_line_2
-	delivery_note_doc.area_name = sales_order_doc.area_name
-	delivery_note_doc.country = sales_order_doc.country
+	delivery_note_doc.customer_address = sales_order_doc.customer_address	
+		
 	delivery_note_doc.quotation = sales_order_doc.quotation
 	delivery_note_doc.sales_order = sales_order_doc.name
 

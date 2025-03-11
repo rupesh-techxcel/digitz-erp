@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "field:customer_name",
+ "autoname": "format:{customer_name}, {area_name}",
  "creation": "2022-12-21 17:08:13.855018",
  "default_view": "List",
  "doctype": "DocType",
@@ -32,11 +32,10 @@
   "column_break_27",
   "contact",
   "phone",
+  "mobile_no",
   "email_id",
   "contact_person",
   "contact_person_designation",
-  "contact_phone",
-  "contact_email_id",
   "full_address",
   "column_break_wyer",
   "delivery_locations",
@@ -174,7 +173,7 @@
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
-   "label": "Email",
+   "label": "Email Id",
    "options": "Email"
   },
   {
@@ -186,17 +185,6 @@
    "fieldname": "contact_person_designation",
    "fieldtype": "Data",
    "label": "Contact Person Designation"
-  },
-  {
-   "fieldname": "contact_phone",
-   "fieldtype": "Data",
-   "label": "Contact Phone"
-  },
-  {
-   "fieldname": "contact_email_id",
-   "fieldtype": "Data",
-   "label": "Contact Email",
-   "options": "Email"
   },
   {
    "fieldname": "section_break_24",
@@ -264,22 +252,27 @@
   {
    "fieldname": "prospect",
    "fieldtype": "Link",
-   "label": "Prospect",
-   "options": "Prospect"
+   "label": "Sales Prospect",
+   "options": "Sales Prospect"
   },
   {
    "fieldname": "bank_details",
    "fieldtype": "Small Text",
    "label": "Bank Details"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-08 08:20:42.611432",
+ "modified": "2025-03-11 20:36:23.270763",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

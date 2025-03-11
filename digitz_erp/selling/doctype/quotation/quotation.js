@@ -78,21 +78,48 @@ frappe.ui.form.on('Quotation', {
 
 					frm.add_custom_button('Create Sales Order', () => {
 
-						frm.call({
-							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',
-							args: {
-								quotation: frm.doc.name
-							},
-							callback: function(r)
-							{
-								frm.reload_doc();
-								if(r.message){
-									frappe.set_route('Form', 'Sales Order', r.message);
+						console.log("From Create Sales Order.")
+						console.log("frm.doc.lead_from")
+						console.log(frm.doc.lead_from)
+						if(frm.doc.lead_from == "Prospect")
+						{
+							frappe.call({
+								method: 'digitz_erp.api.quotation_api.get_customer_exists_for_prospect',
+								async: false,
+								args: {
+									'prospect': frm.doc.prospect
+								},
+								callback(r) {
+									console.log("r")
+									console.log(r)
+									if (r.message) {
+										// Customer exists
+										console.log("Customer exists for the prospect.");
+									} else {
+										// No customer exists for the prospect
+										frappe.msgprint("Convert the Prospect into a Customer to place an Order.");
+									}
 								}
-							}
+							});
 
-						});
-
+						}
+						else
+						{
+							frm.call({
+								method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',
+								args: {
+									quotation: frm.doc.name
+								},
+								callback: function(r)
+								{
+									frm.reload_doc();
+									if(r.message){
+										frappe.set_route('Form', 'Sales Order', r.message);
+									}
+								}
+	
+							});
+						}
 					},"Actions");
 
 					frm.add_custom_button('Create Delivery Note', () => {
@@ -714,8 +741,14 @@ frappe.ui.form.on('Quotation Item', {
 
 		let row = frappe.get_doc(cdt, cdn);
 
-		if (typeof (frm.doc.customer) == "undefined") {
+		if (frm.doc.lead_from== "Customer" && typeof (frm.doc.customer) == "undefined") {
 			frappe.msgprint("Select customer.")
+			row.item = "";
+			return;
+		}
+
+		if (frm.doc.lead_from== "Prospect" && typeof (frm.doc.prospect) == "undefined") {
+			frappe.msgprint("Select Prospect.")
 			row.item = "";
 			return;
 		}
@@ -835,77 +868,81 @@ frappe.ui.form.on('Quotation Item', {
 					console.log("use customer last price")
 					console.log(use_customer_last_price)
 
-					var use_price_list_price = 1
-					if(use_customer_last_price == 1)
+					if( frm.doc.lead_type == "Customer")
 					{
-						console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
-						frappe.call(
-							{
-								method:'digitz_erp.api.item_price_api.get_customer_last_price_for_item',
-								args:{
-									'item': row.item,
-									'customer': frm.doc.customer
-								},
-								async:false,
-								callback(r){
+						var use_price_list_price = 1
+						if(use_customer_last_price == 1)
+						{
+							console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+							frappe.call(
+								{
+									method:'digitz_erp.api.item_price_api.get_customer_last_price_for_item',
+									args:{
+										'item': row.item,
+										'customer': frm.doc.customer
+									},
+									async:false,
+									callback(r){
 
-									console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
-									console.log(r)
+										console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+										console.log(r)
 
-									if (r.message !== undefined && r.message.length > 0) {
-										// Assuming r.message is an array, you might want to handle this differently based on your actual response
-										row.rate = parseFloat(r.message[0]);
-										row.rate_in_base_unit = parseFloat(r.message[0]);
-									}
-									else if (r.message!= undefined) {
-										row.rate = parseFloat(r.message)
-										row.rate_in_base_unit = parseFloat(r.message)
-									}
+										if (r.message !== undefined && r.message.length > 0) {
+											// Assuming r.message is an array, you might want to handle this differently based on your actual response
+											row.rate = parseFloat(r.message[0]);
+											row.rate_in_base_unit = parseFloat(r.message[0]);
+										}
+										else if (r.message!= undefined) {
+											row.rate = parseFloat(r.message)
+											row.rate_in_base_unit = parseFloat(r.message)
+										}
 
-									console.log("customer last price")
-									console.log(row.rate)
+										console.log("customer last price")
+										console.log(row.rate)
 
-									if(r.message != undefined && r.message > 0 )
-									{
-										use_price_list_price = 0
+										if(r.message != undefined && r.message > 0 )
+										{
+											use_price_list_price = 0
+										}
 									}
 								}
-							}
-						);
+							);
+						}
+
+						if(use_price_list_price ==1)
+						{
+							console.log("digitz_erp.api.item_price_api.get_item_price")
+							frappe.call(
+								{
+									method: 'digitz_erp.api.item_price_api.get_item_price',
+									async: false,
+
+									args: {
+										'item': row.item,
+										'price_list': frm.doc.price_list,
+										'currency': currency,
+										'date': frm.doc.posting_date
+									},
+									callback(r) {
+										console.log("digitz_erp.api.item_price_api.get_item_price")
+										console.log(r)
+										// row.rate = r.message;
+										// row.rate_in_base_unit = r.message;
+
+										if (r.message !== undefined && r.message.length > 0) {
+											// Assuming r.message is an array, you might want to handle this differently based on your actual response
+											row.rate = r.message[0];
+											row.rate_in_base_unit = r.message[0];
+										}
+										else if (r.message!= undefined) {
+											row.rate = parseFloat(r.message)
+											row.rate_in_base_unit = parseFloat(r.message)
+										}
+									}
+								});
+						}
 					}
 
-					if(use_price_list_price ==1)
-					{
-						console.log("digitz_erp.api.item_price_api.get_item_price")
-						frappe.call(
-							{
-								method: 'digitz_erp.api.item_price_api.get_item_price',
-								async: false,
-
-								args: {
-									'item': row.item,
-									'price_list': frm.doc.price_list,
-									'currency': currency,
-									'date': frm.doc.posting_date
-								},
-								callback(r) {
-									console.log("digitz_erp.api.item_price_api.get_item_price")
-									console.log(r)
-									// row.rate = r.message;
-									// row.rate_in_base_unit = r.message;
-
-									if (r.message !== undefined && r.message.length > 0) {
-										// Assuming r.message is an array, you might want to handle this differently based on your actual response
-										row.rate = r.message[0];
-										row.rate_in_base_unit = r.message[0];
-									}
-									else if (r.message!= undefined) {
-										row.rate = parseFloat(r.message)
-										row.rate_in_base_unit = parseFloat(r.message)
-									}
-								}
-							});
-					}
 					frm.trigger("make_taxes_and_totals");
 					frm.refresh_field("items");
 				}
