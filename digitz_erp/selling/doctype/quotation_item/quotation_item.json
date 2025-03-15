@@ -32,7 +32,8 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "cost_center"
+  "cost_center",
+  "boq_item"
  ],
  "fields": [
   {
@@ -209,12 +210,19 @@
    "label": "Item Group",
    "options": "Item Group",
    "read_only": 1
+  },
+  {
+   "fieldname": "boq_item",
+   "fieldtype": "Link",
+   "label": "BOQ Item",
+   "options": "BOQ Item",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-02-03 08:14:47.306871",
+ "modified": "2025-03-14 14:54:08.247715",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation Item",

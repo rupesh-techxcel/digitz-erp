@@ -263,6 +263,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -287,6 +288,7 @@
    "label": "Totals"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "gross_total",
    "fieldtype": "Currency",
    "label": "Gross Total",
@@ -298,6 +300,7 @@
    "label": "Total Discount In Line Items"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "tax_total",
    "fieldtype": "Currency",
    "label": "Tax Total",
@@ -313,6 +316,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "label": "Net Total",
@@ -326,6 +330,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "rounded_total",
    "fieldtype": "Currency",
    "label": "Rounded Total",
@@ -480,7 +485,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2024-11-28 09:48:13.756270",
+ "modified": "2025-03-14 20:28:43.598040",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

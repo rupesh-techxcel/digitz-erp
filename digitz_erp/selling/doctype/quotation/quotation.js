@@ -93,33 +93,29 @@ frappe.ui.form.on('Quotation', {
 									console.log("r")
 									console.log(r)
 									if (r.message) {
-										// Customer exists
-										console.log("Customer exists for the prospect.");
+										
 									} else {
 										// No customer exists for the prospect
 										frappe.msgprint("Convert the Prospect into a Customer to place an Order.");
+										return
 									}
 								}
 							});
-
-						}
-						else
-						{
-							frm.call({
-								method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',
-								args: {
-									quotation: frm.doc.name
-								},
-								callback: function(r)
-								{
-									frm.reload_doc();
-									if(r.message){
-										frappe.set_route('Form', 'Sales Order', r.message);
-									}
+						}						
+						frm.call({
+							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',
+							args: {
+								quotation: frm.doc.name
+							},
+							callback: function(r)
+							{
+								frm.reload_doc();
+								if(r.message){
+									frappe.set_route('Form', 'Sales Order', r.message);
 								}
-	
-							});
-						}
+							}
+						});
+						
 					},"Actions");
 
 					frm.add_custom_button('Create Delivery Note', () => {

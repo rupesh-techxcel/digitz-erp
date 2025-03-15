@@ -66,6 +66,7 @@
    "reqd": 1
   },
   {
+   "description": "(Eg: TRN No in UAE)",
    "fieldname": "tax_id",
    "fieldtype": "Data",
    "label": "Tax Id"
@@ -268,7 +269,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-11 20:36:23.270763",
+ "modified": "2025-03-14 10:33:06.772357",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
@@ -290,5 +291,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "customer_name"
 }

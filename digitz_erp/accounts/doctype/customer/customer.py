@@ -11,12 +11,35 @@ class Customer(Document):
         
         self.name = self.customer_name
         company = get_default_company()
-        area_mandatory = frappe.get_value("Company",company,"area_mandatory_for_customer")
+        area_mandatory = frappe.get_value("Company",company,"customer_area_required")
         if area_mandatory and not self.area:
             frappe.throw("Select Area.")
         
         if area_mandatory:
             self.name = f"{self.customer_name}, {self.area}"
+            
+        self.validate_data()
+    
+    def validate_data(self):
+        
+        company = get_default_company()    
+        
+        area_mandatory,trn_mandatory,address_required,mobile_required,email_required = frappe.get_value("Company",company,["customer_area_required","customer_trn_required","customer_address_required","customer_mobile_required","customer_email_required"])
+        
+        if area_mandatory and not self.area:
+            frappe.throw("Select Area.")
+        
+        if trn_mandatory and not self.tax_id:
+            frappe.throw("Tax Id is mandaoty for the customer.")
+            
+        if address_required and not self.address_line_1:
+            frappe.throw("Address Line 1 is mandaoty for the customer.")
+            
+        if mobile_required and not self.mobile_no:
+            frappe.throw("Mobile Number is mandatory for the customer.")
+        
+        if email_required and not self.email_id:
+            frappe.throw("Email Id is mandaoty for the customer.")
     
     def update_enquiries_for_prospect(prospect, customer_name):
         """
