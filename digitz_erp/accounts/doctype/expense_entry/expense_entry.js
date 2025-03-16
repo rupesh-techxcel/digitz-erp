@@ -12,8 +12,7 @@ frappe.ui.form.on('Expense Entry', {
 	},
   onload: function(frm)
   {
-    assign_defaults(frm);
-    fill_payment_schedule(frm);
+    assign_defaults(frm);     
   },
 
   refresh: function(frm) {

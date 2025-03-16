@@ -1333,83 +1333,60 @@ class SalesInvoice(Document):
 
     @frappe.whitelist()
     def generate_sales_invoice(self):
-
+        # Create a new Sales Invoice document
         sales_invoice = frappe.new_doc('Sales Invoice')
 
-        sales_invoice.customer = self.customer
-        sales_invoice.customer_name = self.customer_name
-        sales_invoice.customer_display_name = self.customer_display_name
-        sales_invoice.customer_address = self.customer_address        
-        sales_invoice.posting_date = self.posting_date
-        sales_invoice.posting_time = self.posting_time
-        sales_invoice.ship_to_location = self.ship_to_location
-        sales_invoice.salesman = self.salesman
-        sales_invoice.salesman_code = self.salesman_code
-        sales_invoice.tax_id = self.tax_id        
-        sales_invoice.price_list = self.price_list
-        sales_invoice.rate_includes_tax = self.rate_includes_tax
-        sales_invoice.warehouse = self.warehouse
-        sales_invoice.update_stock = self.update_stock
-        sales_invoice.credit_sale = self.credit_sale
-        sales_invoice.credit_days = self.credit_days
-        sales_invoice.payment_terms = self.payment_terms
-        sales_invoice.payment_mode = self.payment_mode
-        sales_invoice.payment_account = self.payment_account
-        sales_invoice.remarks = self.remarks
-        sales_invoice.gross_total = self.gross_total
-        sales_invoice.total_discount_in_line_items = self.total_discount_in_line_items
-        sales_invoice.tax_total = self.tax_total
-        sales_invoice.net_total = self.net_total
-        sales_invoice.round_off = self.round_off
-        sales_invoice.rounded_total = self.rounded_total
-        sales_invoice.terms = self.terms
-        sales_invoice.terms_and_conditions = self.terms_and_conditions
+        # Set fields from the current document
+        fields_to_copy = [
+            'customer', 'customer_name', 'customer_display_name', 'customer_address',
+            'posting_date', 'posting_time', 'ship_to_location', 'salesman', 'salesman_code',
+            'tax_id', 'price_list', 'rate_includes_tax', 'warehouse', 'update_stock',
+            'credit_sale', 'credit_days', 'payment_terms', 'payment_mode', 'payment_account',
+            'remarks', 'gross_total', 'total_discount_in_line_items', 'tax_total',
+            'net_total', 'round_off', 'rounded_total', 'terms', 'terms_and_conditions',
+            'address_line_1', 'address_line_2', 'area_name', 'country', 'company'
+        ]
+
+        for field in fields_to_copy:
+            setattr(sales_invoice, field, getattr(self, field))
+
+        # Set auto_generated_from_delivery_note to False
         sales_invoice.auto_generated_from_delivery_note = False
-        sales_invoice.address_line_1 = self.address_line_1
-        sales_invoice.address_line_2 = self.address_line_2
-        sales_invoice.area_name = self.area_name
-        sales_invoice.country = self.country
-        sales_invoice.company = self.company
 
-        sales_invoice.save()
-
-        idx = 0
-
+        # Append items to the Sales Invoice before saving
         for item in self.items:
-            idx = idx + 1
-            sales_invoice_item = frappe.new_doc("Sales Invoice Item")
-            sales_invoice_item.warehouse = item.warehouse
-            sales_invoice_item.item = item.item
-            sales_invoice_item.item_name = item.item_name
-            sales_invoice_item.display_name = item.display_name
-            sales_invoice_item.qty =item.qty
-            sales_invoice_item.unit = item.unit
-            sales_invoice_item.rate = item.rate
-            sales_invoice_item.base_unit = item.base_unit
-            sales_invoice_item.qty_in_base_unit = item.qty_in_base_unit
-            sales_invoice_item.rate_in_base_unit = item.rate_in_base_unit
-            sales_invoice_item.conversion_factor = item.conversion_factor
-            sales_invoice_item.rate_includes_tax = item.rate_includes_tax
-            sales_invoice_item.rate_excluded_tax = item.rate_excluded_tax
-            sales_invoice_item.gross_amount = item.gross_amount
-            sales_invoice_item.tax_excluded = item.tax_excluded
-            sales_invoice_item.tax = item.tax
-            sales_invoice_item.tax_rate = item.tax_rate
-            sales_invoice_item.tax_amount = item.tax_amount
-            sales_invoice_item.discount_percentage = item.discount_percentage
-            sales_invoice_item.discount_amount = item.discount_amount
-            sales_invoice_item.net_amount = item.net_amount
-            sales_invoice_item.unit_conversion_details = item.unit_conversion_details
-            sales_invoice_item.idx = idx
+            sales_invoice.append('items', {
+                'warehouse': item.warehouse,
+                'item': item.item,
+                'item_name': item.item_name,
+                'display_name': item.display_name,
+                'qty': item.qty,
+                'unit': item.unit,
+                'rate': item.rate,
+                'base_unit': item.base_unit,
+                'qty_in_base_unit': item.qty_in_base_unit,
+                'rate_in_base_unit': item.rate_in_base_unit,
+                'conversion_factor': item.conversion_factor,
+                'rate_includes_tax': item.rate_includes_tax,
+                'rate_excluded_tax': item.rate_excluded_tax,
+                'gross_amount': item.gross_amount,
+                'tax_excluded': item.tax_excluded,
+                'tax': item.tax,
+                'tax_rate': item.tax_rate,
+                'tax_amount': item.tax_amount,
+                'discount_percentage': item.discount_percentage,
+                'discount_amount': item.discount_amount,
+                'net_amount': item.net_amount,
+                'unit_conversion_details': item.unit_conversion_details
+            })
 
-            sales_invoice.append('items', sales_invoice_item)            
+        # Insert the Sales Invoice document (with items already appended)
+        sales_invoice.insert(ignore_permissions=True)
 
-            sales_invoice.save()
+        # Notify the user
+        frappe.msgprint("Sales Invoice generated successfully.", indicator="green", alert=True)
 
-        frappe.msgprint("Sales Invoice duplicated successfully.",indicator="green", alert=True)
-        
         return sales_invoice.name
-
 
     @frappe.whitelist()
     def get_default_payment_mode():

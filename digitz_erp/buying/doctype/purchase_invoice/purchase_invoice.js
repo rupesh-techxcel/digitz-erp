@@ -581,8 +581,7 @@ function update_total_big_display(frm) {
 
 frappe.ui.form.on("Purchase Invoice", "onload", function (frm) {
 
-	frm.trigger("assign_defaults")
-	fill_payment_schedule(frm);
+	frm.trigger("assign_defaults")	
 });
 
 

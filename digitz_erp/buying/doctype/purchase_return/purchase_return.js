@@ -671,8 +671,7 @@ function fill_payment_schedule(frm, refresh=false,refresh_credit_days=false)
 
 frappe.ui.form.on("Purchase Return", "onload", function (frm) {
 
-	frm.trigger("assign_defaults")
-	fill_payment_schedule(frm);
+	frm.trigger("assign_defaults")	
 });
 
 frappe.ui.form.on('Purchase Return Item', {

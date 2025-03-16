@@ -20,15 +20,7 @@ frappe.ui.form.on('Sales Invoice', {
 	
 		// update_total_big_display(frm);
 		
-        frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
-            var child = locals[cdt][cdn];
-            return {
-                filters: {
-                    
-                    'item_type':['not in', ['Labour']]
-                }
-            };
-        };
+       
     
 
 	 },
@@ -100,6 +92,16 @@ frappe.ui.form.on('Sales Invoice', {
                     disabled: 0
                 }
             };});
+
+		frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
+			var child = locals[cdt][cdn];
+			return {
+				filters: {
+					
+					'item_type':['not in', ['Labour']]
+				}
+			};
+		};
 	},
 	assign_defaults(frm)
 	{
@@ -824,9 +826,7 @@ function process_delivery_note_items(frm, items) {
 
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
-	frm.trigger("assign_defaults")
-	fill_receipt_schedule(frm);
-
+	frm.trigger("assign_defaults")	
 });
 
 frappe.ui.form.on('Sales Invoice Item', {
