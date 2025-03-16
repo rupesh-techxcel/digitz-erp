@@ -715,12 +715,12 @@ frappe.ui.form.on('Delivery Note Item', {
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name','description', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
 
 					row.item_name = r.message.item_name;
-					row.display_name = r.message.item_name;
+					row.display_name = r.message.description;
 					//row.uom = r.message.base_unit;
 
 					if(tax_excluded_for_company)

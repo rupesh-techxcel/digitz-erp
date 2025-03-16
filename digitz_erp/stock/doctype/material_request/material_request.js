@@ -219,7 +219,7 @@ frappe.ui.form.on('Material Request Item', {
                 
                 // Update the row with fetched values
                 frappe.model.set_value(cdt, cdn, 'item_name', r.item_name || '');
-                frappe.model.set_value(cdt, cdn, 'description', r.description || '');
+                frappe.model.set_value(cdt, cdn, 'display_name', r.description || '');
 
                 frappe.model.set_value(cdt, cdn, 'height', r.height || 0);
                 frappe.model.set_value(cdt, cdn, 'width', r.width || 0);

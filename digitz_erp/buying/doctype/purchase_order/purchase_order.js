@@ -882,7 +882,7 @@ function update_item_row(frm,cdt,cdn){
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded','height','width','area','length']
+					'fieldname': ['item_name','description', 'base_unit', 'tax', 'tax_excluded','height','width','area','length']
 				},
 				callback: (r) => {
 
@@ -890,7 +890,7 @@ function update_item_row(frm,cdt,cdn){
 					console.log(r.message)
 
 					row.item_name = r.message.item_name;
-					row.display_name = r.message.item_name;
+					row.display_name = r.message.description;
 					//row.uom = r.message.base_unit;
 					row.tax_excluded = r.message.tax_excluded;
 					row.base_unit = r.message.base_unit;

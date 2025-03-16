@@ -726,19 +726,19 @@ frappe.ui.form.on('Sales Return Item', {
 			}
 		);
 
-
 		frappe.call(
 			{
 				method: 'frappe.client.get_value',
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name','description','base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
-					row.item_name = r.message.item_name;
-					//row.uom = r.message.base_unit;
 
+					row.item_name = r.message.item_name;
+					row.display_name = r.message.description;
+					
 					if(tax_excluded_for_company)
 					{
 						row.tax_excluded = true;

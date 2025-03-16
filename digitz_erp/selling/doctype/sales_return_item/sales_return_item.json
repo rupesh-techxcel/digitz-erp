@@ -61,7 +61,7 @@
   {
    "columns": 2,
    "fieldname": "display_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Display Name"
@@ -206,7 +206,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-03-16 11:06:26.438309",
+ "modified": "2025-03-16 20:26:59.183898",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Return Item",
