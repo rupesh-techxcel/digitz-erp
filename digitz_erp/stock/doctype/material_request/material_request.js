@@ -213,9 +213,6 @@ frappe.ui.form.on('Material Request Item', {
 
         frappe.db.get_value('Item', row.item, ['item_name', 'description','height','width','area','length'], (r) => {
             if (r) {
-
-                console.log("r")
-                console.log(r)
                 
                 // Update the row with fetched values
                 frappe.model.set_value(cdt, cdn, 'item_name', r.item_name || '');

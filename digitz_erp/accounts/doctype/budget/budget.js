@@ -79,27 +79,27 @@ frappe.ui.form.on("Budget", {
         console.log("Selected Project:", project);
     
         if (project) {
-            frappe.call({
-                method: 'frappe.client.get_value',
-                args: {
-                    doctype: 'Project',
-                    filters: { name: project },
-                    fieldnames: ['project_maximum_allowable_budget', 'estimated_material_cost']
-                },
-                callback: (r) => {
-                    if (!r.exc) {
-                        console.log("Project Budget Details:", r.message);
-    
-                        const maximumAllowed = r.message.project_maximum_allowable_budget;
-                        const estimatedMaterialCost = r.message.estimated_material_cost;
-    
-                        if (maximumAllowed > 0 && estimatedMaterialCost != undefined) {
-                            const allowedBudget = estimatedMaterialCost * (maximumAllowed / 100);
-                            frm.set_value('project_estimated_material_cost', allowedBudget);
-                        } 
-                    }
-                }
-            });
+
+            frappe.call(
+				{
+				method: 'frappe.client.get_value',
+				args: {
+				  'doctype': 'Project',
+				  'filters': { 'name': project },
+				  'fieldname': ['project_maximum_allowable_budget', 'estimated_material_cost']
+				},
+				callback: (r) => {
+				    const maximumAllowed = r.message.project_maximum_allowable_budget;
+                    const estimatedMaterialCost = r.message.estimated_material_cost;
+
+                    frm.set_value('project_estimated_material_cost', estimatedMaterialCost);
+
+                    if (maximumAllowed > 0 && estimatedMaterialCost != undefined) {
+                        const allowedBudget = estimatedMaterialCost * (maximumAllowed / 100);
+                        frm.set_value('project_estimated_material_cost', allowedBudget);
+                    } 
+				}
+				});
         } 
     },
     

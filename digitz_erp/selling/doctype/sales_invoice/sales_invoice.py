@@ -177,8 +177,7 @@ class SalesInvoice(Document):
             check_and_update_sales_order_status(self.name, "Sales Invoice")
 
         self.update_customer_last_transaction_date()
-        self.update_receipt_schedules()
-        self.update_project_advance_amount()        
+        self.update_receipt_schedules()              
                    
     def update_project_advance_amount(self, for_cancel=False):
         
@@ -230,21 +229,9 @@ class SalesInvoice(Document):
     def on_submit(self):
 
         init_document_posting_status(self.doctype, self.name)
-
-        turn_off_background_job = frappe.db.get_single_value("Global Settings",'turn_off_background_job')
-
-        # if(frappe.session.user == "Administrator" and turn_off_background_job):
-        #     self.do_postings_on_submit()
-        # else:
-            # frappe.enqueue(self.do_postings_on_submit, queue="long")
-            # frappe.msgprint("The relevant postings for this document are happening in the background. Changes may take a few seconds to reflect.", alert=1)
         self.do_postings_on_submit()
         self.update_project_billed_amounts()
-        
-
-        # if(self.auto_generate_delivery_note):
-        #     #print("submitting DO from sales_invoice")
-        #     self.submit_delivery_note()
+        self.update_project_advance_amount()
 
     def do_postings_on_submit(self):
 

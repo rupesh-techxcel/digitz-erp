@@ -203,6 +203,48 @@ def get_wip_closing_balance(project_name=None):
     return 0
 
 @frappe.whitelist()
+def update_project_advance_amount(project):
+    """
+    API method to update the advance amount and percentage for a given project.
+    
+    :param project: The project name for which to update the advance amount.
+    """
+    if not project:
+        frappe.throw("Project parameter is required.")
+
+    # Get all sales invoices with advances for the project
+    previous_invoices = frappe.get_all(
+        "Sales Invoice",
+        filters={
+            "project": project,
+            "for_advance_payment": 1,
+            "docstatus": 1  # Consider only submitted invoices
+        },
+        fields=["gross_total"]
+    )
+
+    # Calculate the total advance amount from previous invoices
+    previous_advance_amount = sum(invoice.gross_total for invoice in previous_invoices)
+
+    # Ensure the total advance amount is not negative
+    total_advance_amount = max(previous_advance_amount, 0)
+
+    # Update the project's advance amount
+    frappe.db.set_value("Project", project, "advance_amount", total_advance_amount)
+
+    # Get the project's gross value
+    project_gross_value = frappe.db.get_value("Project", project, "project_gross_value")
+
+    # Calculate the advance percentage dynamically
+    if project_gross_value > 0:
+        percentage = (total_advance_amount / project_gross_value) * 100  # Multiply by 100 to get percentage
+        frappe.db.set_value("Project", project, "advance_percentage", percentage)
+    else:
+        frappe.db.set_value("Project", project, "advance_percentage", 0)
+
+    frappe.msgprint(f"Advance amount and percentage updated for project {project}", alert=True)
+
+@frappe.whitelist()
 def get_sales_order_value_for_project(project_name):
     # Check if the project exists and fetch the linked sales order
     project = frappe.get_doc("Project", project_name)
