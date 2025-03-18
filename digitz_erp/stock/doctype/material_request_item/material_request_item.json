@@ -27,7 +27,8 @@
   "column_break_czey",
   "source_warehouse",
   "target_warehouse",
-  "qty_purchased_in_base_unit"
+  "qty_purchased_in_base_unit",
+  "valuation_rate"
  ],
  "fields": [
   {
@@ -207,12 +208,18 @@
    "oldfieldtype": "Text",
    "print_width": "250px",
    "width": "250px"
+  },
+  {
+   "fieldname": "valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Valuation Rate",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-16 20:33:03.721287",
+ "modified": "2025-03-18 17:51:22.200419",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",
