@@ -81,6 +81,54 @@ frappe.ui.form.on("Project", {
             }
         });
     },
+    assign_defaults(frm)
+	{
+        console.log("From Assign defaults")
+
+		if(frm.is_new())
+		{
+			frm.trigger("get_default_company_and_settings");
+        }
+    },
+    get_default_company_and_settings(frm) {
+
+        console.log("From get_default_company_and_settings")
+
+		var default_company = ""
+
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				'doctype': 'Global Settings',
+				'fieldname': 'default_company'
+			},
+			callback: (r) => {
+
+				default_company = r.message.default_company
+				frm.doc.company = r.message.default_company
+                console.log(default_company)
+                console.log("default_company")
+				frm.refresh_field("company");
+				frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args: {
+							'doctype': 'Company',
+							'filters': { 'company_name': default_company },
+							'fieldname': ['project_maximum_allowable_budget']
+						},
+						callback: (r2) => {
+
+                            console.log("r2.message")
+                            console.log(r2.message)
+
+                            if(r2.message.project_maximum_allowable_budget != undefined)
+							    frm.set_value('project_maximum_allowable_budget', r2.message.project_maximum_allowable_budget);
+                        }
+                    });
+                    }                    
+                });
+    },
     project_team:function(frm)
     {
         if(frm.doc.project_team)
@@ -155,7 +203,12 @@ frappe.ui.form.on("Project", {
                 }
             });
         }
-    }
+    },
+});
+
+frappe.ui.form.on("Project", "onload", function (frm) {
+
+	frm.trigger("assign_defaults")	
 });
 
 

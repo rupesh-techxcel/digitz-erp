@@ -73,6 +73,9 @@
   "default_advance_received_account",
   "column_break_bggm",
   "default_advance_paid_account",
+  "project_tab",
+  "project_configuration",
+  "project_maximum_allowable_budget",
   "terms_and_conditions_tab",
   "supplier_terms",
   "section_break_39",
@@ -93,7 +96,8 @@
   "customer_address_required",
   "customer_mobile_required",
   "customer_email_required",
-  "customer_trn_required"
+  "customer_trn_required",
+  "emirate_required"
  ],
  "fields": [
   {
@@ -611,12 +615,35 @@
    "fieldname": "customer_trn_required",
    "fieldtype": "Check",
    "label": "TRN No mandatory"
+  },
+  {
+   "default": "0",
+   "fieldname": "emirate_required",
+   "fieldtype": "Check",
+   "label": "Emirate Mandatory"
+  },
+  {
+   "fieldname": "project_tab",
+   "fieldtype": "Tab Break",
+   "label": "Project"
+  },
+  {
+   "fieldname": "project_configuration",
+   "fieldtype": "Heading",
+   "label": "Project Configuration"
+  },
+  {
+   "default": "90",
+   "fieldname": "project_maximum_allowable_budget",
+   "fieldtype": "Percent",
+   "label": "Maximum allowable budget based on the estimate (Percentage)",
+   "precision": "0"
   }
  ],
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-14 10:06:41.992125",
+ "modified": "2025-03-18 11:51:39.165106",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

@@ -19,6 +19,7 @@ from frappe.utils import money_in_words
 from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,update_sales_order_quantities_on_update
 from digitz_erp.api.settings_api import add_seconds_to_time
 from frappe import _
+from frappe.utils import flt
 
 class SalesInvoice(Document):
 
@@ -87,6 +88,7 @@ class SalesInvoice(Document):
         self.location_to_print = self.ship_to_location
         
         self.update_advance_received_with_sales_order()
+        self.update_total_big_display()
         
     def validate_for_sales_order(self):
         # Ensure the Sales Invoice is linked to a Sales Order
@@ -129,12 +131,21 @@ class SalesInvoice(Document):
             title=("Duplicate Advance Payment"))
 
     def validate(self):
+        
         self.validate_item()
         self.validate_for_sales_order()
         self.validate_for_advance_for_progress_entries()
-        self.validate_duplicate_advance_entry_for_project()
+        # self.validate_duplicate_advance_entry_for_project()
+        self.validate_project_advance()
         # self.validate_item_valuation_rates()
     
+    def validate_project_advance(self):
+                
+        # progress entry exists for the project            
+        progress_entry_exists = frappe.db.exists("Progress Entry", {"project": self.project})
+        if(progress_entry_exists):
+            frappe.throw("An advance cannot be entered because a progress entry already exists for this project.")
+                
     def update_advance_received_with_sales_order(self):
         """
         Checks if the linked Sales Order of this Sales Invoice has an allocation
@@ -168,12 +179,53 @@ class SalesInvoice(Document):
         self.update_customer_last_transaction_date()
         self.update_receipt_schedules()
         self.update_project_advance_amount()        
+                   
+    def update_project_advance_amount(self, for_cancel=False):
         
-    def update_project_advance_amount(self,for_cancel=False):
-        if self.for_advance_payment:
-            frappe.db.set_value("Project", self.project, "advance_amount", self.gross_total if not for_cancel else 0)
-            frappe.db.set_value("Project", self.project, "advance_percentage", self.advance_percentage if not for_cancel else 0)
-            frappe.msgprint("Advance amount updated in the project", alert=1)
+        if self.for_advance_payment and self.project:
+            # Get all sales invoices with advances for the project, excluding the current document
+            previous_invoices = frappe.get_all(
+                "Sales Invoice",
+                filters={
+                    "project": self.project,
+                    "for_advance_payment": 1,
+                    "docstatus": 1,  # Consider only submitted invoices
+                    "name": ["!=", self.name]  # Exclude the current invoice
+                },
+                fields=["gross_total"]
+            )
+
+            # Calculate the total advance amount from previous invoices
+            previous_advance_amount = sum(invoice.gross_total for invoice in previous_invoices)
+
+            # Calculate the total advance amount including the current document
+            total_advance_amount = previous_advance_amount + (self.gross_total if not for_cancel else 0)
+
+            # Ensure the total advance amount is not negative
+            total_advance_amount = max(total_advance_amount, 0)
+
+            # Update the project's advance amount
+            frappe.db.set_value("Project", self.project, "advance_amount", total_advance_amount)
+
+            # Get the project's gross value
+            project_gross_value = frappe.db.get_value("Project", self.project, "project_gross_value")
+
+            if not project_gross_value:
+                frappe.throw("Project Gross Value is not set for the project. Please set it before updating advance amounts.")
+
+            # Update the advance percentage
+            if self.advance_percentage and not previous_invoices:
+                # If advance_percentage is provided and no previous invoices exist, use it
+                frappe.db.set_value("Project", self.project, "advance_percentage", self.advance_percentage if not for_cancel else 0)
+            else:
+                # Calculate the advance percentage dynamically
+                if project_gross_value > 0:
+                    percentage = (total_advance_amount / project_gross_value) * 100  # Multiply by 100 to get percentage
+                    frappe.db.set_value("Project", self.project, "advance_percentage", percentage)
+                else:
+                    frappe.db.set_value("Project", self.project, "advance_percentage", 0)
+
+            frappe.msgprint("Advance amount and percentage updated in the project", alert=True)
 
     def on_submit(self):
 
@@ -1330,6 +1382,24 @@ class SalesInvoice(Document):
                 f"The 'total_billed_amount' and 'total_billed_amount_gross' fields of project {self.project} "
                 f"have been updated to {total_billed_amount} and {total_billed_amount_gross}, respectively.", alert= True
             )
+            
+    def update_total_big_display(self):
+        """
+        Updates the 'total_big' field with a formatted HTML string based on the 'rounded_total' field.
+        """
+        # Get the rounded_total value, default to 0 if not a number
+        rounded_total = flt(self.rounded_total) if self.rounded_total else 0
+        display_total = f"{rounded_total:.0f}"  # Format to 0 decimal places
+
+        # Create the HTML content with the formatted total
+        display_html = f"""
+            <div style="font-size: 25px; text-align: right; color: black;">
+                AED {display_total}
+            </div>
+        """
+
+        # Update the 'total_big' field with the HTML content
+        self.total_big = display_html      
 
     @frappe.whitelist()
     def generate_sales_invoice(self):
@@ -1432,4 +1502,5 @@ class SalesInvoice(Document):
             })
 
         return formatted_stock_ledgers
+    
     

@@ -35,15 +35,15 @@ def get_data(filters):
     query = f"""
         SELECT
             project.name AS project,
-            project.sales_order_value AS sales_order_value,
+            project.project_value AS sales_order_value,
             project.material_cost AS material_cost,
             project.labour_cost AS labour_cost,
             project.overheads AS overhead_cost,
-            (project.sales_order_value - project.material_cost - project.labour_cost - project.overheads) AS profit
+            (project.project_value - project.material_cost - project.labour_cost - project.overheads) AS profit
         FROM
             `tabProject` project
         WHERE
-            IFNULL(project.sales_order_value, 0) > 0
+            IFNULL(project.project_value, 0) > 0
             {conditions}
     """
 

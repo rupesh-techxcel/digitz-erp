@@ -6,11 +6,11 @@ from frappe.model.document import Document
 from frappe import _
 import frappe.model.rename_doc as rd
 
-
 class Project(Document):
     
     def before_validate(self):
         self.update_advance_amount()     
+        self.update_estimate_material_cost()
             
     def on_update(self):
          
@@ -39,7 +39,12 @@ class Project(Document):
         advance_percentage = advance_amount_query[0].get("advance_percentage", 0) if advance_amount_query else 0
         self.advance_amount = advance_amount
         self.advance_percentage = advance_percentage
-            
+    
+    def update_estimate_material_cost(self):
+        if self.boq:
+            estimate_doc = frappe.get_doc("Estimate",{'boq':self.boq})
+            self.estimated_material_cost = estimate_doc.total_material_cost
+    
     
 @frappe.whitelist()
 def calculate_retention_amt(sales_order_id, retention_percentage):

@@ -22,7 +22,9 @@ frappe.ui.form.on('Sales Invoice', {
 		
 		if (frm.is_new())
 		{
+			console.log("clear table")
 			frm.clear_table("items");
+			frm.refresh_field("items");
 		}    
 
 	 },

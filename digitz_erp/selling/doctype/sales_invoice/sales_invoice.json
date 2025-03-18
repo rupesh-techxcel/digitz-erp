@@ -67,12 +67,6 @@
   "item_units",
   "column_break_uozz",
   "amended_from",
-  "billing_details_section",
-  "invoice_amount",
-  "deduction_for_retention",
-  "column_break_zrqa",
-  "deduction_for_advance",
-  "net_amount",
   "section_break_25",
   "gross_total",
   "tax_total",
@@ -82,8 +76,9 @@
   "additional_discount",
   "in_words",
   "column_break_33",
-  "round_off",
+  "net_amount",
   "rounded_total",
+  "round_off",
   "paid_amount",
   "column_break_zvur",
   "total_big",
@@ -605,46 +600,10 @@
    "read_only": 1
   },
   {
-   "fieldname": "billing_details_section",
-   "fieldtype": "Section Break",
-   "label": "Billing Details"
-  },
-  {
-   "fetch_from": "stage_proforma_invoice.invoice_amount",
-   "fieldname": "invoice_amount",
-   "fieldtype": "Currency",
-   "label": "Invoice Amount",
-   "non_negative": 1,
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_zrqa",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "stage_proforma_invoice.deduction_for_advance",
-   "fieldname": "deduction_for_advance",
-   "fieldtype": "Currency",
-   "label": "Deduction For Advance",
-   "non_negative": 1,
-   "precision": "2",
-   "read_only": 1
-  },
-  {
    "fetch_from": "stage_proforma_invoice.net_amount",
    "fieldname": "net_amount",
    "fieldtype": "Currency",
    "label": "Net Amount",
-   "non_negative": 1,
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "stage_proforma_invoice.deduction_for_retentation",
-   "fieldname": "deduction_for_retention",
-   "fieldtype": "Currency",
-   "label": "Deduction For Retention",
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
@@ -708,7 +667,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2025-03-16 18:14:44.823023",
+ "modified": "2025-03-18 15:26:28.001452",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",
