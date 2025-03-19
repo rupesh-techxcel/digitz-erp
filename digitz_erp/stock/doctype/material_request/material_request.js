@@ -211,6 +211,61 @@ frappe.ui.form.on('Material Request Item', {
             return;
         }
 
+         // Call server method to get budget details
+        frappe.call({
+            method: "digitz_erp.api.accounts_api.get_balance_budget_value",
+            args: {
+                reference_type: "Item",
+                reference_value: row.item,
+                transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
+                company: frm.doc.company,
+                project: frm.doc.project || null,
+                cost_center: frm.doc.cost_center || null
+            },
+            callback: function (response) {
+                if (response && response.message) {
+                    const result = response.message;
+
+                    // Log the response for debugging
+                    console.log("Budget Result:", result);
+
+                    if (!result.no_budget) {
+
+                        frappe.call(
+                            {
+                                method: 'digitz_erp.api.items_api.get_item_valuation_rate_default',
+                                async: false,
+                                args: {
+                                    'item': row.item,
+                                    'posting_date': frm.doc.posting_date,
+                                    'posting_time': frm.doc.posting_time
+                                },
+                                callback(r) {
+                                    console.log("Valuation rate in console")					
+                                    console.log(r.message)					
+
+                                    if(r.message == 0)
+                                    {                        
+                                        frappe.throw("No valuation rate has been specified for the item," + row.item + ". Please update the Item Master with the appropriate valuation rate to proceed.")
+                                        row.item = ""
+                                        frm.refresh_field("items")
+                                    }
+                                    else{
+
+                                        row.valuation_rate = r.message
+
+                                        if(frm.doc.project == undefined)
+                                        {
+                                            frm.events.show_a_message(frm,"Please select a project if required.")
+                                        }
+                                       
+                                        check_budget_utilization(frm, cdt, cdn, row.item);
+                                        
+                            }}});
+
+        }}}});       
+
+
         frappe.db.get_value('Item', row.item, ['item_name', 'description','height','width','area','length'], (r) => {
             if (r) {
                 
@@ -230,14 +285,6 @@ frappe.ui.form.on('Material Request Item', {
 
             }
         });
-        
-
-        // row.set_value("height", r.message.height);
-        // row.set_value("width", r.message.width);
-        // row.set_value("area", r.message.area);
-        // row.set_value("length", r.message.length);
-
-        check_budget_utilization(frm, cdt, cdn, row.item);
 
         // Set conversion factor to 1
         row.conversion_factor = 1;

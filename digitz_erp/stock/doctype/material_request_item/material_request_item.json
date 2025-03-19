@@ -28,7 +28,9 @@
   "source_warehouse",
   "target_warehouse",
   "qty_purchased_in_base_unit",
-  "valuation_rate"
+  "valuation_rate",
+  "budget_type",
+  "budget_value"
  ],
  "fields": [
   {
@@ -214,12 +216,25 @@
    "fieldtype": "Currency",
    "label": "Valuation Rate",
    "read_only": 1
+  },
+  {
+   "fieldname": "budget_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Budget Type",
+   "options": "Item\nItem Group"
+  },
+  {
+   "fieldname": "budget_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Budget Value"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-18 17:51:22.200419",
+ "modified": "2025-03-18 18:06:31.389502",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",

@@ -56,6 +56,27 @@ def get_item_valuation_rate(item, posting_date, posting_time):
 		return 0
 
 @frappe.whitelist()
+def get_item_valuation_rate_default(item, posting_date, posting_time):	
+	
+	posting_date_time = get_datetime(str(posting_date) + " " + str(posting_time))			
+	
+	previous_ledger_valuation_rate = frappe.db.get_value('Stock Ledger', {'item': ['=', item],'posting_date':['<', posting_date_time]},
+													['valuation_rate'], order_by='posting_date desc', as_dict=True)
+
+	if(previous_ledger_valuation_rate):
+		frappe.msgprint(f"Valuation rate for the item is {previous_ledger_valuation_rate.valuation_rate}",alert= True)
+		return previous_ledger_valuation_rate.valuation_rate
+	else:     
+		item_doc = frappe.get_doc("Item",item)
+		print("item_doc")
+		print(item_doc)
+		if(item_doc.item_valuation_rate and item_doc.item_valuation_rate>0):
+			frappe.msgprint(f"Valuation rate for the item is {item_doc.item_valuation_rate}", alert=True)
+			return item_doc.item_valuation_rate
+		else:
+			return 0
+
+@frappe.whitelist()
 def get_stock_for_item(item, warehouse, posting_date, posting_time):
     
 		#print("from get_stock_for_item")
