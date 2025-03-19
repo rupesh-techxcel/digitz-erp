@@ -73,7 +73,9 @@ frappe.ui.form.on('Receipt Entry', {
 		}
 	},
 	get_default_company_and_warehouse(frm) {
-		var default_company = ""		
+		var default_company = ""	
+		
+		frm.trigger("get_user_warehouse")
 
 		frappe.call({
 			method: 'frappe.client.get_value',
@@ -84,6 +86,32 @@ frappe.ui.form.on('Receipt Entry', {
 			callback: (r) => {
 				
 				frm.set_value("company", r.message.default_company)
+
+				frappe.call(
+					{
+						method: 'frappe.client.get_value',
+						args: {
+							'doctype': 'Company',
+							'filters': { 'company_name': default_company },
+							'fieldname': ['default_warehouse']
+						},
+						callback: (r2) => {
+
+							if (typeof window.warehouse !== 'undefined') {
+								// The value is assigned to window.warehouse
+								// You can use it here
+								frm.doc.warehouse = window.warehouse;
+							}
+							else
+							{
+								frm.doc.warehouse = r2.message.default_warehouse;
+							}
+
+							console.log(frm.doc.warehouse);
+							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
+							frm.refresh_field("warehouse");
+						}
+					});
 				
 			}
 		});

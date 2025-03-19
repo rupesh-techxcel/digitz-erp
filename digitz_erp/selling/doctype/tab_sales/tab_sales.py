@@ -230,6 +230,12 @@ class TabSales (Document):
                 sales_invoice_item.discount_amount = item.discount_amount
                 sales_invoice_item.net_amount = item.net_amount
                 sales_invoice_item.unit_conversion_details = item.unit_conversion_details
+
+                sales_invoice_item.rate_print = "{:.2f}".format(item.rate)  
+                sales_invoice_item.amount_print = "{:.2f}".format(item.gross_amount)
+                sales_invoice_item.tax_amount_print = "{:.2f}".format(item.tax_amount)
+                sales_invoice_item.total_amount_print = "{:.2f}".format(item.net_amount)  
+
                 sales_invoice_item.idx = idx
 
                 sales_invoice.append('items', sales_invoice_item)

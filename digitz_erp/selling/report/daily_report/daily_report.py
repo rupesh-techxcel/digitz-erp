@@ -342,6 +342,10 @@ def get_total_cash_receipts(filters):
     warehouse = filters.get("warehouse", None)
     #print("warehouse")
     #print(warehouse)
+    
+    # print(from_date)
+    # print(to_date)
+    
     sql = """
     SELECT COALESCE(SUM(rd.amount), 0) as total_receipts
     FROM `tabReceipt Entry Detail` AS rd
@@ -350,6 +354,8 @@ def get_total_cash_receipts(filters):
     WHERE re.posting_date BETWEEN '{from_date}' AND '{to_date}' AND pm.mode in ('Cash') AND re.docstatus < 2 AND re.warehouse = '{warehouse}'
     """.format(from_date=from_date, to_date=to_date, warehouse=warehouse)
 
+    print("sql")
+    print(sql)
     frappe.db.sql(sql, as_dict=True)
     
     total_receipts = frappe.db.sql(sql, as_dict=True)
