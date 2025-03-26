@@ -73,6 +73,8 @@ frappe.ui.form.on('Receipt Entry', {
 		}
 	},
 	get_default_company_and_warehouse(frm) {
+
+		console.log("from get_default_company_and_warehouse")
 		var default_company = ""	
 		
 		frm.trigger("get_user_warehouse")
@@ -87,6 +89,8 @@ frappe.ui.form.on('Receipt Entry', {
 				
 				frm.set_value("company", r.message.default_company)
 
+				default_company = r.message.default_company
+
 				frappe.call(
 					{
 						method: 'frappe.client.get_value',
@@ -97,10 +101,15 @@ frappe.ui.form.on('Receipt Entry', {
 						},
 						callback: (r2) => {
 
+							console.log("r2")
+							console.log(r2)
 							if (typeof window.warehouse !== 'undefined') {
 								// The value is assigned to window.warehouse
 								// You can use it here
+								console.log("assign window.warehouse")
 								frm.doc.warehouse = window.warehouse;
+								// If userwarehouse assigned make it readonly not to allow changes
+								frm.set_df_property('warehouse', 'read_only', 1);
 							}
 							else
 							{
@@ -118,6 +127,8 @@ frappe.ui.form.on('Receipt Entry', {
 	},
 	get_user_warehouse(frm)
 	{
+		console.log("get_user_warehouse")
+
 		frappe.call({
             method: 'frappe.client.get_value',
             args: {

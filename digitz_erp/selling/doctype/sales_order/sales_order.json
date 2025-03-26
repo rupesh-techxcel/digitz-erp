@@ -323,6 +323,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "round_off",
    "fieldtype": "Float",
    "label": "Round Off",
@@ -485,7 +486,7 @@
    "link_fieldname": "sales_order"
   }
  ],
- "modified": "2025-03-14 20:28:43.598040",
+ "modified": "2025-03-19 21:48:42.305924",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",

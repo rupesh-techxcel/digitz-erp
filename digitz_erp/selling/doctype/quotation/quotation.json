@@ -16,31 +16,33 @@
   "customer_name",
   "customer_display_name",
   "customer_balance",
-  "customer_address",
   "tax_id",
   "column_break_6",
   "posting_time",
   "posting_date",
   "edit_posting_date_and_time",
-  "revno",
-  "rev_date",
-  "ship_to_location",
-  "reference_no",
-  "remarks",
-  "qtn_validity",
+  "customer_address",
   "column_break_4",
   "price_list",
   "rate_includes_tax",
   "warehouse",
-  "default_cost_center",
-  "salesman",
-  "salesman_code",
+  "remarks",
   "column_break_giic",
   "company",
   "project_name",
   "project_short_name",
   "based_on",
   "enquiry",
+  "other_details_section",
+  "revno",
+  "rev_date",
+  "column_break_lugu",
+  "qtn_validity",
+  "ship_to_location",
+  "column_break_ziif",
+  "salesman",
+  "column_break_fjyi",
+  "reference_no",
   "accounts_section",
   "credit_sale",
   "credit_days",
@@ -49,6 +51,7 @@
   "column_break_25",
   "payment_terms",
   "column_break_ghwk",
+  "default_cost_center",
   "column_break_fomo",
   "section_break_19",
   "items",
@@ -374,13 +377,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "salesman.employee_code",
-   "fieldname": "salesman_code",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Salesman Code"
-  },
-  {
    "fieldname": "column_break_giic",
    "fieldtype": "Column Break"
   },
@@ -505,6 +501,24 @@
    "label": "Prospect",
    "mandatory_depends_on": "eval:doc.lead_from == \"Prospect\"",
    "options": "Sales Prospect"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "other_details_section",
+   "fieldtype": "Section Break",
+   "label": "Other Details"
+  },
+  {
+   "fieldname": "column_break_lugu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ziif",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_fjyi",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -523,7 +537,7 @@
    "link_fieldname": "quotation"
   }
  ],
- "modified": "2025-03-11 22:05:59.685839",
+ "modified": "2025-03-19 20:43:41.819102",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation",

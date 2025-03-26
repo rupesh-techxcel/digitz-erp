@@ -28,6 +28,7 @@
   "customers",
   "column_break_forg",
   "company",
+  "warehouse",
   "section_break_wgdje",
   "amended_from",
   "advance_section_break",
@@ -236,12 +237,19 @@
    "fieldtype": "Link",
    "label": "Project",
    "options": "Project"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-11 17:41:23.672536",
+ "modified": "2025-03-26 07:13:15.505239",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receipt Entry",
