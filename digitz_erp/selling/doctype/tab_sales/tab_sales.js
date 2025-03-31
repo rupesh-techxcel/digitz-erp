@@ -17,6 +17,13 @@ frappe.ui.form.on('Tab Sales', {
 				}
 		});
 	},
+	// onload_post_render: function(frm) {
+    //     $(window).on("focus", function() {
+    //         if (!frm.doc.__islocal) {  // Avoid refreshing unsaved new documents
+    //             frm.reload_doc();
+    //         }
+    //     });
+    // },
 	before_save: function (frm) {
 
 		if(frm.doc.docstatus == 2)

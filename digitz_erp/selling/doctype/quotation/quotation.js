@@ -510,14 +510,14 @@ frappe.ui.form.on('Quotation', {
 		frm.doc.tax_total = tax_total;
 		frm.doc.total_discount_in_line_items = discount_total;
 
-		frm.doc.total_without_tax = gross_total + frm.doc.additional_discount;
+		frm.doc.total_without_tax = gross_total - frm.doc.additional_discount;
 		frm.refresh_field("total_without_tax"); // Refresh before logging
 		console.log("Total Without Tax", frm.doc.total_without_tax);
 
 		console.log("Total Without Tax", frm.doc.total_without_tax)
-
 		
 		console.log("Net Total Before Round Off")
+		
 		console.log(frm.doc.net_total)
 
 		if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
