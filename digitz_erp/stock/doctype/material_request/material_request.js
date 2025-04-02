@@ -91,34 +91,7 @@ frappe.ui.form.on("Material Request", {
 
             frm.refresh_field("items");
         }
-    },
-    calculate_qty_for_budgeted_items: function (frm) {
-
-        console.log(1)
-
-        // frm.doc?.budgeted_items.forEach(function (entry) {
-        //     let width = entry.width || 0;
-        //     let height = entry.height || 0;
-        //     let area = entry.no_of_pieces || 0;
-        //     entry.qty = width * height * area;
-        // });      
-        if (frm.doc.use_dimensions) {
-            frm.doc?.budgeted_items.forEach(function (entry) {
-
-                console.log("entry")
-                console.log(entry)
-
-                let width = entry.width || 0;
-                let height = entry.height || 0;
-                let area = entry.no_of_pieces || 0;
-                entry.qty = width * height * area;
-                console.log("entry.qty")
-                console.log(entry.qty)
-            });
-
-            frm.refresh_field("budgeted_items");
-        }
-    },
+    },    
     approve_all_items: function (frm) {
         // Iterate through all rows in the 'items' child table
         $.each(frm.doc.items, function (index, row) {
@@ -205,66 +178,15 @@ frappe.ui.form.on('Material Request Item', {
     item: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
 
+        console.log("from item method")
+
         // Ensure item is selected
         if (!row.item) {
             frappe.msgprint("Please select an item.");
             return;
         }
 
-         // Call server method to get budget details
-        frappe.call({
-            method: "digitz_erp.api.accounts_api.get_balance_budget_value",
-            args: {
-                reference_type: "Item",
-                reference_value: row.item,
-                transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
-                company: frm.doc.company,
-                project: frm.doc.project || null,
-                cost_center: frm.doc.cost_center || null
-            },
-            callback: function (response) {
-                if (response && response.message) {
-                    const result = response.message;
-
-                    // Log the response for debugging
-                    console.log("Budget Result:", result);
-
-                    if (!result.no_budget) {
-
-                        frappe.call(
-                            {
-                                method: 'digitz_erp.api.items_api.get_item_valuation_rate_default',
-                                async: false,
-                                args: {
-                                    'item': row.item,
-                                    'posting_date': frm.doc.posting_date,
-                                    'posting_time': frm.doc.posting_time
-                                },
-                                callback(r) {
-                                    console.log("Valuation rate in console")					
-                                    console.log(r.message)					
-
-                                    if(r.message == 0)
-                                    {                        
-                                        frappe.throw("No valuation rate has been specified for the item," + row.item + ". Please update the Item Master with the appropriate valuation rate to proceed.")
-                                        row.item = ""
-                                        frm.refresh_field("items")
-                                    }
-                                    else{
-
-                                        row.valuation_rate = r.message
-
-                                        if(frm.doc.project == undefined)
-                                        {
-                                            frm.events.show_a_message(frm,"Please select a project if required.")
-                                        }
-                                       
-                                        check_budget_utilization(frm, cdt, cdn, row.item);
-                                        
-                            }}});
-
-        }}}});       
-
+        check_budget_utilization(frm, cdt, cdn, row.item,row.item_group);
 
         frappe.db.get_value('Item', row.item, ['item_name', 'description','height','width','area','length'], (r) => {
             if (r) {
@@ -384,10 +306,11 @@ frappe.ui.form.on('Material Request Item', {
 
 });
 
-function check_budget_utilization(frm, cdt, cdn, item) {
+function check_budget_utilization(frm, cdt, cdn, item, item_group) {
     const row = frappe.get_doc(cdt, cdn);
 
-    // Ensure the item field is filled before proceeding
+    console.log("from check_budget method");
+
     if (!row.item) {
         return;
     }
@@ -398,36 +321,86 @@ function check_budget_utilization(frm, cdt, cdn, item) {
         args: {
             reference_type: "Item",
             reference_value: item,
-            transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
+            doc_type: "Material Request",
+            doc_name: frm.doc.name,
+            transaction_date: frm.doc.posting_date || frappe.datetime.nowdate(),
             company: frm.doc.company,
             project: frm.doc.project || null,
-            cost_center: frm.doc.cost_center || null
+            cost_center: frm.doc.default_cost_center || null
         },
         callback: function (response) {
             if (response && response.message) {
                 const result = response.message;
-
-                // Log the response for debugging
                 console.log("Budget Result:", result);
 
                 if (!result.no_budget) {
-                    // Display budget details if available
                     const details = result.details || {};
-                    const budgetMessage = `
-                        <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
-                        <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
-                        <strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
-                        <strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
-                        <strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
-                    `;
+                    
+                    const budget_amount = Number(details["Budget Amount"]) || 0;
+                    let used_amount = Number(details["Used Amount"]) || 0;
+                    const available_balance = Number(details["Available Balance"]) || 0;
 
-                    // Custom method to display the message (replace with your own if needed)
+                    const ref_type = details["Reference Type"];
+                    let total_map = 0;
 
-                    frm.events.show_a_message(frm, budgetMessage);
+                    // Iterate through items dynamically based on reference type
+                    frm.doc.items.forEach(row => {
+                        let qty = Number(row.qty) || 0;
+                        let valuation_rate = Number(row.valuation_rate) || 0;
 
+                        if (ref_type === "Item" && row.item === item) {
+                            total_map += qty * valuation_rate;
+                        } else if (ref_type === "Item Group" && row.item_group === item_group) {
+                            total_map += qty * valuation_rate;
+                        }
+                    });
+
+                    used_amount += total_map;
+
+                    if (budget_amount < used_amount) {
+                        row.item = "";
+                        frm.events.show_a_message("Over budget allocation!!!");
+                    }
+
+                    // Fetch item valuation rate
+                    frappe.call({
+                        method: 'digitz_erp.api.items_api.get_item_valuation_rate_default',
+                        async: false,
+                        args: {
+                            'item': row.item,
+                            'posting_date': frm.doc.posting_date,
+                            'posting_time': frm.doc.posting_time
+                        },
+                        callback(r) {
+                            console.log("Valuation rate in console", r.message);
+
+                            if (r.message == 0) {
+                                frappe.throw("No valuation rate has been specified for the item, " + row.item + ". Please update the Item Master with the appropriate valuation rate to proceed.");
+                                row.item = "";
+                                frm.refresh_field("items");
+                            } else {
+                                row.valuation_rate = r.message;
+
+                                if (!frm.doc.project) {
+                                    frm.events.show_a_message(frm, "Please select a project if required.");
+                                }
+
+                                const budgetMessage = `
+                                    <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+                                    <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+                                    <strong>Budget Amount:</strong> ${budget_amount}<br>
+                                    <strong>Utilized Amount:</strong> ${used_amount}<br>
+                                    <strong>Remaining Balance:</strong> ${available_balance}
+                                `;
+
+                                row.available_amount_in_budget = available_balance
+                            
+                                frm.events.show_a_message(frm, budgetMessage);
+                            }
+                        }
+                    });
                 }
             } else {
-                // Handle case where no response is received
                 frappe.msgprint({
                     title: __("Error"),
                     indicator: "red",
@@ -439,51 +412,3 @@ function check_budget_utilization(frm, cdt, cdn, item) {
 }
 
 
-frappe.ui.form.on('Material Request Item Estimate', {
-
-    item: function (frm, cdt, cdn) {
-
-        let row = locals[cdt][cdn];
-
-        console.log("row.item_code", row.item_code)
-        check_budget_utilization(frm, cdt, cdn, row.item_code);
-
-        // Ensure target warehouse is selected
-        if (!frm.doc.target_warehouse) {
-            row.item = ""; // Reset the item if target warehouse is not selected
-            frappe.msgprint("Please select target warehouse.");
-            frm.refresh_field("items"); // Refresh the items table to reflect changes
-            return; // Exit if target warehouse is not selected
-        }
-
-        row.target_warehouse = frm.doc.target_warehouse;
-        row.project = frm.doc.project
-        row.schedule_date = frm.doc.schedule_date
-
-        // Refresh the items table to reflect the changes
-        frm.refresh_field("budgeted_items");
-
-    },
-    // qty: function (frm, cdt, cdn) {
-    //     console.log("qty selected.")
-    //     let row = locals[cdt][cdn];
-    //     console.log("qty")
-    //     frm.trigger("calculate_rows_for_budgeted_items");
-    // },
-    height: function (frm, cdt, cdn) {
-        console.log("height")
-        let row = locals[cdt][cdn];
-        frm.trigger("calculate_qty_for_budgeted_items");
-    },
-    width: function (frm, cdt, cdn) {
-        console.log("width")
-        let row = locals[cdt][cdn];
-        frm.trigger("calculate_qty_for_budgeted_items");
-    },
-    no_of_pieces: function (frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-        console.log("no_of_pieces")
-        frm.trigger("calculate_qty_for_budgeted_items");
-    }
-
-})

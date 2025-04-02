@@ -10,7 +10,8 @@ from datetime import datetime,timedelta
 from frappe.utils import get_datetime
 from frappe.utils import money_in_words
 from digitz_erp.api.settings_api import add_seconds_to_time
-from digitz_erp.api.accounts_api import calculate_utilization
+from digitz_erp.api.accounts_api import get_balance_budget_value
+from frappe.utils import flt
 
 class PurchaseOrder(Document):
 
@@ -24,54 +25,61 @@ class PurchaseOrder(Document):
 			frappe.throw("Select Payment Mode")
 
 		self.validate_items()
-		self.validate_item_budgets()
+		self.validate_budget_for_items()
 
-	def validate_item_budgets(self):
+	def validate_budget_for_items(self):
 		"""
-		Validate Purchase Order items against the budget values and utilized amounts.
-
-		This method is intended to be called during the validate event of the Purchase Order.
+		Validate budget for each item in a Material Request.
 		"""
 		for item in self.items:
-			# Fetch budget details for the item
-			budget_item = frappe.db.get_value(
-				"Budget Item",
-				{"reference_type": "Item", "reference_value": item.item},
-				["parent", "budget_amount"],
-				as_dict=True
-			)
-
-			if not budget_item:
-				# Skip validation if no budget exists for the item
-				continue
-
-			# Get the parent budget details
-			budget = frappe.get_doc("Budget", budget_item["parent"])
-
-			# Fetch utilized amount
-			utilized_amount = calculate_utilization(
-				budget_against=budget.budget_against,
-				item_budget_against="Purchase",
-				budget_against_value=getattr(budget, budget.budget_against.lower()),
+			budget_data = get_balance_budget_value(
 				reference_type="Item",
 				reference_value=item.item,
-				from_date=budget.from_date,
-				to_date=budget.to_date,
+				doc_type="Purchase Order",
+				doc_name=self.name,
+				transaction_date=self.posting_date,
+				company=self.company,
+				project=self.project,
+				cost_center=self.default_cost_center
 			)
+			
+			if budget_data and not budget_data.get("no_budget"):
+				details = budget_data.get("details", {})
+				budget_amount = flt(details.get("Budget Amount", 0))
+				used_amount = flt(details.get("Used Amount", 0))
+				available_balance = flt(details.get("Available Balance", 0))
+				ref_type = details.get("Reference Type")
+				total_map = 0
 
-			# Calculate total utilized
-			total_utilized = utilized_amount if utilized_amount else 0 + item.gross_amount if item.gross_amount else 0
-
-			# Check if total utilized exceeds budget amount
-			if total_utilized > budget_item["budget_amount"]:
-				frappe.throw(
-					f"Item {item.item} exceeds its budget limit. "
-					f"Budget Amount: {budget_item['budget_amount']}, "
-					f"Utilized: {utilized_amount}, "
-					f"Gross Amount in Purchase Order: {item.gross_amount}, "
-					f"Total Utilized: {total_utilized}."
-				)
-
+				for row in self.items:
+					
+					gross_amount = flt(row.gross_amount)
+     					
+					if ref_type == "Item" and row.item == item.item:
+						total_map += gross_amount
+					elif ref_type == "Item Group" and row.item_group == item.item_group:
+						total_map += gross_amount
+				
+				used_amount += total_map
+				
+				if budget_amount < used_amount:
+					frappe.throw(f"Exceeding the allocated budget for the item {item.item}!")
+     
+	def get_balance_budget_value(reference_type, reference_value, doc_type, doc_name, transaction_date, company, project, cost_center):
+			"""
+			Fetch the budget details from existing API method.
+			"""
+			return frappe.call(
+				"digitz_erp.api.accounts_api.get_balance_budget_value",
+				reference_type=reference_type,
+				reference_value=reference_value,
+				doc_type=doc_type,
+				doc_name=doc_name,
+				transaction_date=transaction_date,
+				company=company,
+				project=project,
+				cost_center=cost_center
+			)
 
 	def before_validate(self):
 		  

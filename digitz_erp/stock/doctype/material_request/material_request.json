@@ -249,15 +249,7 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
-  },
-  {
-   "depends_on": "eval:doc.allow_against_budget == 1",
-   "description": "The items added to this table will be transferred to the item list below upon submission.",
-   "fieldname": "budgeted_items",
-   "fieldtype": "Table",
-   "label": "Budgeted Items",
-   "options": "Material Request Item Estimate"
-  },
+  },  
   {
    "fieldname": "section_break_elmj",
    "fieldtype": "Section Break"

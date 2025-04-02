@@ -11,6 +11,7 @@
   "item",
   "item_name",
   "display_name",
+  "item_group",
   "width",
   "height",
   "no_of_pieces",
@@ -251,12 +252,21 @@
    "fieldtype": "Currency",
    "label": "Rate Per Kg",
    "precision": "2"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-18 09:57:36.946487",
+ "modified": "2025-04-02 13:00:52.848493",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt Item",

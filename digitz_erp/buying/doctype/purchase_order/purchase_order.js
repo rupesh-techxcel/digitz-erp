@@ -666,7 +666,7 @@ frappe.ui.form.on('Purchase Order Item', {
 		let row = frappe.get_doc(cdt, cdn);
 		if(frm.doc.supplier)
 		{
-			check_budget_utilization(frm, cdt, cdn,"Item");
+			check_budget_utilization(frm, cdt, cdn,row.item, row.item_group);
 			update_item_row(frm,cdt,cdn);
 		}
 		else{
@@ -732,11 +732,11 @@ frappe.ui.form.on('Purchase Order Item', {
         frm.trigger("calculate_rate");
     },
 	qty(frm, cdt, cdn) {
-		check_budget_utilization(frm, cdt, cdn,"Item");
+		
 		frm.trigger("make_taxes_and_totals");
 	},
 	rate(frm, cdt, cdn) {
-		check_budget_utilization(frm, cdt, cdn,"Item");
+		
 		frm.trigger("make_taxes_and_totals");
 	},
 	rate_includes_tax(frm, cdt, cdn) {
@@ -744,27 +744,6 @@ frappe.ui.form.on('Purchase Order Item', {
 	},
 	unit(frm, cdt, cdn) {
 		let row = frappe.get_doc(cdt, cdn);
-
-		console.log("Item");
-		console.log(row.item);
-
-		check_budget_utilization(frm, cdt, cdn,"Item");
-
-		//  frappe.call(
-		//  	{
-		//  		method:'frappe.client.get_valuelist',
-		//  		args:{
-		//  		'doctype':'Item Unit',
-		//  		'filters':{'parent': row.item},
-		//  		'fieldname':['unit','conversion_factor']
-		//  		},
-		//  		callback:(r2)=>
-		//  		{
-		//  			console.log(r2.message);
-		//  		}
-		//  	});
-
-		console.log(row.item);
 
 		frappe.call(
 			{
@@ -1034,7 +1013,6 @@ function update_item_row(frm,cdt,cdn){
 				}
 			});
 
-
 			
 }
 
@@ -1051,62 +1029,6 @@ function update_total_big_display(frm) {
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);
 
 }
-
-function check_budget_utilization(frm, cdt, cdn, reference_type) {
-
-    const row = frappe.get_doc(cdt, cdn);
-
-    // Ensure the item field is filled before proceeding
-    if (!row.item) {
-        return;
-    }
-
-    // Call server method to get budget details
-    frappe.call({
-        method: "digitz_erp.api.accounts_api.get_balance_budget_value",
-        args: {
-            reference_type: "Item",
-            reference_value: row.item,
-            transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
-            company: frm.doc.company,
-            project: frm.doc.project || null,
-            cost_center: frm.doc.cost_center || null
-        },
-        callback: function (response) {
-            if (response && response.message) {
-                const result = response.message;
-
-                // Log the response for debugging
-                console.log("Budget Result:", result);
-
-                if (!result.no_budget) {
-                    // Display budget details if available
-                    const details = result.details || {};
-                    const budgetMessage = `
-                        <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
-                        <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
-                        <strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
-                        <strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
-                        <strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
-                    `;
-
-                    // Custom method to display the message (replace with your own if needed)
-                   
-                    frm.events.show_a_message(frm,budgetMessage);
-                    
-                }
-            } else {
-                // Handle case where no response is received
-                frappe.msgprint({
-                    title: __("Error"),
-                    indicator: "red",
-                    message: __("No response received from the server.")
-                });
-            }
-        }
-    });
-}
-
 
 let create_button_for_rate_per_kg = function (frm) {
     frm.add_custom_button('Import Excel with Rates', () => {
@@ -1231,3 +1153,109 @@ let create_sub_contract_button = function(frm) {
         });
     }
 };
+
+function check_budget_utilization(frm, cdt, cdn, item, item_group) {
+	
+    const row = frappe.get_doc(cdt, cdn);
+
+    console.log("from check_budget method");
+
+    if (!row.item) {
+        return;
+    }
+
+    // Call server method to get budget details
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_balance_budget_value",
+        args: {
+            reference_type: "Item",
+            reference_value: item,
+            doc_type: "Purchase Order",
+            doc_name: frm.doc.name,
+            transaction_date: frm.doc.posting_date || frappe.datetime.nowdate(),
+            company: frm.doc.company,
+            project: frm.doc.project || null,
+            cost_center: frm.doc.default_cost_center || null
+        },
+        callback: function (response) {
+            if (response && response.message) {
+                const result = response.message;
+                console.log("Budget Result:", result);
+
+                if (!result.no_budget) {
+                    const details = result.details || {};
+                    
+                    const budget_amount = Number(details["Budget Amount"]) || 0;
+                    let used_amount = Number(details["Used Amount"]) || 0;
+                    const available_balance = Number(details["Available Balance"]) || 0;
+
+                    const ref_type = details["Reference Type"];
+                    let total_map = 0;
+
+                    // Iterate through items dynamically based on reference type
+                    frm.doc.items.forEach(row => {
+                        
+                        let gross_amount = Number(row.gross_amount) || 0;
+
+                        if (ref_type === "Item" && row.item === item) {
+                            total_map += gross_amount;
+                        } else if (ref_type === "Item Group" && row.item_group === item_group) {
+                            total_map += gross_amount;
+                        }
+                    });
+
+                    used_amount += total_map;
+
+                    if (budget_amount < used_amount) {
+                        row.item = "";
+                        frm.events.show_a_message("Over budget allocation!!!");
+                    }
+
+                    // Fetch item valuation rate
+                    frappe.call({
+                        method: 'digitz_erp.api.items_api.get_item_valuation_rate_default',
+                        async: false,
+                        args: {
+                            'item': row.item,
+                            'posting_date': frm.doc.posting_date,
+                            'posting_time': frm.doc.posting_time
+                        },
+                        callback(r) {
+                            console.log("Valuation rate in console", r.message);
+
+                            if (r.message == 0) {
+                                frappe.throw("No valuation rate has been specified for the item, " + row.item + ". Please update the Item Master with the appropriate valuation rate to proceed.");
+                                row.item = "";
+                                frm.refresh_field("items");
+                            } else {
+                                row.valuation_rate = r.message;
+
+                                if (!frm.doc.project) {
+                                    frm.events.show_a_message(frm, "Please select a project if required.");
+                                }
+
+                                const budgetMessage = `
+                                    <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+                                    <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+                                    <strong>Budget Amount:</strong> ${budget_amount}<br>
+                                    <strong>Utilized Amount:</strong> ${used_amount}<br>
+                                    <strong>Remaining Balance:</strong> ${available_balance}
+                                `;
+
+                                row.available_amount_in_budget = available_balance
+                            
+                                frm.events.show_a_message(frm, budgetMessage);
+                            }
+                        }
+                    });
+                }
+            } else {
+                frappe.msgprint({
+                    title: __("Error"),
+                    indicator: "red",
+                    message: __("No response received from the server.")
+                });
+            }
+        }
+    });
+}

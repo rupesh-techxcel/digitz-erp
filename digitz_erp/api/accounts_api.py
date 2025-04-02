@@ -120,7 +120,7 @@ def get_gl_postings(voucher,voucher_no):
     }
 
 @frappe.whitelist()
-def get_balance_budget_value(reference_type, reference_value, transaction_date=None, company=None, project=None, cost_center=None):
+def get_balance_budget_value(reference_type, reference_value, doc_type, doc_name, transaction_date=None, company=None, project=None, cost_center=None):
     """
     Identify the maximum allowable balance value based on the budget.
 
@@ -136,25 +136,25 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
         dict: Information about the budget utilization, including no_budget, utilized, budget, remaining, and details.
     """
     import datetime
-
-    print("from get_balance_budget_value")
-    
-    print(reference_type, reference_value, transaction_date, company, project, cost_center)
-
+  
     global min_balance_value, minimum_budget
     min_balance_value = float("inf")
     minimum_budget = {}
 
     if transaction_date and isinstance(transaction_date, str):
         transaction_date = datetime.datetime.strptime(transaction_date, "%Y-%m-%d").date()
-
+    
+    # Note that the conditions project, cost_center and company can occur at a time and the system
+    # should return the maximum allowed budget balance based on all of them for the passing reference_type and reference_value
+    
     # Process budgets for project and cost center
-    if project:
-        
-        process_budget("Project", project, transaction_date, reference_type, reference_value)
-
+    if project:        
+        process_budget("Project", project, doc_type, doc_name, transaction_date, reference_type, reference_value)
+    
     if cost_center:
-        process_budget("Cost Center", cost_center, transaction_date, reference_type, reference_value)
+        process_budget("Cost Center", cost_center,doc_type,doc_name, transaction_date, reference_type, reference_value)
+
+    # process_budget("Company", company,doc_type,doc_name, transaction_date, reference_type, reference_value)
 
     if min_balance_value == float("inf"):
         print("no_budget")
@@ -178,27 +178,41 @@ def get_balance_budget_value(reference_type, reference_value, transaction_date=N
     }
 
 
-def process_budget(budget_against, budget_against_value, transaction_date, reference_type, reference_value):
+def process_budget(budget_against, budget_against_value,doc_type,doc_name, transaction_date, reference_type, reference_value):
     """
     Process budgets for a specific budget type (Project, Cost Center, or Company).
     """
     global min_balance_value, minimum_budget
+
+    filters = {budget_against.lower(): budget_against_value}
     
-    print("from process_budget")
-    print(budget_against)
-    print(budget_against_value)
+    # Verify whether budget has configured to apply for Purchase Receipt
+    
+    material_request = False
+    purchase_order = False
+    purchase_receipt = False    
+    purchase_invoice = False
+
+    # Apply additional filters based on the document type
+    if doc_type == "Material Request":
+        filters["material_request"] = True
+    elif doc_type == "Purchase Receipt":
+        filters["purchase_receipt"] = True
+    elif doc_type == "Purchase Order":
+        filters["purchase_order"] = True
+    elif doc_type == "Purchase Invoice":
+        filters["purchase_invoice"] = True
 
     budgets = frappe.get_all(
         "Budget",
-        filters={budget_against.lower(): budget_against_value},
+        filters=filters,
         fields=["name", "budget_against", "from_date", "to_date"]
     )
     
-    print("budgets")
     print(budgets)
-
+    
     for budget in budgets:
-        
+        # For budget set for company, verify the transation_date with the budget_from_date and budget_to_date
         if budget_against == "Company":
             budget_from_date = budget.get("from_date")
             budget_to_date = budget.get("to_date")
@@ -214,9 +228,6 @@ def process_budget(budget_against, budget_against_value, transaction_date, refer
             if transaction_date and not (budget_from_date <= transaction_date <= budget_to_date):
                 continue
             
-        print(budget["name"])
-        print(reference_type)
-        print(reference_value)
         
         budget_items = frappe.get_all(
             "Budget Item",
@@ -227,15 +238,20 @@ def process_budget(budget_against, budget_against_value, transaction_date, refer
             },
             fields=["budget_against", "budget_amount"]
         )
-
-        print(budget_items)
+        
+        # In item budget_against is "Purchase"
+        # Reference Type is "Item"
+        # Reference Value is "ITEM 1"        
+        # "budget_against" can be "Project","Cost Center" or may be "Company" based on the value assigned in the 'Budget'
         
         for item in budget_items:
             budget_amount = item.get("budget_amount", 0)
             utilized = calculate_utilization(
-                budget_against=budget["budget_against"],
-                item_budget_against=item["budget_against"],
-                budget_against_value=budget_against_value,
+                budget_against=budget["budget_against"], # Company/Project/Cost Center
+                budget_against_value=budget_against_value, # Eg:Project Name
+                item_budget_against=item["budget_against"], # Eg:Purchase                
+                doc_type = doc_type,
+                doc_name = doc_name, #Passing to exclude the current document values, and to be handled from document itself
                 reference_type=reference_type,
                 reference_value=reference_value,
                 from_date=None,
@@ -257,7 +273,7 @@ def process_budget(budget_against, budget_against_value, transaction_date, refer
         if reference_type == "Item":
             item_group = frappe.db.get_value("Item", reference_value, "item_group")
             if item_group:
-                process_item_group_budget(budget["name"], budget["budget_against"], budget_against_value, item_group)
+                process_item_group_budget(budget["name"], budget["budget_against"], budget_against_value, item_group,doc_type,doc_name)
 
         if reference_type == "Account":
             account_group = frappe.db.get_value("Account", reference_value, "parent_account")
@@ -265,7 +281,7 @@ def process_budget(budget_against, budget_against_value, transaction_date, refer
                 process_account_group_budget(budget["name"], budget["budget_against"], budget_against_value, account_group)
 
 
-def process_item_group_budget(parent_budget, budget_against, budget_against_value, item_group):
+def process_item_group_budget(parent_budget, budget_against, budget_against_value, item_group,doc_type,doc_name):
     """
     Process budgets for the item group related to an item.
     """
@@ -283,9 +299,11 @@ def process_item_group_budget(parent_budget, budget_against, budget_against_valu
 
     for item in budget_items_for_item_group:
         utilized = calculate_utilization(
-            budget_against=budget_against,
-            item_budget_against=item["budget_against"],
-            budget_against_value=budget_against_value,
+            budget_against=budget_against,   #Company/Project/Cost Center
+            budget_against_value=budget_against_value, #Project Name
+            item_budget_against=item["budget_against"], #Purchase , Expense , Labour       
+            doc_type = doc_type,
+            doc_name = doc_name,
             reference_type="Item Group",
             reference_value=item_group,
             from_date=None,
@@ -324,8 +342,10 @@ def process_account_group_budget(parent_budget, budget_against, budget_against_v
     for item in budget_items_for_account_group:
         utilized = calculate_utilization(
             budget_against=budget_against,
-            item_budget_against=item["budget_against"],
             budget_against_value=budget_against_value,
+            doc_type = None,
+            doc_name = None,
+            item_budget_against=item["budget_against"],            
             reference_type="Account Group",
             reference_value=account_group,
             from_date=None,
@@ -344,13 +364,13 @@ def process_account_group_budget(parent_budget, budget_against, budget_against_v
                 "Available Balance": balance_value
             }
 
-
-
 @frappe.whitelist()
 def calculate_utilization(
     budget_against,
-    item_budget_against,
     budget_against_value,
+    item_budget_against,    
+    doc_type,
+    doc_name,
     reference_type,
     reference_value,
     from_date,
@@ -398,48 +418,73 @@ def calculate_utilization(
         )
     elif reference_type == "Designation":
         conditions.append(f"employee_table.designation = '{reference_value}'")
+        
+    # Exclude current document
+    conditions.append(f"parent_table.name != '{doc_name}'")
+    conditions.append(f"parent_table.docstatus =1")
 
     where_clause = " AND ".join(conditions)
 
     # Calculate utilization based on item_budget_against
     if item_budget_against == "Purchase":
         # Purchase Order
-        purchase_order_total = frappe.db.sql(
-            f"""
-            SELECT SUM(child_table.gross_amount) AS total
-            FROM `tabPurchase Order Item` AS child_table
-            INNER JOIN `tabPurchase Order` AS parent_table ON child_table.parent = parent_table.name
-            INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
-            WHERE {where_clause}
-            """,
-            as_dict=True,
-        )[0].get("total", 0) or 0
+        purchase_order_total = 0
+        if doc_type == "Purchase Order":
+            purchase_order_total = frappe.db.sql(
+                f"""
+                SELECT SUM(child_table.gross_amount) AS total
+                FROM `tabPurchase Order Item` AS child_table
+                INNER JOIN `tabPurchase Order` AS parent_table ON child_table.parent = parent_table.name
+                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+                WHERE {where_clause}
+                """,
+                as_dict=True,
+            )[0].get("total", 0) or 0
 
-        # Purchase Receipt
-        purchase_receipt_total = frappe.db.sql(
-            f"""
-            SELECT SUM(child_table.gross_amount) AS total
-            FROM `tabPurchase Receipt Item` AS child_table
-            INNER JOIN `tabPurchase Receipt` AS parent_table ON child_table.parent = parent_table.name
-            INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
-            WHERE {where_clause}
-            """,
-            as_dict=True,
-        )[0].get("total", 0) or 0
+        purchase_receipt_total = 0
+        
+        if(doc_type == "Purchase Receipt"):
+            # Purchase Receipt
+            purchase_receipt_total = frappe.db.sql(
+                f"""
+                SELECT SUM(child_table.gross_amount) AS total
+                FROM `tabPurchase Receipt Item` AS child_table
+                INNER JOIN `tabPurchase Receipt` AS parent_table ON child_table.parent = parent_table.name
+                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+                WHERE {where_clause}
+                """,
+                as_dict=True,
+            )[0].get("total", 0) or 0
 
-        # Purchase Invoice
-        purchase_invoice_total = frappe.db.sql(
-            f"""
-            SELECT SUM(child_table.gross_amount) AS total
-            FROM `tabPurchase Invoice Item` AS child_table
-            INNER JOIN `tabPurchase Invoice` AS parent_table ON child_table.parent = parent_table.name
-            INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
-            WHERE {where_clause}
-            """,
-            as_dict=True,
-        )[0].get("total", 0) or 0
+        purchase_invoice_total = 0
+        if doc_type == "Purchase Invoice":
+            # Purchase Invoice
+            purchase_invoice_total = frappe.db.sql(
+                f"""
+                SELECT SUM(child_table.gross_amount) AS total
+                FROM `tabPurchase Invoice Item` AS child_table
+                INNER JOIN `tabPurchase Invoice` AS parent_table ON child_table.parent = parent_table.name
+                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+                WHERE {where_clause}
+                """,
+                as_dict=True,
+            )[0].get("total", 0) or 0
+        
+        material_request_total = 0
+        if doc_type == "Material Request":
+            # Purchase Invoice
+            material_request_total = frappe.db.sql(
+                f"""
+                SELECT SUM(child_table.qty* child_table.valuation_rate) AS total
+                FROM `tabMaterial Request Item` AS child_table
+                INNER JOIN `tabMaterial Request` AS parent_table ON child_table.parent = parent_table.name
+                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+                WHERE {where_clause}
+                """,
+                as_dict=True,
+            )[0].get("total", 0) or 0
 
-        utilized = max(purchase_order_total, purchase_receipt_total, purchase_invoice_total)
+        utilized = max(material_request_total,purchase_order_total, purchase_receipt_total, purchase_invoice_total)
 
     elif item_budget_against == "Expense":
         # Expense Entry Details for Account and Account Group

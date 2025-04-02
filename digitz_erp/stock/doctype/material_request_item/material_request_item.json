@@ -10,6 +10,7 @@
   "item",
   "item_name",
   "display_name",
+  "item_group",
   "col_break1",
   "schedule_date",
   "project",
@@ -30,7 +31,8 @@
   "qty_purchased_in_base_unit",
   "valuation_rate",
   "budget_type",
-  "budget_value"
+  "budget_value",
+  "available_amount_in_budget"
  ],
  "fields": [
   {
@@ -229,12 +231,26 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Budget Value"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "available_amount_in_budget",
+   "fieldtype": "Currency",
+   "label": "Available Amount In Budget"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-18 18:06:31.389502",
+ "modified": "2025-04-02 08:39:46.327139",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",

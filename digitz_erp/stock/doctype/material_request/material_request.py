@@ -4,59 +4,52 @@
 import frappe
 from frappe.model.document import Document
 from digitz_erp.api.accounts_api import calculate_utilization
-
+from digitz_erp.api.accounts_api import get_balance_budget_value
+from frappe.utils import flt
 
 class MaterialRequest(Document):
     
 	def validate(self):
-		pass
-		# self.validate_item_budgets()
 		
-	def validate_item_budgets(self):
+		self.validate_budget_for_items()
+	
+	def validate_budget_for_items(self):
 		"""
-		Validate Purchase Order items against the budget values and utilized amounts.
-
-		This method is intended to be called during the validate event of the Purchase Order.
+		Validate budget for each item in a Material Request.
 		"""
 		for item in self.items:
-			# Fetch budget details for the item
-			budget_item = frappe.db.get_value(
-				"Budget Item",
-				{"reference_type": "Item", "reference_value": item.item},
-				["parent", "budget_amount"],
-				as_dict=True
-			)
-
-			if not budget_item:
-				# Skip validation if no budget exists for the item
-				continue
-
-			# Get the parent budget details
-			budget = frappe.get_doc("Budget", budget_item["parent"])
-
-			# Fetch utilized amount
-			utilized_amount = calculate_utilization(
-				budget_against=budget.budget_against,
-				item_budget_against="Purchase",
-				budget_against_value=getattr(budget, budget.budget_against.lower()),
+			budget_data = get_balance_budget_value(
 				reference_type="Item",
 				reference_value=item.item,
-				from_date=budget.from_date,
-				to_date=budget.to_date,
+				doc_type="Material Request",
+				doc_name=self.name,
+				transaction_date=self.posting_date,
+				company=self.company,
+				project=self.project,
+				cost_center=self.default_cost_center
 			)
+			
+			if budget_data and not budget_data.get("no_budget"):
+				details = budget_data.get("details", {})
+				budget_amount = flt(details.get("Budget Amount", 0))
+				used_amount = flt(details.get("Used Amount", 0))
+				available_balance = flt(details.get("Available Balance", 0))
+				ref_type = details.get("Reference Type")
+				total_map = 0
 
-			# Calculate total utilized
-			total_utilized = utilized_amount + item.gross_amount
-
-			# Check if total utilized exceeds budget amount
-			if total_utilized > budget_item["budget_amount"]:
-				frappe.throw(
-					f"Item {item.item} exceeds its budget limit. "
-					f"Budget Amount: {budget_item['budget_amount']}, "
-					f"Utilized: {utilized_amount}, "
-					f"Gross Amount in Purchase Order: {item.gross_amount}, "
-					f"Total Utilized: {total_utilized}."
-				)
+				for row in self.items:
+					qty = flt(row.qty)
+					valuation_rate = flt(row.valuation_rate)
+					
+					if ref_type == "Item" and row.item == item.item:
+						total_map += qty * valuation_rate
+					elif ref_type == "Item Group" and row.item_group == item.item_group:
+						total_map += qty * valuation_rate
+				
+				used_amount += total_map
+				
+				if budget_amount < used_amount:
+					frappe.throw(f"Exceeding the allocated budget for the item {item.item}!")
 
 	def before_submit(self):
 		if not self.approved:
@@ -71,30 +64,5 @@ class MaterialRequest(Document):
 		if not any_approved_qty:
 			frappe.throw("No items have approved quantities to allow the document to be submitted.")
    
-	def before_validate(self):
-          
-		self.copy_budget_items_to_items()
-   
-	def copy_budget_items_to_items(self):
 	
-		for budget_item_row in self.budgeted_items:
-			item_row = self.append('items',{})
-			item_row.item = budget_item_row.item_code
-			item_row.item_name = budget_item_row.item_name
-			item_row.description  = budget_item_row.description
-			item_row.schedule_date = budget_item_row.schedule_date
-			item_row.unit = budget_item_row.unit
-			item_row.conversion_factor = item_row.conversion_factor if item_row.conversion_factor else 1		
-
-			item_row.width = budget_item_row.width
-			item_row.height = budget_item_row.height
-			item_row.no_of_pieces = budget_item_row.no_of_pieces
-
-			item_row.qty = budget_item_row.qty
-			item_row.project = budget_item_row.project
-			item_row.target_warehouse = budget_item_row.target_warehouse
-			frappe.msgprint("Items selected form budgets added to the items collection, if you want to edit or delete you can do it from items table", alert=True)
-
-		# Clear the budgeted_items table
-		self.set('budgeted_items', [])
 	

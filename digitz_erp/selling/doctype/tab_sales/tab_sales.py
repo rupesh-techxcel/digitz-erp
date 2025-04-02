@@ -84,7 +84,7 @@ class TabSales (Document):
     def validate(self):
         self.validate_item()
         # self.validate_item_valuation_rates()
-    
+       
     def validate_item_valuation_rates(self):
         
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))

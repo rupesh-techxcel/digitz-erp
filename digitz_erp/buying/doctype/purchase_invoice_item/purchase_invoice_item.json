@@ -11,6 +11,7 @@
   "item",
   "item_name",
   "display_name",
+  "item_group",
   "qty",
   "unit",
   "rate",
@@ -205,12 +206,20 @@
    "label": "PO Item Reference",
    "options": "Purchase Order Item",
    "read_only": 1
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-16 20:31:51.861808",
+ "modified": "2025-04-02 13:03:28.390783",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice Item",

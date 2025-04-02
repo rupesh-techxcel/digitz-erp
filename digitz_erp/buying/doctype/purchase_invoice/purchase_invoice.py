@@ -20,6 +20,8 @@ from frappe import throw, _
 from frappe.utils import money_in_words
 from digitz_erp.api.settings_api import add_seconds_to_time
 from digitz_erp.api.accounts_api import calculate_utilization
+from digitz_erp.api.accounts_api import get_balance_budget_value
+from frappe.utils import flt
 
 class PurchaseInvoice(Document):
 
@@ -71,7 +73,61 @@ class PurchaseInvoice(Document):
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
 
-		self.validate_item_budgets()
+		self.validate_budget_for_items()
+  
+	def validate_budget_for_items(self):
+		"""
+		Validate budget for each item in a Material Request.
+		"""
+		for item in self.items:
+			budget_data = get_balance_budget_value(
+				reference_type="Item",
+				reference_value=item.item,
+				doc_type="Purchase Invoice",
+				doc_name=self.name,
+				transaction_date=self.posting_date,
+				company=self.company,
+				project=self.project,
+				cost_center=self.default_cost_center
+			)
+			
+			if budget_data and not budget_data.get("no_budget"):
+				details = budget_data.get("details", {})
+				budget_amount = flt(details.get("Budget Amount", 0))
+				used_amount = flt(details.get("Used Amount", 0))
+				available_balance = flt(details.get("Available Balance", 0))
+				ref_type = details.get("Reference Type")
+				total_map = 0
+
+				for row in self.items:
+					
+					gross_amount = flt(row.gross_amount)
+     					
+					if ref_type == "Item" and row.item == item.item:
+						total_map += gross_amount
+					elif ref_type == "Item Group" and row.item_group == item.item_group:
+						total_map += gross_amount
+				
+				used_amount += total_map
+				
+				if budget_amount < used_amount:
+					frappe.throw(f"Exceeding the allocated budget for the item {item.item}!")
+     
+	def get_balance_budget_value(reference_type, reference_value, doc_type, doc_name, transaction_date, company, project, cost_center):
+			"""
+			Fetch the budget details from existing API method.
+			"""
+			return frappe.call(
+				"digitz_erp.api.accounts_api.get_balance_budget_value",
+				reference_type=reference_type,
+				reference_value=reference_value,
+				doc_type=doc_type,
+				doc_name=doc_name,
+				transaction_date=transaction_date,
+				company=company,
+				project=project,
+				cost_center=cost_center
+			)
    
 	def validate_item_budgets(self):
 		"""
