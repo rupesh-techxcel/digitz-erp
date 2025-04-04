@@ -161,6 +161,7 @@
    "read_only": 1
   },
   {
+   "default": "Service",
    "fieldname": "project_type",
    "fieldtype": "Select",
    "label": "Project Type",
@@ -449,7 +450,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2025-03-19 20:54:16.799403",
+ "modified": "2025-04-04 13:20:10.946687",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

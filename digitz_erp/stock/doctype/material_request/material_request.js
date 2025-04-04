@@ -133,7 +133,7 @@ frappe.ui.form.on("Material Request", {
                         args: {
                             'doctype': 'Company',
                             'filters': { 'company_name': default_company },
-                            'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice', 'allow_budgeted_item_to_be_purchased', 'allow_purchase_with_dimensions', 'allow_purchase_with_dimensions_2']
+                            'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice', 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms', 'update_stock_in_sales_invoice','allow_purchase_with_dimensions', 'allow_purchase_with_dimensions_2']
                         },
                         callback: (r2) => {
 
@@ -143,11 +143,11 @@ frappe.ui.form.on("Material Request", {
 
                             frm.refresh_field("target_warehouse");
 
-                            frm.set_value("allow_against_budget", r2.message.allow_budgeted_item_to_be_purchased)
+                           
 
                             console.log("allow_budgeted_item_to_be_purchased", r2.message.allow_budgeted_item_to_be_purchased)
 
-                            frm.set_df_property("allow_against_budget", "hidden", r2.message.allow_budgeted_item_to_be_purchased ? 0 : 1);
+                           
                             frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
                             frm.set_df_property("use_dimensions_2", "hidden", r2.message.allow_purchase_with_dimensions_2 ? 0 : 1);
 
