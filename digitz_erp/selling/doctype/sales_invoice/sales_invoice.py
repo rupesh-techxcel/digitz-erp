@@ -20,9 +20,13 @@ from digitz_erp.api.sales_order_api import check_and_update_sales_order_status,u
 from digitz_erp.api.settings_api import add_seconds_to_time
 from frappe import _
 from frappe.utils import flt
+from digitz_erp.accounts.doctype.gl_posting.gl_posting import get_party_balance
+from digitz_erp.api.settings_api import get_customer_terms
+from digitz_erp.api.items_api import get_item_uoms 
 
 class SalesInvoice(Document):
-
+    
+    
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
@@ -30,8 +34,17 @@ class SalesInvoice(Document):
     def Set_Posting_Time_To_Next_Second(self):
         # Add 12 seconds to self.posting_time and update it
         self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
-
+        
+    def before_insert(self):
+            
+        if self.get("import"): # Only apply defaults if importing
+            self.do_import()
+    
     def before_validate(self):
+        
+        # Optional: Enforce required fields
+        if not self.credit_sale and not self.payment_mode:
+            frappe.throw("Payment mode is required when not a credit sale.")
 
         if(self.Voucher_In_The_Same_Time()):
 
@@ -65,7 +78,13 @@ class SalesInvoice(Document):
             # equal to rounded_total. Make it as credit sale in the draft mode and then save.
             # In this case its required to make the paid_amount zero
             self.paid_amount = 0
-        self.in_words = money_in_words(self.rounded_total,"AED")
+        
+        # if not self.get("import"):
+        #     print("Not Import")
+        #     self.in_words =  money_in_words(self.rounded_total,"AED") if not self.get("import") else None
+        # else:
+        #     print("Import")
+        #     self.in_words = ""
 
         if self.tab_sales:
             self.update_stock = True
@@ -1386,7 +1405,255 @@ class SalesInvoice(Document):
         """
 
         # Update the 'total_big' field with the HTML content
-        self.total_big = display_html      
+        self.total_big = display_html 
+    
+    def do_import(self):
+        self.assign_defaults()    
+        
+    def assign_defaults(self):
+        # Step 1: Set default company from Global Settings if not set
+        if not self.company:
+            self.company = frappe.db.get_single_value('Global Settings', 'default_company')
+
+        # Step 2: Fetch company-specific settings
+        if self.company:
+            company = frappe.get_value(
+                'Company',
+                self.company,
+                ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice',
+                 'update_price_list_price_with_sales_invoice', 'use_customer_last_price', 'customer_terms',
+                 'update_stock_in_sales_invoice', 'default_credit_sale'],
+                as_dict=True
+            )
+
+            if company:
+                self.warehouse = self.warehouse or company.default_warehouse
+                self.rate_includes_tax = company.rate_includes_tax
+                self.update_stock = company.update_stock_in_sales_invoice
+                self.auto_save_delivery_note = 0  # explicitly false as in JS
+
+                if not company.use_customer_last_price:
+                    self.update_rates_in_price_list = company.update_price_list_price_with_sales_invoice
+
+                if company.default_credit_sale:
+                    self.credit_sale = 1
+
+                if company.customer_terms:
+                    self.terms = company.customer_terms
+
+                    # Step 3: Fetch terms and conditions text from template
+                    try:
+                        terms = frappe.call(
+                            'digitz_erp.api.settings_api.get_terms_for_template',
+                            template=company.customer_terms
+                        ).get('message')
+                        if terms:
+                            self.terms_and_conditions = terms
+                    except Exception as e:
+                        frappe.log_error(str(e), "Error fetching terms from template")
+
+        # Step 4: Set payment mode
+        self.set_default_payment_mode()
+        self.set_customer_related_fields()        
+        self.populate_item_details_during_import()
+        self.make_taxes_and_totals()
+        
+    def populate_item_details_during_import(self):
+        """
+        Loop through all items and populate item details during data import.
+        This ensures each item row has the correct tax, base unit, rate, etc.
+        """
+
+        if not self.customer:
+            frappe.throw("Customer is required before assigning items.")
+
+        tax_excluded_company = frappe.db.get_value("Company Settings", {"company": self.company}, "tax_excluded") or 0
+        # default_currency = frappe.db.get_single_value("Global Settings", "default_currency")
+        self.currency = "AED"
+
+        for item_row in self.items:
+            item = frappe.get_value("Item", item_row.item, [
+                "item_name", "description", "base_unit", "tax", "tax_excluded"
+            ], as_dict=True)
+
+            if not item:
+                frappe.throw(f"Item '{item_row.item}' not found.")
+
+            item_row.item_name = item.item_name
+            item_row.display_name = item.description
+            item_row.base_unit = item.base_unit
+            item_row.unit = item.base_unit
+            item_row.conversion_factor = 1
+            item_row.warehouse = self.warehouse
+
+            # Determine tax exclusion (from company or item)
+            item_row.tax_excluded = bool(tax_excluded_company or item.tax_excluded)
+
+            # Handle advance payment logic
+            if self.project and self.for_advance_payment and self.project_value and self.advance_percentage:
+                advance_value = (self.project_value * self.advance_percentage / 100)
+                item_row.rate = advance_value
+                self.advance_note = f"{self.advance_percentage}% advance = {advance_value} allocated to line item."
+
+            # Fetch tax info if applicable
+            if not item_row.tax_excluded and item.tax:
+                tax_info = frappe.get_value("Tax", item.tax, ["tax_name", "tax_rate"], as_dict=True)
+                if tax_info:
+                    item_row.tax = tax_info.tax_name
+                    item_row.tax_rate = tax_info.tax_rate
+                else:
+                    item_row.tax = ""
+                    item_row.tax_rate = 0
+            else:
+                item_row.tax = ""
+                item_row.tax_rate = 0
+
+
+    def set_default_payment_mode(self):
+        if not self.credit_sale:
+            default_payment_mode = frappe.get_value(
+                "Company",
+                self.company,
+                "default_payment_mode_for_sales"
+            )
+            if default_payment_mode:
+                self.payment_mode = default_payment_mode
+            else:
+                frappe.msgprint('Default payment mode for sales not found.')
+        else:
+            self.payment_mode = None            
+   
+    def set_customer_related_fields(self):
+        # 1. Get Default Price List from Customer
+        customer_data = frappe.db.get_value(
+            "Customer", 
+            {"customer_name": self.customer_name}, 
+            ["default_price_list", "customer_name"], 
+            as_dict=True
+        )
+
+        if customer_data:
+            if customer_data.default_price_list:
+                self.price_list = customer_data.default_price_list
+
+        customer_balance = get_party_balance(party_type="Customer", party=self.customer)
+
+        if customer_balance:
+            self.customer_balance = customer_balance
+
+        # 3. Set Customer Display Name
+        self.customer_display_name = self.customer_name
+
+        customer_terms = get_customer_terms(customer=self.customer)
+        
+        if customer_terms:
+            if isinstance(customer_terms, dict):
+                if customer_terms.get("template_name"):
+                    self.terms = customer_terms.get("template_name")
+                if customer_terms.get("terms"):
+                    self.terms_and_conditions = customer_terms.get("terms")
+                    
+        
+    def make_taxes_and_totals(self):
+        gross_total = 0
+        tax_total = 0
+        net_total = 0
+        discount_total = 0
+
+        self.set("taxes", [])
+        self.gross_total = 0
+        self.net_total = 0
+        self.tax_total = 0
+        self.total_discount_in_line_items = 0
+        self.round_off = 0
+        self.rounded_total = 0
+
+        for entry in self.items:
+            tax_in_rate = 0
+            entry.rate_includes_tax = self.rate_includes_tax
+            entry.gross_amount = 0
+            entry.tax_amount = 0
+            entry.net_amount = 0
+
+            if entry.rate_includes_tax:
+                if entry.tax_rate > 0:
+                    tax_in_rate = entry.rate * (entry.tax_rate / (100 + entry.tax_rate))
+                    entry.rate_excluded_tax = entry.rate - tax_in_rate
+                    entry.tax_amount = (entry.qty * entry.rate) * (entry.tax_rate / (100 + entry.tax_rate))
+                else:
+                    entry.rate_excluded_tax = entry.rate
+                    entry.tax_amount = 0
+
+                entry.net_amount = (entry.qty * entry.rate) - entry.discount_amount
+                entry.gross_amount = entry.net_amount - entry.tax_amount
+            else:
+                entry.rate_excluded_tax = entry.rate
+
+                if entry.tax_rate > 0:
+                    entry.tax_amount = ((entry.qty * entry.rate) - entry.discount_amount) * (entry.tax_rate / 100)
+                    entry.net_amount = ((entry.qty * entry.rate) - entry.discount_amount) + entry.tax_amount
+                else:
+                    entry.tax_amount = 0
+                    entry.net_amount = (entry.qty * entry.rate) - entry.discount_amount
+
+                entry.gross_amount = entry.qty * entry.rate_excluded_tax
+
+            gross_total += entry.gross_amount
+            tax_total += entry.tax_amount
+            discount_total += entry.discount_amount
+
+            entry.qty_in_base_unit = entry.qty * entry.conversion_factor
+            entry.rate_in_base_unit = entry.rate / entry.conversion_factor
+
+            if entry.qty is not None and entry.rate is not None:
+                units = get_item_uoms(entry.item) or []
+                output = ""
+
+                for b in units:
+                    conversion = b.get("conversion_factor")
+                    unit = b.get("unit")
+
+                    if not conversion:
+                        continue
+
+                    uomqty = entry.qty_in_base_unit / conversion
+                    uomrate = entry.rate_in_base_unit * conversion
+
+                    if uomqty == entry.qty_in_base_unit:
+                        uomqty2 = f"{uomqty} {unit} @ {uomrate}"
+                    else:
+                        if uomqty > int(uomqty):
+                            excessqty = round((uomqty - int(uomqty)) * conversion)
+                            uomqty2 = f"{uomqty} {unit}({int(uomqty)} {unit} {excessqty} {entry.base_unit}) @ {uomrate}"
+                        else:
+                            uomqty2 = f"{uomqty} {unit} @ {uomrate}"
+
+                    output += uomqty2 + "\n"
+
+                entry.unit_conversion_details = output
+
+        if self.additional_discount is None:
+            self.additional_discount = 0
+
+        self.gross_total = gross_total
+        self.net_total = gross_total + tax_total - self.additional_discount
+        self.tax_total = tax_total
+        self.total_discount_in_line_items = discount_total
+
+        do_not_apply_round_off = frappe.db.get_value("Company", self.company, "do_not_apply_round_off_in_si")
+
+        if do_not_apply_round_off == 1:
+            self.rounded_total = self.net_total
+        else:
+            if self.net_total != round(self.net_total):
+                self.round_off = round(self.net_total) - self.net_total
+                self.rounded_total = round(self.net_total)
+            else:
+                self.rounded_total = round(self.net_total)
+
+        # Simulated frontend callback: update_total_big_display(frm);
+        self.update_total_big_display()
+
 
     @frappe.whitelist()
     def generate_sales_invoice(self):

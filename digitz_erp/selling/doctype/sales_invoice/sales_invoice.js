@@ -495,8 +495,6 @@ frappe.ui.form.on('Sales Invoice', {
 			update_total_big_display(frm);
 		});
 
-		
-
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
 
