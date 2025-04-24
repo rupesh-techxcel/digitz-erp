@@ -1421,6 +1421,12 @@ class SalesInvoice(Document):
     
     def do_import(self):
         self.assign_defaults()    
+         # Step 4: Set payment mode
+        self.set_default_payment_mode()
+        self.set_customer_related_fields()        
+        self.populate_item_details_during_import()
+        self.make_taxes_and_totals()
+        self.in_words =  money_in_words(self.rounded_total,"AED")
         
     def assign_defaults(self):
         # Step 1: Set default company from Global Settings if not set
@@ -1463,12 +1469,6 @@ class SalesInvoice(Document):
                             self.terms_and_conditions = terms
                     except Exception as e:
                         frappe.log_error(str(e), "Error fetching terms from template")
-
-        # Step 4: Set payment mode
-        self.set_default_payment_mode()
-        self.set_customer_related_fields()        
-        self.populate_item_details_during_import()
-        self.make_taxes_and_totals()
         
     def populate_item_details_during_import(self):
         """
