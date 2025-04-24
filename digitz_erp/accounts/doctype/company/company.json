@@ -81,7 +81,10 @@
   "section_break_39",
   "customer_terms",
   "system_tab",
+  "sales_and_delivery_note",
   "delivery_note_integrated_with_sales_invoice",
+  "allow_edit_sales_invoice_no",
+  "estimate_and_boq",
   "use_custom_item_group_description_in_estimation",
   "overheads_based_on_percentage",
   "allow_estimated_items_budgeting",
@@ -314,8 +317,8 @@
    "description": "Automatically generate Delivery Note when saving Sales Invoice",
    "fieldname": "delivery_note_integrated_with_sales_invoice",
    "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Delivery Note Integrated with Sales Invoice"
+   "label": "Delivery Note Integrated with Sales Invoice",
+   "permlevel": 1
   },
   {
    "fieldname": "stock_adjustment_account",
@@ -462,7 +465,8 @@
    "default": "0",
    "fieldname": "use_custom_item_group_description_in_estimation",
    "fieldtype": "Check",
-   "label": "Use Custom Item Group Description in Estimation"
+   "label": "Use Custom Item Group Description in Estimation",
+   "permlevel": 1
   },
   {
    "fieldname": "default_product_expense_account",
@@ -485,7 +489,8 @@
    "default": "0",
    "fieldname": "overheads_based_on_percentage",
    "fieldtype": "Check",
-   "label": "Estimate Overheads calculation based on percentage"
+   "label": "Estimate Overheads calculation based on percentage",
+   "permlevel": 1
   },
   {
    "fieldname": "estimate",
@@ -543,31 +548,36 @@
    "default": "0",
    "fieldname": "allow_estimated_items_budgeting",
    "fieldtype": "Check",
-   "label": "Allow estimated item to be budgeted"
+   "label": "Allow estimated item to be budgeted",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "boq_with_manual_item_selection",
    "fieldtype": "Check",
-   "label": "BOQ with manual item selection in the Progress Entry"
+   "label": "BOQ with manual item selection in the Progress Entry",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "allow_purchase_with_dimensions",
    "fieldtype": "Check",
-   "label": "Allow Purchase with dimensions (Glass)"
+   "label": "Allow Purchase with dimensions (Glass)",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "allow_purchase_with_dimensions_2",
    "fieldtype": "Check",
-   "label": "Allow Purchase with dimensions 2 (Aluminium Profile)"
+   "label": "Allow Purchase with dimensions 2 (Aluminium Profile)",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "enquiry_selection_in_quotation",
    "fieldtype": "Check",
-   "label": "Enquiry selection in Quotation (As default)"
+   "label": "Enquiry selection in Quotation (As default)",
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_bezg",
@@ -576,44 +586,51 @@
   {
    "fieldname": "customer_data_validation",
    "fieldtype": "Heading",
-   "label": "Customer Data Validation"
+   "label": "Customer Data Validation",
+   "permlevel": 1
   },
   {
    "default": "0",
    "description": "Enable this checkbox if you want to treat the same customer with multiple locations as separate entities",
    "fieldname": "customer_area_required",
    "fieldtype": "Check",
-   "label": "Area mandatory"
+   "label": "Area mandatory",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "customer_address_required",
    "fieldtype": "Check",
-   "label": "Address mandatory"
+   "label": "Address mandatory",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "customer_mobile_required",
    "fieldtype": "Check",
-   "label": "Mobile Mandatory"
+   "label": "Mobile Mandatory",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "customer_email_required",
    "fieldtype": "Check",
-   "label": "Email mandatory"
+   "label": "Email mandatory",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "customer_trn_required",
    "fieldtype": "Check",
-   "label": "TRN No mandatory"
+   "label": "TRN No mandatory",
+   "permlevel": 1
   },
   {
    "default": "0",
    "fieldname": "emirate_required",
    "fieldtype": "Check",
-   "label": "Emirate Mandatory"
+   "label": "Emirate Mandatory",
+   "permlevel": 1
   },
   {
    "fieldname": "project_tab",
@@ -631,12 +648,31 @@
    "fieldtype": "Percent",
    "label": "Maximum allowable budget based on the estimate (Percentage)",
    "precision": "0"
+  },
+  {
+   "fieldname": "estimate_and_boq",
+   "fieldtype": "Heading",
+   "label": "Estimate and BOQ",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "sales_and_delivery_note",
+   "fieldtype": "Heading",
+   "label": "Sales and Delivery Note",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_edit_sales_invoice_no",
+   "fieldtype": "Check",
+   "label": "Allow edit Sales Invoice No",
+   "permlevel": 1
   }
  ],
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-03 14:11:51.650636",
+ "modified": "2025-04-21 14:26:03.371822",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",

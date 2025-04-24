@@ -10,6 +10,7 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
+  "sales_inv_no",
   "customer",
   "customer_balance",
   "column_break_6",
@@ -710,6 +711,12 @@
    "hidden": 1,
    "label": "External",
    "read_only": 1
+  },
+  {
+   "description": "This field allows you to override the automatically generated Sales Invoice Number.",
+   "fieldname": "sales_inv_no",
+   "fieldtype": "Data",
+   "label": "Sales Inv No"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -730,7 +737,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2025-04-20 14:32:54.155616",
+ "modified": "2025-04-21 14:14:37.909894",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

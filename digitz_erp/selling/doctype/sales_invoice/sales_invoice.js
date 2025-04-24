@@ -552,7 +552,7 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice','allow_edit_sales_invoice_no']
 						},
 						callback: (r2) => {
 
@@ -561,6 +561,17 @@ frappe.ui.form.on('Sales Invoice', {
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 
 							frm.doc.update_stock = r2.message.update_stock_in_sales_invoice
+
+							frm.custom = frm.custom || {};
+
+							// Set a temporary flag (not saved in DB)
+							frm.custom.allow_edit_sales_invoice_no = r2.message.allow_edit_sales_invoice_no;
+
+							console.log("frm.custom.allow_edit_sales_invoice_no")
+							console.log(frm.custom.allow_edit_sales_invoice_no)
+
+							// Use it to control the visibility of the field
+							frm.set_df_property("sales_inv_no", "hidden", !frm.custom.allow_edit_sales_invoice_no);
 
 							// frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
 							frm.doc.auto_save_delivery_note = false

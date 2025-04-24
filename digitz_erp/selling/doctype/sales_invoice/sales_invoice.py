@@ -26,7 +26,6 @@ from digitz_erp.api.items_api import get_item_uoms
 
 class SalesInvoice(Document):
     
-    
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Sales Invoice', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
@@ -77,14 +76,9 @@ class SalesInvoice(Document):
             # Issue - First save the invoie not as credit sale, it will fill up the paid_amount
             # equal to rounded_total. Make it as credit sale in the draft mode and then save.
             # In this case its required to make the paid_amount zero
-            self.paid_amount = 0
-        
-        # if not self.get("import"):
-        #     print("Not Import")
-        #     self.in_words =  money_in_words(self.rounded_total,"AED") if not self.get("import") else None
-        # else:
-        #     print("Import")
-        #     self.in_words = ""
+            self.paid_amount = 0  
+                  
+        self.in_words =  money_in_words(self.rounded_total,"AED")
 
         if self.tab_sales:
             self.update_stock = True
@@ -108,6 +102,24 @@ class SalesInvoice(Document):
         
         self.update_advance_received_with_sales_order()
         self.update_total_big_display()
+        self.update_sales_invoice_no()        
+
+    def autoname(self):
+        allow_edit_sales_invoice_no = frappe.get_value("Company", self.company, "allow_edit_sales_invoice_no")
+        if self.sales_inv_no and allow_edit_sales_invoice_no:
+            self.name = self.sales_inv_no
+
+    def update_sales_invoice_no(self):
+        # Avoid renaming unsaved docs
+        if self.get("__islocal"):
+            return
+
+        allow_edit_sales_invoice_no = frappe.get_value("Company", self.company, "allow_edit_sales_invoice_no")
+        if allow_edit_sales_invoice_no and self.sales_inv_no and self.sales_inv_no != self.name:
+            frappe.rename_doc(self.doctype, self.name, self.sales_inv_no, force=True)
+            self.name = self.sales_inv_no
+
+
         
     def validate_for_sales_order(self):
         # Ensure the Sales Invoice is linked to a Sales Order

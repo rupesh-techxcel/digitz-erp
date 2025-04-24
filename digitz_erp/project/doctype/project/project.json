@@ -53,11 +53,11 @@
   "tasks",
   "statistics_tab",
   "project_value",
+  "project_gross_value",
   "purchase_cost_gross",
   "work_in_progress_value",
   "estimated_material_cost",
   "column_break_zbcd",
-  "project_gross_value",
   "material_cost",
   "labour_cost",
   "overheads",
@@ -372,7 +372,7 @@
    "fetch_from": "sales_order.net_total",
    "fieldname": "project_value",
    "fieldtype": "Float",
-   "label": "Project Value",
+   "label": "Project Net Value",
    "non_negative": 1,
    "precision": "2"
   },
@@ -450,7 +450,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2025-04-04 13:20:10.946687",
+ "modified": "2025-04-21 14:05:00.413170",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",
