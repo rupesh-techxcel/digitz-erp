@@ -1,8 +1,3 @@
-.navbar
-{
-    background:#68b2f3!important;
-    /* background: orange; */
-}
 .app-logo {
     max-height:90px;
 }
@@ -17,6 +12,7 @@
 .layout-side-section
 {
     background: #cbced3!important;
+    border:1px solid;
 }
 
 .page-head 
