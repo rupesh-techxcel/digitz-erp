@@ -2,7 +2,6 @@ import frappe
 from frappe.utils import flt
 from digitz_erp.api.accounts_api import calculate_utilization
 
-
 def execute(filters=None):
     """
     Generate the Budget Vs Actual Report with chart data.

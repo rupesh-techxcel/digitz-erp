@@ -2,6 +2,11 @@
 .layout-side-section
 {
     background: #cbced3!important;
+    border:1px solid #4c94c8;
+}
+
+.sidebar-item-label {
+    border: 1px solid #4c94c8; /* or whatever color you prefer */
 }
 
 .page-head 
