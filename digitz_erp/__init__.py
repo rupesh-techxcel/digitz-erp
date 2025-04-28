@@ -1,8 +1,5 @@
 
-__version__ = '0.0.1'
-
-
-import frappe
+__version__ = '1.0.0'
 
 
 # @frappe.whitelist()
