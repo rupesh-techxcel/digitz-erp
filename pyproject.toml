@@ -1,2 +1,12 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-dependencies = ["frappe>=14.0.0"]
+name = "digitz_erp"
+version = "1.0.0"  # <--- Recommended
+description = "DIGITZ ERP"
+authors = [
+    { name="Rupesh P", email="rupesh@techxceltech.com" }
+]
+dependencies = []
