@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitz_erp"
-version = "1.0.0"  # <--- Recommended
+version = "1.0.0"
 description = "DIGITZ ERP"
 authors = [
     { name="Rupesh P", email="rupesh@techxceltech.com" }
