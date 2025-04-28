@@ -1,0 +1,2 @@
+[project]
+dependencies = ["frappe>=14.0.0"]
