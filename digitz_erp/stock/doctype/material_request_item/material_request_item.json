@@ -163,6 +163,7 @@
    "depends_on": "eval:parent.use_dimensions",
    "fieldname": "width",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Width",
    "precision": "3"
   },
@@ -171,6 +172,7 @@
    "depends_on": "eval:parent.use_dimensions",
    "fieldname": "height",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Height",
    "precision": "3"
   },
@@ -179,12 +181,14 @@
    "depends_on": "eval:parent.use_dimensions",
    "fieldname": "no_of_pieces",
    "fieldtype": "Int",
+   "hidden": 1,
    "label": "No Of Pieces"
   },
   {
    "depends_on": "eval:parent.use_dimensions_2",
    "fieldname": "length",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Length",
    "precision": "3"
   },
@@ -193,6 +197,7 @@
    "fetch_from": "item.weight_per_meter",
    "fieldname": "weight_per_meter",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Weight Per Meter",
    "precision": "2",
    "read_only": 1
@@ -201,6 +206,7 @@
    "depends_on": "eval:parent.use_dimensions_2",
    "fieldname": "rate_per_kg",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Rate Per Kg",
    "precision": "2"
   },
@@ -250,7 +256,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-02 08:39:46.327139",
+ "modified": "2025-04-30 14:25:59.827771",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Material Request Item",

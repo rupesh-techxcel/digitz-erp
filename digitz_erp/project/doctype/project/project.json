@@ -54,9 +54,12 @@
   "statistics_tab",
   "project_value",
   "project_gross_value",
+  "budgeted_value_for_purchase",
   "purchase_cost_gross",
+  "purchase_cost_gross_po",
   "work_in_progress_value",
   "estimated_material_cost",
+  "estimated_labour_cost",
   "column_break_zbcd",
   "material_cost",
   "labour_cost",
@@ -410,7 +413,7 @@
    "description": "Based on Purchase Receipt",
    "fieldname": "purchase_cost_gross",
    "fieldtype": "Currency",
-   "label": "Purchase Cost (Gross)"
+   "label": "Purchase Cost (Gross) "
   },
   {
    "fieldname": "project_maximum_allowable_budget",
@@ -428,6 +431,22 @@
    "fieldname": "estimated_material_cost",
    "fieldtype": "Currency",
    "label": "Estimated Material Cost"
+  },
+  {
+   "fieldname": "budgeted_value_for_purchase",
+   "fieldtype": "Currency",
+   "label": "Budgeted Value For Purchase"
+  },
+  {
+   "fieldname": "estimated_labour_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Labour Cost"
+  },
+  {
+   "description": "Based On Purchase Order",
+   "fieldname": "purchase_cost_gross_po",
+   "fieldtype": "Currency",
+   "label": "Purchase Cost (Gross)"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -450,7 +469,7 @@
    "link_fieldname": "project"
   }
  ],
- "modified": "2025-04-21 14:05:00.413170",
+ "modified": "2025-05-01 12:15:13.210039",
  "modified_by": "Administrator",
  "module": "Project",
  "name": "Project",

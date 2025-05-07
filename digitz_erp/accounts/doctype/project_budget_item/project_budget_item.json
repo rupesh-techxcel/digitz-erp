@@ -12,6 +12,7 @@
   "item_code",
   "amount",
   "base_unit",
+  "utilized_amount",
   "conversion_factor"
  ],
  "fields": [
@@ -59,11 +60,16 @@
    "fieldname": "conversion_factor",
    "fieldtype": "Float",
    "label": "Conversion Factor"
+  },
+  {
+   "fieldname": "utilized_amount",
+   "fieldtype": "Currency",
+   "label": "Utilized Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-08 19:35:23.369317",
+ "modified": "2025-04-30 19:08:55.467153",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Project Budget Item",

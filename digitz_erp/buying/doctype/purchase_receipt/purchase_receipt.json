@@ -26,7 +26,7 @@
   "purchase_order",
   "do_no",
   "use_dimensions",
-  "use_dimension_2",
+  "use_dimensions_2",
   "column_break_kkhx",
   "company",
   "default_cost_center",
@@ -474,13 +474,13 @@
    "default": "0",
    "fieldname": "use_dimensions",
    "fieldtype": "Check",
-   "label": "Use Dimensions"
+   "label": "Use For Glass"
   },
   {
    "default": "0",
-   "fieldname": "use_dimension_2",
+   "fieldname": "use_dimensions_2",
    "fieldtype": "Check",
-   "label": "Use Dimension 2"
+   "label": "Use For Aluminium"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -491,7 +491,7 @@
    "link_fieldname": "purchase_receipt"
   }
  ],
- "modified": "2025-03-11 17:37:58.408580",
+ "modified": "2025-05-01 12:59:45.359101",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Receipt",

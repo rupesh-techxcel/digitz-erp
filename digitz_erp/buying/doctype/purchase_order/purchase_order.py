@@ -46,10 +46,14 @@ class PurchaseOrder(Document):
 			if budget_data and not budget_data.get("no_budget"):
 				details = budget_data.get("details", {})
 				budget_amount = flt(details.get("Budget Amount", 0))
-				used_amount = flt(details.get("Used Amount", 0))
-				available_balance = flt(details.get("Available Balance", 0))
+				used_amount = flt(details.get("Used Amount", 0))				
 				ref_type = details.get("Reference Type")
 				total_map = 0
+    
+				print("budget_amount")
+				print(budget_amount)
+				print("used_amount")
+				print(used_amount)
 
 				for row in self.items:
 					
@@ -147,6 +151,43 @@ class PurchaseOrder(Document):
      
 		if self.material_request:
 			self.update_material_request_quantities_on_update(forDeleteOrCancel=True)
+   	
+	def update_project_purchase_amount(self, cancel=False):
+		if self.project:
+			# Define filters to fetch submitted purchase receipts excluding the current document
+			filters = {
+				"project": self.project,
+				"name": ["!=", self.name],  # Exclude the current document
+				"docstatus": 1  # Include only submitted documents
+			}
+
+			total_received_amount_gross = 0
+
+			# Fetch all submitted Purchase Receipts related to the project
+			purchase_orders = frappe.get_all(
+				"Purchase Order",
+				filters=filters,
+				fields=["rounded_total", "gross_total"]
+			)
+
+			# Iterate through Purchase Receipts
+			for order in purchase_orders:				
+				total_received_amount_gross += order.get("gross_total", 0)
+
+			# If not cancelling, add the current document's contribution
+			if not cancel:
+       
+				# Add the current document's gross_total and rounded_total				
+				total_received_amount_gross += self.gross_total or 0
+
+			# Update the 'total_received_amount' and 'total_received_amount_gross' fields in the Project
+			frappe.db.set_value("Project",self.project,{"purchase_cost_gross_po": total_received_amount_gross})
+			
+			# Optional: Feedback or logging
+			frappe.msgprint(
+				f"The 'Purchase Cost' of project {self.project} have been updated successfully", alert=True
+			)
+		
 	
 	def update_material_request_quantities_on_update(self, forDeleteOrCancel=False):
 

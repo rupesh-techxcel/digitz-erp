@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:budget_name",
  "creation": "2024-10-14 15:22:28.726823",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -146,6 +145,7 @@
    "fieldtype": "Data",
    "label": "Budget Name",
    "placeholder": "Eg: Project Name-Budget",
+   "read_only": 1,
    "unique": 1
   },
   {
@@ -184,9 +184,10 @@
    "label": "Total Budget Amount"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "material_request",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Material Request"
   },
   {
@@ -208,7 +209,7 @@
    "label": "Purchase Receipt"
   },
   {
-   "fetch_from": "project.project_name",
+   "fetch_from": "project.project_short_name",
    "fieldname": "project_name",
    "fieldtype": "Data",
    "label": "Project Name",
@@ -223,11 +224,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-01 14:53:22.588055",
+ "modified": "2025-04-30 14:59:03.249404",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

@@ -10,7 +10,7 @@ class Project(Document):
     
     def before_validate(self):
         self.update_advance_amount()     
-        self.update_estimate_material_cost()
+        self.update_estimate_material_and_labour_cost()
             
     def on_update(self):
          
@@ -40,11 +40,11 @@ class Project(Document):
         self.advance_amount = advance_amount
         self.advance_percentage = advance_percentage
     
-    def update_estimate_material_cost(self):
+    def update_estimate_material_and_labour_cost(self):
         if self.boq:
             estimate_doc = frappe.get_doc("Estimate",{'boq':self.boq})
             self.estimated_material_cost = estimate_doc.total_material_cost
-    
+            self.estimated_labour_cost = estimate_doc.total_labour_cost
     
 @frappe.whitelist()
 def calculate_retention_amt(sales_order_id, retention_percentage):

@@ -380,12 +380,17 @@ def calculate_utilization(
     Helper function to calculate utilization based on budget type and dimensions.
     """
     
+    print("budget_against")
     print(budget_against)
+    print("item_budget_against")
     print(item_budget_against)
+    print("budget_against_value")
     print(budget_against_value)
+    print("reference_type")
     print(reference_type)
+    print("reference_value")
     print(reference_value)
-    
+        
     utilized = 0
     conditions = []
 
@@ -420,16 +425,20 @@ def calculate_utilization(
         conditions.append(f"employee_table.designation = '{reference_value}'")
         
     # Exclude current document
-    conditions.append(f"parent_table.name != '{doc_name}'")
+    if doc_name != None:        
+        conditions.append(f"parent_table.name != '{doc_name}'")
     conditions.append(f"parent_table.docstatus =1")
 
     where_clause = " AND ".join(conditions)
+    
+    print("where_clause")
+    print(where_clause)
 
     # Calculate utilization based on item_budget_against
     if item_budget_against == "Purchase":
         # Purchase Order
         purchase_order_total = 0
-        if doc_type == "Purchase Order":
+        if doc_type == "Purchase Order" or doc_type == None:
             purchase_order_total = frappe.db.sql(
                 f"""
                 SELECT SUM(child_table.gross_amount) AS total
@@ -440,49 +449,60 @@ def calculate_utilization(
                 """,
                 as_dict=True,
             )[0].get("total", 0) or 0
+            
+        print("purchase_order_total")
+        print(purchase_order_total)
+        
+        print(f"""
+                SELECT SUM(child_table.gross_amount) AS total
+                FROM `tabPurchase Order Item` AS child_table
+                INNER JOIN `tabPurchase Order` AS parent_table ON child_table.parent = parent_table.name
+                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+                WHERE {where_clause}
+                """)
 
         purchase_receipt_total = 0
         
-        if(doc_type == "Purchase Receipt"):
-            # Purchase Receipt
-            purchase_receipt_total = frappe.db.sql(
-                f"""
-                SELECT SUM(child_table.gross_amount) AS total
-                FROM `tabPurchase Receipt Item` AS child_table
-                INNER JOIN `tabPurchase Receipt` AS parent_table ON child_table.parent = parent_table.name
-                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
-                WHERE {where_clause}
-                """,
-                as_dict=True,
-            )[0].get("total", 0) or 0
+        # if(doc_type == "Purchase Receipt" or doc_type == None):
+        #     # Purchase Receipt
+        #     purchase_receipt_total = frappe.db.sql(
+        #         f"""
+        #         SELECT SUM(child_table.gross_amount) AS total
+        #         FROM `tabPurchase Receipt Item` AS child_table
+        #         INNER JOIN `tabPurchase Receipt` AS parent_table ON child_table.parent = parent_table.name
+        #         INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+        #         WHERE {where_clause}
+        #         """,
+        #         as_dict=True,
+        #     )[0].get("total", 0) or 0
 
         purchase_invoice_total = 0
-        if doc_type == "Purchase Invoice":
-            # Purchase Invoice
-            purchase_invoice_total = frappe.db.sql(
-                f"""
-                SELECT SUM(child_table.gross_amount) AS total
-                FROM `tabPurchase Invoice Item` AS child_table
-                INNER JOIN `tabPurchase Invoice` AS parent_table ON child_table.parent = parent_table.name
-                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
-                WHERE {where_clause}
-                """,
-                as_dict=True,
-            )[0].get("total", 0) or 0
+        # if doc_type == "Purchase Invoice or" or doc_type == None:
+        #     # Purchase Invoice
+        #     purchase_invoice_total = frappe.db.sql(
+        #         f"""
+        #         SELECT SUM(child_table.gross_amount) AS total
+        #         FROM `tabPurchase Invoice Item` AS child_table
+        #         INNER JOIN `tabPurchase Invoice` AS parent_table ON child_table.parent = parent_table.name
+        #         INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+        #         WHERE {where_clause}
+        #         """,
+        #         as_dict=True,
+        #     )[0].get("total", 0) or 0
         
         material_request_total = 0
-        if doc_type == "Material Request":
-            # Purchase Invoice
-            material_request_total = frappe.db.sql(
-                f"""
-                SELECT SUM(child_table.qty* child_table.valuation_rate) AS total
-                FROM `tabMaterial Request Item` AS child_table
-                INNER JOIN `tabMaterial Request` AS parent_table ON child_table.parent = parent_table.name
-                INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
-                WHERE {where_clause}
-                """,
-                as_dict=True,
-            )[0].get("total", 0) or 0
+        # if doc_type == "Material Request" or doc_type== None:
+        #     # Purchase Invoice
+        #     material_request_total = frappe.db.sql(
+        #         f"""
+        #         SELECT SUM(child_table.qty* child_table.valuation_rate) AS total
+        #         FROM `tabMaterial Request Item` AS child_table
+        #         INNER JOIN `tabMaterial Request` AS parent_table ON child_table.parent = parent_table.name
+        #         INNER JOIN `tabItem` AS item_table ON child_table.item = item_table.item_code
+        #         WHERE {where_clause}
+        #         """,
+        #         as_dict=True,
+        #     )[0].get("total", 0) or 0
 
         utilized = max(material_request_total,purchase_order_total, purchase_receipt_total, purchase_invoice_total)
 

@@ -11,6 +11,14 @@ frappe.ui.form.on("Material Request", {
             }
         });
     },
+    use_dimensions(frm)
+	{
+		toggle_use_dimensions(frm)
+	},
+	use_dimensions_2(frm)
+	{
+		toggle_use_dimensions_2(frm)
+	},
 
     // async setup(frm) {
     //     if(frm.is_new()){
@@ -147,10 +155,10 @@ frappe.ui.form.on("Material Request", {
 
                             console.log("allow_budgeted_item_to_be_purchased", r2.message.allow_budgeted_item_to_be_purchased)
 
-                           
-                            frm.set_df_property("use_dimensions", "hidden", r2.message.allow_purchase_with_dimensions ? 0 : 1);
-                            frm.set_df_property("use_dimensions_2", "hidden", r2.message.allow_purchase_with_dimensions_2 ? 0 : 1);
-
+                           // Update field properties for "use_dimensions" and "use_dimensions_2"
+								frm.set_value("use_dimensions",r.allow_purchase_with_dimensions)
+								frm.set_value("use_dimensions_2",r.allow_purchase_with_dimensions_2)
+								toggle_dimension_fields(frm);
                         }
                     }
                 )
@@ -186,7 +194,7 @@ frappe.ui.form.on('Material Request Item', {
             return;
         }
 
-        check_budget_utilization(frm, cdt, cdn, row.item,row.item_group);
+        // check_budget_utilization(frm, cdt, cdn, row.item,row.item_group);
 
         frappe.db.get_value('Item', row.item, ['item_name', 'description','height','width','area','length'], (r) => {
             if (r) {
@@ -411,4 +419,37 @@ function check_budget_utilization(frm, cdt, cdn, item, item_group) {
     });
 }
 
+function toggle_use_dimensions(frm) {
+    console.log("from toggle_use_dimensions");
 
+    const hide = frm.doc.use_dimensions === 0;  // You want to show when it's TRUE, so hide when FALSE
+
+	const fields_to_toggle = ['width', 'height', 'no_of_pieces'];
+
+	console.log("hide")
+	console.log(hide)
+
+    fields_to_toggle.forEach(field => {
+        frm.fields_dict.items.grid.update_docfield_property(field, "hidden", hide);
+    });
+
+    // Re-render the grid
+    frm.fields_dict.items.grid.refresh();
+}
+
+function toggle_use_dimensions_2(frm) {
+    console.log("from toggle_use_dimensions_2");
+
+    const hide = frm.doc.use_dimensions_2 === 0;
+    const fields_to_toggle = ['length', 'weight_per_meter', 'rate_per_kg'];
+
+    fields_to_toggle.forEach(field => {
+        frm.fields_dict.items.grid.update_docfield_property(field, 'hidden', hide);
+    });
+}
+
+function toggle_dimension_fields(frm) {
+    toggle_use_dimensions(frm);
+    toggle_use_dimensions_2(frm);
+    frm.refresh_fields("items");
+}

@@ -74,6 +74,9 @@ def prepare_data(filters):
         filters={budget_field: budget_value},
         fields=["name", "budget_against", "from_date", "to_date"]
     )
+    
+    print("budgets")
+    print(budgets)
 
     data = []
     
@@ -95,9 +98,12 @@ def prepare_data(filters):
         )
         
         for item in budget_items:
+            print
             utilized = calculate_utilization(
                 budget_against=budget["budget_against"],
                 item_budget_against=item["budget_against"],
+                doc_type = None,
+                doc_name = None,
                 budget_against_value=budget_against_value,
                 reference_type=item["reference_type"],
                 reference_value=item["reference_value"],
