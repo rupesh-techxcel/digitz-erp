@@ -255,7 +255,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-12-15 10:32:34.539846",
+ "modified": "2025-05-18 08:55:11.937396",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
@@ -272,6 +272,7 @@
    "doc_view": "List",
    "label": "Customer Statement Of Account",
    "link_to": "Customer Statement Of Account",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -279,6 +280,7 @@
    "doc_view": "List",
    "label": "Payment Allocation Report",
    "link_to": "Payment Allocation Report",
+   "report_ref_doctype": "Payment Entry",
    "type": "Report"
   },
   {
@@ -286,6 +288,7 @@
    "doc_view": "List",
    "label": "Trial Balance",
    "link_to": "Trial Balance",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   },
   {
@@ -293,6 +296,7 @@
    "doc_view": "List",
    "label": "Receipt Allocation Report",
    "link_to": "Receipt Allocation Report",
+   "report_ref_doctype": "Receipt Entry",
    "type": "Report"
   },
   {
@@ -300,6 +304,7 @@
    "doc_view": "List",
    "label": "Profit And Loss Statement",
    "link_to": "Profit and Loss Statement",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   },
   {
@@ -307,6 +312,7 @@
    "doc_view": "List",
    "label": "Supplier Statement Of Account",
    "link_to": "Supplier Statement Of Account",
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Report"
   },
   {
@@ -314,6 +320,7 @@
    "doc_view": "List",
    "label": "Balance Sheet",
    "link_to": "Balance Sheet",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   },
   {
@@ -321,6 +328,7 @@
    "doc_view": "List",
    "label": "Receipt Schedule Report",
    "link_to": "Receipt Schedule Report",
+   "report_ref_doctype": "Receipt Schedule",
    "type": "Report"
   },
   {
@@ -328,6 +336,7 @@
    "doc_view": "List",
    "label": "Cash Flow Report",
    "link_to": "Cash Flow Report",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   },
   {
@@ -335,6 +344,7 @@
    "doc_view": "List",
    "label": "Payment Schedule Report",
    "link_to": "Payment Schedule Report",
+   "report_ref_doctype": "Payment Schedule",
    "type": "Report"
   },
   {
@@ -342,6 +352,7 @@
    "doc_view": "List",
    "label": "General Ledger Report",
    "link_to": "General Ledger Report",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   },
   {
@@ -349,6 +360,7 @@
    "doc_view": "List",
    "label": "Account Ledger Report",
    "link_to": "Account Ledger Report",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   },
   {
@@ -356,6 +368,7 @@
    "doc_view": "List",
    "label": "Account Summary Report",
    "link_to": "Account Summary Report",
+   "report_ref_doctype": "GL Posting",
    "type": "Report"
   }
  ],

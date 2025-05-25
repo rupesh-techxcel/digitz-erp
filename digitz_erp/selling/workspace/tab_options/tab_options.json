@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"xBHCAS8kds\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Tab Options</span>\",\"col\":12}},{\"id\":\"3Fav-_76AK\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"FTnc0774hS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"tmSSyBL-48\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"QWJnTRaRVO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tab Sales\",\"col\":3}},{\"id\":\"7B9FGbCTmT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"EUa2ytcZeI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"All Sales\",\"col\":3}},{\"id\":\"-DUPIk6Y4T\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"K5NS5_ycxV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Entry\",\"col\":3}},{\"id\":\"hl0qwgWYJA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"aVNzui7T7z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Entry\",\"col\":3}},{\"id\":\"KIeH7nWjxO\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tOXpHi7Cwy\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"Ph1MmN5s9K\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tcmmr9tPvP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"d84eiXwH4V\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"aHkHy7wAyw\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"wIWbrs7iUZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"3lTlJnufm5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Report\",\"col\":3}},{\"id\":\"KrSAmdrjzf\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HW8mBz0Bg0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Report Detailed\",\"col\":3}},{\"id\":\"27zU1kB_rl\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2obAG_Sx3A\",\"type\":\"paragraph\",\"data\":{\"text\":\"Stock Reports\",\"col\":12}},{\"id\":\"wrxkHnfZEn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Movement Report\",\"col\":3}},{\"id\":\"srT6IJl0bR\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2VRhgPwDea\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Stock Report Summary\",\"col\":3}},{\"id\":\"R4q9gnMmBo\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fVyg2wFKJI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Stock Report\",\"col\":3}},{\"id\":\"Xh0xjY6p8G\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_FGG89xZks\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Summary Report\",\"col\":3}},{\"id\":\"T6wuC_1Ftb\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tswwdlyvP1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Report\",\"col\":3}},{\"id\":\"4iL9JJ1cUx\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2EvVFt3mFi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance Register\",\"col\":3}}]",
+ "content": "[{\"id\":\"xBHCAS8kds\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Tab Options (For Mobile Or Tab Use)</span>\",\"col\":12}},{\"id\":\"3Fav-_76AK\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"FTnc0774hS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Invoice\",\"col\":3}},{\"id\":\"tmSSyBL-48\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"QWJnTRaRVO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tab Sales\",\"col\":3}},{\"id\":\"7B9FGbCTmT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"EUa2ytcZeI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"All Sales\",\"col\":3}},{\"id\":\"-DUPIk6Y4T\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"K5NS5_ycxV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Receipt Entry\",\"col\":3}},{\"id\":\"hl0qwgWYJA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"aVNzui7T7z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Entry\",\"col\":3}},{\"id\":\"KIeH7nWjxO\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tOXpHi7Cwy\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"Ph1MmN5s9K\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tcmmr9tPvP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"d84eiXwH4V\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"aHkHy7wAyw\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"wIWbrs7iUZ\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"3lTlJnufm5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Report\",\"col\":3}},{\"id\":\"KrSAmdrjzf\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HW8mBz0Bg0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Report Detailed\",\"col\":3}},{\"id\":\"27zU1kB_rl\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2obAG_Sx3A\",\"type\":\"paragraph\",\"data\":{\"text\":\"Stock Reports\",\"col\":12}},{\"id\":\"wrxkHnfZEn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Movement Report\",\"col\":3}},{\"id\":\"srT6IJl0bR\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2VRhgPwDea\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Stock Report Summary\",\"col\":3}},{\"id\":\"R4q9gnMmBo\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fVyg2wFKJI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily Stock Report\",\"col\":3}},{\"id\":\"Xh0xjY6p8G\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_FGG89xZks\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Summary Report\",\"col\":3}},{\"id\":\"T6wuC_1Ftb\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tswwdlyvP1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger Report\",\"col\":3}},{\"id\":\"4iL9JJ1cUx\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"2EvVFt3mFi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance Register\",\"col\":3}}]",
  "creation": "2023-08-08 14:46:07.310422",
  "custom_blocks": [],
  "docstatus": 0,
@@ -12,7 +12,7 @@
  "is_hidden": 1,
  "label": "Tab Options",
  "links": [],
- "modified": "2024-12-15 10:32:34.258673",
+ "modified": "2025-05-18 08:56:29.897714",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Tab Options",
@@ -33,6 +33,7 @@
    "doc_view": "List",
    "label": "Stock Balance Register",
    "link_to": "Stock Balance Register",
+   "report_ref_doctype": "Stock Balance",
    "type": "Report"
   },
   {
@@ -55,6 +56,7 @@
    "doc_view": "List",
    "label": "Stock Ledger Summary Report",
    "link_to": "Stock Ledger Summary Report",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   },
   {
@@ -70,6 +72,7 @@
    "doc_view": "List",
    "label": "Stock Movement Report",
    "link_to": "Stock Movement Report",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   },
   {
@@ -77,6 +80,7 @@
    "doc_view": "List",
    "label": "Daily Stock Report",
    "link_to": "Daily Stock Report",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   },
   {
@@ -84,6 +88,7 @@
    "doc_view": "List",
    "label": "Daily Report Detailed",
    "link_to": "Daily Report Detailed",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -91,6 +96,7 @@
    "doc_view": "List",
    "label": "Stock Ledger Report",
    "link_to": "Stock Ledger Report",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   },
   {
@@ -98,6 +104,7 @@
    "doc_view": "List",
    "label": "Daily Stock Report Summary",
    "link_to": "Daily Stock Report Summary",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   },
   {
@@ -105,6 +112,7 @@
    "doc_view": "List",
    "label": "Daily Report",
    "link_to": "Daily Report",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {

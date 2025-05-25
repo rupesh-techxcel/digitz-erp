@@ -12,7 +12,7 @@
  "is_hidden": 0,
  "label": "Reports",
  "links": [],
- "modified": "2024-12-15 10:32:35.072640",
+ "modified": "2025-05-18 08:55:12.300190",
  "modified_by": "Administrator",
  "module": "Digitz ERP",
  "name": "Reports",
@@ -26,13 +26,14 @@
    "role": "Tab User"
   }
  ],
- "sequence_id": 11.0,
+ "sequence_id": 10.0,
  "shortcuts": [
   {
    "color": "Grey",
    "doc_view": "List",
    "label": "Daily Report Detailed",
    "link_to": "Daily Report Detailed",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -40,6 +41,7 @@
    "doc_view": "List",
    "label": "Purchase Itemwise Summary Report",
    "link_to": "Purchase Itemwise Summary Report",
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Report"
   },
   {
@@ -47,6 +49,7 @@
    "doc_view": "List",
    "label": "Sales Itemwise Summary Report",
    "link_to": "Sales Itemwise Summary Report",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -54,6 +57,7 @@
    "doc_view": "List",
    "label": "Daily Report",
    "link_to": "Daily Report",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -61,6 +65,7 @@
    "doc_view": "List",
    "label": "Customer Outstanding",
    "link_to": "Customer Statement Of Account",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -68,6 +73,7 @@
    "doc_view": "List",
    "label": "Sales Itemwise Register",
    "link_to": "Sales Itemwise Register",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -75,6 +81,7 @@
    "doc_view": "List",
    "label": "Stock Ledger Report",
    "link_to": "Stock Ledger Report",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   },
   {
@@ -82,6 +89,7 @@
    "doc_view": "List",
    "label": "Supplier Outstanding",
    "link_to": "Supplier Statement Of Account",
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Report"
   },
   {
@@ -89,6 +97,7 @@
    "doc_view": "List",
    "label": "Sales Register",
    "link_to": "Sales Register",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -96,6 +105,7 @@
    "doc_view": "List",
    "label": "Purchase Register",
    "link_to": "Purchase Register",
+   "report_ref_doctype": "Purchase Invoice",
    "type": "Report"
   },
   {
@@ -103,6 +113,7 @@
    "doc_view": "List",
    "label": "Stock Balance Register",
    "link_to": "Stock Balance Register",
+   "report_ref_doctype": "Stock Balance",
    "type": "Report"
   },
   {
@@ -110,6 +121,7 @@
    "doc_view": "List",
    "label": "Stock Movement Report",
    "link_to": "Stock Movement Report",
+   "report_ref_doctype": "Stock Ledger",
    "type": "Report"
   }
  ],

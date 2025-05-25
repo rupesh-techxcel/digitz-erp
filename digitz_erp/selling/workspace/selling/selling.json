@@ -170,7 +170,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-12-15 10:32:34.364595",
+ "modified": "2025-05-18 08:55:11.772897",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -187,6 +187,7 @@
    "doc_view": "List",
    "label": "Customer Transaction Ageing Report",
    "link_to": "Customer Transaction Ageing Report",
+   "report_ref_doctype": "Customer",
    "type": "Report"
   },
   {
@@ -194,6 +195,7 @@
    "doc_view": "List",
    "label": "Quotation Register",
    "link_to": "Quotation Register",
+   "report_ref_doctype": "Quotation",
    "type": "Report"
   },
   {
@@ -201,6 +203,7 @@
    "doc_view": "List",
    "label": "Sales Return Register",
    "link_to": "Sales Return Register",
+   "report_ref_doctype": "Sales Return",
    "type": "Report"
   },
   {
@@ -208,6 +211,7 @@
    "doc_view": "List",
    "label": "Sales Order Register",
    "link_to": "Sales Order Register",
+   "report_ref_doctype": "Sales Order",
    "type": "Report"
   },
   {
@@ -215,6 +219,7 @@
    "doc_view": "List",
    "label": "Sales Chart   Top Customer Sales",
    "link_to": "Sales Chart - Top Customer Sales",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -222,6 +227,7 @@
    "doc_view": "List",
    "label": "Delivery Note Register",
    "link_to": "Delivery Note Register",
+   "report_ref_doctype": "Delivery Note",
    "type": "Report"
   },
   {
@@ -229,6 +235,7 @@
    "doc_view": "List",
    "label": "Sales Register",
    "link_to": "Sales Register",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -244,6 +251,7 @@
    "doc_view": "List",
    "label": "Delivery Note Itemwise Summary Report",
    "link_to": "Delivery Note Itemwise Summary Report",
+   "report_ref_doctype": "Delivery Note",
    "type": "Report"
   },
   {
@@ -251,6 +259,7 @@
    "doc_view": "List",
    "label": "Sales Order Itemwise Register",
    "link_to": "Sales Order Itemwise Register",
+   "report_ref_doctype": "Sales Order",
    "type": "Report"
   },
   {
@@ -258,6 +267,7 @@
    "doc_view": "List",
    "label": "Sales Return Itemwise Register",
    "link_to": "Sales Return Itemwise Register",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -265,6 +275,7 @@
    "doc_view": "List",
    "label": "Quotation Itemwise Register",
    "link_to": "Quotation Itemwise Register",
+   "report_ref_doctype": "Quotation",
    "type": "Report"
   },
   {
@@ -272,6 +283,7 @@
    "doc_view": "List",
    "label": "Sales Itemwise Register",
    "link_to": "Sales Itemwise Register",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -287,6 +299,7 @@
    "doc_view": "List",
    "label": "Sales Itemwise Summary Report",
    "link_to": "Sales Itemwise Summary Report",
+   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {
@@ -294,6 +307,7 @@
    "doc_view": "List",
    "label": "Sales Order Itemwise Summary Report",
    "link_to": "Sales Order Itemwise Summary Report",
+   "report_ref_doctype": "Sales Order",
    "type": "Report"
   },
   {
@@ -301,6 +315,7 @@
    "doc_view": "List",
    "label": "Sales Return Itemwise Summary Report",
    "link_to": "Sales Return Itemwise Summary Report",
+   "report_ref_doctype": "Sales Return",
    "type": "Report"
   },
   {
@@ -308,6 +323,7 @@
    "doc_view": "List",
    "label": "Delivery Note Itemwise Register",
    "link_to": "Delivery Note Itemwise Register",
+   "report_ref_doctype": "Delivery Note",
    "type": "Report"
   },
   {
@@ -323,6 +339,7 @@
    "doc_view": "List",
    "label": "Quotation Itemwise Summary Report",
    "link_to": "Quotation Itemwise Summary Report",
+   "report_ref_doctype": "Quotation",
    "type": "Report"
   }
  ],
