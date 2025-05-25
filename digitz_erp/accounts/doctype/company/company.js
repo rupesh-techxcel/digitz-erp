@@ -24,7 +24,26 @@ frappe.ui.form.on('Company', {
 		   frm.refresh_field("tax");
 		   frm.refresh_field("tax_account");
 	   }
-	}
+	},	
+	refresh_account_balances: function(frm) {
+        frappe.confirm(
+            'Are you sure you want to refresh all account balances?',
+            () => {
+                frappe.call({
+                    method: "digitz_erp.api.gl_posting_api.update_all_account_balances",
+                    callback: function(r) {
+                        frappe.msgprint("✅ Account balances refreshed successfully");
+                    },
+                    error: function(err) {
+                        frappe.msgprint("❌ Failed to refresh account balances");
+                    }
+                });
+            },
+            () => {
+                frappe.msgprint("❌ Action cancelled");
+            }
+        );
+    }
 
 });
 

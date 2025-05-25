@@ -99,7 +99,10 @@
   "customer_mobile_required",
   "customer_email_required",
   "customer_trn_required",
-  "emirate_required"
+  "emirate_required",
+  "section_break_bfse",
+  "utility_services",
+  "refresh_account_balances"
  ],
  "fields": [
   {
@@ -667,12 +670,26 @@
    "fieldtype": "Check",
    "label": "Allow edit Sales Invoice No",
    "permlevel": 1
+  },
+  {
+   "fieldname": "section_break_bfse",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "utility_services",
+   "fieldtype": "Heading",
+   "label": "Utility Services"
+  },
+  {
+   "fieldname": "refresh_account_balances",
+   "fieldtype": "Button",
+   "label": "Refresh Account Balances"
   }
  ],
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-21 14:26:03.371822",
+ "modified": "2025-05-25 09:53:49.908869",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
@@ -692,6 +709,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
