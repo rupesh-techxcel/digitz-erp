@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:period_name",
+ "creation": "2024-04-17 13:14:28.919174",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "period_name",
+  "column_break_qoor",
+  "from_date",
+  "column_break_gpme",
+  "to_date",
+  "column_break_trtn",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "description": "Eg: Leave Period - 2024",
+   "fieldname": "period_name",
+   "fieldtype": "Data",
+   "label": "Period Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_qoor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gpme",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_trtn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-30 19:37:00.025755",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Leave Period",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

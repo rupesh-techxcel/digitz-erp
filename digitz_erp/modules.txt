@@ -6,3 +6,5 @@ Buying
 Selling
 General
 Project
+HRMS
+Services

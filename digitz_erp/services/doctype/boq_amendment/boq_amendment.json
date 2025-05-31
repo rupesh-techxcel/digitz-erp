@@ -1,0 +1,192 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:BOQ-AMD-{project_short_name}-{###}",
+ "creation": "2024-07-29 11:45:41.099555",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "boq",
+  "column_break_aerm",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_xghq",
+  "project_name",
+  "project_short_name",
+  "rate_includes_tax",
+  "column_break_ovvq",
+  "option",
+  "remarks",
+  "section_break_unrc",
+  "boq_items",
+  "amended_from",
+  "section_break_tkgt",
+  "column_break_tmid",
+  "column_break_vnbn",
+  "column_break_ollm",
+  "column_break_suru",
+  "total_deduction",
+  "total_addition"
+ ],
+ "fields": [
+  {
+   "fieldname": "boq",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "BOQ",
+   "options": "BOQ",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_aerm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "column_break_xghq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "boq.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "boq.project_short_name",
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ovvq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "option",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Option",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_unrc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "With the 'Deduction' option, keep only the items you want to delete from the BOQ and remove all other items. For the addition option, add the new items you wish to add.",
+   "fieldname": "boq_items",
+   "fieldtype": "Table",
+   "label": "BOQ Items",
+   "options": "BOQ Item In Amendment"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "BOQ Amendment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_tkgt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_tmid",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vnbn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ollm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_suru",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.option==\"Deduction\"",
+   "fieldname": "total_deduction",
+   "fieldtype": "Currency",
+   "label": "Total Deduction"
+  },
+  {
+   "depends_on": "eval:doc.option==\"Addition\"",
+   "fieldname": "total_addition",
+   "fieldtype": "Currency",
+   "label": "Total Addition"
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:20:07.113573",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "BOQ Amendment",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

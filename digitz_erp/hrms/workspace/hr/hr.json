@@ -1,0 +1,87 @@
+{
+ "charts": [
+  {
+   "chart_name": "Employees In Departments",
+   "label": "Employees In Departments"
+  },
+  {
+   "chart_name": "Emploees with Designations",
+   "label": "Emploees with Designations"
+  }
+ ],
+ "content": "[{\"id\":\"VK2Lk0-Wj6\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">HR</span>\",\"col\":12}},{\"id\":\"QJVrzhSQS4\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Employees In Departments\",\"col\":6}},{\"id\":\"CLGoQ426IE\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Emploees with Designations\",\"col\":6}},{\"id\":\"oZtW2FAT6v\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fBnYhZgwNh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"x7y7X0N8W4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Designation\",\"col\":3}},{\"id\":\"E2unnfpq50\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Department\",\"col\":3}},{\"id\":\"pST22IKasD\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ES9XJI8COd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Documents Report\",\"col\":3}},{\"id\":\"7LyDMrBiQF\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SioHZlz1b1\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Employee\",\"col\":4}},{\"id\":\"zmcxAr_bfS\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Department\",\"col\":4}},{\"id\":\"DANlvpmd8F\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Designation\",\"col\":4}}]",
+ "creation": "2024-02-06 15:14:44.530981",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "share-people",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "HR",
+ "links": [],
+ "modified": "2025-05-31 08:55:52.005507",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "HR",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Department",
+   "label": "Department",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Employee",
+   "label": "Employee",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Designation",
+   "label": "Designation",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 6.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee",
+   "link_to": "Employee",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Documents Report",
+   "link_to": "Employee Documents Report",
+   "report_ref_doctype": "Employee",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Designation",
+   "link_to": "Designation",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Department",
+   "link_to": "Department",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "HR"
+}

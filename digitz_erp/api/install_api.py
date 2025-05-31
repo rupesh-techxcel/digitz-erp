@@ -1,4 +1,5 @@
 import frappe
+from digitz_erp.api.install_api_hr import after_install_hr
 
 @frappe.whitelist()
 def after_install():
@@ -17,6 +18,9 @@ def after_install():
     create_default_price_lists()
     populate_area_data()
     # create_shift_payment_units()   
+    
+    # HR after_install
+    after_install_hr()
     
 
 def insert_accounts():

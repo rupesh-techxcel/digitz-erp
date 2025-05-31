@@ -1,0 +1,207 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-19 19:34:56.348920",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "single_bom",
+  "target_item",
+  "target_item_name",
+  "target_item_unit",
+  "source_item",
+  "source_item_name",
+  "source_item_unit",
+  "qty",
+  "qty_in_base_unit",
+  "issued_date",
+  "received_date",
+  "qty_issued",
+  "qty_returned",
+  "column_break_iqkb",
+  "rate",
+  "rate_includes_tax",
+  "rate_excluded_tax",
+  "gross_amount",
+  "tax_excluded",
+  "tax",
+  "tax_rate",
+  "tax_amount",
+  "discount_percentage",
+  "discount_amount",
+  "net_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "single_bom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Single BOM",
+   "options": "Single BOM"
+  },
+  {
+   "fetch_from": "single_bom.target_item",
+   "fieldname": "target_item",
+   "fieldtype": "Data",
+   "label": "Target Item",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "single_bom.target_item_name",
+   "fieldname": "target_item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Target Item Name"
+  },
+  {
+   "fetch_from": "single_bom.target_item_unit",
+   "fieldname": "target_item_unit",
+   "fieldtype": "Data",
+   "label": "Target Item Unit",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "single_bom.source_item",
+   "fieldname": "source_item",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source Item",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "single_bom.source_item_name",
+   "fieldname": "source_item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source Item Name"
+  },
+  {
+   "fetch_from": "single_bom.source_item_unit",
+   "fieldname": "source_item_unit",
+   "fieldtype": "Data",
+   "label": "Source Item Unit",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "default": "1",
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty",
+   "precision": "2"
+  },
+  {
+   "fieldname": "qty_in_base_unit",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Qty In Base Unit"
+  },
+  {
+   "fieldname": "issued_date",
+   "fieldtype": "Date",
+   "label": "Issued Date"
+  },
+  {
+   "fieldname": "received_date",
+   "fieldtype": "Date",
+   "label": "Received Date"
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty_issued",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Issued",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty_returned",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Returned"
+  },
+  {
+   "fieldname": "column_break_iqkb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "Rate"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax"
+  },
+  {
+   "fieldname": "rate_excluded_tax",
+   "fieldtype": "Currency",
+   "label": "Rate Excluded Tax"
+  },
+  {
+   "description": "Qty * Rate Excluded Tax",
+   "fieldname": "gross_amount",
+   "fieldtype": "Currency",
+   "label": "Gross Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "tax_excluded",
+   "fieldtype": "Check",
+   "label": "Tax Excluded"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Link",
+   "label": "Tax",
+   "options": "Tax"
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Int",
+   "label": "Tax Rate"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Currency",
+   "label": "Tax Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "discount_percentage",
+   "fieldtype": "Percent",
+   "label": "Discount Percentage"
+  },
+  {
+   "default": "0",
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount"
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:18:10.702276",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Sub Contracting Order Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

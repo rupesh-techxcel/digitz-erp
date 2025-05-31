@@ -1,0 +1,235 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-30 21:55:55.292636",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "project",
+  "task",
+  "from_time",
+  "to_time",
+  "break_in_minutes",
+  "pickup_time_in_minutes",
+  "standard_working_hours",
+  "worked_hours",
+  "overtime_applicable",
+  "column_break_yisw",
+  "overtime_1",
+  "overtime_2",
+  "overtime_1_percentage",
+  "overtime_2_percentage",
+  "holiday_overtime_applied",
+  "per_hour_rate",
+  "holiday_overtime_percentage",
+  "cost_without_overtime",
+  "cost_for_overtime",
+  "overtime_1_amount",
+  "overtime_2_amount",
+  "labour_cost",
+  "overtime_1_slab",
+  "column_break_ppus",
+  "work_order",
+  "shift"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "task",
+   "fieldtype": "Link",
+   "label": "Task",
+   "link_filters": "[[\"Task\",\"is_disabled\",\"=\",0]]",
+   "options": "Task"
+  },
+  {
+   "description": "Include break and pickup hours",
+   "fieldname": "from_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "From Time"
+  },
+  {
+   "description": "Include break and pickup hours",
+   "fieldname": "to_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "To Time"
+  },
+  {
+   "fieldname": "break_in_minutes",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Break In Minutes"
+  },
+  {
+   "fieldname": "pickup_time_in_minutes",
+   "fieldtype": "Int",
+   "label": "Pickup Time In Minutes"
+  },
+  {
+   "fieldname": "standard_working_hours",
+   "fieldtype": "Float",
+   "label": "Standard Working Hours",
+   "read_only": 1
+  },
+  {
+   "fieldname": "worked_hours",
+   "fieldtype": "Float",
+   "label": "Total Worked Hours",
+   "precision": "2"
+  },
+  {
+   "default": "0",
+   "fieldname": "overtime_applicable",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Overtime Applicable"
+  },
+  {
+   "fieldname": "column_break_yisw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "overtime_1",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Overtime 1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overtime_2",
+   "fieldtype": "Float",
+   "label": "Overtime 2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overtime_1_percentage",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "Overtime 1 Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overtime_2_percentage",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "Overtime 2 Percentage",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "holiday_overtime_applied",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Holiday Overtime Applied",
+   "read_only": 1
+  },
+  {
+   "fieldname": "per_hour_rate",
+   "fieldtype": "Currency",
+   "label": "Per Hour Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "holiday_overtime_percentage",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "Holiday Overtime Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_without_overtime",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Cost without overtime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_for_overtime",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Cost for overtime"
+  },
+  {
+   "fieldname": "overtime_1_amount",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Overtime 1 Amount"
+  },
+  {
+   "fieldname": "overtime_2_amount",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Overtime 2 Amount"
+  },
+  {
+   "fieldname": "labour_cost",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Labour Cost"
+  },
+  {
+   "fieldname": "overtime_1_slab",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Overtime 1 Slab"
+  },
+  {
+   "fieldname": "column_break_ppus",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "options": "Work Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "label": "Shift",
+   "options": "Shift",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:36:36.476503",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Timesheet Entry Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

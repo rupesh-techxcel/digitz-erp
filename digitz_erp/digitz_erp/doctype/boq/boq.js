@@ -11,7 +11,7 @@ frappe.ui.form.on("BOQ", {
       if (!frm.is_new() && frm.doc.docstatus === 1) {
   
         frappe.call({
-          method: "digitz_services.api.boq_apis.check_estimate_for_boq",  // API to check if Estimate exists
+          method: "digitz_erp.api.boq_api.check_estimate_for_boq",  // API to check if Estimate exists
           async: false,
           args: {
               boq_id: frm.doc.name,  // Current BOQ name
@@ -23,7 +23,7 @@ frappe.ui.form.on("BOQ", {
                   // If no Estimate exists, show "Create Estimate" button
                   frm.add_custom_button(__("Create Estimate"), function () {
                       frappe.call({
-                          method: "digitz_services.api.boq_apis.create_estimate_from_boq",  // API to create Estimate
+                          method: "digitz_erp.api.boq_api.create_estimate_from_boq",  // API to create Estimate
                           args: {
                               boq_name: frm.doc.name,  // Pass BOQ ID
                           },
@@ -43,7 +43,7 @@ frappe.ui.form.on("BOQ", {
   
                 // When estimate exists, we can create a quotation, if it is not exists
                   frappe.call({
-                    method: "digitz_services.api.boq_apis.check_quotation_for_boq",
+                    method: "digitz_erp.api.boq_api.check_quotation_for_boq",
                     async: false,
                     args: {
                       boq_id: frm.doc.name,
@@ -54,7 +54,7 @@ frappe.ui.form.on("BOQ", {
                       if (create_qot) {
                         frm.add_custom_button(__("Create Quotation"), function () {
                           frappe.call({
-                            method: "digitz_services.api.boq_apis.create_quotation",
+                            method: "digitz_erp.api.boq_api.create_quotation",
                             args: {
                               boq_id: frm.doc.name,
                             },
@@ -113,7 +113,7 @@ frappe.ui.form.on("BOQ", {
               
   
                   frappe.call({
-                    method: "digitz_services.api.boq_apis.check_sales_order_for_boq",
+                    method: "digitz_erp.api.boq_api.check_sales_order_for_boq",
                     async: false,
                     args: {
                       boq_id: frm.doc.name,
@@ -158,7 +158,7 @@ frappe.ui.form.on("BOQ", {
   
                         // Add BOQ Execution button. Adding button only when estimate exists.
                         frappe.call({
-                          method: "digitz_services.api.boq_apis.check_boq_execution_for_boq",
+                          method: "digitz_erp.api.boq_api.check_boq_execution_for_boq",
                           async: false,
                           args: {
                             boq_id: frm.doc.name,
@@ -169,7 +169,7 @@ frappe.ui.form.on("BOQ", {
                             if (create_boq_e) {
                               frm.add_custom_button(__("Create BOQ Execution"), function () {
                                 frappe.call({
-                                  method: "digitz_services.api.boq_apis.create_boq_execution_for_boq",
+                                  method: "digitz_erp.api.boq_api.create_boq_execution_for_boq",
                                   args: {
                                     boq_id: frm.doc.name,
                                   },

@@ -1,0 +1,190 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:shift_name",
+ "creation": "2024-05-11 20:30:36.213027",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "shift_name",
+  "shift_owner",
+  "shift_payment_unit",
+  "allocation_count",
+  "column_break_yhav",
+  "start_time",
+  "end_time",
+  "break_in_minutes",
+  "pickup_time_in_minutes",
+  "standard_working_hours",
+  "no_of_units_per_day",
+  "column_break_bxym",
+  "ot_applicable",
+  "overtime_rate_percentage",
+  "overtime_2_rate_percentage",
+  "overtime_1_slab",
+  "disabled",
+  "holiday_overtime_percentage",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "shift_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Shift Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "shift_owner",
+   "fieldtype": "Link",
+   "label": "Shift Owner",
+   "options": "Employee"
+  },
+  {
+   "default": "HRS",
+   "description": "(Default:- HRS)",
+   "fieldname": "shift_payment_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Shift Payment Unit",
+   "options": "Shift Payment Unit"
+  },
+  {
+   "description": "No of allocations made for this Shift.",
+   "fieldname": "allocation_count",
+   "fieldtype": "Int",
+   "label": "Allocation Count"
+  },
+  {
+   "fieldname": "column_break_yhav",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Start Time",
+   "mandatory_depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time",
+   "mandatory_depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fieldname": "break_in_minutes",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Break(In Mins)",
+   "mandatory_depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pickup_time_in_minutes",
+   "fieldtype": "Int",
+   "label": "Pickup TIme In MIns"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "description": "Hours between Start Time and End Time, minus Break Time + Pickup Hrs, are regular hours. Any additional hours recorded in attendance will be considered as overtime, provided overtime is applicable.",
+   "fieldname": "standard_working_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Standard Working Hrs"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit!=\"HRS\"",
+   "description": "\nBeyond the specified number of units, the system will interpret any additional input in attendance as overtime",
+   "fieldname": "no_of_units_per_day",
+   "fieldtype": "Float",
+   "label": "No Of Units Per Day",
+   "mandatory_depends_on": "eval:doc.shift_payment_unit!=\"HRS\""
+  },
+  {
+   "fieldname": "column_break_bxym",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "ot_applicable",
+   "fieldtype": "Check",
+   "label": "Overtime Applicable"
+  },
+  {
+   "default": "100",
+   "depends_on": "eval:doc.ot_applicable",
+   "fieldname": "overtime_rate_percentage",
+   "fieldtype": "Percent",
+   "label": "Overtime Rate Percentage"
+  },
+  {
+   "depends_on": "eval:doc.ot_applicable",
+   "fieldname": "overtime_2_rate_percentage",
+   "fieldtype": "Percent",
+   "label": "Overtime 2 Rate Percentage"
+  },
+  {
+   "description": "Overtime Slab 2 will apply to additional hours recorded in this field.",
+   "fieldname": "overtime_1_slab",
+   "fieldtype": "Float",
+   "label": "Overtime 1 Slab"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "depends_on": "eval:doc.ot_applicable",
+   "fieldname": "holiday_overtime_percentage",
+   "fieldtype": "Percent",
+   "label": "Holiday Overtime Percentage"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Shift",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 20:13:07.403271",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Shift",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

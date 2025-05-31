@@ -1,0 +1,304 @@
+{
+ "actions": [],
+ "autoname": "E-.####",
+ "creation": "2022-12-22 13:16:45.023583",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_name",
+  "gender",
+  "dob",
+  "employee_code",
+  "column_break_iluc",
+  "employee_type",
+  "department",
+  "date_of_joining",
+  "designation",
+  "reporting_to",
+  "column_break_ghll",
+  "qualification",
+  "ot_applicable",
+  "per_hour_rate",
+  "salary_based_on_timesheet",
+  "column_break_fbjf",
+  "primary_other_contact",
+  "contact_mobile",
+  "relationship",
+  "salary_group",
+  "address_and_contact_section",
+  "address",
+  "permanent_address",
+  "city",
+  "state",
+  "country",
+  "column_break_11",
+  "company_email",
+  "company_mobile_no",
+  "personal_email",
+  "personal_mob_no",
+  "column_break_bffz",
+  "erp_user",
+  "status",
+  "column_break_zzrf",
+  "disabled",
+  "documents_tab",
+  "documents",
+  "tab_3_tab",
+  "feedback"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "label": "Gender",
+   "options": "Male\nFemale\nTrans"
+  },
+  {
+   "fieldname": "dob",
+   "fieldtype": "Date",
+   "label": "DOB"
+  },
+  {
+   "description": "Copies from the auto generated doc name",
+   "fieldname": "employee_code",
+   "fieldtype": "Data",
+   "label": "Employee Code"
+  },
+  {
+   "fieldname": "column_break_iluc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Staff",
+   "fieldname": "employee_type",
+   "fieldtype": "Select",
+   "label": "Employee Type",
+   "options": "Staff\nOutsourced"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "date_of_joining",
+   "fieldtype": "Date",
+   "label": "Join Date"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Designation",
+   "link_filters": "[[\"Designation\",\"disabled\",\"=\",0]]",
+   "options": "Designation"
+  },
+  {
+   "fieldname": "reporting_to",
+   "fieldtype": "Link",
+   "label": "Reporting To",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "column_break_ghll",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qualification",
+   "fieldtype": "Data",
+   "label": "Qualification"
+  },
+  {
+   "default": "0",
+   "fieldname": "ot_applicable",
+   "fieldtype": "Check",
+   "label": "Overtime applicable"
+  },
+  {
+   "fieldname": "per_hour_rate",
+   "fieldtype": "Currency",
+   "label": "Per Hour Rate"
+  },
+  {
+   "default": "0",
+   "fieldname": "salary_based_on_timesheet",
+   "fieldtype": "Check",
+   "label": "Salary based on timesheet"
+  },
+  {
+   "fieldname": "column_break_fbjf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "primary_other_contact",
+   "fieldtype": "Data",
+   "label": "Primary Other Contact"
+  },
+  {
+   "fieldname": "contact_mobile",
+   "fieldtype": "Data",
+   "label": "Contact Mobile"
+  },
+  {
+   "fieldname": "relationship",
+   "fieldtype": "Data",
+   "label": "Relationship"
+  },
+  {
+   "default": "General",
+   "fieldname": "salary_group",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Salary Group",
+   "options": "Salary Group",
+   "reqd": 1
+  },
+  {
+   "fieldname": "address_and_contact_section",
+   "fieldtype": "Section Break",
+   "label": "Address and Contact"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "permanent_address",
+   "fieldtype": "Small Text",
+   "label": "Permanent Address"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company_email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company Email"
+  },
+  {
+   "fieldname": "company_mobile_no",
+   "fieldtype": "Data",
+   "label": "Company Mobile No"
+  },
+  {
+   "fieldname": "personal_email",
+   "fieldtype": "Data",
+   "label": "Personal Email"
+  },
+  {
+   "fieldname": "personal_mob_no",
+   "fieldtype": "Data",
+   "label": "Personal Mob No"
+  },
+  {
+   "fieldname": "column_break_bffz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "erp_user",
+   "fieldtype": "Link",
+   "label": "ERP User",
+   "options": "User"
+  },
+  {
+   "default": "On Job",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "On Boarding\nOn Training\nOn Probation\nOn Job\nResigned\nTerminated"
+  },
+  {
+   "fieldname": "column_break_zzrf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Automatically sets based on status.",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "documents",
+   "fieldtype": "Table",
+   "label": "Documents",
+   "options": "Employee Document"
+  },
+  {
+   "fieldname": "tab_3_tab",
+   "fieldtype": "Tab Break",
+   "label": "Feedback"
+  },
+  {
+   "fieldname": "feedback",
+   "fieldtype": "Table",
+   "options": "Employee Feedback"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-30 20:07:45.400505",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Employee",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "employee_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

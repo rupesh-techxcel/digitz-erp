@@ -1,0 +1,299 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-04-11 15:33:34.918080",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_zfmg",
+  "naming_series",
+  "employee",
+  "employee_name",
+  "shift",
+  "column_break_svwp",
+  "attendance_date",
+  "attendance_status",
+  "attendance_start_time",
+  "attendance_end_time",
+  "worked_hours",
+  "actual_no_of_units",
+  "effective_no_of_units",
+  "attendance_ot",
+  "late_entry",
+  "early_exit",
+  "amended_from",
+  "column_break_bsmt",
+  "shift_payment_unit",
+  "shift_start_time",
+  "shift_end_time",
+  "break_in_mins",
+  "standard_working_hours",
+  "standard_no_of_units",
+  "column_break_revy",
+  "department",
+  "remarks",
+  "leave_record",
+  "created_via_leave",
+  "is_a_holiday",
+  "review_tab",
+  "attendance_calendar"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_zfmg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "HR-ATT-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Shift",
+   "options": "Shift"
+  },
+  {
+   "fieldname": "column_break_svwp",
+   "fieldtype": "Column Break",
+   "label": "Attendance"
+  },
+  {
+   "default": "Today",
+   "fieldname": "attendance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Attendance Date",
+   "reqd": 1
+  },
+  {
+   "default": "Present",
+   "description": "To document the leave, please create a leave application.",
+   "fieldname": "attendance_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "\nPresent\nAbsent\nLeave\nHalf Day Morning\nHalf Day Afternoon\nWork From Home",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fieldname": "attendance_start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fieldname": "attendance_end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fieldname": "worked_hours",
+   "fieldtype": "Float",
+   "label": "Worked Hours",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit != \"HRS\"",
+   "fieldname": "actual_no_of_units",
+   "fieldtype": "Float",
+   "label": "Actual No Of Units (Eg:Hrs)"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit != \"HRS\"",
+   "description": "This is the number of units considered for salary calculation. It helps the user adjust the units according to their relevance.",
+   "fieldname": "effective_no_of_units",
+   "fieldtype": "Float",
+   "label": "Effective No Of Units (Eg:Hrs)"
+  },
+  {
+   "default": "0",
+   "description": "\nDetermines, upon saving, if overtime is applicable based on the employee and shift records. Additionally, re-evaluates this information during payroll entry processing using the employee and shift records.",
+   "fieldname": "attendance_ot",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Overtime",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fieldname": "late_entry",
+   "fieldtype": "Check",
+   "label": "Late Entry",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fieldname": "early_exit",
+   "fieldtype": "Check",
+   "label": "Early Exit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Attendance",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_bsmt",
+   "fieldtype": "Column Break",
+   "label": "Shift Details"
+  },
+  {
+   "fetch_from": "shift.shift_payment_unit",
+   "fieldname": "shift_payment_unit",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Shift Payment Unit"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fetch_from": "shift.start_time",
+   "fieldname": "shift_start_time",
+   "fieldtype": "Read Only",
+   "label": "Start Time",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fetch_from": "shift.end_time",
+   "fieldname": "shift_end_time",
+   "fieldtype": "Read Only",
+   "label": "End Time",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fetch_from": "shift.break_in_minutes",
+   "fieldname": "break_in_mins",
+   "fieldtype": "Read Only",
+   "label": "Break In MIns",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit == \"HRS\"",
+   "fetch_from": "shift.standard_working_hours",
+   "fieldname": "standard_working_hours",
+   "fieldtype": "Read Only",
+   "label": "Standard Working Hours",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit != \"HRS\"",
+   "fetch_from": "shift.no_of_units_per_day",
+   "fieldname": "standard_no_of_units",
+   "fieldtype": "Read Only",
+   "label": "Standard No Of Units"
+  },
+  {
+   "fieldname": "column_break_revy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "leave_record",
+   "fieldtype": "Link",
+   "label": "Leave Record",
+   "options": "Employee Leave Record"
+  },
+  {
+   "default": "0",
+   "fieldname": "created_via_leave",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Created Via Leave"
+  },
+  {
+   "default": "0",
+   "description": "The standard number of units and overtime may change for holidays based on the settings in Shift Allocation, and these changes will take effect when the document is saved.",
+   "fieldname": "is_a_holiday",
+   "fieldtype": "Check",
+   "label": "Is a Holiday"
+  },
+  {
+   "fieldname": "review_tab",
+   "fieldtype": "Tab Break",
+   "label": "Review"
+  },
+  {
+   "fieldname": "attendance_calendar",
+   "fieldtype": "HTML",
+   "label": "Attendance Review"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 18:44:48.115939",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Attendance",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

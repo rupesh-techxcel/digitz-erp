@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:title",
+ "creation": "2024-04-17 13:10:27.490590",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_dfs8",
+  "title",
+  "leave_policy",
+  "notes",
+  "column_break_ugat",
+  "leave_period",
+  "effective_from",
+  "effective_to",
+  "amended_from",
+  "section_break_soyd",
+  "leave_allocations",
+  "employees_tab",
+  "designation",
+  "column_break_ljfz",
+  "get_employees",
+  "section_break_iotc",
+  "leave_policy_employees"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_dfs8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "Input a unique title",
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "unique": 1
+  },
+  {
+   "fieldname": "leave_policy",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Leave Policy",
+   "options": "Leave Policy",
+   "reqd": 1
+  },
+  {
+   "default": "\nChatGPT\nInput all the employees from the Employees tab who are relevant for this leave policy and leave period. Only one record can be created per leave policy and leave period.",
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes:",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ugat",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "leave_period",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Leave Period",
+   "mandatory_depends_on": "eval:doc.assignment_based_on == \"Leave Period\"",
+   "options": "Leave Period",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "leave_period.from_date",
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From",
+   "read_only": 1,
+   "read_only_depends_on": "eval:doc.assignment_based_on"
+  },
+  {
+   "fetch_from": "leave_period.to_date",
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Leave Policy Assignment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_soyd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "leave_allocations",
+   "fieldtype": "Table",
+   "label": "Leave Allocations",
+   "options": "Leave Policy Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employees_tab",
+   "fieldtype": "Tab Break",
+   "label": "Employees"
+  },
+  {
+   "description": "Select the Designation and click on the 'Get Employees' button to fetch the corresponding employees ",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation"
+  },
+  {
+   "fieldname": "column_break_ljfz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "get_employees",
+   "fieldtype": "Button",
+   "label": "Get Employees"
+  },
+  {
+   "fieldname": "section_break_iotc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "leave_policy_employees",
+   "fieldtype": "Table",
+   "label": "Employees",
+   "options": "Leave Policy Employee"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 19:28:31.054740",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Leave Policy Assignment",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

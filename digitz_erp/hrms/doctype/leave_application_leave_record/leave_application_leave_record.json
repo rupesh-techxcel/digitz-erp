@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-05-28 00:06:58.469671",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "leave_type",
+  "leave_date",
+  "is_leave_without_pay",
+  "is_partially_paid_leave",
+  "leave_cancelled_with_attendance",
+  "is_compensatory_leave"
+ ],
+ "fields": [
+  {
+   "fieldname": "leave_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Leave Type",
+   "options": "Leave Type"
+  },
+  {
+   "fieldname": "leave_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Leave Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_leave_without_pay",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Leave without Pay"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_partially_paid_leave",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Partially Paid Leave"
+  },
+  {
+   "default": "0",
+   "fieldname": "leave_cancelled_with_attendance",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Leave cancelled with attendance"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_compensatory_leave",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Compensatory Leave"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-30 19:36:02.012817",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Leave Application Leave Record",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

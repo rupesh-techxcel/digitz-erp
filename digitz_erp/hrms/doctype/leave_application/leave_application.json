@@ -1,0 +1,228 @@
+{
+ "actions": [],
+ "allow_copy": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-05-27 21:16:20.991040",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_7pmt",
+  "naming_series",
+  "employee",
+  "employee_name",
+  "date",
+  "column_break_dtfb",
+  "amended_from",
+  "leave_from_date",
+  "leave_to_date",
+  "leave_duration",
+  "mark_attendance_for_the_other_half_of_the_day",
+  "leave_type",
+  "column_break_yhdd",
+  "leave_status",
+  "no_of_leaves",
+  "no_of_holidays_during_leave_period",
+  "column_break_hqqj",
+  "leave_period",
+  "leave_period_from_date",
+  "leave_period_to_date",
+  "holiday_list",
+  "section_break_sdbi",
+  "leave_balances",
+  "leave_records"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_7pmt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date:",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dtfb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Leave Application",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "leave_from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Leave From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "leave_to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Leave To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "leave_duration",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Leave Duration",
+   "options": "Full Day\nHalf Day Morning\nHalf Day Afternoon",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.leave_duration == \"Half Day Morning\" || doc.leave_duration == \"Half Day Afternoon\"\n",
+   "description": "Manual Attendance Input Required for Overtime Cases.",
+   "fieldname": "mark_attendance_for_the_other_half_of_the_day",
+   "fieldtype": "Check",
+   "label": "Mark Attendance for the Other Half of the Day"
+  },
+  {
+   "description": "Select the leave type applicable for this leave application.",
+   "fieldname": "leave_type",
+   "fieldtype": "Link",
+   "label": "Leave Type",
+   "options": "Leave Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_yhdd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "leave_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Leave Status",
+   "options": "Applied\nApproved",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_leaves",
+   "fieldtype": "Float",
+   "label": "No of leaves",
+   "read_only": 1
+  },
+  {
+   "description": "This represents the number of leave days excluded due to holidays.",
+   "fieldname": "no_of_holidays_during_leave_period",
+   "fieldtype": "Float",
+   "label": "No of holidays during leave period",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hqqj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "leave_period",
+   "fieldtype": "Link",
+   "label": "Leave Period",
+   "options": "Leave Period",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "leave_period.from_date",
+   "fieldname": "leave_period_from_date",
+   "fieldtype": "Date",
+   "label": "Leave Period From Date"
+  },
+  {
+   "fetch_from": "leave_period.to_date",
+   "fieldname": "leave_period_to_date",
+   "fieldtype": "Date",
+   "label": "Leave Period To Date"
+  },
+  {
+   "fieldname": "holiday_list",
+   "fieldtype": "Link",
+   "label": "Holiday List",
+   "options": "Holiday List",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_sdbi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "This statistics showing the values prior to this leave application",
+   "fieldname": "leave_balances",
+   "fieldtype": "Table",
+   "label": "Employee Leave Balances ",
+   "options": "Leave Application Leave Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "leave_records",
+   "fieldtype": "Table",
+   "label": "Provisional leave records for this leave application will be added upon submission.",
+   "options": "Leave Application Leave Record",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 19:30:34.207370",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Leave Application",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

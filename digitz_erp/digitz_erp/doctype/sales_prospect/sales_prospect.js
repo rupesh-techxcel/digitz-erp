@@ -29,7 +29,7 @@ frappe.ui.form.on("Sales Prospect", {
                     if (r.message.length === 0) {
                         frm.add_custom_button(__('Convert to Customer'), function() {
                             frappe.call({
-                                method: 'digitz_hr_base.api.lead_prospect_api.convert_prospect_to_customer',
+                                method: 'digitz_erp.api.customer_api.convert_prospect_to_customer',
                                 args: {
                                     prospect: frm.doc.name
                                 },
