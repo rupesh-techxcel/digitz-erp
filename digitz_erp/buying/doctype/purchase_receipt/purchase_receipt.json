@@ -1,0 +1,517 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-08-28 15:52:05.014242",
+ "default_view": "Report",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "supplier",
+  "supplier_balance",
+  "supplier_address",
+  "tax_id",
+  "column_break_6",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "price_list",
+  "rate_includes_tax",
+  "update_rates_in_price_list",
+  "column_break_10",
+  "supplier_inv_no",
+  "supplier_inv_date",
+  "purchase_order",
+  "do_no",
+  "use_dimensions",
+  "use_dimensions_2",
+  "column_break_kkhx",
+  "company",
+  "default_cost_center",
+  "project",
+  "warehouse",
+  "accounts_section",
+  "credit_purchase",
+  "credit_days",
+  "payment_mode",
+  "mode",
+  "payment_account",
+  "column_break_24",
+  "payment_terms",
+  "column_break_yo6a",
+  "reference_no",
+  "reference_date",
+  "column_break_frqn",
+  "remarks",
+  "section_break_19",
+  "items",
+  "section_break_29",
+  "selected_item_stock_qty_in_the_warehouse",
+  "column_break_30",
+  "item_units",
+  "column_break_6ljx",
+  "section_break_25",
+  "gross_total",
+  "tax_total",
+  "net_total",
+  "column_break_33",
+  "total_discount_in_line_items",
+  "additional_discount",
+  "in_words",
+  "column_break_5kr0",
+  "round_off",
+  "rounded_total",
+  "paid_amount",
+  "column_break_erax",
+  "total_big",
+  "section_break_33",
+  "taxes",
+  "terms_and_conditions_section",
+  "terms",
+  "column_break_ytde",
+  "column_break_h1ti",
+  "section_break_e8ur",
+  "terms_and_conditions",
+  "section_break_27",
+  "payment_schedule",
+  "stock_recalc_voucher",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "PRCT-.YYYY.-"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier_balance",
+   "fieldtype": "Currency",
+   "label": "Supplier Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_address",
+   "fieldtype": "Small Text",
+   "label": "Supplier Address"
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax Id"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "default": "Standard Buying",
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate includes tax"
+  },
+  {
+   "default": "0",
+   "fieldname": "update_rates_in_price_list",
+   "fieldtype": "Check",
+   "label": "Update Rates in price list"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_inv_no",
+   "fieldtype": "Data",
+   "label": "Supplier Inv No"
+  },
+  {
+   "description": "Note: Acounts and Stock postings based on Date and Posting Time",
+   "fieldname": "supplier_inv_date",
+   "fieldtype": "Date",
+   "label": "Supplier Inv Date"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order"
+  },
+  {
+   "fieldname": "do_no",
+   "fieldtype": "Data",
+   "label": "DO No"
+  },
+  {
+   "fieldname": "column_break_kkhx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_purchase",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Credit Purchase"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Payment Mode",
+   "options": "Payment Mode"
+  },
+  {
+   "fetch_from": "payment_mode.mode",
+   "fetch_if_empty": 1,
+   "fieldname": "mode",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mode"
+  },
+  {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Payment Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_terms",
+   "fieldtype": "Data",
+   "label": "Payment Terms "
+  },
+  {
+   "fieldname": "column_break_yo6a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.mode == 'Bank'"
+  },
+  {
+   "fieldname": "column_break_frqn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Purchase Receipt Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_29",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "selected_item_stock_qty_in_the_warehouse",
+   "fieldtype": "Data",
+   "label": "Last Selected Item Stock Qty in the warehouse"
+  },
+  {
+   "fieldname": "column_break_30",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_units",
+   "fieldtype": "Data",
+   "label": "Item Units"
+  },
+  {
+   "fieldname": "column_break_6ljx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Purchase Receipt",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_25",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "gross_total",
+   "fieldtype": "Currency",
+   "label": "Gross Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_total",
+   "fieldtype": "Currency",
+   "label": "Tax Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_discount_in_line_items",
+   "fieldtype": "Currency",
+   "label": "Total Discount In Line Items"
+  },
+  {
+   "fieldname": "additional_discount",
+   "fieldtype": "Currency",
+   "label": "Additional Discount Or Round Off Adjustment"
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words"
+  },
+  {
+   "fieldname": "column_break_5kr0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rounded_total",
+   "fieldtype": "Currency",
+   "label": "Rounded Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_erax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_big",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "section_break_33",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "taxes",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Taxes",
+   "options": "Purchase Invoice Tax"
+  },
+  {
+   "fieldname": "terms_and_conditions_section",
+   "fieldtype": "Section Break",
+   "label": "Terms And Conditions"
+  },
+  {
+   "fieldname": "terms",
+   "fieldtype": "Link",
+   "label": "Terms",
+   "options": "Terms And Conditions"
+  },
+  {
+   "fieldname": "column_break_ytde",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_h1ti",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_e8ur",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "section_break_27",
+   "fieldtype": "Tab Break",
+   "label": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Purchase Payment Schedule"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "stock_recalc_voucher",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Stock Recalc Voucher"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Purchase Receipt",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0]]",
+   "options": "Project"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_dimensions",
+   "fieldtype": "Check",
+   "label": "Use For Glass"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_dimensions_2",
+   "fieldtype": "Check",
+   "label": "Use For Aluminium"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Purchase Invoice",
+   "link_fieldname": "purchase_receipt"
+  }
+ ],
+ "modified": "2025-05-01 12:59:45.359101",
+ "modified_by": "Administrator",
+ "module": "Buying",
+ "name": "Purchase Receipt",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

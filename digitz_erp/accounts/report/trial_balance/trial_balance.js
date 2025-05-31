@@ -16,6 +16,19 @@ frappe.query_reports["Trial Balance"] = {
 				"label": "To Date",
 				"default":frappe.datetime.month_end()
 			},
+			{		
+				"fieldname": "project",
+				"fieldtype": "Link",
+				"label": "Project",
+				"options": "Project",
+				"get_query": function() {
+					return {
+						filters: [
+							["disabled", "=", 0]  // Filter active projects
+						]
+					};
+				}
+			},
 	],		
 	
 };

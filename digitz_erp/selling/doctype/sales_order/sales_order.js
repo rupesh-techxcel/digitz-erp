@@ -4,10 +4,43 @@
 frappe.ui.form.on('Sales Order', {
 	refresh: function(frm) {
 		
-		var pending_items_exists = false
+		var pending_items_exists = false		
 
 		if(frm.doc.docstatus == 1)
 		{
+			frappe.call({
+                method: 'digitz_erp.api.sales_order_api.check_project_exists',
+                args: {
+                    sales_order: frm.doc.name
+                },
+                callback: function(r) {
+
+					console.log("check_project_exists",r.message)
+
+                    if (!r.message) {
+						
+						
+
+                        frm.add_custom_button(__('Create Project'), function() {
+                            frappe.call({
+                                method: 'digitz_erp.api.sales_order_api.create_project_from_sales_order',
+                                args: {
+                                    sales_order: frm.doc.name
+                                },
+                                callback: function(r) {
+                                    if (r.message) {
+                                        // Sync the returned project document to load it in the UI
+                                        frappe.model.sync([r.message]);
+                                        // Set the route to the newly created Project
+                                        frappe.set_route("Form", "Project", r.message.name);
+                                    }
+                                }
+                            });
+                        }, __('Create'));
+                    }
+                }
+            });
+
 			frappe.call(
 			{
 				method: 'digitz_erp.api.sales_order_api.check_pending_items_exists',
@@ -67,7 +100,7 @@ frappe.ui.form.on('Sales Order', {
 							}
 						}
 
-					})});
+					})}, __('Create'));
 				}	
 
 				if (allow_sales_invoice_creation== true)
@@ -86,7 +119,7 @@ frappe.ui.form.on('Sales Order', {
 							}
 						}
 	
-					})});
+					})}, __('Create'));
 				}
 				
 			}
@@ -254,12 +287,6 @@ frappe.ui.form.on('Sales Order', {
 			})
 	},
 	make_taxes_and_totals(frm) {
-
-		if(frm.doc.item_table.length>0){
-			update_total_big_display_1(frm);
-			frm.set_df_property("items","read_only",1)
-		}
-		else{
 		console.log("from make totals..")
 		frm.clear_table("taxes");
 		frm.refresh_field("taxes");
@@ -279,7 +306,7 @@ frappe.ui.form.on('Sales Order', {
 
 		frm.doc.items.forEach(function (entry) {
 			if(entry.lumpsum_amount){
-					gross_total += entry.gross_amount;entry.tax_amount;
+					gross_total += entry.gross_amount;
 					tax_total += entry.tax_amount;
 					net_total += entry.net_amount + entry.tax_amount;
 			}
@@ -449,7 +476,6 @@ frappe.ui.form.on('Sales Order', {
 		frm.refresh_field("rounded_total");
 
 		update_total_big_display(frm);
-	}
 	},
 	get_item_stock_balance(frm) {
 
@@ -567,11 +593,11 @@ frappe.ui.form.on('Sales Order', {
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let display_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${display_total}</div>`;
 
 
     // Directly update the HTML content of the 'total_big' field
@@ -608,8 +634,15 @@ frappe.ui.form.on("Sales Order", "onload", function (frm) {
 
 });
 
-frappe.ui.form.on('Sales Order Item', {
 
+
+
+
+
+
+
+
+frappe.ui.form.on('Sales Order Item', {
 	item(frm, cdt, cdn) {
 
 		let row = frappe.get_doc(cdt, cdn);
@@ -650,13 +683,13 @@ frappe.ui.form.on('Sales Order Item', {
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name','description', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
 					console.log("item")
 					console.log(r)
-					row.item_name = r.message.item_name;
-					row.display_name = r.message.item_name;
+					row.item_name = r.message.item_name;					
+					row.display_name = r.message.description;
 					//row.uom = r.message.base_unit;
 					if(tax_excluded_for_company)
 					{
@@ -963,7 +996,41 @@ frappe.ui.form.on('Sales Order Item', {
 
 		console.log("from item_add")
 		let row = frappe.get_doc(cdt, cdn);
-		row.warehouse = frm.doc.warehouse
+		row.warehouse = frm.doc.warehouse;
+
+
+
+
+			frappe.call(
+					{
+						method:'digitz_erp.api.settings_api.get_default_tax',
+						async:false,
+						callback(r){
+							  row.tax = r.message
+		
+						frappe.call(
+							{
+							method: 'frappe.client.get_value',
+							args: {
+								'doctype': 'Tax',
+								'filters': { 'tax_name': row.tax },
+								'fieldname': ['tax_name', 'tax_rate']
+							},
+							callback: (r2) => {
+								row.tax_rate = r2.message.tax_rate;
+								// frm.trigger("make_taxes_and_totals");
+								frm.refresh_fields("items");
+							}
+							});
+		
+						}
+					}
+				);
+		
+		
+		
+		
+			frm.refresh_fields("items");
 
 		frm.trigger("make_taxes_and_totals");
 
@@ -981,10 +1048,7 @@ frappe.ui.form.on('Sales Order Item', {
 	lumpsum_amount(frm,cdt,cdn){
 		update_row(frm,cdt,cdn);
 	},
-
-
 });
-
 
 function update_row(frm,cdt,cdn){
 	let row = frappe.get_doc(cdt,cdn);
@@ -996,230 +1060,5 @@ function update_row(frm,cdt,cdn){
 		frappe.model.set_value(cdt,cdn,'qty', 0);
 		frappe.model.set_value(cdt,cdn,'net_amount', row.gross_amount + tax_amount); 
 		frm.trigger("make_taxes_and_totals");
-	}
-	
-}
-
-
-frappe.ui.form.on('Sales Order New Item Details', {
-    qty: function(frm, cdt, cdn) {
-        let row = frappe.get_doc(cdt, cdn);
-        if (row.qty && row.rate) {
-            let amt = row.qty * row.rate;
-            frappe.model.set_value(cdt, cdn, 'amount', amt);
-			update_total_big_display_1(frm)
-        }
-    },
-    rate: function(frm, cdt, cdn) {
-        let row = frappe.get_doc(cdt, cdn);
-        if (row.qty && row.rate) {
-            let amt = row.qty * row.rate;
-            frappe.model.set_value(cdt, cdn, 'amount', amt);
-			update_total_big_display_1(frm)
-        }
-    },
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-frappe.ui.form.on("Sales Order",{
-    refresh: function(frm){
-        let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${frm.doc.net_total}</div>`;
-		frm.fields_dict['total_big'].$wrapper.html(displayHtml);
-
-		// if(frm.doc.items.length > 0){
-		// }
-
-		if(frm.doc.item_table.length > 0){
-			update_total_big_display_1(frm);
-		}else{
-			update_total_big_display(frm);
-		}
-
-		
-
-		if(frm.doc.quotation_id){
-			frm.set_df_property('item_table','hidden',0)
-		}
-
-        if(!frm.is_new()){
-            frm.add_custom_button(__('Create Project'), function() {
-                frappe.call({
-                    method: "digitz_erp.project.doctype.project.project.create_project_via_sales_order",
-                    args: { 
-                        sales_order_id: frm.doc.name,
-                    },
-                    callback: function(response){
-                        if(response.message){
-                             // Store the data in localStorage to pass it to the new Sales Order form
-                             localStorage.setItem('project_data', JSON.stringify(response.message));
-                             console.log("done")
-                             // Redirect to the new Quotation form
-                             frappe.set_route('Form', 'Project', 'new-project-flzdltgprq')
-                        }
-                    }
-                })
-            },__("Project Actions"));
-
-            frm.add_custom_button(__('Show Created Project'), function() {
-                // Redirect to BOQ list view with filters applied
-                frappe.set_route('List', 'Project', {'sales_order' : frm.doc.name} );
-            },__("Project Actions"));
-
-			frm.add_custom_button(__("Create Progress Entry"), function(){
-				frappe.new_doc("Progress Entry",{}, pe =>{
-					pe.customer = frm.doc.customer;
-					pe.company = frm.doc.company;
-					pe.project = frm.doc.project;
-					pe.warehouse = frm.doc.warehouse;
-					pe.sales_order_id = frm.doc.name;
-
-					frm.doc.items.forEach(item =>{
-						let row =  frappe.model.add_child(pe, 'progress_entry_items');
-
-						for(i in item){
-							row[i] = item[i]
-						}
-					})
-
-					pe.gross_total = frm.doc.gross_total;
-					pe.net_total = frm.doc.net_total;
-					pe.tax_total = frm.doc.tax_total;
-
-					pe.total_discount_in_line_items = frm.doc.total_discount_in_line_items;
-					pe.additional_discount = frm.doc.additional_discount;
-					pe.rounded_total = frm.doc.rounded_total;
-					pe.in_words = frm.doc.in_words;
-					let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${pe.net_total}</div>`;
-					pe.total_big = displayHtml;
-				})
-			},__("Progress Entry"));
-
-			
-			frm.add_custom_button(__("Show Created Progress Entry"), function(){
-				frappe.set_route('List', 'Progress Entry', { 'sales_order_id': frm.doc.name });
-			},__("Progress Entry"));
-        }
-    },
-    // make_taxes_and_total(frm){
-	// 	if(frm.doc.item_table.length>0){
-	// 		update_total_big_display_1(frm);
-	// 	}else{
-	// 		// make_taxes_and_totals(frm);
-	// 	}
-
-    // },
-    setup: function(frm){
-        let data = localStorage.getItem('sales_order_data');
-			frm.trigger("get_default_company_and_warehouse").then(()=>{
-	
-				if (data) {
-					data = JSON.parse(data);
-					data = data[0]
-					console.log("sales_order_data",data)
-					// Set the fields with the retrieved data
-					frm.set_value('customer', data.customer);
-                    frm.set_value('quotation_id', data.name);
-					// if(data['items'] && data['items'].length > 0){
-						// frm.set_df_property('items','hidden',0)
-
-						
-						data["items"].forEach(item => {
-							let row = frm.add_child('items');
-	
-							for(let key in item){
-								row[key] = item[key]
-							}
-						});
-					// }else{
-						// frm.set_df_property('item_table','hidden',1)
-					// }
-                    // if(data['item_table'] && data['item_table'].length > 0){
-						// frm.set_df_property('items','hidden',0)
-						data["item_table"].forEach(item =>{
-							let row = frm.add_child('item_table');
-	
-							for(let key in item){
-								row[key] = item[key]
-							}
-						})
-					// }else{
-					// 	frm.set_df_property('item_table','hidden',1)
-					// }
-				frm.refresh_field('items');
-                frm.refresh_field('item_table');
-				// Call other_fields_orcustom function
-				// frappe.ui.form.trigger('Quotation', 'rate_includes_tax', frm);
-				
-				// Refresh the field to show the added rows
-				frm.refresh_field('items');
-                frm.refresh_field('item_table');
-				if(frm.doc.item_table && frm.doc.item_table.length > 0){
-					update_total_big_display_1(frm)
-				}
-				// Clear the data from localStorage
-				localStorage.removeItem('sales_order_data');
-				console.log("removed data",localStorage.getItem('sales_order_data'))
-                frm.trigger("make_taxes_and_totals");
-			}
-		})
-    },
-    
-})
-
-
-function update_total_big_display_1(frm) {
-
-	// let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
-	let netTotal=0;
-	frm.doc.item_table.forEach((e)=>{
-			netTotal+= e.amount;
-	})
-    netTotal = netTotal.toFixed(2);
-	
-    // Add 'AED' prefix and format net_total for display
-	
-    frm.set_value("net_total",netTotal)
-	frm.set_value("gross_total",netTotal)
-
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
-
-
-    // Directly update the HTML content of the 'total_big' field
-    frm.set_value("total_big",displayHtml)
-	frm.fields_dict['total_big'].$wrapper.html(displayHtml);
-
+	}	
 }

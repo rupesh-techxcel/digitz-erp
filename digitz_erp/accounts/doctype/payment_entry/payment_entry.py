@@ -8,6 +8,7 @@ from datetime import datetime,timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 class PaymentEntry(Document):
 
@@ -23,13 +24,8 @@ class PaymentEntry(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
-
-		# Add one second to the datetime object
-		new_datetime = datetime_object + timedelta(seconds=1)
-
-		# Extract the new time as a string
-		self.posting_time = new_datetime.strftime('%H:%M:%S')
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
 	def before_validate(self):
 
@@ -66,20 +62,20 @@ class PaymentEntry(Document):
 			# Clear existing payment_allocation entries
 			self.set("payment_allocation", [])
 
-			print("self.temp_payment_allocation")
-			print(self.temp_payment_allocation)
+			#print("self.temp_payment_allocation")
+			#print(self.temp_payment_allocation)
 
 		self.update_reference_in_payment_allocations()
 
 		self.postings_start_time = datetime.now()
 
 	def validate(self):
-		print("validation starts..")
+		#print("validation starts..")
 		self.validate_doc_status()
 		self.check_reference_numbers()
 		self.check_allocations_and_totals()
 		self.check_excess_allocation()
-		print("Validation done")
+		#print("Validation done")
 
 	def validate_doc_status(self):
 		if self.amount == 0:
@@ -97,8 +93,8 @@ class PaymentEntry(Document):
 				messge = """Supplier should not be selected with the payment type 'Other', at line {0} """.format(payment_entry.idx)
 				frappe.throw(messge)
 
-			print("supplier")
-			print(payment_entry.supplier)
+			#print("supplier")
+			#print(payment_entry.supplier)
 
 			if payment_entry.payment_type == "Supplier" and (not payment_entry.supplier):
 				messge = """Supplier is mandatory for the payment type Supplier, at line {0} """.format(payment_entry.idx)
@@ -117,7 +113,7 @@ class PaymentEntry(Document):
 	def clean_deleted_allocations(self):
 
 		allocations = self.payment_allocation
-		print('allocations :', allocations)
+		#print('allocations :', allocations)
 
 		if(allocations):
 			for allocation in allocations[:]:
@@ -212,22 +208,22 @@ class PaymentEntry(Document):
 					if(allocation.reference_type == "Purchase Return"):
 
 						allocations_exists = get_allocations_for_purchase_return(allocation.reference_name, payment_no)
-						print('allocations_exists :', allocations_exists)
+						#print('allocations_exists :', allocations_exists)
 
 					if(allocation.reference_type == "Debit Note"):
 
 						allocations_exists = get_allocations_for_debit_note(allocation.reference_name, payment_no)
-						print('allocations_exists :', allocations_exists)
+						#print('allocations_exists :', allocations_exists)
 
 					if(allocation.reference_type == "Purchase Invoice"):
 
 						allocations_exists = get_allocations_for_purchase_invoice(allocation.reference_name, payment_no)
-						print('allocations_exists :', allocations_exists)
+						#print('allocations_exists :', allocations_exists)
 
 					if(allocation.reference_type == "Expense Entry Details"):
 
 						allocations_exists = get_allocations_for_expense_entry(allocation.reference_name, payment_no)
-						print('allocations_exists :', allocations_exists)
+						#print('allocations_exists :', allocations_exists)
 
 					for existing_allocation in allocations_exists:
 						previous_paid_amount = previous_paid_amount +  existing_allocation.paying_amount
@@ -247,7 +243,7 @@ class PaymentEntry(Document):
 		# Checking for, not self.payment_allocation to not to execute the code again since
   		# the issue happens only one time and need to execute it only after self.payment_allocation made
 
-		print("from on_update")
+		#print("from on_update")
 
 		if self.temp_payment_allocation and not self.payment_allocation:
 
@@ -288,7 +284,7 @@ class PaymentEntry(Document):
 
 	def on_cancel(self):
 		cancel_bank_reconciliation("Sales Invoice", self.name)
-		print("from on cancel")
+		#print("from on cancel")
 		self.revert_documents_paid_amount_for_payment()
 
 		delete_gl_postings_for_cancel_doc_type('Payment Entry',self.name)
@@ -358,8 +354,8 @@ class PaymentEntry(Document):
 		allocations = self.payment_allocation
 		if(allocations):
 			for allocation in allocations:
-				print("allocation.reference_type")
-				print(allocation.reference_type)
+				#print("allocation.reference_type")
+				#print(allocation.reference_type)
 
 				if allocation.reference_type == "Purchase Return":
 					if(allocation.paying_amount>0):
@@ -466,8 +462,8 @@ class PaymentEntry(Document):
 					gl_doc.party_type = "Supplier"
 					gl_doc.party = payment_entry.supplier
 					gl_doc.remarks = payment_entry.remarks
-					print("payment_entry.remarks")
-					print(payment_entry.remarks)
+					#print("payment_entry.remarks")
+					#print(payment_entry.remarks)
 					gl_doc.insert()
 				else:
 					# Case when there is no allocation, but supplier may or may not selected
@@ -532,19 +528,3 @@ class PaymentEntry(Document):
 
 		return account
 
-@frappe.whitelist()
-def get_gl_postings(payment_entry):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": payment_entry},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings

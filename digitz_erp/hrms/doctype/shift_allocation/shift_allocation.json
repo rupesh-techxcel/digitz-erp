@@ -1,0 +1,238 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:SHF-{#####}",
+ "creation": "2024-05-12 17:10:06.523321",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_bfdl",
+  "amended_from",
+  "shift_date",
+  "employee",
+  "employee_name",
+  "designation",
+  "ot_applicable_employee",
+  "column_break_eyxm",
+  "shift",
+  "shift_payment_unit",
+  "start_time",
+  "end_time",
+  "expected_end_time",
+  "shift_details_column",
+  "total_working_hours",
+  "break",
+  "pickup_time_in_minutes",
+  "ot_applicable",
+  "expected_ot",
+  "column_break_mucd",
+  "payment_units_per_day",
+  "expected_no_of_units",
+  "standard_no_of_units_per_holiday",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_bfdl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Shift Allocation",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "shift_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Shift Date"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee Name"
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Read Only",
+   "label": "Designation"
+  },
+  {
+   "default": "0",
+   "description": "This value will be overridden by the latest changes in the employee doctype during the processing of the Payroll Entry.",
+   "fetch_from": "employee.ot_applicable",
+   "fieldname": "ot_applicable_employee",
+   "fieldtype": "Check",
+   "label": "OT Applicable (Employee)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eyxm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Shift",
+   "options": "Shift"
+  },
+  {
+   "fetch_from": "shift.shift_payment_unit",
+   "fieldname": "shift_payment_unit",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Shift Payment Unit"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fetch_from": "shift.start_time",
+   "fieldname": "start_time",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Start Time",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fetch_from": "shift.end_time",
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "End Time",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "description": "Input this if there is a difference from shift end time",
+   "fieldname": "expected_end_time",
+   "fieldtype": "Time",
+   "label": "Expected End Time For Employee"
+  },
+  {
+   "fieldname": "shift_details_column",
+   "fieldtype": "Column Break",
+   "label": "Shift Details"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fetch_from": "shift.standard_working_hours",
+   "fieldname": "total_working_hours",
+   "fieldtype": "Read Only",
+   "label": "Standard Working Hrs",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit==\"HRS\"",
+   "fetch_from": "shift.break_in_minutes",
+   "fieldname": "break",
+   "fieldtype": "Read Only",
+   "label": "Break In MIns",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "shift.pickup_time_in_minutes",
+   "fieldname": "pickup_time_in_minutes",
+   "fieldtype": "Data",
+   "label": "Pickup Time In Minutes",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "This value will be overridden by the latest changes in the shift doctype during the processing of the Payroll Entry.",
+   "fetch_from": "shift.ot_applicable",
+   "fieldname": "ot_applicable",
+   "fieldtype": "Check",
+   "label": "OT Applicable",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.ot_applicable",
+   "description": "Calculates while saving the document.",
+   "fieldname": "expected_ot",
+   "fieldtype": "Float",
+   "label": "Expected Overtime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mucd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit!=\"HRS\"",
+   "fetch_from": "shift.no_of_units_per_day",
+   "fieldname": "payment_units_per_day",
+   "fieldtype": "Float",
+   "label": "Standard No Of  Units Per Day",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit!=\"HRS\"",
+   "description": "Input this if there is a difference from standard no of units per day",
+   "fieldname": "expected_no_of_units",
+   "fieldtype": "Float",
+   "label": "Expected No Of Units For Employee"
+  },
+  {
+   "depends_on": "eval:doc.shift_payment_unit!=\"HRS\"",
+   "fieldname": "standard_no_of_units_per_holiday",
+   "fieldtype": "Float",
+   "label": "Standard No Of Units Per Holiday"
+  },
+  {
+   "default": "Employees with the default shift (as per HR settings) do not need to input a shift allocation.\n\nThe employee will remain assigned to the allocated shift until a new shift allocation is made.",
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 20:14:32.783189",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Shift Allocation",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

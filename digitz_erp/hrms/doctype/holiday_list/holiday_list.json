@@ -1,0 +1,172 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:holiday_list_name",
+ "creation": "2024-05-26 22:32:06.341659",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_nokv",
+  "holiday_list_name",
+  "leave_period",
+  "from_date",
+  "to_date",
+  "column_break_gwbr",
+  "default_for_the_leave_period",
+  "column_break_utdd",
+  "amended_from",
+  "note",
+  "section_break_gweg",
+  "holiday_date",
+  "holiday_name",
+  "add_to_holidays",
+  "column_break_ffjm",
+  "weekly_off",
+  "add_weekly_off_to_holidays",
+  "section_break_vjmc",
+  "holidays"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_nokv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "holiday_list_name",
+   "fieldtype": "Data",
+   "label": "Holiday List Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "leave_period",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Leave Period",
+   "options": "Leave Period",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "leave_period.from_date",
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date"
+  },
+  {
+   "fetch_from": "leave_period.to_date",
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date"
+  },
+  {
+   "fieldname": "column_break_gwbr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "description": "The checkbox will automatically be set to checked for the first holiday list of the selected period upon saving the form.",
+   "fieldname": "default_for_the_leave_period",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Default For the Leave Period"
+  },
+  {
+   "fieldname": "column_break_utdd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Holiday List",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "The default holiday list for the leave period applies to all employees unless an employee  has a different holiday list assigned using the Employee Holiday List option.",
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note:",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_gweg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "holiday_date",
+   "fieldtype": "Date",
+   "label": "Holiday Date"
+  },
+  {
+   "fieldname": "holiday_name",
+   "fieldtype": "Data",
+   "label": "Holiday Name"
+  },
+  {
+   "fieldname": "add_to_holidays",
+   "fieldtype": "Button",
+   "label": "Add To Holidays"
+  },
+  {
+   "fieldname": "column_break_ffjm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Either click the 'Add Weekly Off To Holidays' button after selecting the day from the dropdown, or the system will automatically add the days to holidays when saving.",
+   "fieldname": "weekly_off",
+   "fieldtype": "Select",
+   "label": "Weekly Off",
+   "options": "Sunday\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday"
+  },
+  {
+   "fieldname": "add_weekly_off_to_holidays",
+   "fieldtype": "Button",
+   "label": "Add Weekly Off To Holidays"
+  },
+  {
+   "fieldname": "section_break_vjmc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "holidays",
+   "fieldtype": "Table",
+   "label": "Holidays",
+   "options": "Holiday"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 20:17:15.001333",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Holiday List",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

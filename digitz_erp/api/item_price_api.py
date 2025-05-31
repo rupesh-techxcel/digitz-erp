@@ -79,8 +79,8 @@ def get_item_price(item, price_list, currency, date):
    
     item_price_doc_no_dates_name = ""
     
-    print("from get_price" )
-    print(item_price)
+    #print("from get_price" )
+    #print(item_price)
 
     if item_price:
         for ip in item_price:           
@@ -94,8 +94,8 @@ def get_item_price(item, price_list, currency, date):
         
         if(item_price_doc_no_dates_name !="" ):
             item_price_with_rate =  frappe.get_doc("Item Price", item_price_doc_no_dates_name)
-            print("item price")
-            print(item_price_with_rate)
+            #print("item price")
+            #print(item_price_with_rate)
             
             if item_price_with_rate:
                 return item_price_with_rate.rate    

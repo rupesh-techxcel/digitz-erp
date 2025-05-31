@@ -7,9 +7,9 @@ from frappe.model.document import Document
 class PriceList(Document):
 	pass
 	# def before_rename(dt,old):
-	# 	print("before rename")
-	# 	print(dt)
-	# 	print(old)		
+	# 	#print("before rename")
+	# 	#print(dt)
+	# 	#print(old)		
   
 		# original_name = self.get_doc_before_save().get("name")
 		# current_name = self.name

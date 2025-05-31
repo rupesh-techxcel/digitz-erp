@@ -1,0 +1,362 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:EST-{project_short_name}",
+ "creation": "2024-10-08 11:10:17.742056",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project_name",
+  "project_short_name",
+  "boq",
+  "column_break_oego",
+  "lead_from",
+  "prospect",
+  "customer",
+  "column_break_nhyq",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_rvgf",
+  "company",
+  "section_break_elnt",
+  "use_custom_item_group_description",
+  "column_break_ojrk",
+  "overheads_based_on_percentage",
+  "column_break_ilct",
+  "section_break_iuxu",
+  "item_groups",
+  "section_break_zddk",
+  "estimation_items",
+  "section_break_icxt",
+  "column_break_zyhl",
+  "column_break_guyh",
+  "overhead_percentage",
+  "column_break_gwpw",
+  "profit_and_margin",
+  "column_break_nhdp",
+  "show_details",
+  "section_break_bvyc",
+  "total_material_cost",
+  "column_break_nwiq",
+  "total_labour_cost",
+  "column_break_hfmb",
+  "total_overheads",
+  "total_profit",
+  "column_break_luam",
+  "total_cost",
+  "estimate_total",
+  "material_and_labour_tab",
+  "section_break_rpyc",
+  "column_break_npgc",
+  "estimation_item_material_and_labour",
+  "overheads_tab",
+  "overheads_section",
+  "table_vnmi",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "BOQ",
+   "options": "BOQ"
+  },
+  {
+   "fieldname": "column_break_oego",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Prospect",
+   "fieldname": "lead_from",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Lead From",
+   "options": "Prospect\nCustomer"
+  },
+  {
+   "depends_on": "eval:doc.lead_from==\"Prospect\"",
+   "fieldname": "prospect",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Prospect",
+   "mandatory_depends_on": "eval:doc.lead_from==\"Prospect\"",
+   "options": "Sales Prospect"
+  },
+  {
+   "depends_on": "eval:doc.lead_from==\"Customer\"",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_nhyq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "column_break_rvgf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "section_break_elnt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_custom_item_group_description",
+   "fieldtype": "Check",
+   "label": "Use custom item group description"
+  },
+  {
+   "fieldname": "column_break_ojrk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "overheads_based_on_percentage",
+   "fieldtype": "Check",
+   "label": "Overheads based on percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ilct",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.use_custom_item_group_description",
+   "description": "The Item Groups section enables you to assign a custom description to each item group, which can then be applied to all items associated with the selected group in the details section",
+   "fieldname": "section_break_iuxu",
+   "fieldtype": "Section Break",
+   "label": "Item Groups"
+  },
+  {
+   "depends_on": "eval:doc.use_custom_item_group_description",
+   "fieldname": "item_groups",
+   "fieldtype": "Table",
+   "options": "Estimation Item Group"
+  },
+  {
+   "fieldname": "section_break_zddk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "The rate column will be calculated automatically, removing the need for user input. Click on the M&L button to open the window where you can enter the material and labor details corresponding to the item for estimation.",
+   "fieldname": "estimation_items",
+   "fieldtype": "Table",
+   "label": "BOQ Items",
+   "options": "Estimation Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_icxt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_zyhl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_guyh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.overheads_based_on_percentage==1",
+   "fieldname": "overhead_percentage",
+   "fieldtype": "Float",
+   "label": "Overhead Percentage",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_gwpw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "profit_and_margin",
+   "fieldtype": "Float",
+   "label": "Profit And Margin",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_nhdp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "show_details",
+   "fieldtype": "Button",
+   "label": "Show Details"
+  },
+  {
+   "fieldname": "section_break_bvyc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_material_cost",
+   "fieldtype": "Currency",
+   "label": "Total Material Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_nwiq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_labour_cost",
+   "fieldtype": "Currency",
+   "label": "Total Labour Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hfmb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_overheads",
+   "fieldtype": "Currency",
+   "label": "Total Overheads"
+  },
+  {
+   "fieldname": "total_profit",
+   "fieldtype": "Currency",
+   "label": "Total Profit"
+  },
+  {
+   "fieldname": "column_break_luam",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "label": "Total Cost"
+  },
+  {
+   "fieldname": "estimate_total",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Estimate Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "material_and_labour_tab",
+   "fieldtype": "Tab Break",
+   "label": "Material and Labour"
+  },
+  {
+   "fieldname": "section_break_rpyc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_npgc",
+   "fieldtype": "Column Break",
+   "read_only": 1
+  },
+  {
+   "description": "This table is auto populated from the material and labour input for each items in the estimate",
+   "fieldname": "estimation_item_material_and_labour",
+   "fieldtype": "Table",
+   "options": "Estimation Item Material And Labour",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.overheads_based_on_percentage==0",
+   "fieldname": "overheads_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overheads"
+  },
+  {
+   "fieldname": "overheads_section",
+   "fieldtype": "Section Break",
+   "label": "Overheads"
+  },
+  {
+   "fieldname": "table_vnmi",
+   "fieldtype": "Table",
+   "options": "Estimation Overhead"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Estimate",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:16:45.402777",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Estimate",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

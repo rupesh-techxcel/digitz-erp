@@ -1,0 +1,84 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:leave_policy_name",
+ "creation": "2024-04-17 13:22:51.454314",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_1mrt",
+  "leave_policy_name",
+  "column_break_ahpp",
+  "leave_allocations_section",
+  "leave_policy_details",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_1mrt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "leave_policy_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Leave Policy Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_ahpp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "leave_allocations_section",
+   "fieldtype": "Section Break",
+   "label": "Leave Allocations"
+  },
+  {
+   "fieldname": "leave_policy_details",
+   "fieldtype": "Table",
+   "label": "Leave Policy Details",
+   "options": "Leave Policy Details"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Leave Policy",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 19:34:04.881851",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Leave Policy",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -8,8 +8,8 @@ def execute(filters=None):
 	
 	columns = get_columns() 
 	data =get_data(filters)
-	print("data from document psoting status report")
-	print(data)
+	#print("data from document psoting status report")
+	#print(data)
 	return columns, data
 
 def get_data(filters):

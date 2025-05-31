@@ -22,6 +22,10 @@
   "remarks",
   "column_break_ymsh",
   "company",
+  "project",
+  "work_order",
+  "boq_execution",
+  "boq",
   "accounts_section",
   "credit_expense",
   "payment_mode",
@@ -31,6 +35,7 @@
   "reference_no",
   "reference_date",
   "column_break_ntgt",
+  "column_break_sfxf",
   "section_break_xwqi",
   "expense_entry_details",
   "section_break_shsu",
@@ -40,6 +45,7 @@
   "column_break_yyur",
   "paid_amount",
   "column_break_8dze",
+  "column_break_kbba",
   "section_break_jtpi",
   "amended_from",
   "payment_schedule_tab",
@@ -243,12 +249,47 @@
   {
    "fieldname": "column_break_ymsh",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "options": "Work Order"
+  },
+  {
+   "depends_on": "eval:doc.work_order != undefined",
+   "fetch_from": "work_order.boq_execution",
+   "fieldname": "boq_execution",
+   "fieldtype": "Data",
+   "label": "BOQ Execution",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "work_order.boq",
+   "fieldname": "boq",
+   "fieldtype": "Data",
+   "label": "BOQ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sfxf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kbba",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-24 10:50:03.909108",
+ "modified": "2024-12-15 13:58:15.999913",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Expense Entry",

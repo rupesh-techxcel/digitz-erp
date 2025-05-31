@@ -20,9 +20,30 @@ frappe.ui.form.on('Company', {
 		   console.log("Tax excluded?");
 		   console.log(frm.doc.tax_excluded);
 		   frm.doc.tax ="";
+		   frm.doc.tax_account = ""
 		   frm.refresh_field("tax");
+		   frm.refresh_field("tax_account");
 	   }
-	}
+	},	
+	refresh_account_balances: function(frm) {
+        frappe.confirm(
+            'Are you sure you want to refresh all account balances?',
+            () => {
+                frappe.call({
+                    method: "digitz_erp.api.gl_posting_api.update_all_account_balances",
+                    callback: function(r) {
+                        frappe.msgprint("✅ Account balances refreshed successfully");
+                    },
+                    error: function(err) {
+                        frappe.msgprint("❌ Failed to refresh account balances");
+                    }
+                });
+            },
+            () => {
+                frappe.msgprint("❌ Action cancelled");
+            }
+        );
+    }
 
 });
 
@@ -48,13 +69,16 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 	frm.set_query("default_advance_received_account",function(){
 		return{
 			"filters": {
+				"is_group":0,
 				"root_type":"Liability"
 			}
 		}
 	})
+	
 	frm.set_query("default_advance_paid_account",function(){
 		return{
 			"filters": {
+				"is_group":0,
 				"root_type":"Asset"
 			}
 		}
@@ -92,6 +116,15 @@ frappe.ui.form.on("Company", "onload", function(frm) {
 			"filters": {
 				"is_group": 0,
 				"root_type":"Income"
+			}
+		};
+	});
+
+	frm.set_query("default_product_expense_account", function() {
+		return {
+			"filters": {
+				"is_group": 0,
+				"root_type":"Expense"
 			}
 		};
 	});

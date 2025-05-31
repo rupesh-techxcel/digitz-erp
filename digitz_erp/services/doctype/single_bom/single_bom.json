@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:target_item",
+ "creation": "2025-01-19 19:15:43.078243",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_xjga",
+  "amended_from",
+  "target_item",
+  "target_item_name",
+  "target_item_unit",
+  "source_item",
+  "source_item_name",
+  "source_item_unit"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_xjga",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Single BOM",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "target_item",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Target Item",
+   "options": "Item",
+   "unique": 1
+  },
+  {
+   "fetch_from": "target_item.item_name",
+   "fieldname": "target_item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Target Item Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "target_item.base_unit",
+   "fieldname": "target_item_unit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Target Item Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_item",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Source Item",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "source_item.item_name",
+   "fieldname": "source_item_name",
+   "fieldtype": "Data",
+   "label": "Source Item Name"
+  },
+  {
+   "fetch_from": "source_item.base_unit",
+   "fieldname": "source_item_unit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source Item Unit",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:33:06.178821",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Single BOM",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "target_item_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

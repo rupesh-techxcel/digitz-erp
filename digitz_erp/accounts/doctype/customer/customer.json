@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "format:{customer_name}, {area}",
+ "autoname": "format:{customer_name}, {area_name}",
  "creation": "2022-12-21 17:08:13.855018",
  "default_view": "List",
  "doctype": "DocType",
@@ -10,6 +10,7 @@
   "customer_name",
   "customer_group",
   "tax_id",
+  "prospect",
   "section_break_4",
   "salesman",
   "salesman_name",
@@ -19,26 +20,27 @@
   "credit_days",
   "credit_amount",
   "last_transaction_date",
+  "default_currency",
   "section_break_20",
   "address",
   "address_line_1",
   "address_line_2",
+  "country",
   "emirate",
   "area",
   "area_name",
-  "country",
   "column_break_27",
   "contact",
   "phone",
+  "mobile_no",
   "email_id",
   "contact_person",
   "contact_person_designation",
-  "contact_phone",
-  "contact_email_id",
   "full_address",
   "column_break_wyer",
   "delivery_locations",
   "disabled",
+  "bank_details",
   "section_break_24",
   "use_default_customer_terms",
   "default_terms",
@@ -50,18 +52,20 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Customer Name",
-   "reqd": 1
+   "reqd": 1   
   },
   {
-   "default": "All Customer Groups",
+   "default": "Default Customer Group",
    "fieldname": "customer_group",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer Group",
+   "link_filters": "[[\"Customer Group\",\"disabled\",\"=\",0]]",
    "options": "Customer Group",
    "reqd": 1
   },
   {
+   "description": "(Eg: TRN No in UAE)",
    "fieldname": "tax_id",
    "fieldtype": "Data",
    "label": "Tax Id"
@@ -131,17 +135,19 @@
    "label": "Address Line 2"
   },
   {
+   "default": "Dubai",
+   "depends_on": "eval:doc.country==\"United Arab Emirates\"",
    "fieldname": "emirate",
    "fieldtype": "Select",
    "label": "Emirate",
    "options": "Abu Dhabi\nAjman\nDubai\nSharjah\nFujairah\nRas Al Khaimah\nUmm Al Quwain"
   },
   {
+   "depends_on": "eval:doc.country==\"United Arab Emirates\"",
    "fieldname": "area",
    "fieldtype": "Link",
    "label": "Area",
-   "options": "Area",
-   "reqd": 1
+   "options": "Area"
   },
   {
    "fieldname": "country",
@@ -167,7 +173,7 @@
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
-   "label": "Email",
+   "label": "Email Id",
    "options": "Email"
   },
   {
@@ -179,17 +185,6 @@
    "fieldname": "contact_person_designation",
    "fieldtype": "Data",
    "label": "Contact Person Designation"
-  },
-  {
-   "fieldname": "contact_phone",
-   "fieldtype": "Data",
-   "label": "Contact Phone"
-  },
-  {
-   "fieldname": "contact_email_id",
-   "fieldtype": "Data",
-   "label": "Contact Email",
-   "options": "Email"
   },
   {
    "fieldname": "section_break_24",
@@ -219,6 +214,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.country==\"United Arab Emirates\"",
    "fetch_from": "area.area",
    "fieldname": "area_name",
    "fieldtype": "Data",
@@ -246,11 +242,33 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "prospect",
+   "fieldtype": "Link",
+   "label": "Sales Prospect",
+   "options": "Sales Prospect"
+  },
+  {
+   "fieldname": "bank_details",
+   "fieldtype": "Small Text",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-16 08:47:34.581943",
+ "modified": "2025-03-14 10:33:06.772357",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Customer",
@@ -272,5 +290,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "customer_name"
 }

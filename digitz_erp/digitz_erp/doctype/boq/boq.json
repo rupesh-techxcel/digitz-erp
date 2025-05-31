@@ -1,0 +1,318 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:BOQ-{project_short_name}",
+ "creation": "2024-07-09 08:22:11.442224",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project_name",
+  "project_short_name",
+  "column_break_hdlc",
+  "lead_from",
+  "customer",
+  "prospect",
+  "prospect_or_customer_name",
+  "column_break_aeml",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "rate_includes_tax",
+  "column_break_vrhe",
+  "company",
+  "execution_status",
+  "section_break_zxwm",
+  "use_custom_item_group_description",
+  "item_groups",
+  "item_details_section",
+  "boq_items",
+  "amended_from",
+  "section_break_olqh",
+  "column_break_dzbw",
+  "column_break_ppmr",
+  "total_boq_amount",
+  "column_break_wlzf",
+  "total_tax_amount",
+  "column_break_fdcu",
+  "total_net_amount",
+  "original_boq_before_amendments_tab",
+  "section_break_pwvq",
+  "original_boq_items",
+  "addition_items_tab",
+  "items_added",
+  "deleted_items_tab",
+  "items_deleted"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_hdlc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Prospect",
+   "fieldname": "lead_from",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Lead From",
+   "options": "Prospect\nCustomer"
+  },
+  {
+   "depends_on": "eval:doc.lead_from==\"Customer\"",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "mandatory_depends_on": "eval:doc.lead_from==\"Customer\"",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:doc.lead_from==\"Prospect\"",
+   "fieldname": "prospect",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Prospect",
+   "link_filters": "[[\"Prospect\",\"disabled\",\"=\",0]]",
+   "mandatory_depends_on": "eval:doc.lead_from==\"Prospect\"",
+   "options": "Sales Prospect"
+  },
+  {
+   "fieldname": "prospect_or_customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Prospect Or Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_aeml",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date and Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "rate_includes_tax",
+   "fieldtype": "Check",
+   "label": "Rate Includes Tax"
+  },
+  {
+   "fieldname": "column_break_vrhe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Not Started",
+   "fieldname": "execution_status",
+   "fieldtype": "Select",
+   "label": "Execution Status",
+   "options": "Not Started\nIn Process\nCompleted"
+  },
+  {
+   "fieldname": "section_break_zxwm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_custom_item_group_description",
+   "fieldtype": "Check",
+   "label": "Use custom item group description (To be used for group by printing)"
+  },
+  {
+   "depends_on": "eval:doc.use_custom_item_group_description",
+   "description": "The Item Groups section enables you to assign a custom description to each item group, which can then be applied to all items associated with the selected group in the details section",
+   "fieldname": "item_groups",
+   "fieldtype": "Table",
+   "label": "Item Group",
+   "options": "Estimation Item Group"
+  },
+  {
+   "fieldname": "item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Item Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "description": "BOQ Items initially only contain quantities up to the estimation stage. Once the estimation is completed, the BOQ is updated with rates and amounts.",
+   "fieldname": "boq_items",
+   "fieldtype": "Table",
+   "options": "BOQ Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "BOQ",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_olqh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_dzbw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ppmr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_boq_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Gross Total"
+  },
+  {
+   "fieldname": "column_break_wlzf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_tax_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Tax Total"
+  },
+  {
+   "fieldname": "column_break_fdcu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Total"
+  },
+  {
+   "fieldname": "original_boq_before_amendments_tab",
+   "fieldtype": "Tab Break",
+   "label": "Original BOQ (Before Amendments)"
+  },
+  {
+   "fieldname": "section_break_pwvq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "original_boq_items",
+   "fieldtype": "Table",
+   "label": "Original BOQ Items",
+   "options": "BOQ Item"
+  },
+  {
+   "fieldname": "addition_items_tab",
+   "fieldtype": "Tab Break",
+   "label": "Addition Items"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "items_added",
+   "fieldtype": "Table",
+   "label": "Items Added",
+   "options": "BOQ Item"
+  },
+  {
+   "fieldname": "deleted_items_tab",
+   "fieldtype": "Tab Break",
+   "label": "Deduction Items"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "items_deleted",
+   "fieldtype": "Table",
+   "label": "Items Deleted",
+   "options": "BOQ Item"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Quotation",
+   "link_fieldname": "boq"
+  },
+  {
+   "link_doctype": "Estimate",
+   "link_fieldname": "boq"
+  },
+  {
+   "link_doctype": "BOQ Amendment",
+   "link_fieldname": "boq"
+  },
+  {
+   "link_doctype": "Sales Order",
+   "link_fieldname": "boq"
+  },
+  {
+   "link_doctype": "Project",
+   "link_fieldname": "boq"
+  }
+ ],
+ "modified": "2025-04-14 03:14:26.446224",
+ "modified_by": "Administrator",
+ "module": "Digitz ERP",
+ "name": "BOQ",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

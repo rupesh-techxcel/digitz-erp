@@ -32,10 +32,10 @@ def execute(filters=None):
 
 	if filters.get('account_group'):     
 		account = frappe.get_doc("Account", filters.get("account_group"))
-		print("account for account group")
-		print(account)
+		#print("account for account group")
+		#print(account)
 		root_type = account.root_type     
-		print(root_type)
+		#print(root_type)
 
 	columns = get_columns()
 

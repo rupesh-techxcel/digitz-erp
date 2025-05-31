@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:year_name",
  "creation": "2024-01-30 10:32:49.397624",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -12,8 +13,9 @@
  "fields": [
   {
    "fieldname": "year_name",
-   "fieldtype": "Data",
-   "label": "Year Name"
+   "fieldtype": "Int",
+   "label": "Year",
+   "unique": 1
   },
   {
    "fieldname": "year_start_date",
@@ -28,10 +30,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-30 10:34:41.043101",
+ "modified": "2024-12-02 16:07:46.415792",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Fiscal Year",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

@@ -1,0 +1,252 @@
+{
+ "actions": [],
+ "creation": "2024-08-24 13:30:41.385252",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "item_name",
+  "posting_date",
+  "warehouse",
+  "project",
+  "consumed_qty",
+  "qty_in",
+  "incoming_rate",
+  "qty_out",
+  "outgoing_rate",
+  "balance_qty",
+  "valuation_rate",
+  "balance_value",
+  "change_in_stock_value",
+  "additional_allocation",
+  "column_break_8",
+  "unit",
+  "voucher",
+  "voucher_no",
+  "source",
+  "source_document_id",
+  "recalculated",
+  "log",
+  "corrected_on_repost",
+  "balance_qty_before_repost",
+  "more_records",
+  "more_records_for_item"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Item",
+   "options": "Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "incoming_rate",
+   "fieldtype": "Float",
+   "label": "Incoming Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty_out",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Qty Out",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outgoing_rate",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Outgoing Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_qty",
+   "fieldtype": "Float",
+   "label": "Balance Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "valuation_rate",
+   "fieldtype": "Float",
+   "label": "Valuation Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_value",
+   "fieldtype": "Float",
+   "label": "Balance Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "change_in_stock_value",
+   "fieldtype": "Currency",
+   "label": "Change In Stock Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "additional_allocation",
+   "fieldtype": "Currency",
+   "label": "Additional Allocation"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break",
+   "read_only": 1
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Unit",
+   "options": "Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "voucher",
+   "fieldtype": "Link",
+   "label": "Voucher",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "voucher_no",
+   "fieldtype": "Dynamic Link",
+   "label": "Voucher No",
+   "options": "voucher",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "label": "Source",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_document_id",
+   "fieldtype": "Dynamic Link",
+   "label": "Source Document Id",
+   "options": "source",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "recalculated",
+   "fieldtype": "Check",
+   "label": "Recalculated"
+  },
+  {
+   "fieldname": "log",
+   "fieldtype": "Small Text",
+   "label": "Log"
+  },
+  {
+   "default": "0",
+   "fieldname": "corrected_on_repost",
+   "fieldtype": "Check",
+   "label": "Corrected On Repost"
+  },
+  {
+   "fieldname": "balance_qty_before_repost",
+   "fieldtype": "Float",
+   "label": "Balance Qty Before Repost"
+  },
+  {
+   "default": "0",
+   "fieldname": "more_records",
+   "fieldtype": "Check",
+   "label": "More Records"
+  },
+  {
+   "fieldname": "more_records_for_item",
+   "fieldtype": "Int",
+   "label": "More Records For Item"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consumed_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Consumed Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty_in",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Qty In",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-08-29 09:59:02.866787",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Project Stock Ledger",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tab User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

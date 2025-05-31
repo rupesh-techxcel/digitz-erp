@@ -3,7 +3,21 @@
 
 frappe.ui.form.on('Receipt Entry', {
 
+	show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
 	refresh:function(frm){
+
+		// Initialize the previous project value when the form loads
+        if (!frm._previous_project) {
+            frm._previous_project = frm.doc.project;
+        }
+
 		create_custom_buttons(frm)
 
 		frm.set_query("warehouse", function() {
@@ -14,13 +28,24 @@ frappe.ui.form.on('Receipt Entry', {
 			};
 		});
 
-		    frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
-            return {
-                filters: {
-                    is_group: 0  // Set filters to only show accounts where is_group is false
-                }
-            };
-        };
+		//     frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
+        //     return {
+        //         filters: {
+        //             is_group: 0  // Set filters to only show accounts where is_group is false
+        //         }
+        //     };
+        // };
+		frm.fields_dict['receipt_entry_details'].grid.get_field('account').get_query = function(doc, cdt, cdn) {
+			var row = locals[cdt][cdn]; // Access the current row in the child table
+			var rootTypeFilter = row.reference_type === "Sales Order" ? "Liability" : "Asset";
+		
+			return {
+				filters: {
+					root_type: rootTypeFilter, // Set root_type dynamically based on reference_type
+					is_group: 0               // Ensure only non-group accounts are shown
+				}
+			};
+		};
 
 		// Allocations are mean for readonly purpose and not for user inputs. So make it hidden first and show it on demand
 		frm.doc.show_allocations = false;
@@ -48,8 +73,10 @@ frappe.ui.form.on('Receipt Entry', {
 		}
 	},
 	get_default_company_and_warehouse(frm) {
-		var default_company = ""
 
+		console.log("from get_default_company_and_warehouse")
+		var default_company = ""	
+		
 		frm.trigger("get_user_warehouse")
 
 		frappe.call({
@@ -59,10 +86,11 @@ frappe.ui.form.on('Receipt Entry', {
 				'fieldname': 'default_company'
 			},
 			callback: (r) => {
+				
+				frm.set_value("company", r.message.default_company)
 
 				default_company = r.message.default_company
-				frm.doc.company = r.message.default_company
-				frm.refresh_field("company");
+
 				frappe.call(
 					{
 						method: 'frappe.client.get_value',
@@ -73,10 +101,15 @@ frappe.ui.form.on('Receipt Entry', {
 						},
 						callback: (r2) => {
 
+							console.log("r2")
+							console.log(r2)
 							if (typeof window.warehouse !== 'undefined') {
 								// The value is assigned to window.warehouse
 								// You can use it here
+								console.log("assign window.warehouse")
 								frm.doc.warehouse = window.warehouse;
+								// If userwarehouse assigned make it readonly not to allow changes
+								frm.set_df_property('warehouse', 'read_only', 1);
 							}
 							else
 							{
@@ -87,14 +120,15 @@ frappe.ui.form.on('Receipt Entry', {
 							//frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
 						}
-					}
-
-				)
+					});
+				
 			}
 		});
 	},
 	get_user_warehouse(frm)
 	{
+		console.log("get_user_warehouse")
+
 		frappe.call({
             method: 'frappe.client.get_value',
             args: {
@@ -172,6 +206,37 @@ frappe.ui.form.on('Receipt Entry', {
 	{
 		frm.trigger("calculate_total_and_set_fields");
 	},
+	project: function (frm) {
+        // Check if a project has been previously assigned and stored
+        const previous_project = frm._previous_project || null;
+
+        // If a previous project exists and it differs from the current one
+        if (previous_project && frm.doc.project !== previous_project) {
+            frappe.confirm(
+                __(
+                    "Changing the project will automatically change the project field in the 'Receipt Entry Details' rows. Do you want to continue?"
+                ),
+                function () {
+                    // User confirmed the change
+                    frm._previous_project = frm.doc.project; // Update the stored project value
+                    
+                    // Update all rows in the Receipt Entry Details child table
+                    (frm.doc.receipt_entry_details || []).forEach((row) => {
+                        row.project = frm.doc.project;
+                    });
+
+                    frm.refresh_field("receipt_entry_details");
+                },
+                function () {
+                    // User canceled the change
+                    frm.set_value("project", previous_project); // Revert the project field
+                }
+            );
+        } else {
+            // No previous project exists, or the project hasn't changed
+            frm._previous_project = frm.doc.project; // Store the current project value
+        }
+    },    
 	clean_allocations(frm)
 	{
 		var allocations = cur_frm.doc.receipt_allocation;
@@ -253,28 +318,74 @@ frappe.ui.form.on("Receipt Entry", "onload", function (frm) {
 			 frappe.model.set_value(cdt, cdn, 'cost_center', frm.doc.default_cost_center);
 		}
 	 },
+	receipt_type: function(frm, cdt, cdn) {
+		console.log("hitting receipt_type");
 
-  	receipt_type: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		if (row.receipt_type === "Customer") {
+			frappe.call({
+				method: 'frappe.client.get_value',
+				args: {
+					doctype: 'Global Settings',
+					fieldname: 'default_company'
+				},
+				callback: (response) => {
+					if (response && response.message) {
 
-  	var row = locals[cdt][cdn];
-	if(row.receipt_type == "Customer")
-	{
+						console.log("response", response);
+						frappe.db.get_value(
+							"Company",
+							response.message.default_company,
+							["default_receivable_account", "default_advance_billed_but_not_received_account"]
+						).then((res) => {
+							console.log("res", res);
 
-		frappe.call({
-			method: 'frappe.client.get_value',
-			args: {
-				'doctype': 'Global Settings',
-				'fieldname': 'default_company'
-			},
-			callback: (r) => {
+							if (res && res.message) {
+								var default_receivable_account = res.message.default_receivable_account;
+								var default_advance_billed_but_not_received_account = res.message.default_advance_billed_but_not_received_account;
 
-		 		frappe.db.get_value("Company", r.message.default_company, "default_receivable_account").then((r) => {
-	 			var default_receivable_account = r.message.default_receivable_account;
-	 			frappe.model.set_value(cdt, cdn, 'account', default_receivable_account)});
-			}
-		})
-	}
+								if (row.reference_type === "Sales Order") {
+									// For Sales Order, allocate to advance billed but not received account
+									frappe.model.set_value(cdt, cdn, 'account', default_advance_billed_but_not_received_account);
+								} else if (row.reference_type === "Sales Invoice") {
+									// For Sales Invoice, check if it's marked for advance payment
+									frappe.call({
+										method: 'frappe.client.get_value',
+										args: {
+											doctype: "Sales Invoice",
+											filters: { name: row.reference_name },
+											fieldname: "for_advance_payment"
+										},
+										callback: (inv_response) => {
+											if (inv_response && inv_response.message) {
+												var for_advance_payment = inv_response.message.for_advance_payment;
+
+												if (for_advance_payment) {
+													// If for advance payment, allocate to advance billed but not received account
+													frappe.model.set_value(cdt, cdn, 'account', default_advance_billed_but_not_received_account);
+												} else {
+													// Otherwise, allocate to receivable account
+													frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
+												}
+											}
+										}
+									});
+								} else {
+									// Default allocation for other reference types
+									frappe.model.set_value(cdt, cdn, 'account', default_receivable_account);
+								}
+							}
+						});
+					}
+				}
+			});
+		}
 },
+	
+reference_type: function(frm, cdt, cdn) {
+	frm.trigger("receipt_type", cdt, cdn); // Correct way to trigger another function
+},
+	
 receipt_entry_details_add:function(frm,cdt,cdn)
 {
 	frappe.call({
@@ -297,6 +408,7 @@ receipt_entry_details_add:function(frm,cdt,cdn)
 	row.reference_type = "Sales Invoice"
 	row.reference_no = frm.doc.reference_no
 	row.reference_date = frm.doc.reference_date
+	row.project = frm.doc.project
 	frm.refresh_field("receipt_entry_details")
 },
 receipt_entry_details_remove: function(frm,cdt,cdn)
@@ -306,7 +418,6 @@ receipt_entry_details_remove: function(frm,cdt,cdn)
 },
 
 customer: function(frm,cdt,cdn){
-
 
 
 },
@@ -320,18 +431,13 @@ allocations: function(frm, cdt, cdn)
 	const row = locals[cdt][cdn];
 	let child_table_control	;
 
-	if(row.receipt_type != "Customer" || (!row.reference_type) ||  row.reference_type == "" ||  (!row.customer))
+	if(row.receipt_type != "Customer" || (!row.reference_type) ||  row.reference_type == "On Account" ||  (!row.customer))
 	{
 		frappe.throw("Invalid criteria for allocations.")
 	}
 
 	const selected_customer = row.customer
 	const selected_reference_type = row.reference_type
-
-	console.log("selected customer")
-	console.log(selected_customer)
-	console.log("selected reference_type")
-	console.log(selected_reference_type)
 
 	//Allocations are restricted with only one per supplier. So verify that there is no other
 	//row exists with allocation for the selected_supplier
@@ -385,12 +491,19 @@ allocations: function(frm, cdt, cdn)
 	
 	client_method = "digitz_erp.api.receipt_entry_api.get_customer_pending_documents";
 	
+
+	console.log("selected_reference_type")
+	console.log(selected_reference_type)
+
+	// Advances excluded for 'Sales Invoice's
+
 	frappe.call({
 		method: client_method,
 		args: {
 			customer: selected_customer,
 			reference_type: selected_reference_type,
-			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name
+			receipt_no: cur_frm.doc.__islocal ? "" : frm.doc.name,
+			exclude_advance_in_the_other_document:true
 		},
 		callback:(r) => {
 
@@ -538,11 +651,12 @@ allocations: function(frm, cdt, cdn)
 				for (var idx2 = allocations.length - 1; idx2 >= 0; idx2--) {
 
 					var allocation = allocations[idx2];
+					
 					console.log("allocation")
 					console.log(allocation)
 
 					// Note that for expenses, allocation.reference_type is 'Expense Entry Details' and not 'Expense Entry'
-					if((allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return") || (allocation.reference_type == "Credit Note" && selected_reference_type!="Credit Note"))
+					if((allocation.reference_type == "Progressive Sales Invoice" && selected_reference_type!="Progressive Sales Invoice")||(allocation.reference_type == "Sales Invoice" && selected_reference_type!="Sales Invoice") || (allocation.reference_type == "Sales Return" && selected_reference_type!="Sales Return") || (allocation.reference_type == "Credit Note" && selected_reference_type!="Credit Note"))
 					{
 						console.log("hitted continue")
 						continue;
@@ -658,7 +772,7 @@ allocations: function(frm, cdt, cdn)
 
 				if(element.paying_amount>0)
 				{
-					var row_allocation = frappe.model.get_new_doc('Payment Allocation');
+					var row_allocation = frappe.model.get_new_doc('Receipt Allocation');
 					row_allocation.customer = element.customer
 
 					row_allocation.reference_type = element.reference_type
@@ -682,13 +796,33 @@ allocations: function(frm, cdt, cdn)
 					row_allocation.balance_amount = element.balance_amount
 					totalPay = totalPay + element.paying_amount
 					row_allocation.receipt_entry_detail = frm.doc.receipt_entry_details[row.idx]
+	
+					if (element.reference_type && element.reference_name) {
+						frappe.call({
+							method: "digitz_erp.api.receipt_entry_api.get_project_for_allocation", // Update with actual Python method path
+							async:false,
+							args: {
+								doc_type: element.reference_type,
+								doc_name: element.reference_name
+							},
+							callback: function(response) {
+								if (response.message) {
+									// Handle the returned project value
+									const proj = response.message;
+									
+									row_allocation.project = proj
+									// frm.events.show_a_message(frm, `Project ${proj} assigned to the allocation.`);
+									
+								}
+							}
+						});
+					}
 
+
+					console.log("row_allocation", row_allocation)
 					cur_frm.add_child('receipt_allocation', row_allocation);
 
-					cur_frm.refresh_field('receipt_allocation');
-
-					console.log("row_allocation")
-					console.log(row_allocation)
+					cur_frm.refresh_field('receipt_allocation');					
 
 				}
 			}
@@ -701,6 +835,8 @@ allocations: function(frm, cdt, cdn)
 			frm.trigger("calculate_total_and_set_fields");
 
 			cur_frm.refresh_field('receipt_allocation');
+
+			console.log("receipt allocation",frm.doc.receipt_allocation)
 
 			dialog.hide();
 		},
@@ -726,42 +862,59 @@ let general_ledgers = function (frm) {
     frappe.call({
         method: "digitz_erp.api.accounts_api.get_gl_postings",
         args: {
-			voucher:frm.doc.doctype,
+            voucher: frm.doc.doctype,
             voucher_no: frm.doc.name
         },
         callback: function (response) {
-            let gl_postings = response.message;
+            let gl_postings = response.message.gl_postings;
+            let totalDebit = parseFloat(response.message.total_debit).toFixed(2);
+            let totalCredit = parseFloat(response.message.total_credit).toFixed(2);
 
             // Generate HTML content for the popup
-            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+            let htmlContent = '<div style="max-height: 680px; overflow-y: auto;">' +
                               '<table class="table table-bordered" style="width: 100%;">' +
                               '<thead>' +
                               '<tr>' +
-                              '<th style="width: 20%;">Account</th>' +
-                              '<th style="width: 15%;">Debit Amount</th>' +
-                              '<th style="width: 15%;">Credit Amount</th>' +
-                              '<th style="width: 25%;">Against Account</th>' +
-                              '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 15%;">Account</th>' +
+							  '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 10%;">Debit Amount</th>' +
+                              '<th style="width: 10%;">Credit Amount</th>' +
+							  '<th style="width: 10%;">Party</th>' +
+                              '<th style="width: 10%;">Against Account</th>' +                              
+                              '<th style="width: 10%;">Project</th>' +
+                              '<th style="width: 10%;">Cost Center</th>' +                              
                               '</tr>' +
                               '</thead>' +
                               '<tbody>';
 
-							  gl_postings.forEach(function (gl_posting) {
-								// Handling null values for remarks
-								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+			console.log("gl_postings",gl_postings)
 
-								// Ensure debit_amount and credit_amount are treated as floats and format them
-								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
-								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+            gl_postings.forEach(function (gl_posting) {
+                let remarksText = gl_posting.remarks || '';
+                let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+                let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
 
-								htmlContent += '<tr>' +
-											   `<td>${gl_posting.account}</td>` +
-											   `<td style="text-align: right;">${debitAmount}</td>` +
-											   `<td style="text-align: right;">${creditAmount}</td>` +
-											   `<td>${gl_posting.against_account}</td>` +
-											   `<td>${remarksText}</td>` +
-											   '</tr>';
-							});
+                htmlContent += '<tr>' +
+                               `<td>${gl_posting.account}</td>` +
+							   `<td>${remarksText}</td>` +
+                               `<td style="text-align: right;">${debitAmount}</td>` +
+                               `<td style="text-align: right;">${creditAmount}</td>` +
+							   `<td>${gl_posting.party}</td>` +
+                               `<td>${gl_posting.against_account}</td>` +                               
+                               `<td>${gl_posting.project}</td>` +
+                               `<td>${gl_posting.cost_center}</td>` +
+                               
+                               '</tr>';
+            });
+
+            // Add totals row
+            htmlContent += '<tr>' +
+                           '<td style="font-weight: bold;">Total</td>' +
+						   '<td></td>'+
+                           `<td style="text-align: right; font-weight: bold;">${totalDebit}</td>` +
+                           `<td style="text-align: right; font-weight: bold;">${totalCredit}</td>` +
+                           '<td colspan="5"></td>' +
+                           '</tr>';
 
             htmlContent += '</tbody></table></div>';
 
@@ -780,28 +933,10 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '90%'); 
 
             d.show();
         }
     });
 };
 
-
-frappe.ui.form.on("Receipt Entry",{
-    refresh: function(frm){
-        let prev_customer = localStorage.getItem('prev_customer')
-        let prev_project = localStorage.getItem('prev_project')
-        
-        if(prev_customer && prev_project){
-            console.log("Receipt Entry With Custom Data.")
-			frm.set_df_property("advance_section_break","hidden",0);
-            frm.set_value('project', prev_project);
-            frm.set_value('customer', prev_customer);
-            frm.set_value('advance_payment',1)
-        }
-		localStorage.removeItem('prev_customer');
-		localStorage.removeItem('prev_project');
-
-    }
-})

@@ -1,0 +1,199 @@
+{
+ "charts": [
+  {
+   "chart_name": "Project Value Chart",
+   "label": "Project Value Chart"
+  },
+  {
+   "chart_name": "Project Progress Chart",
+   "label": "Project Progress Chart"
+  }
+ ],
+ "content": "[{\"id\":\"Z3ScddYkvE\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Services</span>\",\"col\":12}},{\"id\":\"F9KxVVqBrk\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Project Value Chart\",\"col\":6}},{\"id\":\"YbATnkfHO1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Project Progress Chart\",\"col\":6}},{\"id\":\"3GumFqOZZD\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"l-yoce0y4e\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"0oy2jQmjo_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Project Progress Report\",\"col\":3}},{\"id\":\"vOW0x4PWC5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Budget Vs Actual Report\",\"col\":3}},{\"id\":\"wbGY5kPPTz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Project Profitability Report\",\"col\":3}},{\"id\":\"aAS0qOXIOA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Projectwise Labour Report\",\"col\":3}},{\"id\":\"Cfyi3uQK-o\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"ftnPZIaAeV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Projectwise Material Issue Report\",\"col\":3}}]",
+ "creation": "2024-10-12 10:38:26.166159",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "solid-success",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Services",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 11,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Enquiry",
+   "link_count": 0,
+   "link_to": "Enquiry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "BOQ",
+   "link_count": 0,
+   "link_to": "BOQ",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Estimate",
+   "link_count": 0,
+   "link_to": "Estimate",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quotation",
+   "link_count": 0,
+   "link_to": "Quotation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Order",
+   "link_count": 0,
+   "link_to": "Sales Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Project",
+   "link_count": 0,
+   "link_to": "Project",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Budget",
+   "link_count": 0,
+   "link_to": "Budget",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "BOQ Execution",
+   "link_count": 0,
+   "link_to": "BOQ Execution",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Work Order",
+   "link_count": 0,
+   "link_to": "Work Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Timesheet Entry",
+   "link_count": 0,
+   "link_to": "Timesheet Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Material Issue",
+   "link_count": 0,
+   "link_to": "Material Issue",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-05-31 12:24:46.335195",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Services",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 8.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Projectwise Labour Report",
+   "link_to": "Projectwise Labour Report",
+   "report_ref_doctype": "Timesheet Entry",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Project Profitability Report",
+   "link_to": "Project Profitability Report",
+   "report_ref_doctype": "Project",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Projectwise Material Issue Report",
+   "link_to": "Projectwise Material Issue Report",
+   "report_ref_doctype": "Material Issue",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Budget Vs Actual Report",
+   "link_to": "Budget Vs Actual Report",
+   "report_ref_doctype": "Budget",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Project Progress Report",
+   "link_to": "Project Progress Report",
+   "report_ref_doctype": "Project",
+   "type": "Report"
+  }
+ ],
+ "title": "Services"
+}

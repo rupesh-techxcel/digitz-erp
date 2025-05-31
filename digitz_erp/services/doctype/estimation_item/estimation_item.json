@@ -1,0 +1,247 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-01 11:30:33.108940",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "description",
+  "item_name",
+  "item_group",
+  "item_group_description",
+  "width_meter",
+  "height_meter",
+  "quantity",
+  "area",
+  "perimeter",
+  "unit",
+  "column_break_pxxj",
+  "raw_cost",
+  "finished_cost",
+  "labour_cost",
+  "fixed_amount",
+  "boq_rate",
+  "boq_amount",
+  "idx",
+  "labour_and_materials",
+  "section_break_oawv",
+  "overhead_amount",
+  "profit_amount",
+  "column_break_blir",
+  "selling_sum",
+  "rate",
+  "ratem2",
+  "click_btn"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "item.description",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "item_group_description",
+   "fieldtype": "Small Text",
+   "label": "Item Group Description"
+  },
+  {
+   "columns": 1,
+   "fieldname": "width_meter",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Width (meter) ",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "height_meter",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Height (meter)",
+   "precision": "2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "precision": "2"
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Float",
+   "label": "Area (width x height)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "perimeter",
+   "fieldtype": "Float",
+   "label": "Perimeter (2 x width + 2 x height)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "item.base_unit",
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "label": "Unit",
+   "options": "Unit"
+  },
+  {
+   "fieldname": "column_break_pxxj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "raw_cost",
+   "fieldtype": "Currency",
+   "label": "Raw Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finished_cost",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Finished Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "labour_cost",
+   "fieldtype": "Currency",
+   "label": "Labour Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fixed_amount",
+   "fieldtype": "Currency",
+   "label": "Fixed Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "boq_rate",
+   "fieldtype": "Currency",
+   "label": "BOQ Rate"
+  },
+  {
+   "fieldname": "boq_amount",
+   "fieldtype": "Currency",
+   "label": "BOQ Amount"
+  },
+  {
+   "fieldname": "idx",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Idx",
+   "read_only": 1
+  },
+  {
+   "fieldname": "labour_and_materials",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Labour And Materials",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_oawv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "overhead_amount",
+   "fieldtype": "Currency",
+   "label": "Overhead Amount ",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "profit_amount",
+   "fieldtype": "Currency",
+   "label": "Profit Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_blir",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "selling_sum",
+   "fieldtype": "Currency",
+   "label": "Selling Sum",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ratem2",
+   "fieldtype": "Currency",
+   "label": "Rate/m2",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "click_btn",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "M & L"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:16:10.934062",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Estimation Item",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

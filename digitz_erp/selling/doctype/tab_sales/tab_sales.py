@@ -7,6 +7,7 @@ from frappe.utils import now
 from frappe.model.document import Document
 from datetime import datetime,timedelta
 from digitz_erp.api.settings_api import get_default_company
+from digitz_erp.api.settings_api import add_seconds_to_time
 
 
 class TabSales (Document):
@@ -14,20 +15,12 @@ class TabSales (Document):
     def Voucher_In_The_Same_Time(self):
         possible_invalid= frappe.db.count('Tab Sales', {'posting_date': ['=', self.posting_date], 'posting_time':['=', self.posting_time]})
         return possible_invalid
-
+        
     def Set_Posting_Time_To_Next_Second(self):
-
-        datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
-
-        # Add one second to the datetime object
-        new_datetime = datetime_object + timedelta(seconds=1)
-
-        # Extract the new time as a string
-        self.posting_time = new_datetime.strftime('%H:%M:%S')
+        # Add 12 seconds to self.posting_time and update it
+        self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
     def before_validate(self):
-
-       
 
         # When duplicating the voucher user may not remember to change the date and time. So do not allow to save the voucher to be
         # posted on the same time with any of the existing vouchers. This also avoid invalid selection to calculate moving average value
@@ -73,7 +66,7 @@ class TabSales (Document):
 
         for docitem in self.items:
 
-            print(docitem.item)
+            #print(docitem.item)
 
             # previous_stocks = frappe.db.get_value('Stock Ledger', {'item':docitem.item,'warehouse': docitem.warehouse , 'posting_date':['<', posting_date_time]},['name', 'balance_qty', 'balance_value','valuation_rate'],order_by='posting_date desc', as_dict=True)
 
@@ -91,7 +84,7 @@ class TabSales (Document):
     def validate(self):
         self.validate_item()
         # self.validate_item_valuation_rates()
-    
+       
     def validate_item_valuation_rates(self):
         
         posting_date_time = get_datetime(str(self.posting_date) + " " + str(self.posting_time))
@@ -133,24 +126,24 @@ class TabSales (Document):
         #     sales_invoice_doc.delete()
         #     do_exists = 1
 
-        print("self.name")
-        print(self.name)
+        #print("self.name")
+        #print(self.name)
 
         sales_invoice = frappe.db.get_value('Sales Invoice',{'tab_sales': self.name}, ['name'])
 
-        print("sales_invoice")
-        print(sales_invoice)
+        #print("sales_invoice")
+        #print(sales_invoice)
 
         if(sales_invoice):
 
         # if frappe.db.exists('Sales Invoice', {'tab_sales': self.name}):
             sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})
 
-            print("sales invoice found")
-            print(sales_invoice)
+            #print("sales invoice found")
+            #print(sales_invoice)
             # sales_invoice = frappe.get_doc
             # delivery_note_doc.delete()
-            # print("delivery note deleted")
+            # #print("delivery note deleted")
 
             sales_invoice.customer = self.customer
             sales_invoice.customer_name = self.customer_name
@@ -237,6 +230,12 @@ class TabSales (Document):
                 sales_invoice_item.discount_amount = item.discount_amount
                 sales_invoice_item.net_amount = item.net_amount
                 sales_invoice_item.unit_conversion_details = item.unit_conversion_details
+
+                sales_invoice_item.rate_print = "{:.2f}".format(item.rate)  
+                sales_invoice_item.amount_print = "{:.2f}".format(item.gross_amount)
+                sales_invoice_item.tax_amount_print = "{:.2f}".format(item.tax_amount)
+                sales_invoice_item.total_amount_print = "{:.2f}".format(item.net_amount)  
+
                 sales_invoice_item.idx = idx
 
                 sales_invoice.append('items', sales_invoice_item)
@@ -278,13 +277,13 @@ class TabSales (Document):
     # def cancel_sales_invoice(self):
 
     #     sales_invoice = frappe.get_doc('Sales Invoice', {'tab_sales':self.name})
-    #     print("tab_sales=>sales_invoice")
-    #     print(sales_invoice)
+    #     #print("tab_sales=>sales_invoice")
+    #     #print(sales_invoice)
     #     sales_invoice.cancel()
 
 @frappe.whitelist()
 def get_user_warehouse():
     user = frappe.session.user
     user_warehouse = frappe.db.get_value('User Warehouse', {'user': user}, 'warehouse')
-    print(user_warehouse)
+    #print(user_warehouse)
     return user_warehouse

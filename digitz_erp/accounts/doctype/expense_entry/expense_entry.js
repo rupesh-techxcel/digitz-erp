@@ -2,10 +2,17 @@
 // For license information, please see license.
 frappe.ui.form.on('Expense Entry', {
 
+  show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
   onload: function(frm)
   {
-    assign_defaults(frm);
-    fill_payment_schedule(frm);
+    assign_defaults(frm);     
   },
 
   refresh: function(frm) {
@@ -130,11 +137,33 @@ frappe.ui.form.on('Expense Entry', {
   {
     fill_payment_schedule(frm)
   },
+  work_order:function(frm){
 
+    if(frm.doc.work_order !=undefined)
+      {
+        frappe.call({
+          method: 'frappe.client.get_value',
+          args: {
+            'doctype': 'Work Order',
+            'filter':{'name':frm.doc.work_order},
+            'fieldname': 'project'
+          },
+          callback: (r) => {
+            project = r.message.project
+            frm.set_value('project',project);            
+          }
+          });
+      }
+  },
 });
 
 frappe.ui.form.on('Expense Entry Details',{
 
+  expense_account:function(frm,cdt,cdn)
+  {
+      check_budget_utilization(frm, cdt, cdn,"Account");
+      
+  },
   amount: function(frm, cdt, cdn){
 
     console.log("amount")
@@ -418,68 +447,139 @@ function set_payment_visibility(frm)
   }
   
   let general_ledgers = function (frm) {
-      frappe.call({
-          method: "digitz_erp.api.accounts_api.get_gl_postings",
-          args: {
-        voucher: frm.doc.doctype,
-              voucher_no: frm.doc.name
-          },
-          callback: function (response) {
-              let gl_postings = response.message;
-  
-              // Generate HTML content for the popup
-              let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
-                                '<table class="table table-bordered" style="width: 100%;">' +
-                                '<thead>' +
-                                '<tr>' +
-                                '<th style="width: 20%;">Account</th>' +
-                                '<th style="width: 15%;">Debit Amount</th>' +
-                                '<th style="width: 15%;">Credit Amount</th>' +
-                                '<th style="width: 25%;">Against Account</th>' +
-                                '<th style="width: 25%;">Remarks</th>' +
-                                '</tr>' +
-                                '</thead>' +
-                                '<tbody>';
-  
-                  gl_postings.forEach(function (gl_posting) {
-                  // Handling null values for remarks
-                  let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
-                
-                  // Ensure debit_amount and credit_amount are treated as floats and format them
-                  let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
-                  let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
-                
-                  htmlContent += '<tr>' +
-                           `<td>${gl_posting.account}</td>` +
-                           `<td style="text-align: right;">${debitAmount}</td>` +
-                           `<td style="text-align: right;">${creditAmount}</td>` +
-                           `<td>${gl_posting.against_account}</td>` +
-                           `<td>${remarksText}</td>` +
+    frappe.call({
+        method: "digitz_erp.api.accounts_api.get_gl_postings",
+        args: {
+            voucher: frm.doc.doctype,
+            voucher_no: frm.doc.name
+        },
+        callback: function (response) {
+            let gl_postings = response.message.gl_postings;
+            let totalDebit = parseFloat(response.message.total_debit).toFixed(2);
+            let totalCredit = parseFloat(response.message.total_credit).toFixed(2);
+
+            // Generate HTML content for the popup
+            let htmlContent = '<div style="max-height: 680px; overflow-y: auto;">' +
+                              '<table class="table table-bordered" style="width: 100%;">' +
+                              '<thead>' +
+                              '<tr>' +
+                              '<th style="width: 15%;">Account</th>' +
+							  '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 10%;">Debit Amount</th>' +
+                              '<th style="width: 10%;">Credit Amount</th>' +
+							  '<th style="width: 10%;">Party</th>' +
+                              '<th style="width: 10%;">Against Account</th>' +                              
+                              '<th style="width: 10%;">Project</th>' +
+                              '<th style="width: 10%;">Cost Center</th>' +                              
+                              '</tr>' +
+                              '</thead>' +
+                              '<tbody>';
+
+			console.log("gl_postings",gl_postings)
+
+            gl_postings.forEach(function (gl_posting) {
+                let remarksText = gl_posting.remarks || '';
+                let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+                let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+
+                htmlContent += '<tr>' +
+                               `<td>${gl_posting.account}</td>` +
+							   `<td>${remarksText}</td>` +
+                               `<td style="text-align: right;">${debitAmount}</td>` +
+                               `<td style="text-align: right;">${creditAmount}</td>` +
+							   `<td>${gl_posting.party}</td>` +
+                               `<td>${gl_posting.against_account}</td>` +                               
+                               `<td>${gl_posting.project}</td>` +
+                               `<td>${gl_posting.cost_center}</td>` +
+                               
+                               '</tr>';
+            });
+
+            // Add totals row
+            htmlContent += '<tr>' +
+                           '<td style="font-weight: bold;">Total</td>' +
+						   '<td></td>'+
+                           `<td style="text-align: right; font-weight: bold;">${totalDebit}</td>` +
+                           `<td style="text-align: right; font-weight: bold;">${totalCredit}</td>` +
+                           '<td colspan="5"></td>' +
                            '</tr>';
-                });
+
+            htmlContent += '</tbody></table></div>';
+
+            // Create and show the dialog
+            let d = new frappe.ui.Dialog({
+                title: 'General Ledgers',
+                fields: [{
+                    fieldtype: 'HTML',
+                    fieldname: 'general_ledgers_html',
+                    options: htmlContent
+                }],
+                primary_action_label: 'Close',
+                primary_action: function () {
+                    d.hide();
+                }
+            });
+
+            // Set custom width for the dialog
+            d.$wrapper.find('.modal-dialog').css('max-width', '90%'); 
+
+            d.show();
+        }
+    });
+};
   
-              htmlContent += '</tbody></table></div>';
+function check_budget_utilization(frm, cdt, cdn, reference_type) {
+  const row = frappe.get_doc(cdt, cdn);
+
+  // Ensure the item field is filled before proceeding
+  if (!row.expense_account) {
+      return;
+  }
+
+  console.log("project",frm.doc.project)
   
-              // Create and show the dialog
-              let d = new frappe.ui.Dialog({
-                  title: 'General Ledgers',
-                  fields: [{
-                      fieldtype: 'HTML',
-                      fieldname: 'general_ledgers_html',
-                      options: htmlContent
-                  }],
-                  primary_action_label: 'Close',
-                  primary_action: function () {
-                      d.hide();
-                  }
+  // Call server method to get budget details
+  frappe.call({
+      method: "digitz_erp.api.accounts_api.get_balance_budget_value",
+      args: {
+          reference_type: reference_type,
+          reference_value: row.expense_account,
+          transaction_date: frm.doc.transaction_date || frappe.datetime.nowdate(),
+          company: frm.doc.company,
+          project: frm.doc.project || null,
+          cost_center: frm.doc.cost_center || null
+      },
+      callback: function (response) {
+          if (response && response.message) {
+              const result = response.message;
+
+              // Log the response for debugging
+              console.log("Budget Result:", result);
+
+              if (!result.no_budget) {
+                  // Display budget details if available
+                  const details = result.details || {};
+                  const budgetMessage = `
+                      <strong>Budget Against:</strong> ${details["Budget Against"] || "N/A"}<br>
+                      <strong>Reference Type:</strong> ${details["Reference Type"] || "N/A"}<br>
+                      <strong>Budget Amount:</strong> ${details["Budget Amount"] || 0}<br>
+                      <strong>Utilized Amount:</strong> ${details["Used Amount"] || 0}<br>
+                      <strong>Remaining Balance:</strong> ${details["Available Balance"] || 0}
+                  `;
+
+                  // Custom method to display the message (replace with your own if needed)
+                 
+                  frm.events.show_a_message(frm,budgetMessage);
+                  
+              }
+          } else {
+              // Handle case where no response is received
+              frappe.msgprint({
+                  title: __("Error"),
+                  indicator: "red",
+                  message: __("No response received from the server.")
               });
-  
-              // Set custom width for the dialog
-              d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
-  
-              d.show();
           }
-      });
-  };
-  
-  
+      }
+  });
+}

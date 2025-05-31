@@ -1,0 +1,165 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-01-21 08:56:27.047370",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_prjy",
+  "naming_series",
+  "amended_from",
+  "purpose",
+  "sub_contracting_order",
+  "material_issue",
+  "column_break_gdxw",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "column_break_topj",
+  "remarks",
+  "warehouse",
+  "column_break_weck",
+  "company",
+  "project",
+  "section_break_mvbb",
+  "items"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_prjy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "STKE-.YYYY.-"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Stock Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "Sub Contracting Material Receipt"
+  },
+  {
+   "depends_on": "eval:doc.purpose == \"Sub Contracting Material Receipt\"",
+   "fieldname": "sub_contracting_order",
+   "fieldtype": "Link",
+   "label": "Sub Contracting Order",
+   "link_filters": "[[\"Sub Contracting Order\",\"status\",\"=\",\"In Process\"],[\"Sub Contracting Order\",\"docstatus\",\"=\",\"1\"]]",
+   "options": "Sub Contracting Order"
+  },
+  {
+   "fieldname": "material_issue",
+   "fieldtype": "Link",
+   "label": "Material Issue",
+   "options": "Material Issue"
+  },
+  {
+   "fieldname": "column_break_gdxw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date and Time"
+  },
+  {
+   "fieldname": "column_break_topj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_weck",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "section_break_mvbb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "\nItems should not be added manually; they should be automatically populated when the 'Create Stock Entry' button is clicked. You may delete a row or adjust the quantity to be less than the auto-populated amount, but do not add new rows.",
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Stock Entry Item"
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:22:28.044032",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Stock Entry",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

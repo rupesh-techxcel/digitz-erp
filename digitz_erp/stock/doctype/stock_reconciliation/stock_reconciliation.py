@@ -422,23 +422,6 @@ class StockReconciliation(Document):
             update_posting_status(self.doctype,self.name,'gl_posted')
 
 @frappe.whitelist()
-def get_gl_postings(stock_reconciliation):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": stock_reconciliation},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings
-
-@frappe.whitelist()
 def get_stock_ledgers(stock_reconciliation):
     stock_ledgers = frappe.get_all("Stock Ledger",
                                     filters={"voucher_no": stock_reconciliation},

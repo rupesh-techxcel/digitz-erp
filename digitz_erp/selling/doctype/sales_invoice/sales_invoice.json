@@ -10,67 +10,72 @@
  "engine": "InnoDB",
  "field_order": [
   "naming_series",
+  "sales_inv_no",
   "customer",
+  "customer_balance",
+  "column_break_6",
   "customer_name",
   "customer_display_name",
-  "customer_balance",
-  "customer_address",
-  "tax_id",
-  "column_break_6",
+  "warehouse",
+  "column_break_4",
   "posting_date",
   "posting_time",
   "edit_posting_date_and_time",
-  "ship_to_location",
-  "location_to_print",
-  "salesman",
-  "salesman_code",
-  "warehouse",
-  "default_cost_center",
-  "column_break_4",
-  "price_list",
-  "rate_includes_tax",
-  "update_stock",
-  "update_rates_in_price_list",
-  "created_from_tab_sale",
   "column_break_bufh",
   "company",
   "company_tax_id",
+  "remarks",
+  "more_details_section",
+  "customer_address",
+  "tax_id",
+  "default_cost_center",
+  "ship_to_location",
+  "location_to_print",
+  "column_break_arcq",
+  "update_stock",
+  "salesman",
+  "salesman_code",
+  "reference_no",
+  "reference_date",
+  "column_break_wupz",
+  "rate_includes_tax",
+  "price_list",
+  "cost_center",
+  "update_rates_in_price_list",
+  "payment_status",
+  "column_break_lpap",
   "lpo_no",
   "lpo_date",
-  "payment_status",
-  "submitted_record",
-  "project_stage_details_section",
-  "project",
-  "stage_proforma_invoice",
+  "created_from_tab_sale",
+  "advance_received_with_sales_order",
   "allocated_receipt_entry",
+  "project_section",
+  "project",
+  "project_value",
+  "column_break_iyei",
+  "for_advance_payment",
+  "advance_percentage",
+  "column_break_hpkf",
+  "for_retention_recovery",
+  "column_break_leiv",
   "accounts_section",
   "credit_sale",
   "credit_days",
+  "column_break_bfep",
   "payment_mode",
   "mode",
   "payment_account",
-  "column_break_bfep",
-  "payment_terms",
   "column_break_zjj2",
-  "reference_no",
-  "reference_date",
+  "payment_terms",
   "column_break_yacz",
-  "remarks",
   "section_break_19",
   "items",
-  "item_table",
   "section_break_29",
   "selected_item_stock_qty_in_the_warehouse",
   "column_break_30",
   "item_units",
   "column_break_uozz",
   "amended_from",
-  "billing_details_section",
-  "invoice_amount",
-  "deduction_for_retentation",
-  "column_break_zrqa",
-  "deduction_for_advance",
-  "net_amount",
   "section_break_25",
   "gross_total",
   "tax_total",
@@ -80,13 +85,12 @@
   "additional_discount",
   "in_words",
   "column_break_33",
-  "round_off",
+  "net_amount",
   "rounded_total",
+  "round_off",
   "paid_amount",
   "column_break_zvur",
   "total_big",
-  "section_break_33",
-  "taxes",
   "terms_and_conditions_section",
   "terms",
   "terms_and_conditions",
@@ -103,7 +107,9 @@
   "country",
   "quotation",
   "receipt_schedule_tab",
-  "receipt_schedule"
+  "receipt_schedule",
+  "import",
+  "external"
  ],
  "fields": [
   {
@@ -190,7 +196,8 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Sales Invoice Item"
+   "options": "Sales Invoice Item",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_29",
@@ -263,17 +270,6 @@
    "fieldtype": "Currency",
    "label": "Rounded Total",
    "read_only": 1
-  },
-  {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "taxes",
-   "fieldtype": "Table",
-   "hidden": 1,
-   "label": "Taxes",
-   "options": "Purchase Invoice Tax"
   },
   {
    "fieldname": "terms_and_conditions_section",
@@ -595,12 +591,6 @@
    "fieldtype": "HTML"
   },
   {
-   "default": "0",
-   "fieldname": "submitted_record",
-   "fieldtype": "Check",
-   "label": "Submitted Record"
-  },
-  {
    "description": "This is a duplicate field for ship_to_location and getting saved from the server side. It is added because of 'Customer Delivery Location' is a child table for customer and cannot have access here",
    "fieldname": "location_to_print",
    "fieldtype": "Data",
@@ -609,70 +599,15 @@
    "read_only": 1
   },
   {
-   "fieldname": "project_stage_details_section",
-   "fieldtype": "Section Break",
-   "label": "Project & Stage Details"
-  },
-  {
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
-   "options": "Project",
-   "read_only": 1
-  },
-  {
-   "fieldname": "stage_proforma_invoice",
-   "fieldtype": "Link",
-   "label": "Stage Proforma Invoice",
-   "options": "Proforma Invoice",
-   "read_only": 1
+   "options": "Project"
   },
   {
    "fieldname": "allocated_receipt_entry",
    "fieldtype": "Data",
    "label": "Allocated Receipt Entry",
-   "read_only": 1
-  },
-  {
-   "fieldname": "item_table",
-   "fieldtype": "Table",
-   "label": "Item Table",
-   "options": "Proforma Invoice Table"
-  },
-  {
-   "fieldname": "billing_details_section",
-   "fieldtype": "Section Break",
-   "label": "Billing Details"
-  },
-  {
-   "fetch_from": "stage_proforma_invoice.invoice_amount",
-   "fieldname": "invoice_amount",
-   "fieldtype": "Currency",
-   "label": "Invoice Amount",
-   "non_negative": 1,
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "stage_proforma_invoice.deduction_for_retentation",
-   "fieldname": "deduction_for_retentation",
-   "fieldtype": "Currency",
-   "label": "Deduction For Retentation",
-   "non_negative": 1,
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_zrqa",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "stage_proforma_invoice.deduction_for_advance",
-   "fieldname": "deduction_for_advance",
-   "fieldtype": "Currency",
-   "label": "Deduction For Advance",
-   "non_negative": 1,
-   "precision": "2",
    "read_only": 1
   },
   {
@@ -683,6 +618,105 @@
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "for_advance_payment",
+   "fieldtype": "Check",
+   "label": "For Advance Payment",
+   "read_only_depends_on": "eval:doc.project == undefined"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "default": "0",
+   "fieldname": "for_retention_recovery",
+   "fieldtype": "Check",
+   "label": "For retention recovery",
+   "read_only_depends_on": "eval:doc.project == undefined"
+  },
+  {
+   "depends_on": "eval:doc.for_advance_payment",
+   "fieldname": "advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Advance Percentage",
+   "precision": "0"
+  },
+  {
+   "depends_on": "eval:doc.for_advance_payment",
+   "fieldname": "project_value",
+   "fieldtype": "Currency",
+   "label": "Project Gross Value"
+  },
+  {
+   "default": "0",
+   "fieldname": "advance_received_with_sales_order",
+   "fieldtype": "Check",
+   "label": "Advance Received With Sales Order",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "more_details_section",
+   "fieldtype": "Section Break",
+   "label": "More Details"
+  },
+  {
+   "fieldname": "column_break_arcq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wupz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_lpap",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "project_section",
+   "fieldtype": "Section Break",
+   "label": "Project"
+  },
+  {
+   "fieldname": "column_break_iyei",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hpkf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_leiv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "To be used for data importing",
+   "fieldname": "import",
+   "fieldtype": "Check",
+   "label": "Import",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "To be used for data insertion with API",
+   "fieldname": "external",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "External",
+   "read_only": 1
+  },
+  {
+   "description": "This field allows you to override the automatically generated Sales Invoice Number.",
+   "fieldname": "sales_inv_no",
+   "fieldtype": "Data",
+   "label": "Sales Inv No"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -703,7 +737,7 @@
    "table_fieldname": "receipt_allocation"
   }
  ],
- "modified": "2024-08-06 12:55:13.918451",
+ "modified": "2025-04-21 14:14:37.909894",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Invoice",

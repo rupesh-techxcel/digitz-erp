@@ -18,7 +18,6 @@
   "tax_id",
   "column_break_9",
   "company_logo",
-  "company_logo_display",
   "default_currency",
   "default_bank_account",
   "bank_ac_print_details",
@@ -41,45 +40,81 @@
   "tax_type",
   "tax",
   "tax_account",
-  "rate_includes_tax",
   "do_not_apply_round_off_in_si",
   "column_break_23",
   "accounts_settings",
+  "default_income_account",
+  "cost_of_goods_sold_account",
+  "default_work_in_progress_account",
+  "default_labour_cost_payable_account",
+  "default_product_expense_account",
+  "retention_receivable_account",
+  "project_advance_received_account",
+  "default_advance_billed_but_not_received_account",
+  "column_break_jltm",
   "default_payable_account",
   "default_receivable_account",
   "stock_received_but_not_billed",
   "default_inventory_account",
   "round_off_account",
-  "default_income_account",
-  "cost_of_goods_sold_account",
   "stock_adjustment_account",
-  "column_break_jltm",
+  "column_break_zaxv",
+  "default_asset_location",
   "default_payment_mode_for_purchase",
   "default_payment_mode_for_sales",
-  "default_credit_purchase",
   "default_credit_sale",
-  "default_asset_location",
+  "default_credit_purchase",
+  "rate_includes_tax",
+  "estimate",
+  "use_percentage_for_overheads_in_estimate",
+  "use_generic_items_for_material_and_labour",
+  "width_height_applicable_in_estimate",
   "advance_payments_section",
   "default_advance_received_account",
   "column_break_bggm",
   "default_advance_paid_account",
+  "project_tab",
+  "project_configuration",
+  "project_maximum_allowable_budget",
   "terms_and_conditions_tab",
   "supplier_terms",
   "section_break_39",
   "customer_terms",
   "system_tab",
-  "material_receipt_integrated_with_purchase",
-  "delivery_note_integrated_with_sales_invoice"
+  "sales_and_delivery_note",
+  "delivery_note_integrated_with_sales_invoice",
+  "allow_edit_sales_invoice_no",
+  "estimate_and_boq",
+  "use_custom_item_group_description_in_estimation",
+  "overheads_based_on_percentage",
+  "allow_estimated_items_budgeting",
+  "boq_with_manual_item_selection",
+  "allow_purchase_with_dimensions",
+  "allow_purchase_with_dimensions_2",
+  "enquiry_selection_in_quotation",
+  "column_break_bezg",
+  "customer_data_validation",
+  "customer_area_required",
+  "customer_address_required",
+  "customer_mobile_required",
+  "customer_email_required",
+  "customer_trn_required",
+  "emirate_required",
+  "section_break_bfse",
+  "utility_services",
+  "refresh_account_balances"
  ],
  "fields": [
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
+   "in_list_view": 1,
    "label": "Address"
   },
   {
    "fieldname": "phone",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Phone"
   },
   {
@@ -113,11 +148,6 @@
    "label": "Company Logo"
   },
   {
-   "fieldname": "company_logo_display",
-   "fieldtype": "Image",
-   "label": "Company Logo Display"
-  },
-  {
    "fieldname": "inventory_settings_tab",
    "fieldtype": "Tab Break",
    "label": "Inventory & Price Settings"
@@ -143,7 +173,7 @@
   {
    "fieldname": "company_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Company Name",
    "reqd": 1,
    "unique": 1
@@ -151,6 +181,7 @@
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Email",
    "options": "Email"
   },
@@ -227,13 +258,6 @@
    "label": "System"
   },
   {
-   "default": "1",
-   "fieldname": "material_receipt_integrated_with_purchase",
-   "fieldtype": "Check",
-   "label": "Material Receipt Integrated With Purchase",
-   "read_only": 1
-  },
-  {
    "fetch_from": "tax.account",
    "fieldname": "tax_account",
    "fieldtype": "Data",
@@ -296,8 +320,8 @@
    "description": "Automatically generate Delivery Note when saving Sales Invoice",
    "fieldname": "delivery_note_integrated_with_sales_invoice",
    "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Delivery Note Integrated with Sales Invoice"
+   "label": "Delivery Note Integrated with Sales Invoice",
+   "permlevel": 1
   },
   {
    "fieldname": "stock_adjustment_account",
@@ -439,11 +463,233 @@
    "fieldtype": "Link",
    "label": "Default Advance Paid Account ",
    "options": "Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_custom_item_group_description_in_estimation",
+   "fieldtype": "Check",
+   "label": "Use Custom Item Group Description in Estimation",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "default_product_expense_account",
+   "fieldtype": "Link",
+   "label": "Default Product Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_zaxv",
+   "fieldtype": "Column Break",
+   "label": "Other Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_percentage_for_overheads_in_estimate",
+   "fieldtype": "Check",
+   "label": "Use percentage for overheads in estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "overheads_based_on_percentage",
+   "fieldtype": "Check",
+   "label": "Estimate Overheads calculation based on percentage",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "estimate",
+   "fieldtype": "Heading",
+   "label": "Estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_generic_items_for_material_and_labour",
+   "fieldtype": "Check",
+   "label": "Use generic items as default for material and labour"
+  },
+  {
+   "fieldname": "default_work_in_progress_account",
+   "fieldtype": "Link",
+   "label": "Default Work In Progress Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"account_type\",\"=\",\"Work In Progress\"]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_labour_cost_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Labour Cost Payable Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"root_type\",\"=\",\"Liability\"]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "retention_receivable_account",
+   "fieldtype": "Link",
+   "label": "Retention Receivable Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"account_type\",\"=\",\"Retention Receivable\"]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "project_advance_received_account",
+   "fieldtype": "Link",
+   "label": "Project Advance Received Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"root_type\",\"=\",\"Liability\"]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_advance_billed_but_not_received_account",
+   "fieldtype": "Link",
+   "label": "Default Advance Billed But Not Received Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"account_type\",\"=\",\"Advance Billed But Not Received\"]]",
+   "options": "Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "width_height_applicable_in_estimate",
+   "fieldtype": "Check",
+   "label": "Width and height applicable in estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_estimated_items_budgeting",
+   "fieldtype": "Check",
+   "label": "Allow estimated item to be budgeted",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "boq_with_manual_item_selection",
+   "fieldtype": "Check",
+   "label": "BOQ with manual item selection in the Progress Entry",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_purchase_with_dimensions",
+   "fieldtype": "Check",
+   "label": "Allow Purchase with dimensions (Glass)",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_purchase_with_dimensions_2",
+   "fieldtype": "Check",
+   "label": "Allow Purchase with dimensions 2 (Aluminium Profile)",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enquiry_selection_in_quotation",
+   "fieldtype": "Check",
+   "label": "Enquiry selection in Quotation (As default)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "column_break_bezg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_data_validation",
+   "fieldtype": "Heading",
+   "label": "Customer Data Validation",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "description": "Enable this checkbox if you want to treat the same customer with multiple locations as separate entities",
+   "fieldname": "customer_area_required",
+   "fieldtype": "Check",
+   "label": "Area mandatory",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "customer_address_required",
+   "fieldtype": "Check",
+   "label": "Address mandatory",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "customer_mobile_required",
+   "fieldtype": "Check",
+   "label": "Mobile Mandatory",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "customer_email_required",
+   "fieldtype": "Check",
+   "label": "Email mandatory",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "customer_trn_required",
+   "fieldtype": "Check",
+   "label": "TRN No mandatory",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "emirate_required",
+   "fieldtype": "Check",
+   "label": "Emirate Mandatory",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "project_tab",
+   "fieldtype": "Tab Break",
+   "label": "Project"
+  },
+  {
+   "fieldname": "project_configuration",
+   "fieldtype": "Heading",
+   "label": "Project Configuration"
+  },
+  {
+   "default": "90",
+   "fieldname": "project_maximum_allowable_budget",
+   "fieldtype": "Percent",
+   "label": "Maximum allowable budget based on the estimate (Percentage)",
+   "precision": "0"
+  },
+  {
+   "fieldname": "estimate_and_boq",
+   "fieldtype": "Heading",
+   "label": "Estimate and BOQ",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "sales_and_delivery_note",
+   "fieldtype": "Heading",
+   "label": "Sales and Delivery Note",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_edit_sales_invoice_no",
+   "fieldtype": "Check",
+   "label": "Allow edit Sales Invoice No",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "section_break_bfse",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "utility_services",
+   "fieldtype": "Heading",
+   "label": "Utility Services"
+  },
+  {
+   "fieldname": "refresh_account_balances",
+   "fieldtype": "Button",
+   "label": "Refresh Account Balances"
   }
  ],
+ "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-09 09:24:58.402694",
+ "modified": "2025-05-25 09:53:49.908869",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
@@ -463,6 +709,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

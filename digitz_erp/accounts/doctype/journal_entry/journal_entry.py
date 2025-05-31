@@ -33,22 +33,3 @@ class JournalEntry(Document):
 
 		# for account in accounts:
 		#   	update_account_balance(account)
-
-
-
-@frappe.whitelist()
-def get_gl_postings(journal_entry):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": journal_entry},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings

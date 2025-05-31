@@ -36,6 +36,8 @@ def delete_gl_postings_for_cancel_doc_type(doc_type,name):
 @frappe.whitelist()
 def update_all_account_balances():
     
+    print("Start Execution")
+    
     query = """
             SELECT account_name from `tabAccount` where is_group = 0
             """
@@ -45,16 +47,18 @@ def update_all_account_balances():
         update_account_balance(d.account_name)
         
     update_all_parent_accounts()
+    
+    print("End execution")
 
 @frappe.whitelist()    
 def update_all_parent_accounts():
-    print("Asset data updation")
+    #print("Asset data updation")
     update_all_parent_accounts_for_the_root_type("Asset")
-    print("Liability data updation")
+    #print("Liability data updation")
     update_all_parent_accounts_for_the_root_type("Liability")
-    print("Income data updation")
+    #print("Income data updation")
     update_all_parent_accounts_for_the_root_type("Income")
-    print("Expense data updation")
+    #print("Expense data updation")
     update_all_parent_accounts_for_the_root_type("Expense")
         
 @frappe.whitelist()

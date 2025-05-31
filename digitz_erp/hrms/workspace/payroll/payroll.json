@@ -1,0 +1,170 @@
+{
+ "charts": [
+  {
+   "chart_name": "Attendance Chart",
+   "label": "Attendance Chart"
+  },
+  {
+   "chart_name": "Salary Chart",
+   "label": "Salary Chart"
+  },
+  {
+   "chart_name": "Employee Leave Chart",
+   "label": "Employee Leave Chart"
+  }
+ ],
+ "content": "[{\"id\":\"RXtp6VxIxd\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Payroll</span>\",\"col\":12}},{\"id\":\"PWNVedvCWT\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Attendance Chart\",\"col\":6}},{\"id\":\"bwSkS9pHi-\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Employee Leave Chart\",\"col\":6}},{\"id\":\"GmmHtAz3st\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Salary Chart\",\"col\":12}},{\"id\":\"Aedu9fTpLs\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Pwi3Mek0UN\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Masters</b>\",\"col\":12}},{\"id\":\"rj5-GVYs83\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Component\",\"col\":3}},{\"id\":\"d7CLwPEcPp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure\",\"col\":3}},{\"id\":\"MIbcUekF3-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"HR Settings\",\"col\":3}},{\"id\":\"RQmRUGe7oK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shift Payment Unit\",\"col\":3}},{\"id\":\"yCHeeCW0-k\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Additional Salary Component\",\"col\":3}},{\"id\":\"E0mAbjkINL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shift\",\"col\":3}},{\"id\":\"YBK-zBYbHz\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"KEZoJFcV5z\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Transactions</b>\",\"col\":12}},{\"id\":\"sWWI_BPcgC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance\",\"col\":3}},{\"id\":\"3Ao9--LujI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shift Allocation\",\"col\":3}},{\"id\":\"yd38-5g1oN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Additional Salary\",\"col\":3}},{\"id\":\"c9yGIvYCiu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Loan\",\"col\":3}},{\"id\":\"45IrBUcbaX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Entry\",\"col\":3}},{\"id\":\"1QwsnhSx9k\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Slip\",\"col\":3}},{\"id\":\"SujJ8cD6GG\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"NNcCmMGLx1\",\"type\":\"paragraph\",\"data\":{\"text\":\"<b>Reports</b>\",\"col\":12}},{\"id\":\"W55pvI18LW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Leave Report\",\"col\":3}},{\"id\":\"FNslXiL8sP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Register\",\"col\":3}},{\"id\":\"fLppm_I7-w\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance Report\",\"col\":3}},{\"id\":\"pZJDk1bo9K\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Detailed Report\",\"col\":3}}]",
+ "creation": "2024-05-15 16:08:57.485571",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "money-coins-1",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Payroll",
+ "links": [],
+ "modified": "2025-05-31 08:49:45.445026",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Payroll",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 7.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Leave Report",
+   "link_to": "Employee Leave Report",
+   "report_ref_doctype": "Employee Leave Record",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Register",
+   "link_to": "Salary Register",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Attendance Report",
+   "link_to": "Attendance Report",
+   "report_ref_doctype": "Attendance",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Loan",
+   "link_to": "Employee Loan",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Additional Salary Component",
+   "link_to": "Additional Salary Component",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Payroll Entry",
+   "link_to": "Payroll Entry",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Detailed Report",
+   "link_to": "Salary Detailed Report",
+   "report_ref_doctype": "Salary Report Record",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Slip",
+   "link_to": "Salary Slip",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Shift Allocation",
+   "link_to": "Shift Allocation",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Attendance",
+   "link_to": "Attendance",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Additional Salary",
+   "link_to": "Additional Salary",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Shift Payment Unit",
+   "link_to": "Shift Payment Unit",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "HR Settings",
+   "link_to": "HR Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Component",
+   "link_to": "Salary Component",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Structure",
+   "link_to": "Salary Structure",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Shift",
+   "link_to": "Shift",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Payroll"
+}

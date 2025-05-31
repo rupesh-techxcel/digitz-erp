@@ -1,0 +1,150 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{employee_name}-{additional_salary_component}-{date}",
+ "creation": "2024-05-14 20:11:41.074401",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_eegj",
+  "amended_from",
+  "date",
+  "employee",
+  "employee_name",
+  "additional_salary_component",
+  "valuation_type",
+  "column_break_hphm",
+  "qty",
+  "rate",
+  "amount",
+  "note",
+  "column_break_fvwn",
+  "remarks",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_eegj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Additional Salary",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "description": "The date should be on or before the payroll date and within the salary period's start and end dates.",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Read Only",
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "additional_salary_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Salary Component",
+   "options": "Additional Salary Component",
+   "reqd": 1
+  },
+  {
+   "description": "For the Lumpsum salary type, please enter only the amount.",
+   "fetch_from": "additional_salary_component.valuation_type",
+   "fieldname": "valuation_type",
+   "fieldtype": "Read Only",
+   "label": "Valuation Type"
+  },
+  {
+   "fieldname": "column_break_hphm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.valuation_type == \"Qty and Rate\"",
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "label": "Qty"
+  },
+  {
+   "depends_on": "eval:doc.valuation_type == \"Qty and Rate\"",
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Rate"
+  },
+  {
+   "description": "For valuation type as Qty and Rate , amount calculates while saving",
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "Amount"
+  },
+  {
+   "default": "Additional salary will be processed in the next payroll entry, taking effect on or after the date specified in the additional salary record.\n",
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  },
+  {
+   "fieldname": "column_break_fvwn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nProcessed",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 18:49:54.242538",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Additional Salary",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

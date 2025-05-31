@@ -7,10 +7,10 @@ def execute(filters=None):
     
 	if(filters.get('group_by')  == "Invoice"):    
 		if(filters.get('supplier')):
-			print("customer filter")
+			#print("customer filter")
 			columns = get_columns()
 		else:
-			print("other filter")
+			#print("other filter")
 			columns = get_columns_with_supplier()  
 			data = get_data(filters)
 	else:
@@ -25,7 +25,7 @@ def execute(filters=None):
 def get_data(filters):
 	data = ""
 
-	print(filters.get('supplier'))
+	#print(filters.get('supplier'))
  
 	if filters.get('supplier') and  filters.get('from_date') and filters.get('to_date'):
      	

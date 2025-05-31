@@ -1,0 +1,121 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:leave_type_name",
+ "creation": "2024-04-16 09:43:24.446167",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "leave_type_name",
+  "max_leaves_allowed",
+  "applicable_after",
+  "column_break_yrqh",
+  "maximum_consecutive_leaves_allowed",
+  "is_leave_without_pay",
+  "is_partially_paid_leave",
+  "fraction_of_salary",
+  "is_compensatory_leave",
+  "count_holidays_in_leaves_as_leaves",
+  "column_break_urkq",
+  "disabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "leave_type_name",
+   "fieldtype": "Data",
+   "label": "Leave Type Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "max_leaves_allowed",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Maximum Leave Allocation Allowed"
+  },
+  {
+   "fieldname": "applicable_after",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Applicable After (Working Days)"
+  },
+  {
+   "fieldname": "column_break_yrqh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maximum_consecutive_leaves_allowed",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Maximum Consecutive Leaves Allowed"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_leave_without_pay",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Leave Without Pay"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_partially_paid_leave",
+   "fieldtype": "Check",
+   "label": "Is partially paid leave"
+  },
+  {
+   "depends_on": "eval:doc.is_partially_paid_leave",
+   "description": "If you pay 50% of the daily salary for a day of leave taken, enter 0.50 in this field.",
+   "fieldname": "fraction_of_salary",
+   "fieldtype": "Float",
+   "label": "Fraction Of Salary"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_compensatory_leave",
+   "fieldtype": "Check",
+   "label": "Is Compensatory Leave"
+  },
+  {
+   "default": "0",
+   "fieldname": "count_holidays_in_leaves_as_leaves",
+   "fieldtype": "Check",
+   "label": "Count holidays within the leave period as leave."
+  },
+  {
+   "fieldname": "column_break_urkq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-30 19:33:06.722503",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Leave Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

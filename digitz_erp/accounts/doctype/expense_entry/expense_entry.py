@@ -6,6 +6,8 @@ from frappe.model.document import Document
 from datetime import datetime, timedelta
 from digitz_erp.api.document_posting_status_api import init_document_posting_status, update_posting_status
 from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
+from digitz_erp.api.settings_api import add_seconds_to_time
+from digitz_erp.api.accounts_api import calculate_utilization
 
 class ExpenseEntry(Document):
 
@@ -14,13 +16,59 @@ class ExpenseEntry(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
+  
+	
+	def validate_expense_budgets(self):
+		"""
+		Validate Expense Entry accounts against the budget values and utilized amounts.
 
-		# Add one second to the datetime object
-		new_datetime = datetime_object + timedelta(seconds=1)
+		This method is intended to be called during the validate event of the Expense Entry.
+		"""
+		for expense in self.expense_entry_details:
+			# Fetch budget details for the expense account
+			budget_item = frappe.db.get_value(
+				"Budget Item",
+				{"reference_type": "Account", "reference_value": expense.expense_account},
+				["parent", "budget_amount"],
+				as_dict=True
+			)
 
-		# Extract the new time as a string
-		self.posting_time = new_datetime.strftime('%H:%M:%S')
+			if not budget_item:
+				# Skip validation if no budget exists for the expense account
+				continue
+
+			# Get the parent budget details
+			budget = frappe.get_doc("Budget", budget_item["parent"])
+
+			# Fetch utilized amount
+			utilized_amount = calculate_utilization(
+				budget_against=budget.budget_against,
+				item_budget_against="Expense",
+				budget_against_value=getattr(budget, budget.budget_against.lower()),
+				reference_type="Account",
+				reference_value=expense.expense_account,
+				from_date=budget.from_date,
+				to_date=budget.to_date,
+			)
+
+			# Calculate total utilized
+			total_utilized = utilized_amount + expense.amount
+
+			# Check if total utilized exceeds budget amount
+			if total_utilized > budget_item["budget_amount"]:
+				frappe.throw(
+					f"Expense Account {expense.expense_account} exceeds its budget limit. "
+					f"Budget Amount: {budget_item['budget_amount']}, "
+					f"Utilized: {utilized_amount}, "
+					f"Expense Amount in Entry: {expense.amount}, "
+					f"Total Utilized: {total_utilized}."
+				)
+
+	def validate(self):
+		self.validate_expense_budgets()     
+
 
 	def before_validate(self):
 
@@ -36,6 +84,9 @@ class ExpenseEntry(Document):
 
 						if(self.Voucher_In_The_Same_Time()):
 							frappe.throw("Voucher with same time already exists.")
+    
+		if not self.credit_expense:
+			self.paid_amount = self.grand_total      
 
 	def on_submit(self):
 
@@ -50,12 +101,14 @@ class ExpenseEntry(Document):
 		# 	frappe.enqueue(self.do_postings_on_submit, queue="long")
 
 		self.do_postings_on_submit()
+		self.update_project_expenses()
 
 	def on_cancel(self):
 
 		update_posting_status(self.doctype,self.name,'posting_status','Cancel Pending')
 
 		self.cancel_expense()
+		self.update_project_expenses(cancel=True)
 
 	def cancel_expense(self):
 
@@ -97,24 +150,25 @@ class ExpenseEntry(Document):
 			gl_doc.account = expense_entry.expense_account
 			gl_doc.debit_amount = expense_entry.amount
 			gl_doc.remarks = self.remarks;
+			gl_doc.project = self.project
 			gl_doc.insert()
 
 			idx += 1
 
 		# Debit Tax Amounts
 		taxes = self.get_tax_totals()
-		print("taxes")
-		print(taxes)
+		#print("taxes")
+		#print(taxes)
 
 		for key, tax_amount  in taxes.items():
 
-			print("key")
-			print(key)
+			#print("key")
+			#print(key)
 
 			tax_for_expense, expense_date = key.split('_')
 
-			print("tax_for_expense")
-			print(tax_for_expense)
+			#print("tax_for_expense")
+			#print(tax_for_expense)
 
 			tax = frappe.get_doc("Tax", tax_for_expense)
 
@@ -127,6 +181,7 @@ class ExpenseEntry(Document):
 				gl_doc.account = tax.account
 				gl_doc.debit_amount = tax_amount
 				gl_doc.remarks = self.remarks;
+				gl_doc.project = self.project
 				gl_doc.insert()
 				idx += 1
 
@@ -147,6 +202,7 @@ class ExpenseEntry(Document):
 			gl_doc.party = supplier
 			gl_doc.credit_amount = amount
 			gl_doc.remarks = self.remarks;
+			gl_doc.project = self.project
 			gl_doc.insert()
 			idx += 1
 
@@ -200,21 +256,21 @@ class ExpenseEntry(Document):
 				tax_amount = expense_entry.get("tax_amount")
 				expense_date = expense_entry.get("expense_date")
 
-				print("tax from get_tax_totals")
-				print(tax)
+				#print("tax from get_tax_totals")
+				#print(tax)
 
 				# Use the expense_date in the key along with tax, separated by an underscore
 				key = f"{tax}_{expense_date}"
-				print("key from get_tax_totals")
-				print(key)
+				#print("key from get_tax_totals")
+				#print(key)
 
 				if key in tax_dictionary:
 					tax_dictionary[key] += tax_amount
 				else:
 					tax_dictionary[key] = tax_amount
 
-		print("tax_dictionary")
-		print(tax_dictionary)
+		#print("tax_dictionary")
+		#print(tax_dictionary)
 		return tax_dictionary
 
 	def insert_payment_postings(self):
@@ -275,8 +331,8 @@ class ExpenseEntry(Document):
 				frappe.log_error("Error deleting payment schedule: " + str(e))
 
 
-		print("self.payment_schedule")
-		print(self.payment_schedule)
+		#print("self.payment_schedule")
+		#print(self.payment_schedule)
 
 		for payment_schedule in self.payment_schedule:
 
@@ -295,22 +351,67 @@ class ExpenseEntry(Document):
 				frappe.log_error("Error creating payment schedule: " + str(e))
 				frappe.msgprint("An error occured while inserting payment schedule",indicator="red", alert = True)
 
-
 		frappe.db.commit()
+  
+	def update_project_expenses(self, cancel=False):
+     
+		if self.project:
+			# Exclude the current document and include only submitted documents
+			filters = {
+				"project": self.project,
+				"name": ["!=", self.name],  # Exclude the current document
+				"docstatus": 1  # Include only submitted documents
+			}
 
-@frappe.whitelist()
-def get_gl_postings(expense_entry):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": expense_entry},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
+			# Fetch all submitted expenses related to the project, excluding the current document
+			expenses = frappe.get_all(
+				"Expense Entry",
+				filters=filters,
+				fields=["name"]
+			)
 
-    return formatted_gl_postings
+			total_excluded_tax = 0
+	
+			print(expenses)
+
+			# Iterate through each expense (other than the current document)
+			for expense in expenses:
+				# Fetch items for the current expense
+				expense_items = frappe.get_all(
+					"Expense Entry Details",
+					filters={"parent": expense.name},
+					fields=["amount_excluded_tax"]
+				)
+    
+				print("expense_items")
+				print(expense_items)
+
+				# Sum up the amount_excluded_tax for the items in this expense
+				for item in expense_items:
+					total_excluded_tax += item.get("amount_excluded_tax", 0)
+
+			# If not cancelling, add the current document's contribution
+			if not cancel:
+				# # Fetch items for the current document
+				# current_expense_items = frappe.get_all(
+				# 	"Expense Entry Details",
+				# 	filters={"parent": self.name},
+				# 	fields=["amount_excluded_tax"]
+				# )
+
+				# Add the current document's contribution to the total
+				for item in self.expense_entry_details:
+					total_excluded_tax += item.get("amount_excluded_tax", 0)
+
+			# Update the 'overheads' column in the Project
+			frappe.db.set_value(
+				"Project",
+				self.project,
+				"overheads",
+				total_excluded_tax
+			)
+
+			# Optional: Feedback or logging
+			frappe.msgprint(
+				f"The 'overheads' of project {self.project} has been updated successfully.",alert=True
+			)

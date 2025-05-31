@@ -1,6 +1,5 @@
 # Copyright (c) 2024, Rupesh P and contributors
 # For license information, please see license.txt
-
 import frappe
 
 def execute(filters=None):
@@ -10,7 +9,6 @@ def execute(filters=None):
 	return columns, data
 
 def get_data(filters):
-   
 	data = []
 
 	order_by = "posting_date,voucher_type,voucher_no"
@@ -19,116 +17,141 @@ def get_data(filters):
 	
 	# Filter for account, supplier and dates
 	if filters.get('account') and filters.get('supplier') and filters.get('from_date') and filters.get('to_date'):
-		print("case 1")
+		#print("case 1")
 		   
 		trans_data = frappe.db.sql("""
 			SELECT
-			voucher_type, voucher_no, posting_date,account,party, remarks, debit_amount, credit_amount		
+			voucher_type, voucher_no, posting_date, account, party, project, remarks, debit_amount, credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE pi.account = '{account}' and party='{supplier}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}' ORDER BY {order_by}""".format(account = filters.get('account'), supplier=filters.get('supplier'), from_date=filters.get('from_date'), to_date=filters.get('to_date'),order_by=order_by), as_dict=True)
+			WHERE pi.account = '{account}' and party='{supplier}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}' {project_filter} ORDER BY {order_by}""".format(
+				account=filters.get('account'), 
+				supplier=filters.get('supplier'), 
+				from_date=filters.get('from_date'), 
+				to_date=filters.get('to_date'),
+				project_filter="AND pi.project = '{project}'".format(project=filters.get('project')) if filters.get('project') else "",
+				order_by=order_by
+			), as_dict=True)
   
 		data.extend(trans_data)	
   
-		
-	# Filters for account , customer and dates   
+	# Filters for account, customer, and dates   
 	elif filters.get('account') and filters.get('customer') and filters.get('from_date') and filters.get('to_date'):
 		
 		trans_data = frappe.db.sql("""
 			SELECT
-			voucher_type, voucher_no, posting_date,account,party, remarks, debit_amount, credit_amount		
+			voucher_type, voucher_no, posting_date, account, party, project, remarks, debit_amount, credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE pi.account = '{account}' and party='{customer}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}'	ORDER BY {order_by}""".format(account = filters.get('account'), customer=filters.get('customer'), from_date=filters.get('from_date'), to_date=filters.get('to_date'),order_by=order_by), as_dict=True)
+			WHERE pi.account = '{account}' and party='{customer}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}' {project_filter} ORDER BY {order_by}""".format(
+				account=filters.get('account'), 
+				customer=filters.get('customer'), 
+				from_date=filters.get('from_date'), 
+				to_date=filters.get('to_date'),
+				project_filter="AND pi.project = '{project}'".format(project=filters.get('project')) if filters.get('project') else "",
+				order_by=order_by
+			), as_dict=True)
 
 		data.extend(trans_data)	
 
-		   
 	# Filter for supplier and dates
 	elif filters.get('supplier') and filters.get('from_date') and filters.get('to_date'):
      
-		   
 		trans_data = frappe.db.sql("""
 			SELECT
-			voucher_type, voucher_no, posting_date,account,party, remarks, debit_amount, credit_amount		
+			voucher_type, voucher_no, posting_date, account, party, project, remarks, debit_amount, credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE party='{supplier}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}'	ORDER BY {order_by}""".format(supplier=filters.get('supplier'), from_date=filters.get('from_date'), to_date=filters.get('to_date'),order_by=order_by), as_dict=True)
+			WHERE party='{supplier}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}' {project_filter} ORDER BY {order_by}""".format(
+				supplier=filters.get('supplier'), 
+				from_date=filters.get('from_date'), 
+				to_date=filters.get('to_date'),
+				project_filter="AND pi.project = '{project}'".format(project=filters.get('project')) if filters.get('project') else "",
+				order_by=order_by
+			), as_dict=True)
   
 		data.extend(trans_data)	
   
-		   
 	# Filter for customer and dates
 	elif filters.get('customer') and filters.get('from_date') and filters.get('to_date'):
      
-			trans_data = frappe.db.sql("""
-				SELECT
-				voucher_type, voucher_no, posting_date,account,party, remarks, debit_amount, credit_amount		
-				FROM 
-				`tabGL Posting` pi		
-				WHERE party='{customer}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}'	ORDER BY {order_by}""".format(customer=filters.get('customer'), from_date=filters.get('from_date'), to_date=filters.get('to_date'),order_by=order_by), as_dict=True)
+		trans_data = frappe.db.sql("""
+			SELECT
+			voucher_type, voucher_no, posting_date, account, party, project, remarks, debit_amount, credit_amount		
+			FROM 
+			`tabGL Posting` pi		
+			WHERE party='{customer}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}' {project_filter} ORDER BY {order_by}""".format(
+				customer=filters.get('customer'), 
+				from_date=filters.get('from_date'), 
+				to_date=filters.get('to_date'),
+				project_filter="AND pi.project = '{project}'".format(project=filters.get('project')) if filters.get('project') else "",
+				order_by=order_by
+			), as_dict=True)
 
-			data.extend(trans_data)	
+		data.extend(trans_data)	
   
-	elif filters.get('account') and  filters.get('from_date') and filters.get('to_date'):
-		# New data query to calculate the difference and 'Dr Or Cr'
+	# Filter for account and dates
+	elif filters.get('account') and filters.get('from_date') and filters.get('to_date'):
     
 		trans_data = frappe.db.sql("""
 			SELECT
-			voucher_type, voucher_no, posting_date,account,party, remarks, debit_amount, credit_amount		
+			voucher_type, voucher_no, posting_date, account, party, project, remarks, debit_amount, credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE pi.account = '{account}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}'	ORDER BY {order_by}""".format(account = filters.get('account'), from_date=filters.get('from_date'), to_date=filters.get('to_date'),order_by=order_by), as_dict=True)
+			WHERE pi.account = '{account}' and  pi.posting_date BETWEEN '{from_date}' and '{to_date}' {project_filter} ORDER BY {order_by}""".format(
+				account=filters.get('account'), 
+				from_date=filters.get('from_date'), 
+				to_date=filters.get('to_date'),
+				project_filter="AND pi.project = '{project}'".format(project=filters.get('project')) if filters.get('project') else "",
+				order_by=order_by
+			), as_dict=True)
   
 		data.extend(trans_data)	
   
-	# # Filter dates
+	# Filter dates
 	elif filters.get('from_date') and filters.get('to_date'):
-	# New data query to calculate the difference and 'Dr Or Cr'
  
 		trans_data = frappe.db.sql("""
 			SELECT
-			voucher_type, voucher_no, posting_date,account,party, remarks, debit_amount, credit_amount		
+			voucher_type, voucher_no, posting_date, account, party, project, remarks, debit_amount, credit_amount		
 			FROM 
 			`tabGL Posting` pi		
-			WHERE pi.posting_date BETWEEN '{from_date}' and '{to_date}'	ORDER BY {order_by}""".format(from_date=filters.get('from_date'), to_date=filters.get('to_date'),order_by=order_by), as_dict=True)
+			WHERE pi.posting_date BETWEEN '{from_date}' and '{to_date}' {project_filter} ORDER BY {order_by}""".format(
+				from_date=filters.get('from_date'), 
+				to_date=filters.get('to_date'),
+				project_filter="AND pi.project = '{project}'".format(project=filters.get('project')) if filters.get('project') else "",
+				order_by=order_by
+			), as_dict=True)
 
 		data.extend(trans_data)	
 
-		sql = """
-			SELECT SUM(debit_amount) - SUM(credit_amount) AS difference
-			FROM `tabGL Posting` pi
-			WHERE pi.posting_date <= '{to_date}' ORDER BY ORDER BY {order_by}
-		""".format(to_date = filters.get('to_date'),order_by=order_by, as_dict=True)
-
-		# Not likely to occur
+	# No matching condition
 	else:
 		frappe.throw("Unknown filter condition") 
   	
 	return data
 
 def get_columns():
-   
 	return [
 		{		
 			"fieldname": "account",
 			"fieldtype": "Link",
 			"label": "Account Ledger",	
-			"options":"Account",
+			"options": "Account",
 			"width": 230,	
 		},		
 		{		
 			"fieldname": "voucher_type",
 			"fieldtype": "Link",
 			"label": "Voucher Type",
-   			"options":"DocType",
+   			"options": "DocType",
 			"width": 110,	
 		},
   		{		
 			"fieldname": "voucher_no",
 			"fieldtype": "Dynamic Link",
 			"label": "Voucher No",
-			"options" : "voucher_type",
+			"options": "voucher_type",
 			"width": 130,	
 		},
 		{
@@ -142,6 +165,13 @@ def get_columns():
 			"fieldtype": "Data",
 			"label": "Party",
 			"width": 110,	
+		},
+  		{
+			"fieldname": "project",
+			"fieldtype": "Link",
+			"label": "Project",
+			"options": "Project",
+			"width": 120,	
 		},
   		{
 			"fieldname": "remarks",
@@ -162,5 +192,4 @@ def get_columns():
 			"width": 110,	
 		},
    			
-       
 	]

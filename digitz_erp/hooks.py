@@ -2,9 +2,10 @@ from . import __version__ as app_version
 
 app_name = "digitz_erp"
 app_title = "Digitz ERP"
-app_publisher = "Rupesh P"
-app_description = "A simple ERP Software"
-app_email = "rupeshprajan@gmail.com"
+app_version = "1.0.0"
+app_publisher = "Techxcel Technologies"
+app_description = "ERP for SMEs, Services, Contracting, and Trading Companies"
+app_email = "rupesh@techxceltech.com"
 app_license = "MIT"
 
 # Includes in <head>
@@ -16,6 +17,7 @@ app_include_css = "/assets/digitz_erp/css/digitz_erp.css"
 # include js, css files in header of web template
 # web_include_css = "/assets/digitz_erp/css/digitz_erp.css"
 # web_include_js = "/assets/digitz_erp/js/digitz_erp.js"
+app_include_js = "/assets/digitz_erp/js/digitz_common.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "digitz_erp/public/scss/website"
@@ -63,7 +65,7 @@ fixtures = ["Custom Field", "Custom DocPerm"]
 # ------------
 
 # before_install = "digitz_erp.install.before_install"
-# after_install = "digitz_erp.install.after_install"
+after_install = "digitz_erp.api.install_api.after_install"
 
 # Uninstallation
 # ------------

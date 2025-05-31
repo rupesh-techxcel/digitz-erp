@@ -109,8 +109,8 @@ def get_data(filters):
     query += " ORDER BY posting_date, pii.item"
     data = frappe.db.sql(query, filters, as_list=True)
 
-    print("data")
-    print(data)
+    #print("data")
+    #print(data)
     return data
 
 

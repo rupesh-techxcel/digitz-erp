@@ -252,9 +252,12 @@ def re_post_stock_ledgers(show_alert=False):
     
     doc.posting_status = "In Process"
     doc.save()
-        
-    clean_stock_ledgers_duplicated()
     
+    print("Status changed to in process")
+    
+    print("Cleaning Started...")
+    clean_stock_ledgers_duplicated()
+    print("Cleaning Completed...")
     # If there is already a reposting happened, get the last_processed_stock_ledger and fetch its posting_date to process subsequent stock ledgers  
     last_processed_ledger = doc.last_processed_stock_ledger
     
@@ -270,10 +273,17 @@ def re_post_stock_ledgers(show_alert=False):
     stock_ledgers_for_delivery_note = []
     stock_ledgers_for_sales_invoice = []
     stock_ledgers_for_sales_return = []
+    stock_ledgers_for_material_issue = []
     
     start_time = datetime.now()
     
+    print("start time")
+    print(start_time)
+    
     while udpate_ledgers==True:
+        
+        print("posting_date")
+        print(posting_date)
                
         # Get stock ledgers with the last assigned posting_date (there can be multiple records)
         count = frappe.db.count('Stock Ledger', filters={'posting_date': posting_date})
@@ -286,7 +296,7 @@ def re_post_stock_ledgers(show_alert=False):
             # Loop through each 'Stock Ledger' record
             for ledger in stock_ledgers_with_same_date_and_time: 
                 
-                print(ledger['name'])
+                #print(ledger['name'])
                 
                 update_stock_ledger(ledger['name'], for_reposting=True)                
                 doc.last_processed_stock_ledger = ledger['name']
@@ -300,6 +310,9 @@ def re_post_stock_ledgers(show_alert=False):
                 
                 if ledger['voucher'] == "Sales Return" and ledger['voucher_no'] not in stock_ledgers_for_sales_return:
                     stock_ledgers_for_sales_return.append(ledger['voucher_no'])
+                    
+                if ledger['voucher'] == "Material Issue" and ledger['voucher_no'] not in stock_ledgers_for_material_issue:
+                    stock_ledgers_for_material_issue.append(ledger['voucher_no'])
                 
         
         # next_stock_ledger = frappe.db.sql("""
@@ -345,7 +358,10 @@ def re_post_stock_ledgers(show_alert=False):
                     
             if next_stock_ledger[0].voucher == "Sales Return" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_sales_return:
                     stock_ledgers_for_sales_return.append(next_stock_ledger[0].voucher_no)
-                    
+           
+            if next_stock_ledger[0].voucher == "Material Issue" and next_stock_ledger[0].voucher_no not in stock_ledgers_for_material_issue:
+                    stock_ledgers_for_material_issue.append(next_stock_ledger[0].voucher_no)
+                             
             create_stock_repost_detail(next_stock_ledger,start_time)            
             
         else:
@@ -479,7 +495,6 @@ def clean_stock_ledger(ledger_name, deleted_stock_ledgers):
             frappe.db.commit()
             deleted_stock_ledgers.append(data['name'])
 
-
         # Optionally, you can commit after each deletion to ensure data consistency.
         # frappe.db.commit()
     
@@ -530,7 +545,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
             balance_value = sl.balance_value
        
         # Sales invoice included to favor Tab Sales
-        if(sl.voucher == "Delivery Note" or sl.voucher== "Sales Invoice"):
+        if(sl.voucher == "Delivery Note" or sl.voucher== "Sales Invoice" or sl.voucher=="Material Issue"):
             previous_balance_qty = balance_qty
             previous_balance_value = balance_value #Assign before change                    
             balance_qty = balance_qty - sl.qty_out
@@ -551,7 +566,7 @@ def update_stock_ledger_values(stock_ledger_name, balance_qty, valuation_rate, b
                     valuation_rate = balance_value/ balance_qty
                      
                                 
-        if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return"):
+        if (sl.voucher == "Purchase Invoice" or sl.voucher == "Sales Return" or sl.voucher == "Stock Entry"):
             
             previous_balance_value = balance_value #Assign before change 
             balance_qty = balance_qty + sl.qty_in

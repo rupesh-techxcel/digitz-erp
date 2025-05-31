@@ -1,0 +1,117 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-05-27 23:05:03.649325",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "date",
+  "leave_type",
+  "is_leave_with_out_pay",
+  "is_compensatory_leave",
+  "is_partially_paid_leave",
+  "fraction_of_salary",
+  "leave_application",
+  "leave_duration",
+  "leave_period"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "leave_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Leave Type",
+   "options": "Leave Type"
+  },
+  {
+   "default": "0",
+   "fetch_from": "leave_type.is_leave_without_pay",
+   "fieldname": "is_leave_with_out_pay",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Leave Without Pay",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_compensatory_leave",
+   "fieldtype": "Check",
+   "label": "Is Compensatory Leave"
+  },
+  {
+   "default": "0",
+   "fetch_from": "leave_type.is_partially_paid_leave",
+   "fieldname": "is_partially_paid_leave",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Partially Paid Leave",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_partially_paid_leave",
+   "fieldname": "fraction_of_salary",
+   "fieldtype": "Float",
+   "label": "Fraction Of Salary"
+  },
+  {
+   "fieldname": "leave_application",
+   "fieldtype": "Link",
+   "label": "Leave Application",
+   "options": "Leave Application",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "leave_application.leave_duration",
+   "fieldname": "leave_duration",
+   "fieldtype": "Data",
+   "label": "Leave Duration"
+  },
+  {
+   "fetch_from": "leave_application.leave_period",
+   "fieldname": "leave_period",
+   "fieldtype": "Data",
+   "label": "Leave Period",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-30 19:23:40.883271",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Employee Leave Record",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

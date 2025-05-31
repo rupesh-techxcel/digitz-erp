@@ -38,7 +38,8 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Series"
+   "label": "Series",
+   "options": "PMNT-.YYYY.-"
   },
   {
    "fieldname": "column_break_zjjtr",
@@ -191,7 +192,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-22 12:01:16.825733",
+ "modified": "2025-03-11 17:40:46.246721",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

@@ -40,8 +40,8 @@ def execute(filters=None):
  
 def get_data_for_root_type(filters, root_type):
      # data = get_data(filters)
-	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type)
-	 
+	accounts = get_accounts_data(filters.get('from_date'), filters.get('to_date'),root_type,project=filters.get('project') )
+ 	 
 	accounts_from_table = frappe.db.sql(
     """
 		SELECT
@@ -83,8 +83,8 @@ def get_data_for_root_type(filters, root_type):
  
 	accounts_from_table = [account for account in accounts_from_table if account != condition_to_remove]
  
-	print("accounts_from_table")
-	print(accounts_from_table)	
+	#print("accounts_from_table")
+	#print(accounts_from_table)	
  
 	# filter_accounts(accounts_from_table)
 	accounts_from_table  = sort_accounts(accounts_from_table)

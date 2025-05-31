@@ -11,6 +11,13 @@
   "item",
   "item_name",
   "display_name",
+  "item_group",
+  "width",
+  "height",
+  "no_of_pieces",
+  "length",
+  "weight_per_meter",
+  "rate_per_kg",
   "qty",
   "unit",
   "rate",
@@ -31,11 +38,12 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "cost_center"
+  "cost_center",
+  "mr_item_reference"
  ],
  "fields": [
   {
-   "columns": 1,
+   "columns": 3,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -43,10 +51,8 @@
    "options": "Item"
   },
   {
-   "columns": 2,
    "fieldname": "display_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Display Name"
   },
   {
@@ -188,17 +194,73 @@
    "allow_on_submit": 1,
    "fieldname": "qty_purchased_in_base_unit",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Qty Purchased",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mr_item_reference",
+   "fieldtype": "Link",
+   "label": "MR Item Reference",
+   "options": "Material Request Item",
+   "read_only": 1
+  },
+  {
+   "fieldname": "width",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Width"
+  },
+  {
+   "fieldname": "height",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Height"
+  },
+  {
+   "fieldname": "no_of_pieces",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "No Of Pieces"
+  },
+  {
+   "fieldname": "length",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Length",
+   "precision": "3"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fetch_from": "item.weight_per_meter",
+   "fieldname": "weight_per_meter",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Weight Per Meter",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Rate Per Kg",
+   "precision": "2"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
-
- "modified": "2024-03-14 17:40:37.540436",
-
+ "modified": "2025-04-30 13:04:13.151950",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order Item",

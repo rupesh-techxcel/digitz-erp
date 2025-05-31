@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:TS-{DD}-{MM}-{YY}-{###}",
+ "creation": "2024-10-30 21:29:59.346972",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_a0dw",
+  "column_break_meok",
+  "naming_series",
+  "work_order",
+  "project",
+  "boq_execution",
+  "boq",
+  "column_break_fxke",
+  "amended_from",
+  "posting_date",
+  "posting_time",
+  "edit_posting_date_and_time",
+  "work_in_progress_account",
+  "labour_cost_payable_account",
+  "column_break_obpb",
+  "input_by",
+  "timesheet_date",
+  "cost_without_overtime",
+  "cost_for_overtime",
+  "labour_cost",
+  "column_break_aobo",
+  "company",
+  "wip_reverted_with_billing",
+  "force_keep_in_wip",
+  "section_break_qqva",
+  "time_sheet_entry_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_a0dw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_meok",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "SO-.YYYY.-.MM.-"
+  },
+  {
+   "description": "Leave this field if not entering against a work order",
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Work Order",
+   "options": "Work Order"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "boq_execution",
+   "fieldtype": "Link",
+   "label": "BOQ Execution",
+   "options": "BOQ Execution"
+  },
+  {
+   "fieldname": "boq",
+   "fieldtype": "Link",
+   "label": "BOQ",
+   "options": "BOQ"
+  },
+  {
+   "fieldname": "column_break_fxke",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Timesheet Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date And Time"
+  },
+  {
+   "fieldname": "work_in_progress_account",
+   "fieldtype": "Link",
+   "label": "Work in Progress Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"account_type\",\"=\",\"Work In Progress\"]]",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "labour_cost_payable_account",
+   "fieldtype": "Link",
+   "label": "Labour Cost Payable Account",
+   "link_filters": "[[\"Account\",\"is_group\",\"=\",0],[\"Account\",\"root_type\",\"=\",\"Liability\"]]",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_obpb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Supervisor",
+   "fieldname": "input_by",
+   "fieldtype": "Select",
+   "label": "Entry Made By",
+   "options": "Self\nManager\nSupervisor\nAdmin"
+  },
+  {
+   "default": "Today",
+   "description": "Date of work executed",
+   "fieldname": "timesheet_date",
+   "fieldtype": "Date",
+   "label": "Timesheet Date"
+  },
+  {
+   "fieldname": "cost_without_overtime",
+   "fieldtype": "Currency",
+   "label": "Cost Without Overtime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_for_overtime",
+   "fieldtype": "Currency",
+   "label": "Cost For Overtime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "labour_cost",
+   "fieldtype": "Currency",
+   "label": "Labour Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_aobo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "description": "Specify that the labour cost has been reversed from WIP (Work in Progress) and accounted for in COGS (Cost of Goods Sold).",
+   "fieldname": "wip_reverted_with_billing",
+   "fieldtype": "Check",
+   "label": "WIP Reverted with BIlling",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "description": "Force the labor cost to remain in WIP (Work in Progress) and not be included in COGS (Cost of Goods Sold).",
+   "fieldname": "force_keep_in_wip",
+   "fieldtype": "Check",
+   "label": "Force Keep In WIP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_qqva",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "time_sheet_entry_details",
+   "fieldtype": "Table",
+   "options": "Timesheet Entry Detail"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:35:17.928601",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Timesheet Entry",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -48,7 +48,7 @@ def check_pending_items_exists(sales_order):
 @frappe.whitelist()
 def check_and_update_sales_order_status(document_name, doctype):
 
-    print(document_name)
+    #print(document_name)
 
     sales_orders_query = ""
 
@@ -79,13 +79,13 @@ def check_and_update_sales_order_status(document_name, doctype):
     if sales_orders_query:
         sales_orders = frappe.db.sql(sales_orders_query, (document_name), as_dict=True)
 
-        print(sales_orders)
+        #print(sales_orders)
 
         for sales_order in sales_orders:
             
             sales_order_name = sales_order.sales_order
-            print("sales_order_name")
-            print(sales_order_name)
+            #print("sales_order_name")
+            #print(sales_order_name)
 
             sales_order_items = frappe.db.sql("""
                 SELECT name FROM `tabSales Order Item`
@@ -96,9 +96,9 @@ def check_and_update_sales_order_status(document_name, doctype):
             at_least_one_partial_sale = False
             excess_allocation = False
             
-            print("sales order items")
+            #print("sales order items")
             
-            print(sales_order_items)
+            #print(sales_order_items)
 
             for so_item_dict in sales_order_items:
                 
@@ -116,19 +116,19 @@ def check_and_update_sales_order_status(document_name, doctype):
 
             # Update the sales order status based on conditions
             if not sold_any:
-                print("not sold_any")
+                #print("not sold_any")
                 
                 frappe.db.set_value("Sales Order", sales_order_name, "order_status", "Pending")
 
             elif at_least_one_partial_sale:
                 
-                print("at_least_one_partial_sale")
+                #print("at_least_one_partial_sale")
                 
                 frappe.db.set_value("Sales Order", sales_order_name, "order_status", "Partial")
 
             elif excess_allocation:
                 
-                print("excess allocation")
+                #print("excess allocation")
                 
                 frappe.msgprint(f"Warning: Sales Order {sales_order_name} contains one or more items with excess allocation.", alert=True)
 
@@ -207,16 +207,16 @@ def update_sales_order_quantities_for_sales_return_on_update(self, for_delete_or
 
 					current_qty = item.qty_in_base_unit
 					if for_delete_or_cancel:
-						print("zero")
+						#print("zero")
 						current_qty = 0
 
-					print("current_qty")
-					print(current_qty)
+					#print("current_qty")
+					#print(current_qty)
 
 					total_returned_qty = (total_returned_qty_not_in_this_sr if total_returned_qty_not_in_this_sr else 0 )+ current_qty
 
-					print("total_returned_qty")
-					print(total_returned_qty)
+					#print("total_returned_qty")
+					#print(total_returned_qty)
 
                # Sales Invoice Line Item Total
 					total_used_qty_in_si_for_the_so_item = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabSales Invoice Item` sinvi inner join `tabSales Invoice` sinv on sinvi.parent= sinv.name WHERE sinvi.sales_order_item_reference_no=%s and sinv.docstatus<2""",(so_item_reference))[0][0]
@@ -261,3 +261,36 @@ def get_sales_order_items_pending(sales_orders):
             items.append(so_item)
 
     return items
+
+@frappe.whitelist()
+def check_project_exists(sales_order):
+    # Check if any Project exists with a reference to the Sales Order
+    project_exists = frappe.db.exists('Project', {'sales_order': sales_order})
+    return project_exists
+
+@frappe.whitelist()
+def create_project_from_sales_order(sales_order):
+    # Get the Sales Order document
+    sales_order_doc = frappe.get_doc('Sales Order', sales_order)
+
+    # Check if a project already exists
+    if frappe.db.exists('Project', {'sales_order': sales_order_doc.name}):
+        frappe.throw("A Project is already created for this Sales Order.")
+
+    # Create a new Project document without saving it
+    project_doc = frappe.new_doc('Project')
+    
+    # Set the project name and short name from the Sales Order's fields
+    project_doc.project_name = sales_order_doc.get('project_name_from_boq')
+    project_doc.project_short_name = sales_order_doc.get('project_short_name_from_boq')
+    
+    # Reference the Sales Order
+    project_doc.sales_order = sales_order_doc.name
+    project_doc.customer = sales_order_doc.customer
+    project_doc.project_value = round(sales_order_doc.rounded_total,2)
+    project_doc.project_gross_value = round(sales_order_doc.gross_total,2)
+    
+    project_doc.boq = sales_order_doc.boq
+    
+    # Return the document as a dictionary
+    return project_doc.as_dict()

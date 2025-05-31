@@ -338,10 +338,10 @@ def get_total_purchase_return(filters):
 def get_total_cash_receipts(filters):  
     from_date = filters.get("from_date")
     to_date = filters.get("to_date")
-    print("before warehouse filter")
+    #print("before warehouse filter")
     warehouse = filters.get("warehouse", None)
-    print("warehouse")
-    print(warehouse)
+    #print("warehouse")
+    #print(warehouse)
     sql = """
     SELECT COALESCE(SUM(rd.amount), 0) as total_receipts
     FROM `tabReceipt Entry Detail` AS rd
@@ -563,8 +563,8 @@ def get_data(filters):
         }
         data.append(warehouse_data)
         
-        print("total cash receipts")
-        print(total_cash_receipts)
+        #print("total cash receipts")
+        #print(total_cash_receipts)
         
     
         if not filters.get("warehouse"):           
@@ -623,8 +623,8 @@ def get_data(filters):
             "total_balance_cash": grand_total_balance_cash
         }    
     data.append(warehouse_data)   
-    print("data")
-    print(data)
+    #print("data")
+    #print(data)
        
     return data
 
@@ -763,8 +763,8 @@ def get_cash_receipt_data(filters):
 		""".format(from_date=from_date, to_date=to_date, warehouse=warehouse)
   
 	receipt_detail_data = frappe.db.sql(sql, as_dict=True)
-	print("receipt_detail_data")
-	print(receipt_detail_data)
+	#print("receipt_detail_data")
+	#print(receipt_detail_data)
 	return receipt_detail_data
 
 def get_bank_receipt_data(filters):
@@ -798,8 +798,8 @@ def get_bank_receipt_data(filters):
 		""".format(from_date=from_date, to_date=to_date, warehouse=warehouse)
   
 	receipt_detail_data = frappe.db.sql(sql, as_dict=True)
-	print("receipt_detail_data")
-	print(receipt_detail_data)
+	#print("receipt_detail_data")
+	#print(receipt_detail_data)
 	return receipt_detail_data
 
 

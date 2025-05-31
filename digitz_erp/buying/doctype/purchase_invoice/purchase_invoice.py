@@ -18,6 +18,10 @@ from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_g
 from digitz_erp.api.bank_reconciliation_api import create_bank_reconciliation, cancel_bank_reconciliation
 from frappe import throw, _
 from frappe.utils import money_in_words
+from digitz_erp.api.settings_api import add_seconds_to_time
+from digitz_erp.api.accounts_api import calculate_utilization
+from digitz_erp.api.accounts_api import get_balance_budget_value
+from frappe.utils import flt
 
 class PurchaseInvoice(Document):
 
@@ -35,19 +39,13 @@ class PurchaseInvoice(Document):
 		return possible_invalid
 
 	def Set_Posting_Time_To_Next_Second(self):
-		datetime_object = datetime.strptime(str(self.posting_time), '%H:%M:%S')
-
-		# Add one second to the datetime object
-		new_datetime = datetime_object + timedelta(seconds=1)
-
-		# Extract the new time as a string
-		self.posting_time = new_datetime.strftime('%H:%M:%S')
-
+		# Add 12 seconds to self.posting_time and update it
+		self.posting_time = add_seconds_to_time(str(self.posting_time), seconds=12)
 
 	def before_validate(self):
 		self.in_words = money_in_words(self.rounded_total,"AED")
 
-		print("before_validate")
+		#print("before_validate")
 		if not self.credit_purchase or self.credit_purchase  == False:
 
 			self.paid_amount = self.rounded_total
@@ -71,9 +69,111 @@ class PurchaseInvoice(Document):
 						frappe.throw("Voucher with same time already exists.")
 
 	def validate(self):
-		self.validate_supplier_inv_no()
+		# self.validate_supplier_inv_no()
 		if not self.credit_purchase and self.payment_mode == None:
 			frappe.throw("Select Payment Mode")
+
+		self.validate_budget_for_items()
+  
+	def validate_budget_for_items(self):
+		"""
+		Validate budget for each item in a Material Request.
+		"""
+		for item in self.items:
+			budget_data = get_balance_budget_value(
+				reference_type="Item",
+				reference_value=item.item,
+				doc_type="Purchase Invoice",
+				doc_name=self.name,
+				transaction_date=self.posting_date,
+				company=self.company,
+				project=self.project,
+				cost_center=self.default_cost_center
+			)
+			
+			if budget_data and not budget_data.get("no_budget"):
+				details = budget_data.get("details", {})
+				budget_amount = flt(details.get("Budget Amount", 0))
+				used_amount = flt(details.get("Used Amount", 0))
+				available_balance = flt(details.get("Available Balance", 0))
+				ref_type = details.get("Reference Type")
+				total_map = 0
+
+				for row in self.items:
+					
+					gross_amount = flt(row.gross_amount)
+     					
+					if ref_type == "Item" and row.item == item.item:
+						total_map += gross_amount
+					elif ref_type == "Item Group" and row.item_group == item.item_group:
+						total_map += gross_amount
+				
+				used_amount += total_map
+				
+				if budget_amount < used_amount:
+					frappe.throw(f"Exceeding the allocated budget for the item {item.item}!")
+     
+	def get_balance_budget_value(reference_type, reference_value, doc_type, doc_name, transaction_date, company, project, cost_center):
+			"""
+			Fetch the budget details from existing API method.
+			"""
+			return frappe.call(
+				"digitz_erp.api.accounts_api.get_balance_budget_value",
+				reference_type=reference_type,
+				reference_value=reference_value,
+				doc_type=doc_type,
+				doc_name=doc_name,
+				transaction_date=transaction_date,
+				company=company,
+				project=project,
+				cost_center=cost_center
+			)
+   
+	def validate_item_budgets(self):
+		"""
+		Validate Purchase Order items against the budget values and utilized amounts.
+
+		This method is intended to be called during the validate event of the Purchase Order.
+		"""
+		for item in self.items:
+			# Fetch budget details for the item
+			budget_item = frappe.db.get_value(
+				"Budget Item",
+				{"reference_type": "Item", "reference_value": item.item},
+				["parent", "budget_amount"],
+				as_dict=True
+			)
+
+			if not budget_item:
+				# Skip validation if no budget exists for the item
+				continue
+
+			# Get the parent budget details
+			budget = frappe.get_doc("Budget", budget_item["parent"])
+
+			# Fetch utilized amount
+			utilized_amount = calculate_utilization(
+				budget_against=budget.budget_against,
+				item_budget_against="Purchase",
+				budget_against_value=getattr(budget, budget.budget_against.lower()),
+				reference_type="Item",
+				reference_value=item.item,
+				from_date=budget.from_date,
+				to_date=budget.to_date,
+			)
+
+			# Calculate total utilized
+			total_utilized = utilized_amount + item.gross_amount
+
+			# Check if total utilized exceeds budget amount
+			if total_utilized > budget_item["budget_amount"]:
+				frappe.throw(
+					f"Item {item.item} exceeds its budget limit. "
+					f"Budget Amount: {budget_item['budget_amount']}, "
+					f"Utilized: {utilized_amount}, "
+					f"Gross Amount in Purchase Order: {item.gross_amount}, "
+					f"Total Utilized: {total_utilized}."
+				)
 
 	def validate_supplier_inv_no(self):
 
@@ -90,7 +190,7 @@ class PurchaseInvoice(Document):
 
 	def on_submit(self):
 
-		print("on_submit")
+		#print("on_submit")
 
 		init_document_posting_status(self.doctype, self.name)
 
@@ -107,11 +207,14 @@ class PurchaseInvoice(Document):
 
 		self.insert_gl_records()
 		self.insert_payment_postings()
-		self.do_stock_posting()
+		#For invoice converted from Purchase Receipt, stock postings already done.   
+		if not self.purchase_receipt:
+			self.do_stock_posting()
+   
 		create_bank_reconciliation("Purchase Invoice", self.name)
 
 		# posting_status_doc = frappe.get_doc("Document Posting Status",{'document_type':'Purchase Invoice','document_name':self.name})
-		# print(posting_status_doc)
+		# #print(posting_status_doc)
 		# posting_status_doc.posting_status = "Completed"
 		# posting_status_doc.save()
 
@@ -119,12 +222,12 @@ class PurchaseInvoice(Document):
 		self.update_supplier_prices()
 
 		update_posting_status(self.doctype, self.name, 'posting_status','Completed')
-		print("after status update")
+		#print("after status update")
 
 	def on_update(self):
-		print("on_update from pi")
+		#print("on_update from pi")
 
-		print(self.payment_mode)
+		#print(self.payment_mode)
 
 		if self.purchase_order:
 			self.update_purchase_order_quantities_on_update()
@@ -144,11 +247,11 @@ class PurchaseInvoice(Document):
 				total_used_qty_not_in_this_pi = frappe.db.sql(""" SELECT SUM(qty_in_base_unit) as total_used_qty from `tabPurchase Invoice Item` pinvi inner join `tabPurchase Invoice` pinv on pinvi.parent= pinv.name WHERE pinvi.po_item_reference=%s AND pinv.name !=%s and pinv.docstatus <2""",(item.po_item_reference, self.name))[0][0]
 				po_item = frappe.get_doc("Purchase Order Item", item.po_item_reference)
 
-				print("po_item")
-				print(po_item)
+				#print("po_item")
+				#print(po_item)
 
-				print("total_used_qty_not_in_this_pi")
-				print(total_used_qty_not_in_this_pi)
+				#print("total_used_qty_not_in_this_pi")
+				#print(total_used_qty_not_in_this_pi)
 
 				if total_used_qty_not_in_this_pi:
 					po_item.qty_purchased_in_base_unit = total_used_qty_not_in_this_pi
@@ -158,8 +261,8 @@ class PurchaseInvoice(Document):
 				po_item.save()
 				po_reference_any = True
 
-		print("po_reference_any")
-		print(po_reference_any)
+		#print("po_reference_any")
+		#print(po_reference_any)
 
 		if(po_reference_any):
 			frappe.msgprint("Purchased Qty of items in the corresponding purchase Order updated successfully", indicator= "green", alert= True)
@@ -215,11 +318,10 @@ class PurchaseInvoice(Document):
 		item_stock_ledger = {}
 
 		for docitem in self.items:
-			maintain_stock, fixed_asset, asset_category = frappe.db.get_value('Item',
-			docitem.item, ['maintain_stock', 'is_fixed_asset', 'asset_category'])
+			maintain_stock, item_type, asset_category = frappe.db.get_value('Item',
+			docitem.item, ['maintain_stock', 'item_type', 'asset_category'])
 	
-
-			if fixed_asset == 1:
+			if item_type=="Fixed Asset":
 				self.do_asset_posting(docitem, asset_category=asset_category)				
 				continue
 		
@@ -261,11 +363,11 @@ class PurchaseInvoice(Document):
 
 					new_balance_value = new_balance_value + (last_stock_ledger.balance_value)
 
-					print("new_balance_qty")
-					print(new_balance_qty)
+					#print("new_balance_qty")
+					#print(new_balance_qty)
 
-					print("new_balance_value")
-					print(new_balance_value)
+					#print("new_balance_value")
+					#print(new_balance_value)
 
 					if new_balance_qty!=0:
 						valuation_rate = new_balance_value/new_balance_qty
@@ -397,7 +499,7 @@ class PurchaseInvoice(Document):
 		self.cancel_purchase()
 
 		if self.purchase_order:
-			print("Calling update po qties b4 cancel or delete")
+			#print("Calling update po qties b4 cancel or delete")
 			self.update_purchase_order_quantities_on_update(forDeleteOrCancel=True)
 			check_and_update_purchase_order_status(self.purchase_order)
 
@@ -407,8 +509,8 @@ class PurchaseInvoice(Document):
 		if(self.update_rates_in_price_list):
 			currency = get_default_currency()
 			for docitem in self.items:
-				print("docitem to update price")
-				print(docitem)
+				#print("docitem to update price")
+				#print(docitem)
 				item = docitem.item
 				rate = docitem.rate_in_base_unit
 				update_item_price(item,self.price_list,currency,rate, self.posting_date)
@@ -571,11 +673,11 @@ class PurchaseInvoice(Document):
 		if not gl_narration:
 			gl_narration = "Purchase from {supplier}, Invoice No: {invoice_no}"
 
-		print("gl_narration")
-		print(gl_narration)
+		#print("gl_narration")
+		#print(gl_narration)
 
 		# Replace placeholders with actual values
-		narration = gl_narration.format(payment_mode=payment_mode, supplier_name=supplier, invoice_number=invoice_no)
+		narration = gl_narration.format(payment_mode=payment_mode, supplier=supplier, invoice_no=invoice_no)
 
 		# Append remarks if they are available
 		if remarks:
@@ -586,9 +688,6 @@ class PurchaseInvoice(Document):
 	def insert_gl_records(self):
 
 		remarks = self.get_narration()
-		print("remarks")
-		print(remarks)
-
 		
 		default_company = frappe.db.get_single_value("Global Settings","default_company")
 
@@ -621,7 +720,7 @@ class PurchaseInvoice(Document):
 		gl_doc.idx = idx
 		gl_doc.posting_date = self.posting_date
 		gl_doc.posting_time = self.posting_time
-		gl_doc.account = default_accounts.default_inventory_account
+		gl_doc.account = default_accounts.default_inventory_account if not self.purchase_receipt else default_accounts.stock_received_but_not_billed
 		gl_doc.debit_amount =  self.net_total - self.tax_total
 		gl_doc.against_account = default_accounts.default_payable_account
 		gl_doc.remarks = remarks
@@ -666,11 +765,6 @@ class PurchaseInvoice(Document):
 			idx +=1
 
 		update_posting_status(self.doctype,self.name, 'gl_posted_time',None)
-
-	def insert_gl_record(self,gl_doc, accounts):
-		gl_doc.insert()
-		if gl_doc.account not in accounts:
-				accounts.append(gl_doc.account)
 
 	def insert_payment_postings(self):
 
@@ -722,7 +816,7 @@ class PurchaseInvoice(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
 
 @frappe.whitelist()

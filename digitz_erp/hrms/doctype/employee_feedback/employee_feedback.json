@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-05-11 14:53:39.426098",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "feedback_summary",
+  "feedback_details",
+  "feedback_from",
+  "feedback_employee_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "feedback_summary",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Feedback Summary"
+  },
+  {
+   "fieldname": "feedback_details",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "FeedBack Details"
+  },
+  {
+   "fieldname": "feedback_from",
+   "fieldtype": "Link",
+   "label": "Feedback From",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "feedback_from.employee_name",
+   "fieldname": "feedback_employee_name",
+   "fieldtype": "Data",
+   "label": "Feedback From Employee Name",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-30 20:24:19.962511",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Employee Feedback",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

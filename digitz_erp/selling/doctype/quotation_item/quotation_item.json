@@ -7,11 +7,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "lumpsum_amount",
   "warehouse",
   "item",
   "item_name",
   "display_name",
+  "item_group",
+  "lumpsum_amount",
   "qty",
   "unit",
   "rate",
@@ -31,7 +32,8 @@
   "discount_amount",
   "net_amount",
   "unit_conversion_details",
-  "cost_center"
+  "cost_center",
+  "boq_item"
  ],
  "fields": [
   {
@@ -57,7 +59,8 @@
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty"
+   "label": "Qty",
+   "precision": "2"
   },
   {
    "columns": 1,
@@ -73,7 +76,8 @@
    "fieldname": "rate",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Rate"
+   "label": "Rate",
+   "precision": "2"
   },
   {
    "fieldname": "base_unit",
@@ -111,7 +115,8 @@
    "fieldname": "gross_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Gross Amount"
+   "label": "Gross Amount",
+   "precision": "2"
   },
   {
    "default": "0",
@@ -135,7 +140,8 @@
    "fieldname": "tax_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Tax Amount"
+   "label": "Tax Amount",
+   "precision": "2"
   },
   {
    "default": "0",
@@ -154,7 +160,8 @@
    "fieldname": "net_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Net Amount"
+   "label": "Net Amount",
+   "precision": "2"
   },
   {
    "fieldname": "unit_conversion_details",
@@ -164,10 +171,11 @@
   },
   {
    "columns": 2,
+   "fetch_from": "item.description",
    "fieldname": "display_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Display Name"
+   "label": "Display Name (Description)"
   },
   {
    "default": "0",
@@ -177,6 +185,7 @@
    "read_only": 1
   },
   {
+   "fetch_from": "item.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "label": "Item Name"
@@ -193,12 +202,27 @@
    "fieldname": "lumpsum_amount",
    "fieldtype": "Check",
    "label": "Lumpsum Amount"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
+  },
+  {
+   "fieldname": "boq_item",
+   "fieldtype": "Link",
+   "label": "BOQ Item",
+   "options": "BOQ Item",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-08 11:03:45.604494",
+ "modified": "2025-03-14 14:54:08.247715",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Quotation Item",

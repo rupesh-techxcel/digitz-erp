@@ -1,0 +1,270 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2024-10-13 14:17:32.708199",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "item_name",
+  "display_name",
+  "item_group",
+  "col_break1",
+  "schedule_date",
+  "project",
+  "width",
+  "height",
+  "no_of_pieces",
+  "length",
+  "weight_per_meter",
+  "rate_per_kg",
+  "column_break_wqim",
+  "qty",
+  "qty_approved",
+  "unit",
+  "conversion_factor",
+  "column_break_czey",
+  "source_warehouse",
+  "target_warehouse",
+  "qty_purchased_in_base_unit",
+  "valuation_rate",
+  "budget_type",
+  "budget_value",
+  "available_amount_in_budget"
+ ],
+ "fields": [
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "link_filters": "[[\"Project\",\"disabled\",\"=\",0],[\"Project\",\"status\",\"=\",\"Open\"],[\"Project\",\"docstatus\",\"=\",\"1\"]]",
+   "options": "Project"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Item Name",
+   "oldfieldname": "item_name",
+   "oldfieldtype": "Data",
+   "print_hide": 1,
+   "print_width": "100px",
+   "read_only": 1,
+   "search_index": 1,
+   "width": "100px"
+  },
+  {
+   "fieldname": "col_break1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "bold": 1,
+   "columns": 2,
+   "fieldname": "schedule_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Required By",
+   "oldfieldname": "schedule_date",
+   "oldfieldtype": "Date",
+   "print_width": "100px",
+   "reqd": 1,
+   "width": "100px"
+  },
+  {
+   "columns": 1,
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "oldfieldname": "qty",
+   "oldfieldtype": "Currency",
+   "print_width": "80px",
+   "reqd": 1,
+   "width": "80px"
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "UOM Conversion Factor",
+   "print_hide": 1
+  },
+  {
+   "bold": 1,
+   "columns": 3,
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Item",
+   "oldfieldname": "item_code",
+   "oldfieldtype": "Link",
+   "options": "Item",
+   "print_width": "100px",
+   "reqd": 1,
+   "search_index": 1,
+   "width": "100px"
+  },
+  {
+   "fetch_from": "item.base_unit",
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Unit",
+   "options": "Unit"
+  },
+  {
+   "fieldname": "column_break_wqim",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_czey",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 3,
+   "fieldname": "target_warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Target Warehouse",
+   "oldfieldname": "warehouse",
+   "oldfieldtype": "Link",
+   "options": "Warehouse",
+   "print_width": "100px",
+   "reqd": 1,
+   "width": "100px"
+  },
+  {
+   "depends_on": "eval:parent.material_request_type == \"Stock Transfer\"",
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Source Warehouse",
+   "mandatory_depends_on": "eval:doc.material_request_type == 'Stock Transfer'",
+   "options": "Warehouse"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "qty_purchased_in_base_unit",
+   "fieldtype": "Float",
+   "label": "Qty Purchased"
+  },
+  {
+   "fieldname": "qty_approved",
+   "fieldtype": "Float",
+   "label": "Quantity Approved"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:parent.use_dimensions",
+   "fieldname": "width",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Width",
+   "precision": "3"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:parent.use_dimensions",
+   "fieldname": "height",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Height",
+   "precision": "3"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:parent.use_dimensions",
+   "fieldname": "no_of_pieces",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "No Of Pieces"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "length",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Length",
+   "precision": "3"
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fetch_from": "item.weight_per_meter",
+   "fieldname": "weight_per_meter",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Weight Per Meter",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:parent.use_dimensions_2",
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Rate Per Kg",
+   "precision": "2"
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Small Text",
+   "label": "Display Name",
+   "oldfieldname": "description",
+   "oldfieldtype": "Text",
+   "print_width": "250px",
+   "width": "250px"
+  },
+  {
+   "fieldname": "valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Valuation Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "budget_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Budget Type",
+   "options": "Item\nItem Group"
+  },
+  {
+   "fieldname": "budget_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Budget Value"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "available_amount_in_budget",
+   "fieldtype": "Currency",
+   "label": "Available Amount In Budget"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-30 14:25:59.827771",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Material Request Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

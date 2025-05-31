@@ -1,0 +1,188 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:structure_name",
+ "creation": "2024-04-09 10:21:45.779355",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "details_section",
+  "salary_structure_template",
+  "structure_name",
+  "fetch_from_a_template",
+  "column_break_vcob",
+  "remarks",
+  "column_break_somi",
+  "disabled",
+  "earnings_deductions",
+  "amended_from",
+  "earnings",
+  "deductions",
+  "tab_2_tab",
+  "section_break_soeu",
+  "designation",
+  "column_break_slyl",
+  "from_date",
+  "column_break_xmjv",
+  "get_employees",
+  "overtime_rate",
+  "holiday_rate",
+  "section_break_dpzp",
+  "salary_structure_assignment"
+ ],
+ "fields": [
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "salary_structure_template",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "structure_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Structure Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "fetch_from_a_template",
+   "fieldtype": "Link",
+   "label": "Fetch from a template",
+   "options": "Salary Structure Template"
+  },
+  {
+   "fieldname": "column_break_vcob",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_somi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "earnings_deductions",
+   "fieldtype": "Section Break",
+   "label": "Earnings & Deductions"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Salary Structure",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "earnings",
+   "fieldtype": "Table",
+   "label": "Earnings",
+   "options": "Salary Details"
+  },
+  {
+   "fieldname": "deductions",
+   "fieldtype": "Table",
+   "label": "Deductions",
+   "options": "Salary Details"
+  },
+  {
+   "fieldname": "tab_2_tab",
+   "fieldtype": "Tab Break",
+   "label": "Employees"
+  },
+  {
+   "fieldname": "section_break_soeu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation"
+  },
+  {
+   "fieldname": "column_break_slyl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Enter a From Date, which will automatically populate the From Date field in the grid when you click the 'Get Employees' button.",
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "column_break_xmjv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Get unassigned employees based on the Designation",
+   "fieldname": "get_employees",
+   "fieldtype": "Button",
+   "label": "Get Employees"
+  },
+  {
+   "description": "Applicable only for shift payment units other than hours. This setting can be overridden in the employee record below.",
+   "fieldname": "overtime_rate",
+   "fieldtype": "Currency",
+   "label": "Overtime Rate"
+  },
+  {
+   "description": "This applies only to shift payment units other than hours. It represents the salary for a full holiday based on the standard number of units configured in the shift allocation. This setting can be customized in the employee record below",
+   "fieldname": "holiday_rate",
+   "fieldtype": "Currency",
+   "label": "Holiday Salary"
+  },
+  {
+   "fieldname": "section_break_dpzp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "salary_structure_assignment",
+   "fieldtype": "Table",
+   "label": "Salary Structure Assignment",
+   "options": "Salary Structure Assignment"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 19:15:43.115900",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Salary Structure",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -9,86 +9,155 @@ from frappe.utils import money_in_words
 class Quotation(Document):
 
 	def before_validate(self):
-		self.in_words = money_in_words(self.net_total,"AED")
+		if self.rounded_total>0:
+			self.in_words = money_in_words(self.rounded_total, "AED")
+   
+		self.update_print_lines()
   
-	@frappe.whitelist()
-	def generate_quotation(self):
+	def update_print_lines(self):
+		if not self.items:  # Ensure there are items to process
+			return
 
-		quotation = frappe.new_doc('Quotation')
+		grouped_items = {}
 
-		quotation.customer = self.customer
-		quotation.customer_name = self.customer_name
-		quotation.customer_display_name = self.customer_display_name
-		quotation.customer_address = self.customer_address        
-		quotation.posting_date = self.posting_date
-		quotation.posting_time = self.posting_time
-		quotation.ship_to_location = self.ship_to_location
-		quotation.salesman = self.salesman
-		quotation.salesman_code = self.salesman_code
-		quotation.tax_id = self.tax_id
-		
-		quotation.price_list = self.price_list
-		quotation.rate_includes_tax = self.rate_includes_tax
-		quotation.warehouse = self.warehouse        
-		quotation.credit_sale = self.credit_sale
-		quotation.credit_days = self.credit_days
-		quotation.payment_terms = self.payment_terms
-		quotation.payment_mode = self.payment_mode
-		quotation.payment_account = self.payment_account
-		quotation.remarks = self.remarks
-		quotation.gross_total = self.gross_total
-		quotation.total_discount_in_line_items = self.total_discount_in_line_items
-		quotation.tax_total = self.tax_total
-		quotation.net_total = self.net_total
-		quotation.round_off = self.round_off
-		quotation.rounded_total = self.rounded_total
-		quotation.terms = self.terms
-		quotation.terms_and_conditions = self.terms_and_conditions
-		quotation.auto_generated_from_delivery_note = False
-		quotation.address_line_1 = self.address_line_1
-		quotation.address_line_2 = self.address_line_2
-		quotation.area_name = self.area_name
-		quotation.country = self.country
-		quotation.company = self.company
-
-
-		idx = 0
-
+		# Step 1: Group items by item_group
 		for item in self.items:
-			idx = idx + 1
-			quotation_item = frappe.new_doc("Quotation Item")
-			quotation_item.warehouse = item.warehouse
-			quotation_item.item = item.item
-			quotation_item.item_name = item.item_name
-			quotation_item.display_name = item.display_name
-			quotation_item.qty =item.qty
-			quotation_item.unit = item.unit
-			quotation_item.rate = item.rate
-			quotation_item.base_unit = item.base_unit
-			quotation_item.qty_in_base_unit = item.qty_in_base_unit
-			quotation_item.rate_in_base_unit = item.rate_in_base_unit
-			quotation_item.conversion_factor = item.conversion_factor
-			quotation_item.rate_includes_tax = item.rate_includes_tax
-			quotation_item.rate_excluded_tax = item.rate_excluded_tax
-			quotation_item.gross_amount = item.gross_amount
-			quotation_item.tax_excluded = item.tax_excluded
-			quotation_item.tax = item.tax
-			quotation_item.tax_rate = item.tax_rate
-			quotation_item.tax_amount = item.tax_amount
-			quotation_item.discount_percentage = item.discount_percentage
-			quotation_item.discount_amount = item.discount_amount
-			quotation_item.net_amount = item.net_amount
-			quotation_item.unit_conversion_details = item.unit_conversion_details
-			quotation_item.idx = idx
+			item_group_name = item.item_group or "Ungrouped"
+			grouped_items.setdefault(item_group_name, []).append(item)
 
-			quotation.append('items', quotation_item)            
+		self.set("print_lines", [])  # Properly initialize the child table
 
-		quotation.save()
+		sl_no = 1  # Initialize serial number for groups
 
-		frappe.msgprint("Quotation duplicated successfully.",indicator="green", alert=True)
-		
-		return quotation.name
-  
+		print("Grouped Items:", grouped_items)
+
+		for group, items in grouped_items.items():
+      
+			print("Processing Group:", group)
+			print("items", items)
+
+			# Add group header as the first row with serial number
+			self.append("print_lines", {
+				"sl_no": str(sl_no),
+				"description": f"**{group}**",  # Group name as header
+				"qty": "",  # No quantity for group header
+				"rate": "",
+				"gross_amount": "",
+				"tax_amount": "",
+				"net_amount": ""
+			})
+   
+			# Add group header as the first row with serial number
+			self.append("print_lines", {
+				"sl_no": "",
+				"description": f"To supply & install:",  # Group name as header
+				"qty": "",  # No quantity for group header
+				"rate": "",
+				"gross_amount": "",
+				"tax_amount": "",
+				"net_amount": ""
+			})
+
+
+			# Add each item under the respective group
+			sub_sl_no = 1  # Sub-serial number for items
+			for item in items:
+       
+				item_sl_no = f"{sl_no}.{sub_sl_no}"  # Example: 1.1, 1.2, etc.
+
+				self.append("print_lines", {
+					"sl_no": item_sl_no,
+					"description": item.item_name or "",
+					"qty": item.qty or "",
+					"rate": f"{item.rate:.2f}" if item.rate else "",
+					"gross_amount": f"{item.gross_amount:.2f}" if item.gross_amount else "",
+					"tax_amount": f"{item.tax_amount:.2f}" if item.tax_amount else "",
+					"net_amount": f"{item.net_amount:.2f}" if item.net_amount else ""
+            	})
+    
+				sub_sl_no += 1  # Increment sub-serial number
+
+			sl_no += 1  # Increment main serial number for the next group
+   
+@frappe.whitelist()
+def generate_quotation(self):
+
+	quotation = frappe.new_doc('Quotation')
+
+	quotation.customer = self.customer
+	quotation.customer_name = self.customer_name
+	quotation.customer_display_name = self.customer_display_name
+	quotation.customer_address = self.customer_address        
+	quotation.posting_date = self.posting_date
+	quotation.posting_time = self.posting_time
+	quotation.ship_to_location = self.ship_to_location
+	quotation.salesman = self.salesman
+	quotation.salesman_code = self.salesman_code
+	quotation.tax_id = self.tax_id
+	
+	quotation.price_list = self.price_list
+	quotation.rate_includes_tax = self.rate_includes_tax
+	quotation.warehouse = self.warehouse        
+	quotation.credit_sale = self.credit_sale
+	quotation.credit_days = self.credit_days
+	quotation.payment_terms = self.payment_terms
+	quotation.payment_mode = self.payment_mode
+	quotation.payment_account = self.payment_account
+	quotation.remarks = self.remarks
+	quotation.gross_total = self.gross_total
+	quotation.total_discount_in_line_items = self.total_discount_in_line_items
+	quotation.tax_total = self.tax_total
+	quotation.net_total = self.net_total
+	quotation.round_off = self.round_off
+	quotation.rounded_total = self.rounded_total
+	quotation.terms = self.terms
+	quotation.terms_and_conditions = self.terms_and_conditions
+	quotation.auto_generated_from_delivery_note = False
+	quotation.address_line_1 = self.address_line_1
+	quotation.address_line_2 = self.address_line_2
+	quotation.area_name = self.area_name
+	quotation.country = self.country
+	quotation.company = self.company
+
+
+	idx = 0
+
+	for item in self.items:
+		idx = idx + 1
+		quotation_item = frappe.new_doc("Quotation Item")
+		quotation_item.warehouse = item.warehouse
+		quotation_item.item = item.item
+		quotation_item.item_name = item.item_name
+		quotation_item.display_name = item.display_name
+		quotation_item.qty =item.qty
+		quotation_item.unit = item.unit
+		quotation_item.rate = item.rate
+		quotation_item.base_unit = item.base_unit
+		quotation_item.qty_in_base_unit = item.qty_in_base_unit
+		quotation_item.rate_in_base_unit = item.rate_in_base_unit
+		quotation_item.conversion_factor = item.conversion_factor
+		quotation_item.rate_includes_tax = item.rate_includes_tax
+		quotation_item.rate_excluded_tax = item.rate_excluded_tax
+		quotation_item.gross_amount = item.gross_amount
+		quotation_item.tax_excluded = item.tax_excluded
+		quotation_item.tax = item.tax
+		quotation_item.tax_rate = item.tax_rate
+		quotation_item.tax_amount = item.tax_amount
+		quotation_item.discount_percentage = item.discount_percentage
+		quotation_item.discount_amount = item.discount_amount
+		quotation_item.net_amount = item.net_amount
+		quotation_item.unit_conversion_details = item.unit_conversion_details
+		quotation_item.idx = idx
+
+		quotation.append('items', quotation_item)            
+
+	quotation.save()
+
+	frappe.msgprint("Quotation duplicated successfully.",indicator="green", alert=True)
+	
+	return quotation.name
+
+
 
 @frappe.whitelist()
 def generate_sale_invoice(quotation):
@@ -255,30 +324,48 @@ def generate_delivery_note(quotation):
 
 @frappe.whitelist()
 def generate_sales_order(quotation):
-		
-	quotation_doc =frappe.get_doc('Quotation',quotation)
+	quotation_doc = frappe.get_doc('Quotation', quotation)
 
+	# Create a copy of the Quotation doc fields into a new Sales Order dictionary
+	sales_order = quotation_doc.as_dict()  # Use as_dict to get a clean dictionary representation
+	# Function to check if references are already created (assumed to be a custom function)
 	check_references_created(quotation)
-	sales_order = quotation_doc.__dict__
+	customer = ""    
+
+	if quotation_doc.lead_from == "Prospect":        
+		customer = frappe.get_doc("Customer",{"prospect": quotation_doc.prospect})
+		sales_order.customer = customer
+
 	sales_order['doctype'] = 'Sales Order'
-	# delivery_note['against_sales_invoice'] = delivery_note['name']
-	# delivery_note['name'] = delivery_note_name
 	sales_order['naming_series'] = ""
 	sales_order['posting_date'] = quotation_doc.posting_date
 	sales_order['posting_time'] = quotation_doc.posting_time
 	sales_order["quotation"] = quotation_doc.name
 
+	# Handling project fields with fallback to None
+	sales_order['project_name_from_boq'] = quotation_doc.get('project_name', None)
+	sales_order['project_short_name_from_boq'] = quotation_doc.get('project_short_name', None)
+
+	# Set document status to draft
 	sales_order['docstatus'] = 0
 
+	# Adjusting each item in the items list
 	for item in sales_order['items']:
-		item.doctype = "Sales Order Item"
-		item.quotation_item_reference_no = item.name
-		item._meta = ""
+		item['doctype'] = "Sales Order Item"
+		item['quotation_item_reference_no'] = item['name']
+		item['_meta'] = ""  # Clean meta data
 
+	# Insert the new Sales Order into the database
 	new_so = frappe.get_doc(sales_order).insert()
 	frappe.db.commit()
+
+	# Notify the user about the successful creation
 	frappe.msgprint("Sales Order successfully created in draft mode.", indicator="green", alert=True)
-	print("new so created")
+
 	return new_so.name
+
+
+    
+
 
 

@@ -34,9 +34,9 @@ class PurchaseReturn(Document):
 
 				pi_item = frappe.get_doc("Purchase Invoice Item", docitem.pi_item_reference)
 
-				print("total_returned_qty_not_in_this_pr")
-				print(total_returned_qty_not_in_this_pr)
-				print(docitem.qty_in_base_unit)
+				#print("total_returned_qty_not_in_this_pr")
+				#print(total_returned_qty_not_in_this_pr)
+				#print(docitem.qty_in_base_unit)
 
 				if total_returned_qty_not_in_this_pr:
 					if(pi_item.qty_in_base_unit < (total_returned_qty_not_in_this_pr + docitem.qty_in_base_unit)):
@@ -158,7 +158,7 @@ class PurchaseReturn(Document):
 
 		for docitem in self.items:
 			maintain_stock = frappe.db.get_value('Item', docitem.item , 'maintain_stock')
-			print('MAINTAIN STOCK :', maintain_stock)
+			#print('MAINTAIN STOCK :', maintain_stock)
 			if(maintain_stock == 1):
 
    		# Check for more records after this date time exists. This is mainly for deciding whether stock balance needs to update
@@ -561,16 +561,16 @@ class PurchaseReturn(Document):
 			if not item.pi_item_reference:
 				continue
 
-			print("item.pi_item_reference")
-			print(item.pi_item_reference)
-			print("self.name")
-			print(self.name)
+			#print("item.pi_item_reference")
+			#print(item.pi_item_reference)
+			#print("self.name")
+			#print(self.name)
 
 			pi_item = frappe.get_doc("Purchase Invoice Item", item.pi_item_reference)
 			po_item_reference = pi_item.po_item_reference
 
-			print("po_item_reference")
-			print(po_item_reference)
+			#print("po_item_reference")
+			#print(po_item_reference)
 
 			if po_item_reference:
 				if po_item_reference not in po_item_returned_dict_not_in_this_pr:
@@ -640,25 +640,8 @@ class PurchaseReturn(Document):
 @frappe.whitelist()
 def get_default_payment_mode():
     default_payment_mode = frappe.db.get_value('Company', filters={'name'},fieldname='default_payment_mode_for_purchase')
-    print(default_payment_mode)
+    #print(default_payment_mode)
     return default_payment_mode
-
-@frappe.whitelist()
-def get_gl_postings(purchase_return):
-    gl_postings = frappe.get_all("GL Posting",
-                                  filters={"voucher_no": purchase_return},
-                                  fields=["name", "debit_amount", "credit_amount", "against_account", "remarks"])
-    formatted_gl_postings = []
-    for posting in gl_postings:
-        formatted_gl_postings.append({
-            "gl_posting": posting.name,
-            "debit_amount": posting.debit_amount,
-            "credit_amount": posting.credit_amount,
-            "against_account": posting.against_account,
-            "remarks": posting.remarks
-        })
-
-    return formatted_gl_postings
 
 @frappe.whitelist()
 def get_stock_ledgers(purchase_return):
@@ -677,5 +660,5 @@ def get_stock_ledgers(purchase_return):
             "balance_qty": ledgers.balance_qty,
             "balance_value": ledgers.balance_value
         })
-    print(formatted_stock_ledgers)
+    #print(formatted_stock_ledgers)
     return formatted_stock_ledgers

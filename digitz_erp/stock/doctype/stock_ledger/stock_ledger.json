@@ -51,6 +51,7 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -59,8 +60,10 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "balance_qty",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Balance Qty",
    "read_only": 1
   },
@@ -97,6 +100,7 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "qty_in",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -104,8 +108,10 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "qty_out",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Qty Out",
    "read_only": 1
   },
@@ -195,11 +201,10 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-28 18:38:08.635931",
+ "modified": "2025-01-24 18:18:30.382089",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Ledger",
- "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [
   {

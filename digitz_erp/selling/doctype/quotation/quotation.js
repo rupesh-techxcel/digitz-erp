@@ -73,14 +73,35 @@ frappe.ui.form.on('Quotation', {
 					alreadyUsed = false
 				}
 
-				console.log("alreadyused")
-				console.log(alreadyUsed)
-
 				//Have a button to create delivery note in case delivery note is not integrated with SI
 				if (!alreadyUsed) {
 
 					frm.add_custom_button('Create Sales Order', () => {
 
+						console.log("From Create Sales Order.")
+						console.log("frm.doc.lead_from")
+						console.log(frm.doc.lead_from)
+						if(frm.doc.lead_from == "Prospect")
+						{
+							frappe.call({
+								method: 'digitz_erp.api.quotation_api.get_customer_exists_for_prospect',
+								async: false,
+								args: {
+									'prospect': frm.doc.prospect
+								},
+								callback(r) {
+									console.log("r")
+									console.log(r)
+									if (r.message) {
+										
+									} else {
+										// No customer exists for the prospect
+										frappe.msgprint("Convert the Prospect into a Customer to place an Order.");
+										return
+									}
+								}
+							});
+						}						
 						frm.call({
 							method: 'digitz_erp.selling.doctype.quotation.quotation.generate_sales_order',
 							args: {
@@ -93,10 +114,9 @@ frappe.ui.form.on('Quotation', {
 									frappe.set_route('Form', 'Sales Order', r.message);
 								}
 							}
-
 						});
-
-					});
+						
+					},"Actions");
 
 					frm.add_custom_button('Create Delivery Note', () => {
 
@@ -115,7 +135,7 @@ frappe.ui.form.on('Quotation', {
 
 						});
 
-					});
+					},"Actions");
 
 					frm.add_custom_button('Create Sales Invoice', () => {
 
@@ -132,7 +152,7 @@ frappe.ui.form.on('Quotation', {
 								}
 							}
 						});
-					});
+					}, "Actions");
 
 				}
 			}
@@ -178,6 +198,15 @@ frappe.ui.form.on('Quotation', {
 				"filters": {
 					"disabled": 0,
 					"status": ["!=", "On Boarding"]
+				}
+			};
+		});
+
+		frm.set_query("enquiry", function() {
+			return {
+				"filters": {					
+					"customer": frm.doc.customer,
+					"docstatus":1
 				}
 			};
 		});
@@ -334,7 +363,7 @@ frappe.ui.form.on('Quotation', {
 
 				// console.log(frm.doc.items)
 				// for(item in frm.doc.items){
-					gross_total += entry.gross_amount;entry.tax_amount;
+					gross_total += entry.gross_amount;
 					tax_total += entry.tax_amount;
 					net_total += entry.net_amount + entry.tax_amount;
 				// }
@@ -473,11 +502,22 @@ frappe.ui.form.on('Quotation', {
 			frm.doc.additional_discount = 0;
 		}
 
+		console.log("gross_total")
+		console.log(gross_total)
+
 		frm.doc.gross_total = gross_total;
 		frm.doc.net_total = gross_total + tax_total - frm.doc.additional_discount;
 		frm.doc.tax_total = tax_total;
 		frm.doc.total_discount_in_line_items = discount_total;
+
+		frm.doc.total_without_tax = gross_total - frm.doc.additional_discount;
+		frm.refresh_field("total_without_tax"); // Refresh before logging
+		console.log("Total Without Tax", frm.doc.total_without_tax);
+
+		console.log("Total Without Tax", frm.doc.total_without_tax)
+		
 		console.log("Net Total Before Round Off")
+		
 		console.log(frm.doc.net_total)
 
 		if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
@@ -486,6 +526,14 @@ frappe.ui.form.on('Quotation', {
 		}
 		else {
 			frm.doc.rounded_total = frm.doc.net_total;
+		}
+
+		if (frm.doc.total_without_tax != Math.round(frm.doc.total_without_tax)) {
+			
+			frm.doc.rounded_total_without_tax = Math.round(frm.doc.total_without_tax);
+		}
+		else {
+			frm.doc.rounded_total_without_tax = frm.doc.total_without_tax;
 		}
 
 		console.log("Totals");
@@ -504,6 +552,8 @@ frappe.ui.form.on('Quotation', {
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
 		frm.refresh_field("rounded_total");
+		frm.refresh_field("total_without_tax");
+		frm.refresh_field("rounded_total_without_tax");		
 
 		update_total_big_display(frm);
 
@@ -554,7 +604,7 @@ frappe.ui.form.on('Quotation', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax']
+							'fieldname': ['default_warehouse', 'rate_includes_tax','default_credit_sale','enquiry_selection_in_quotation']
 						},
 						callback: (r2) => {
 							console.log("Before assign default warehouse");
@@ -564,6 +614,19 @@ frappe.ui.form.on('Quotation', {
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 							frm.refresh_field("warehouse");
 							frm.refresh_field("rate_includes_tax");
+
+							frm.set_value('warehouse',r2.message.default_warehouse)
+							frm.set_value('rate_includes_tax',r2.message.rate_includes_tax)
+							frm.set_value('credit_sale', r2.message.default_credit_sale)
+							console.log("r2.message.enquiry_selection_in_quotation",r2.message.enquiry_selection_in_quotation)
+							if(r2.message.enquiry_selection_in_quotation)
+							{
+								frm.set_value("based_on", "Enquiry")
+							}
+							else
+							{
+								frm.set_value("based_on", "Other")
+							}
 						}
 					}
 
@@ -651,12 +714,11 @@ function set_default_payment_mode(frm)
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	let rounded_total = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
-
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${rounded_total}</div>`;
 
     // Directly update the HTML content of the 'total_big' field
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);
@@ -675,8 +737,14 @@ frappe.ui.form.on('Quotation Item', {
 
 		let row = frappe.get_doc(cdt, cdn);
 
-		if (typeof (frm.doc.customer) == "undefined") {
+		if (frm.doc.lead_from== "Customer" && typeof (frm.doc.customer) == "undefined") {
 			frappe.msgprint("Select customer.")
+			row.item = "";
+			return;
+		}
+
+		if (frm.doc.lead_from== "Prospect" && typeof (frm.doc.prospect) == "undefined") {
+			frappe.msgprint("Select Prospect.")
 			row.item = "";
 			return;
 		}
@@ -712,13 +780,14 @@ frappe.ui.form.on('Quotation Item', {
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name','description', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
 					console.log("item")
 					console.log(r)
 					row.item_name = r.message.item_name;
-					row.display_name = r.message.item_name;
+					row.display_name = r.message.description;
+					
 					//row.uom = r.message.base_unit;
 					if(tax_excluded_for_company)
 					{
@@ -796,77 +865,81 @@ frappe.ui.form.on('Quotation Item', {
 					console.log("use customer last price")
 					console.log(use_customer_last_price)
 
-					var use_price_list_price = 1
-					if(use_customer_last_price == 1)
+					if( frm.doc.lead_type == "Customer")
 					{
-						console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
-						frappe.call(
-							{
-								method:'digitz_erp.api.item_price_api.get_customer_last_price_for_item',
-								args:{
-									'item': row.item,
-									'customer': frm.doc.customer
-								},
-								async:false,
-								callback(r){
+						var use_price_list_price = 1
+						if(use_customer_last_price == 1)
+						{
+							console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+							frappe.call(
+								{
+									method:'digitz_erp.api.item_price_api.get_customer_last_price_for_item',
+									args:{
+										'item': row.item,
+										'customer': frm.doc.customer
+									},
+									async:false,
+									callback(r){
 
-									console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
-									console.log(r)
+										console.log("digitz_erp.api.item_price_api.get_customer_last_price_for_item")
+										console.log(r)
 
-									if (r.message !== undefined && r.message.length > 0) {
-										// Assuming r.message is an array, you might want to handle this differently based on your actual response
-										row.rate = parseFloat(r.message[0]);
-										row.rate_in_base_unit = parseFloat(r.message[0]);
-									}
-									else if (r.message!= undefined) {
-										row.rate = parseFloat(r.message)
-										row.rate_in_base_unit = parseFloat(r.message)
-									}
+										if (r.message !== undefined && r.message.length > 0) {
+											// Assuming r.message is an array, you might want to handle this differently based on your actual response
+											row.rate = parseFloat(r.message[0]);
+											row.rate_in_base_unit = parseFloat(r.message[0]);
+										}
+										else if (r.message!= undefined) {
+											row.rate = parseFloat(r.message)
+											row.rate_in_base_unit = parseFloat(r.message)
+										}
 
-									console.log("customer last price")
-									console.log(row.rate)
+										console.log("customer last price")
+										console.log(row.rate)
 
-									if(r.message != undefined && r.message > 0 )
-									{
-										use_price_list_price = 0
+										if(r.message != undefined && r.message > 0 )
+										{
+											use_price_list_price = 0
+										}
 									}
 								}
-							}
-						);
+							);
+						}
+
+						if(use_price_list_price ==1)
+						{
+							console.log("digitz_erp.api.item_price_api.get_item_price")
+							frappe.call(
+								{
+									method: 'digitz_erp.api.item_price_api.get_item_price',
+									async: false,
+
+									args: {
+										'item': row.item,
+										'price_list': frm.doc.price_list,
+										'currency': currency,
+										'date': frm.doc.posting_date
+									},
+									callback(r) {
+										console.log("digitz_erp.api.item_price_api.get_item_price")
+										console.log(r)
+										// row.rate = r.message;
+										// row.rate_in_base_unit = r.message;
+
+										if (r.message !== undefined && r.message.length > 0) {
+											// Assuming r.message is an array, you might want to handle this differently based on your actual response
+											row.rate = r.message[0];
+											row.rate_in_base_unit = r.message[0];
+										}
+										else if (r.message!= undefined) {
+											row.rate = parseFloat(r.message)
+											row.rate_in_base_unit = parseFloat(r.message)
+										}
+									}
+								});
+						}
 					}
 
-					if(use_price_list_price ==1)
-					{
-						console.log("digitz_erp.api.item_price_api.get_item_price")
-						frappe.call(
-							{
-								method: 'digitz_erp.api.item_price_api.get_item_price',
-								async: false,
-
-								args: {
-									'item': row.item,
-									'price_list': frm.doc.price_list,
-									'currency': currency,
-									'date': frm.doc.posting_date
-								},
-								callback(r) {
-									console.log("digitz_erp.api.item_price_api.get_item_price")
-									console.log(r)
-									// row.rate = r.message;
-									// row.rate_in_base_unit = r.message;
-
-									if (r.message !== undefined && r.message.length > 0) {
-										// Assuming r.message is an array, you might want to handle this differently based on your actual response
-										row.rate = r.message[0];
-										row.rate_in_base_unit = r.message[0];
-									}
-									else if (r.message!= undefined) {
-										row.rate = parseFloat(r.message)
-										row.rate_in_base_unit = parseFloat(r.message)
-									}
-								}
-							});
-					}
 					frm.trigger("make_taxes_and_totals");
 					frm.refresh_field("items");
 				}

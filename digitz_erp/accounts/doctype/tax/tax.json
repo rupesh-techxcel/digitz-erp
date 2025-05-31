@@ -24,9 +24,9 @@
   },
   {
    "fieldname": "tax_type",
-   "fieldtype": "Link",
+   "fieldtype": "Select",
    "label": "Tax Type",
-   "options": "TAX Type"
+   "options": "VAT\nGST"
   },
   {
    "fieldname": "tax_rate",
@@ -55,7 +55,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-06 12:44:47.023253",
+ "modified": "2024-11-12 13:52:24.038278",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Tax",

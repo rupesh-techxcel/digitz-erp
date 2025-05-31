@@ -1,16 +1,31 @@
 // Copyright (c) 2023, Rupesh P and contributors
 // For license information, please see license.txt
 
+// import { general_ledgers } from '/assets/digitz_erp/js/digitz_common.js';
+
 frappe.ui.form.on('Sales Invoice', {
 
+	show_a_message: function (frm,message) {
+		frappe.call({
+			method: 'digitz_erp.api.settings_api.show_a_message',
+			args: {
+				msg: message
+			}
+		});
+	},
 	 refresh: function (frm) {
 		 create_custom_buttons(frm);
 
 		//  if (frm.doc.docstatus === 0 && (!frm.doc.quotation && !frm.doc.sales_order)) 
-		 
-
-
-		update_total_big_display(frm);
+	
+		// update_total_big_display(frm);
+		
+		if (frm.is_new())
+		{
+			console.log("clear table")
+			frm.clear_table("items");
+			frm.refresh_field("items");
+		}    
 
 	 },
 	 setup: function (frm) {
@@ -69,6 +84,28 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			};
 		});
+
+		frm.set_query('project', function() {
+			console.log("project filter applies")
+            return {
+				
+                filters: {
+                    customer: frm.doc.customer,
+                    docstatus: 1,
+                    status: 'Open',
+                    disabled: 0
+                }
+            };});
+
+		frm.fields_dict['items'].grid.get_field('item').get_query = function(doc, cdt, cdn) {
+			var child = locals[cdt][cdn];
+			return {
+				filters: {
+					
+					'item_type':['not in', ['Labour']]
+				}
+			};
+		};
 	},
 	assign_defaults(frm)
 	{
@@ -222,6 +259,32 @@ frappe.ui.form.on('Sales Invoice', {
 
 		fill_receipt_schedule(frm,refresh= true)
 	},
+	project(frm)
+	{
+		if(frm.doc.project != undefined)
+		{
+			frm.set_value('update_stock',false)
+		}
+
+		if (frm.doc.project) {
+            // Call the server-side method to fetch the sales order
+            frappe.db.get_doc('Project', frm.doc.project).then(project => {
+                if (project.sales_order) {
+                    // Set the sales_order value in the form
+                    frm.set_value('sales_order', project.sales_order);
+
+					frappe.db.get_doc('Sales Order', project.sales_order).then(so=>{
+
+						frm.set_value('project_value', so.gross_total)
+					})
+
+                }
+            });
+
+            // Set update_stock to false
+            frm.set_value('update_stock', false);
+        }    
+	},
 	credit_days(frm)
 	{
 		fill_receipt_schedule(frm,refresh_credit_days= true);
@@ -236,6 +299,7 @@ frappe.ui.form.on('Sales Invoice', {
 			})
 	},
 	make_taxes_and_totals(frm) {
+		console.clear()
 		console.log("from make totals..")
 		frm.clear_table("taxes");
 		frm.refresh_field("taxes");
@@ -304,8 +368,6 @@ frappe.ui.form.on('Sales Invoice', {
 				console.log("Net amount %f", entry.net_amount);
 				entry.gross_amount = entry.qty * entry.rate_excluded_tax;
 			}
-
-
 
 			//var taxesTable = frm.add_child("taxes");
 			//taxesTable.tax = entry.tax;
@@ -401,32 +463,37 @@ frappe.ui.form.on('Sales Invoice', {
 		frappe.db.get_value('Company', frm.doc.company, 'do_not_apply_round_off_in_si', function(data) {
 			console.log("Value of do_not_apply_round_off_in_si:", data.do_not_apply_round_off_in_si);
 			if (data && data.do_not_apply_round_off_in_si == 1) {
-				frm.doc.rounded_total = frm.doc.net_total;
-				frm.refresh_field('rounded_total');				
+						
+				frm.set_value("rounded_total", frm.doc.net_total)		
 			}
 			else {
 			 if (frm.doc.net_total != Math.round(frm.doc.net_total)) {
 				 frm.doc.round_off = Math.round(frm.doc.net_total) - frm.doc.net_total;
-				 frm.doc.rounded_total = Math.round(frm.doc.net_total);
+				//  frm.doc.rounded_total = Math.round(frm.doc.net_total);
+				 frm.set_value("rounded_total", Math.round(frm.doc.net_total))	
 				 frm.refresh_field('round_off');
-				 frm.refresh_field('rounded_total');				 
+				 frm.refresh_field('rounded_total');
+
 			 }
 			 else{
 
-				frm.doc.rounded_total = frm.doc.net_total;
-				frm.refresh_field("rounded_total");
+				// frm.doc.rounded_total = frm.doc.net_total;
+				// frm.refresh_field("rounded_total");
+				frm.set_value("rounded_total", Math.round(frm.doc.net_total))	
 
 				console.log(frm.doc.net_total)
 				console.log(frm.doc.rounded_total)
 				
 			 }
 		 }
+		 console.log("rounded_total_calculated", frm.doc.rounded_total)
 
 			console.log("before call fill_receipt_schedule")
 			fill_receipt_schedule(frm);
-		});
+			console.log("rounded_total_calculated 2", frm.doc.rounded_total)
 
-		
+			update_total_big_display(frm);
+		});
 
 		frm.refresh_field("items");
 		frm.refresh_field("taxes");
@@ -435,12 +502,6 @@ frappe.ui.form.on('Sales Invoice', {
 		frm.refresh_field("net_total");
 		frm.refresh_field("tax_total");
 		frm.refresh_field("round_off");
-		frm.refresh_field("rounded_total");
-
-		
-
-		update_total_big_display(frm);
-
 	},
 	get_item_stock_balance(frm) {
 
@@ -469,7 +530,6 @@ frappe.ui.form.on('Sales Invoice', {
 			}
     });
 
-
 	},
 	get_default_company_and_warehouse(frm) {
 
@@ -492,7 +552,7 @@ frappe.ui.form.on('Sales Invoice', {
 						args: {
 							'doctype': 'Company',
 							'filters': { 'company_name': default_company },
-							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice']
+							'fieldname': ['default_warehouse', 'rate_includes_tax', 'delivery_note_integrated_with_sales_invoice','update_price_list_price_with_sales_invoice','use_customer_last_price','customer_terms','update_stock_in_sales_invoice','allow_edit_sales_invoice_no']
 						},
 						callback: (r2) => {
 
@@ -501,6 +561,17 @@ frappe.ui.form.on('Sales Invoice', {
 							frm.doc.rate_includes_tax = r2.message.rate_includes_tax;
 
 							frm.doc.update_stock = r2.message.update_stock_in_sales_invoice
+
+							frm.custom = frm.custom || {};
+
+							// Set a temporary flag (not saved in DB)
+							frm.custom.allow_edit_sales_invoice_no = r2.message.allow_edit_sales_invoice_no;
+
+							console.log("frm.custom.allow_edit_sales_invoice_no")
+							console.log(frm.custom.allow_edit_sales_invoice_no)
+
+							// Use it to control the visibility of the field
+							frm.set_df_property("sales_inv_no", "hidden", !frm.custom.allow_edit_sales_invoice_no);
 
 							// frm.doc.auto_save_delivery_note = r2.message.delivery_note_integrated_with_sales_invoice;
 							frm.doc.auto_save_delivery_note = false
@@ -586,7 +657,6 @@ frappe.ui.form.on('Sales Invoice', {
 function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 {
 
-
 	if(refresh)
 	{
 		frm.doc.receipt_schedule = [];
@@ -603,8 +673,7 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 		var postingDate = frm.doc.posting_date;
 		var creditDays = frm.doc.credit_days;
-		var roundedTotal = frm.doc.rounded_total;
-
+		
 		if (!frm.doc.receipt_schedule) {
 			frm.doc.receipt_schedule = [];
 		}
@@ -660,12 +729,15 @@ function fill_receipt_schedule(frm, refresh=false,refresh_credit_days=false)
 
 function update_total_big_display(frm) {
 
-	let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
+	console.log("from big",frm.doc.rounded_total)
+	
+	let total_to_display = isNaN(frm.doc.rounded_total) ? 0 : parseFloat(frm.doc.rounded_total).toFixed(0);
 
     // Add 'AED' prefix and format net_total for display
 
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
+	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${total_to_display}</div>`;
 
+	console.log("displayHtml",displayHtml)
 
     // Directly update the HTML content of the 'total_big' field
     frm.fields_dict['total_big'].$wrapper.html(displayHtml);
@@ -765,13 +837,9 @@ function process_delivery_note_items(frm, items) {
 }
 
 
-
-
 frappe.ui.form.on("Sales Invoice", "onload", function (frm) {
 
-	frm.trigger("assign_defaults")
-	fill_receipt_schedule(frm);
-
+	frm.trigger("assign_defaults")	
 });
 
 frappe.ui.form.on('Sales Invoice Item', {
@@ -816,13 +884,13 @@ frappe.ui.form.on('Sales Invoice Item', {
 				args: {
 					'doctype': 'Item',
 					'filters': { 'item_code': row.item },
-					'fieldname': ['item_name', 'base_unit', 'tax', 'tax_excluded']
+					'fieldname': ['item_name','description', 'base_unit', 'tax', 'tax_excluded']
 				},
 				callback: (r) => {
 					console.log("item")
 					console.log(r)
 					row.item_name = r.message.item_name;
-					row.display_name = r.message.item_name;
+					row.display_name = r.message.description;
 					//row.uom = r.message.base_unit;
 					if(tax_excluded_for_company)
 					{
@@ -839,7 +907,20 @@ frappe.ui.form.on('Sales Invoice Item', {
 					row.conversion_factor = 1;
 
 					frm.item = row.item;
-					frm.warehouse = row.warehouse
+					frm.warehouse = row.warehouse					
+
+					let advance_filled = false
+					if(frm.doc.project && frm.doc.for_advance_payment && frm.doc.project_value>0 && frm.doc.advance_percentage>0)
+						{
+	
+							advance_value = (frm.doc.project_value * frm.doc.advance_percentage / 100)
+							row.rate = advance_value
+							advance_filled = true
+
+							var message = frm.doc.advance_percentage + "% advance = " + advance_value + " allocated in the line item.";
+							
+							frm.events.show_a_message(frm,message);
+						}
 
 					frm.trigger("get_item_stock_balance");
 
@@ -901,7 +982,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 					console.log(use_customer_last_price)
 
 					var use_price_list_price = 1
-					if(use_customer_last_price == 1)
+					if(use_customer_last_price == 1 && !advance_filled)
 					{
 						console.log("before call digitz_erp.api.item_price_api.get_customer_last_price_for_item")
 						frappe.call(
@@ -939,7 +1020,7 @@ frappe.ui.form.on('Sales Invoice Item', {
 						);
 					}
 
-					if(use_price_list_price ==1)
+					if(use_price_list_price ==1 && !advance_filled)
 					{
 						console.log("digitz_erp.api.item_price_api.get_item_price")
 						frappe.call(
@@ -1188,42 +1269,59 @@ let general_ledgers = function (frm) {
     frappe.call({
         method: "digitz_erp.api.accounts_api.get_gl_postings",
         args: {
-			voucher: frm.doc.doctype,
+            voucher: frm.doc.doctype,
             voucher_no: frm.doc.name
         },
         callback: function (response) {
-            let gl_postings = response.message;
+            let gl_postings = response.message.gl_postings;
+            let totalDebit = parseFloat(response.message.total_debit).toFixed(2);
+            let totalCredit = parseFloat(response.message.total_credit).toFixed(2);
 
             // Generate HTML content for the popup
-            let htmlContent = '<div style="max-height: 400px; overflow-y: auto;">' +
+            let htmlContent = '<div style="max-height: 680px; overflow-y: auto;">' +
                               '<table class="table table-bordered" style="width: 100%;">' +
                               '<thead>' +
                               '<tr>' +
-                              '<th style="width: 20%;">Account</th>' +
-                              '<th style="width: 15%;">Debit Amount</th>' +
-                              '<th style="width: 15%;">Credit Amount</th>' +
-                              '<th style="width: 25%;">Against Account</th>' +
-                              '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 15%;">Account</th>' +
+							  '<th style="width: 25%;">Remarks</th>' +
+                              '<th style="width: 10%;">Debit Amount</th>' +
+                              '<th style="width: 10%;">Credit Amount</th>' +
+							  '<th style="width: 10%;">Party</th>' +
+                              '<th style="width: 10%;">Against Account</th>' +                              
+                              '<th style="width: 10%;">Project</th>' +
+                              '<th style="width: 10%;">Cost Center</th>' +                              
                               '</tr>' +
                               '</thead>' +
                               '<tbody>';
 
-							  gl_postings.forEach(function (gl_posting) {
-								// Handling null values for remarks
-								let remarksText = gl_posting.remarks || '';  // Replace '' with a default text if you want to show something other than an empty string
+			console.log("gl_postings",gl_postings)
 
-								// Ensure debit_amount and credit_amount are treated as floats and format them
-								let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
-								let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
+            gl_postings.forEach(function (gl_posting) {
+                let remarksText = gl_posting.remarks || '';
+                let debitAmount = parseFloat(gl_posting.debit_amount).toFixed(2);
+                let creditAmount = parseFloat(gl_posting.credit_amount).toFixed(2);
 
-								htmlContent += '<tr>' +
-											   `<td>${gl_posting.account}</td>` +
-											   `<td style="text-align: right;">${debitAmount}</td>` +
-											   `<td style="text-align: right;">${creditAmount}</td>` +
-											   `<td>${gl_posting.against_account}</td>` +
-											   `<td>${remarksText}</td>` +
-											   '</tr>';
-							});
+                htmlContent += '<tr>' +
+                               `<td>${gl_posting.account}</td>` +
+							   `<td>${remarksText}</td>` +
+                               `<td style="text-align: right;">${debitAmount}</td>` +
+                               `<td style="text-align: right;">${creditAmount}</td>` +
+							   `<td>${gl_posting.party}</td>` +
+                               `<td>${gl_posting.against_account}</td>` +                               
+                               `<td>${gl_posting.project}</td>` +
+                               `<td>${gl_posting.cost_center}</td>` +
+                               
+                               '</tr>';
+            });
+
+            // Add totals row
+            htmlContent += '<tr>' +
+                           '<td style="font-weight: bold;">Total</td>' +
+						   '<td></td>'+
+                           `<td style="text-align: right; font-weight: bold;">${totalDebit}</td>` +
+                           `<td style="text-align: right; font-weight: bold;">${totalCredit}</td>` +
+                           '<td colspan="5"></td>' +
+                           '</tr>';
 
             htmlContent += '</tbody></table></div>';
 
@@ -1242,13 +1340,12 @@ let general_ledgers = function (frm) {
             });
 
             // Set custom width for the dialog
-            d.$wrapper.find('.modal-dialog').css('max-width', '72%'); // or any specific width like 800px
+            d.$wrapper.find('.modal-dialog').css('max-width', '90%'); 
 
             d.show();
         }
     });
 };
-
 
 let stock_ledgers = function (frm) {
     frappe.call({
@@ -1335,57 +1432,52 @@ frappe.ui.form.on("Sales Invoice",{
     refresh(frm){
         // frm.set_df_property('custom_item_table', 'hidden', 1);
 
-        frm.add_custom_button(__('Allocate'), function() {
-            // Define the dialog
-            let d = new frappe.ui.Dialog({
-                title: 'Allocate Receipt Entry',
-                fields: [
-                    {
-                        label: 'Receipt Entry',
-                        fieldname: 'receipt_entry',
-                        fieldtype: 'Link',
-                        options: 'Receipt Entry',
-                        get_query: function() {
-                            return {
-                                filters: [
-                                    ['advance_payment', '=', 1],
-                                    ['project', '=', frm.doc.project],
-                                    ['customer', '=', frm.doc.customer]
-                                ]
-                            };
-                        }
-                    }
-                ],
-                primary_action: function(data) {
-                    console.log('Selected Receipt Entry:', data.receipt_entry);
+        // frm.add_custom_button(__('Allocate'), function() {
+        //     // Define the dialog
+        //     let d = new frappe.ui.Dialog({
+        //         title: 'Allocate Receipt Entry',
+        //         fields: [
+        //             {
+        //                 label: 'Receipt Entry',
+        //                 fieldname: 'receipt_entry',
+        //                 fieldtype: 'Link',
+        //                 options: 'Receipt Entry',
+        //                 get_query: function() {
+        //                     return {
+        //                         filters: [
+        //                             ['advance_payment', '=', 1],
+        //                             ['project', '=', frm.doc.project],
+        //                             ['customer', '=', frm.doc.customer]
+        //                         ]
+        //                     };
+        //                 }
+        //             }
+        //         ],
+        //         primary_action: function(data) {
+        //             console.log('Selected Receipt Entry:', data.receipt_entry);
 
-                    frappe.call({
-                        method: 'digitz_erp.accounts.doctype.receipt_entry.receipt_entry.receipt_allocation_updates',
-                        args:{
-                            receipt_entry_id: data.receipt_entry,
-                            sales_inv_id: frm.doc.name
-                        },
-                        callback: function(response){
-                            if(response.message){
+        //             frappe.call({
+        //                 method: 'digitz_erp.accounts.doctype.receipt_entry.receipt_entry.receipt_allocation_updates',
+        //                 args:{
+        //                     receipt_entry_id: data.receipt_entry,
+        //                     sales_inv_id: frm.doc.name
+        //                 },
+        //                 callback: function(response){
+        //                     if(response.message){
 
-                            }
-                        }
-                    })
+        //                     }
+        //                 }
+        //             })
 
-                    d.hide();
-                },
-                primary_action_label: __('Allocate')
-            });
+        //             d.hide();
+        //         },
+        //         primary_action_label: __('Allocate')
+        //     });
 
-            // Show the dialog
-            d.show();
-        });
-    },
-    make_taxes_and_totals(frm){
-		if(frm.doc.project){
-			update_total_big_display_1(frm);
-		}
-    },
+        //     // Show the dialog
+        //     d.show();
+        // });
+    },    
     setup(frm){
         let prev_customer = localStorage.getItem("prev_customer");
         let prev_project = localStorage.getItem("prev_project");
@@ -1450,22 +1542,3 @@ frappe.ui.form.on("Sales Invoice",{
 })
 
 
-
-
-function update_total_big_display_1(frm) {
-
-	// let netTotal = isNaN(frm.doc.net_total) ? 0 : parseFloat(frm.doc.net_total).toFixed(2);
-	let netTotal=0;
-	frm.doc.item_table.forEach((e)=>{
-			netTotal+= e.amount;
-	})
-    netTotal = netTotal.toFixed(2);
-    // Add 'AED' prefix and format net_total for display
-
-	let displayHtml = `<div style="font-size: 25px; text-align: right; color: black;">AED ${netTotal}</div>`;
-
-    frm.set_value("net_total",netTotal);
-    // Directly update the HTML content of the 'total_big' field
-	frm.fields_dict['total_big'].$wrapper.html(displayHtml);
-
-}

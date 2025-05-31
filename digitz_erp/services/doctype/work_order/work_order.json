@@ -1,0 +1,227 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:WO-{project_short_name}.#####",
+ "creation": "2024-10-25 20:13:57.622548",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_j3xl",
+  "naming_series",
+  "customer",
+  "amended_from",
+  "boq_execution",
+  "boq",
+  "project",
+  "column_break_eqjm",
+  "start_date",
+  "start_time",
+  "status",
+  "project_short_name",
+  "project_name",
+  "column_break_rebw",
+  "end_date",
+  "end_time",
+  "material_cost",
+  "labour_cost",
+  "column_break_wnwb",
+  "company",
+  "section_break_basy",
+  "work_order_items",
+  "employees_tab",
+  "work_order_employees",
+  "tasks_tab",
+  "work_order_tasks"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_j3xl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "WO-.YYYY.-"
+  },
+  {
+   "fetch_from": "boq_execution.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Work Order",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "boq_execution",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "BOQ Execution",
+   "options": "BOQ Execution"
+  },
+  {
+   "fetch_from": "boq_execution.boq",
+   "fieldname": "boq",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "BOQ",
+   "options": "BOQ",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "boq_execution.project",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_eqjm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Not Started\nIn Process\nCompleted"
+  },
+  {
+   "fetch_from": "project.project_short_name",
+   "fieldname": "project_short_name",
+   "fieldtype": "Data",
+   "label": "Project Short Name"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "column_break_rebw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "description": "Based on Material Issue",
+   "fieldname": "material_cost",
+   "fieldtype": "Currency",
+   "label": "Material Cost"
+  },
+  {
+   "description": "Based on Timesheet Entry",
+   "fieldname": "labour_cost",
+   "fieldtype": "Currency",
+   "label": "Labour Cost"
+  },
+  {
+   "fieldname": "column_break_wnwb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_basy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "Only include the items currently in production. Multiple work orders can be created to complete the BOQ Execution",
+   "fieldname": "work_order_items",
+   "fieldtype": "Table",
+   "label": "Work Order Items",
+   "options": "Work Order Item"
+  },
+  {
+   "fieldname": "employees_tab",
+   "fieldtype": "Tab Break",
+   "label": "Employees"
+  },
+  {
+   "fieldname": "work_order_employees",
+   "fieldtype": "Table",
+   "label": "Employees",
+   "options": "Project Employee"
+  },
+  {
+   "fieldname": "tasks_tab",
+   "fieldtype": "Tab Break",
+   "label": "Tasks"
+  },
+  {
+   "fieldname": "work_order_tasks",
+   "fieldtype": "Table",
+   "label": "Tasks",
+   "options": "Project Task"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:33:52.117210",
+ "modified_by": "Administrator",
+ "module": "Services",
+ "name": "Work Order",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

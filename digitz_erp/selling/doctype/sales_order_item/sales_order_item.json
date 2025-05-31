@@ -12,6 +12,7 @@
   "item",
   "item_name",
   "display_name",
+  "item_group",
   "qty",
   "unit",
   "rate",
@@ -33,7 +34,8 @@
   "unit_conversion_details",
   "cost_center",
   "qty_sold_in_base_unit",
-  "quotation_item_reference_no"
+  "quotation_item_reference_no",
+  "boq_item"
  ],
  "fields": [
   {
@@ -154,10 +156,11 @@
    "read_only": 1
   },
   {
+   "fetch_from": "item.description",
    "fieldname": "display_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Display Name"
+   "label": "Display Name (Description)"
   },
   {
    "default": "0",
@@ -167,6 +170,7 @@
    "read_only": 1
   },
   {
+   "fetch_from": "item.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "label": "Item Name"
@@ -188,19 +192,34 @@
   {
    "fieldname": "quotation_item_reference_no",
    "fieldtype": "Data",
-   "label": "Quotation Item Reference No"
+   "label": "Quotation Item Reference No",
+   "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "lumpsum_amount",
    "fieldtype": "Check",
    "label": "Lumpsum Amount"
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group"
+  },
+  {
+   "fieldname": "boq_item",
+   "fieldtype": "Link",
+   "label": "BOQ Item",
+   "options": "BOQ Item",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-08 11:57:57.590844",
+ "modified": "2025-03-14 14:58:02.529097",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order Item",

@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "autoname": "PR-.#####",
+ "creation": "2024-05-16 09:00:53.181450",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "posting_date",
+  "start_date",
+  "end_date",
+  "column_break_jjsz",
+  "create_salary_slips",
+  "payroll_entry_name",
+  "note",
+  "section_break_wkva",
+  "payroll_entry_details",
+  "review_tab",
+  "section_break_qsde",
+  "show_review",
+  "missing_attendances",
+  "section_break_rtvy",
+  "employees_data",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date"
+  },
+  {
+   "description": "Input first day of the salary period",
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jjsz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "create_salary_slips",
+   "fieldtype": "Button",
+   "label": "Create Salary Slips"
+  },
+  {
+   "fieldname": "payroll_entry_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payroll Entry Name",
+   "read_only": 1
+  },
+  {
+   "default": "Attendance marked as 'Absent' must be associated with an approved Leave Application in the system. Otherwise, salary slips will not be generated for those entries.",
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_wkva",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "This list displays the employees with recorded attendance for the selected salary period. The full log is available in the 'Review' tab.",
+   "fieldname": "payroll_entry_details",
+   "fieldtype": "Table",
+   "label": "Employees",
+   "options": "Payroll Entry Detail"
+  },
+  {
+   "fieldname": "review_tab",
+   "fieldtype": "Tab Break",
+   "label": "Review"
+  },
+  {
+   "fieldname": "section_break_qsde",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "show_review",
+   "fieldtype": "Button",
+   "label": "Show Review"
+  },
+  {
+   "fieldname": "missing_attendances",
+   "fieldtype": "HTML",
+   "label": "Missing Attendances"
+  },
+  {
+   "fieldname": "section_break_rtvy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employees_data",
+   "fieldtype": "Table",
+   "label": "Employees Attendances",
+   "options": "Payroll Entry Employees Data"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payroll Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-30 19:24:18.058004",
+ "modified_by": "Administrator",
+ "module": "HRMS",
+ "name": "Payroll Entry",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -12,30 +12,41 @@
   "item_name",
   "description",
   "base_unit",
+  "item_type",
+  "use_as_default_for_labour_in_estimate",
+  "use_as_default_for_material_in_estimate",
   "column_break_4",
   "item_group",
   "brand",
   "maintain_stock",
-  "is_fixed_asset",
   "asset_category",
   "tax_excluded",
   "tax",
+  "weight_per_meter",
+  "rate_per_kg",
   "section_break_ohog",
   "standard_buying_price",
   "margin_",
   "standard_selling_price",
+  "default_expense_account",
+  "use_for_glass",
+  "use_for_aluminium_profile",
+  "width",
+  "height",
+  "area",
+  "length",
   "column_break_izch",
   "stock_balance",
   "item_valuation_rate",
   "stock_value",
   "section_break_20",
-  "units",
   "disabled",
-  "tab_break_14",
   "customer_rates",
+  "units",
   "supplier_prices_tab",
   "supplier_rates",
-  "do_not_update_price"
+  "do_not_update_price",
+  "tab_break_14"
  ],
  "fields": [
   {
@@ -51,6 +62,7 @@
    "in_global_search": 1,
    "in_standard_filter": 1,
    "label": "Item Name",
+   "reqd": 1,
    "unique": 1
   },
   {
@@ -58,10 +70,11 @@
    "fieldname": "base_unit",
    "fieldtype": "Link",
    "label": "Base Unit",
-   "options": "Unit"
+   "options": "Unit",
+   "reqd": 1
   },
   {
-   "default": "All Item Groups",
+   "default": "Default Item Group",
    "fieldname": "item_group",
    "fieldtype": "Link",
    "in_filter": 1,
@@ -143,13 +156,6 @@
    "label": "Supplier Prices"
   },
   {
-   "description": "For multiple units, adjust the conversion factor based on the quantity of units corresponding to the base unit. For instance, if a box holds 10 pieces of an item, then the conversion factor listed in the row for the 'Box' unit ought to be 10.",
-   "fieldname": "units",
-   "fieldtype": "Table",
-   "label": "Units",
-   "options": "Item Unit"
-  },
-  {
    "fieldname": "stock_balance",
    "fieldtype": "Float",
    "label": "Stock Balance(Base Unit)"
@@ -191,23 +197,105 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "fieldname": "is_fixed_asset",
-   "fieldtype": "Check",
-   "label": "Is Fixed Asset"
-  },
-  {
-   "depends_on": "eval:doc.is_fixed_asset==1",
+   "depends_on": "eval:doc.item_type==\"Fixed Asset\"",
    "fieldname": "asset_category",
    "fieldtype": "Link",
    "label": "Asset Category",
    "mandatory_depends_on": "eval:doc.is_fixed_asset == 1",
    "options": "Asset Category"
+  },
+  {
+   "default": "Product",
+   "fieldname": "item_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Item Type",
+   "options": "Product\nService\nLabour\nMaterial\nFixed Asset\nBOQ Product\nBOM Product",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_expense_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Default Expense Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.item_type==\"Material\"",
+   "fieldname": "use_as_default_for_material_in_estimate",
+   "fieldtype": "Check",
+   "label": "Use as default for material in the estimate"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.item_type==\"Labour\"",
+   "fieldname": "use_as_default_for_labour_in_estimate",
+   "fieldtype": "Check",
+   "label": "Use as default for labour in the estimate"
+  },
+  {
+   "fieldname": "units",
+   "fieldtype": "Table",
+   "label": "Units",
+   "options": "Item Unit"
+  },
+  {
+   "fieldname": "weight_per_meter",
+   "fieldtype": "Float",
+   "label": "Weight Per Meter (KG)"
+  },
+  {
+   "fieldname": "rate_per_kg",
+   "fieldtype": "Currency",
+   "label": "Rate Per Kg"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_for_glass",
+   "fieldtype": "Check",
+   "label": "Use for Glass"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_for_aluminium_profile",
+   "fieldtype": "Check",
+   "label": "Use for Aluminium Profile"
+  },
+  {
+   "depends_on": "eval:doc.use_for_glass",
+   "fieldname": "width",
+   "fieldtype": "Float",
+   "label": "Width",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.use_for_glass",
+   "fieldname": "height",
+   "fieldtype": "Float",
+   "label": "Height",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.use_for_glass",
+   "fieldname": "area",
+   "fieldtype": "Float",
+   "label": "Area",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.use_for_aluminium_profile",
+   "fieldname": "length",
+   "fieldtype": "Float",
+   "label": "Length",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-31 19:48:19.150606",
+ "modified": "2025-02-05 14:34:08.784564",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",

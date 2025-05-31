@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-21 11:19:59.771976",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "item_name",
+  "display_name",
+  "qty",
+  "qty_issued",
+  "qty_in_the_order",
+  "unit",
+  "rate",
+  "warehouse",
+  "column_break_11",
+  "sub_contracting_order_item",
+  "material_issue_item"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "link_filters": "[[\"Item\",\"item_type\",\"!=\",\"BOQ Product\"]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Display Name"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "fieldname": "qty_issued",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Issued",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty_in_the_order",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty In The Order",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Unit",
+   "options": "Unit"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rate",
+   "precision": "2"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sub_contracting_order_item",
+   "fieldtype": "Link",
+   "label": "Sub contracting order item",
+   "options": "Sub Contracting Order Item"
+  },
+  {
+   "fieldname": "material_issue_item",
+   "fieldtype": "Link",
+   "label": "Material Issue Item",
+   "options": "Material Issue Item"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-31 10:24:08.442962",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Stock Entry Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

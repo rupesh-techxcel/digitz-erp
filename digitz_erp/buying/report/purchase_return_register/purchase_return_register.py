@@ -275,8 +275,8 @@ def get_data(filters):
 
         data = frappe.db.sql(query, as_dict=True)
 
-    print("query")
-    print(query)
+    #print("query")
+    #print(query)
     return data
 
 
