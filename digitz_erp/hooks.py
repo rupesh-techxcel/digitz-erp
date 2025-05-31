@@ -2,9 +2,10 @@ from . import __version__ as app_version
 
 app_name = "digitz_erp"
 app_title = "Digitz ERP"
-app_publisher = "Rupesh P"
-app_description = "A simple ERP Software"
-app_email = "rupeshprajan@gmail.com"
+app_version = "1.0.0"
+app_publisher = "Techxcel Technologies"
+app_description = "ERP for SMEs, Services, Contracting, and Trading Companies"
+app_email = "rupesh@techxceltech.com"
 app_license = "MIT"
 
 # Includes in <head>
