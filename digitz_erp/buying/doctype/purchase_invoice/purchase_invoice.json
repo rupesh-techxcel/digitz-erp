@@ -480,7 +480,7 @@
    "table_fieldname": "invoices"
   }
  ],
- "modified": "2024-11-19 14:23:04.021079",
+ "modified": "2025-05-31 15:42:49.841509",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Invoice",
@@ -500,6 +500,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

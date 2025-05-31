@@ -542,6 +542,8 @@ class PurchaseReceipt(Document):
 @frappe.whitelist()
 def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 
+	from frappe.utils import add_days
+ 
 	purchase_doc = frappe.get_doc("Purchase Receipt", purchase_receipt)
 
 	# Create Purchase Invoice
@@ -623,6 +625,22 @@ def generate_purchase_invoice_for_purchase_receipt(purchase_receipt):
 			invoice_item.po_item_reference = item.po_item_reference
 			purchase_invoice.append("items", invoice_item)
 
+	# === Embedded Payment Schedule Logic ===
+	purchase_invoice.payment_schedule = []
+
+	# === Fixed Payment Schedule Logic ===
+	purchase_invoice.set("payment_schedule", [])
+
+	if purchase_invoice.credit_purchase:
+		posting_date = purchase_invoice.posting_date
+		credit_days = purchase_invoice.credit_days or 0
+		rounded_total = purchase_invoice.rounded_total or 0
+
+		payment_row = purchase_invoice.append("payment_schedule", {})
+		payment_row.date = add_days(posting_date, credit_days) if credit_days else posting_date
+		payment_row.payment_mode = "Cash"
+		payment_row.amount = rounded_total
+  
 	# if pending_item_exists:
 	purchase_invoice.insert()
 	frappe.db.commit()

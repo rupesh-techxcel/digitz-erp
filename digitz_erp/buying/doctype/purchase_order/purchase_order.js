@@ -239,13 +239,6 @@ frappe.ui.form.on('Purchase Order', {
 					frm.refresh_field("price_list");
 				}
 			});
-
-
-
-		for(item of frm.doc.items){
-			// console.log(item.doctype,item.name)
-			update_item_row(frm,item.doctype,item.name);
-		}
 	},
 	edit_posting_date_and_time(frm) {
 
@@ -453,6 +446,8 @@ frappe.ui.form.on('Purchase Order', {
 			console.log("Item in Row")
 			console.log(entry.item);
 			var tax_in_rate = 0;
+
+			entry.rate = isNaN(entry.rate)? 0 : entry.rate
 
 			//rate_includes_tax column in items table is readonly and it depends the form's rate_includes_tax column
 			entry.rate_includes_tax = frm.doc.rate_includes_tax;
