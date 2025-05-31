@@ -4,7 +4,7 @@ app_name = "digitz_erp"
 app_title = "Digitz ERP"
 app_version = "1.0.0"
 app_publisher = "Techxcel Technologies"
-app_description = "ERP for SMEs, Services, Contracting, and Trading Companies"
+app_description = "A Frappe-based ERP solution tailored for SMEs in Services, Contracting, and Trading industries."
 app_email = "rupesh@techxceltech.com"
 app_license = "MIT"
 
