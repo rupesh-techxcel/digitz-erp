@@ -5,7 +5,7 @@
 ### Suitable for Trading companies Service providers with project-oriented operations
 
 ### Trading Features
-#### Streamline your commodity trading using DIGITZ ERP, enabling efficient buying, selling, and inventory management across multiple warehouses. It supports multi-level pricing, multiple units of measure, and a well-structured workflow to ensure seamless transactions.
+#### Streamline your commodity trading using DIGITZ ERP, enabling efficient buying, selling, and inventory management across multiple warehouses. It supports multi-level pricing, multiple units of measurements, and a well-structured workflow to ensure seamless transactions.
 #### Features like precise stock movement tracking, approval workflows, bill-wise payment reconciliation, and clear payment schedule visualization contribute to a powerful and dependable system.
 #### The platform incorporates automated accounting aligned with typical business transactions and modern ERP practices, enhancing overall effectiveness.
 
