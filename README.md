@@ -47,6 +47,8 @@
 
 ### Contact Us
 
-For inquiries, support, or contributions, please reach out to us at:  
-**📧 Email:** rupesh@techxceltech.com
+For inquiries, support, or contributions, please reach out to us at:
+Email: rupesh@techxceltech.com
+LinkedIn: https://www.linkedin.com/in/rupeshpr/ 
+(Contact via LinkedIn chat for a quick response)
 
