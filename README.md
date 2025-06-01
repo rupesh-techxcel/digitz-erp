@@ -9,3 +9,6 @@
 #### Features like precise stock movement tracking, approval workflows, bill-wise payment reconciliation, and clear payment schedule visualization contribute to a powerful and dependable system.
 #### The platform incorporates automated accounting aligned with typical business transactions and modern ERP practices, enhancing overall effectiveness.
 
+![image](https://github.com/user-attachments/assets/88f64e9d-65ba-40a8-a489-ab58622876ba)
+
+
