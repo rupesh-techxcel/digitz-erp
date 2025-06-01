@@ -26,4 +26,4 @@
 #### 9. Project live dashboard.
 #### 10. BOQ Amendments and manage variations.
 #### 11. Sub Contracting for Material Alterations
-#### 12. Tracking sub contracting material issue and receipts
+#### 12. Tracking sub contracting material issue and receipts for effective stock tracking
