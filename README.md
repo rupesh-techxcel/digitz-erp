@@ -43,4 +43,10 @@
 #### Attendance Entry (Single entry for full month attendance and daily attendance feature)
 #### Leave Allocation and Leave Approval
 
+### And many more features embeded
+
+### Contact Us
+
+For inquiries, support, or contributions, please reach out to us at:  
+**📧 Email:** rupesh@techxceltech.com
 
