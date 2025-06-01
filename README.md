@@ -1,11 +1,15 @@
-<<<<<<< HEAD
-## Digitz ERP
+## DIGITZ ERP
 
-A simple ERP Software
+### DIGITZ ERP is an open-source, simplified, ERP solution built on the powerful Frappe Framework, specifically designed to address the needs of SMEs in the Services, Contracting, and Trading industries. It provides a flexible, modular, and scalable system to streamline and manage end-to-end business operations effectively.
 
-#### License
+### Suitable for Trading companies Service providers with project-oriented operations
 
-MIT
-=======
-# digitz-erp
->>>>>>> f50dcc09a82b2e8904fb302dc0fcd06f0d0fc797
+### Trading Features
+#### Streamline your commodity trading using DIGITZ ERP, enabling efficient buying, selling, and inventory management across multiple warehouses. It supports multi-level pricing, multiple units of measurements, and a well-structured workflow to ensure seamless transactions.
+#### Features like precise stock movement tracking, approval workflows, bill-wise payment reconciliation, and clear payment schedule visualization contribute to a powerful and dependable system.
+#### The platform incorporates automated accounting aligned with typical business transactions and modern ERP practices, enhancing overall effectiveness.
+
+![image](https://github.com/user-attachments/assets/bfb5c769-d3c2-4da4-951f-c809b422fc4e)
+
+
+
