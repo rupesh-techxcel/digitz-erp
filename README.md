@@ -10,7 +10,8 @@
 #### Key functionalities include accurate stock movement tracking, approval processes, document conversion workflows (e.g., creating Sales Order from Quotation), pending balance monitoring, bill-wise payment reconciliation, and clear visualization of payment schedules.
 #### Integrated automated accounting system aligned with standard business transactions and modern ERP practices ensures operational efficiency.
 
-![image](https://github.com/user-attachments/assets/bfb5c769-d3c2-4da4-951f-c809b422fc4e)
+![image](https://github.com/user-attachments/assets/b6d485c9-34af-44a6-9585-4a6f60fdedd5)
+
 
 ![image](https://github.com/user-attachments/assets/0e66e840-6900-4f6b-9c76-cdd7bfd3d249)
 
