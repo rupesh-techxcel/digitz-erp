@@ -31,3 +31,16 @@
 #### 12. BOQ amendments and variation management
 #### 13. Subcontracting for material alterations
 #### 14. Subcontract material issuance and receipt tracking for accurate stock control
+
+### HR & PAYROLL Features
+#### Employee records and Employee Documents
+#### Salary Component, Salary Structure and Salary Structure Assignment to Employees
+#### Shift creation and configuration
+#### Shift Units creation (Eg: Trip for Travel business) and shift based on the units
+#### Overtime calculation 
+#### Salary Advance
+#### Employee Loan and periodic repayment
+#### Attendance Entry (Single entry for full month attendance and daily attendance feature)
+#### Leave Allocation and Leave Approval
+
+
