@@ -1,6 +1,6 @@
 ## DIGITZ ERP
 
-### DIGITZ ERP is an open-source ERP solution built on the powerful Frappe Framework, specifically designed to address the needs of SMEs in the Services, Contracting, and Trading industries. It provides a flexible, modular, and scalable system to streamline and manage end-to-end business operations effectively.
+### DIGITZ ERP is an open-source, simplified, ERP solution built on the powerful Frappe Framework, specifically designed to address the needs of SMEs in the Services, Contracting, and Trading industries. It provides a flexible, modular, and scalable system to streamline and manage end-to-end business operations effectively.
 
 ### Suitable for Trading companies Service providers with project-oriented operations
 
