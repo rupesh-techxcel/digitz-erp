@@ -12,6 +12,8 @@
 
 ![image](https://github.com/user-attachments/assets/bfb5c769-d3c2-4da4-951f-c809b422fc4e)
 
+![image](https://github.com/user-attachments/assets/0e66e840-6900-4f6b-9c76-cdd7bfd3d249)
+
 ### Features for Service Industry (MEP, Contracting, and Other Project-Based Businesses)
 #### DIGITZ ERP includes industry-specific capabilities to manage and execute service-based operations with project-wise accounting and workflows. Key features include:
 #### 1. BOQ
