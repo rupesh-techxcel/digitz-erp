@@ -1,29 +1,30 @@
 ## DIGITZ ERP
 
-### DIGITZ ERP is an open-source, simplified, ERP solution built on the powerful Frappe Framework, specifically designed to address the needs of SMEs in the Services, Contracting, and Trading industries. It provides a flexible, modular, and scalable system to streamline and manage end-to-end business operations effectively.
+### DIGITZ ERP is an open-source, user-friendly ERP solution developed on the robust Frappe Framework. It is tailored to meet the specific needs of SMEs operating in the Services, Contracting, and Trading sectors. The platform offers a flexible, modular, and scalable system to streamline and efficiently manage complete business operations.
 
-### Suitable for Trading companies Service providers with project-oriented operations
+### Suitable for: Trading companies and service providers engaged in project-oriented operations
 
 ### Trading Features
-#### Streamline your commodity trading using DIGITZ ERP, enabling efficient buying, selling, and inventory management across multiple warehouses. It supports multi-level pricing, multiple units of measurements, and a well-structured workflow to ensure seamless transactions.
-#### Features like precise stock movement tracking, approval workflows, bill-wise payment reconciliation, and clear payment schedule visualization contribute to a powerful and dependable system.
-#### The platform incorporates automated accounting aligned with typical business transactions and modern ERP practices, enhancing overall effectiveness.
+#### Manage your commodity trading with DIGITZ ERP, enabling seamless buying, selling, and inventory management across multiple warehouses.
+#### Supports multi-level pricing, multiple units of measurement, and a structured workflow for smooth transactional operations.
+#### Key functionalities include accurate stock movement tracking, approval processes, document conversion workflows (e.g., creating Sales Order from Quotation), pending balance monitoring, bill-wise payment reconciliation, and clear visualization of payment schedules.
+#### Integrated automated accounting system aligned with standard business transactions and modern ERP practices ensures operational efficiency.
 
 ![image](https://github.com/user-attachments/assets/bfb5c769-d3c2-4da4-951f-c809b422fc4e)
 
-### Features for Service Industry (MEP, Contracting and other project based business)
-#### DIGITZ ERP facilitates industrial specific features to effectively manage and execute services businesses involves project wise accoutning and workflows. The following are the features included.
+### Features for Service Industry (MEP, Contracting, and Other Project-Based Businesses)
+#### DIGITZ ERP includes industry-specific capabilities to manage and execute service-based operations with project-wise accounting and workflows. Key features include:
 #### 1. BOQ
 #### 2. Estimation
 #### 3. Budgeting
-#### 4. Multi level cost control adhere to budgeting
-#### 5. Progressive Invoicing (with Proforma Invoice and Progressive Invoice)
-#### 6. Advance Invoicing facility
-#### 7. Retention incorporation with invoicing
-#### 6. Expense Tracking for Project
-#### 7. Material Issue to Project
-#### 8. Timesheet Entry 
-#### 9. Project live dashboard.
-#### 10. BOQ Amendments and manage variations.
-#### 11. Sub Contracting for Material Alterations
-#### 12. Tracking sub contracting material issue and receipts for effective stock tracking
+#### 4. Multi-level cost control aligned with budgeting
+#### 5. Progressive Invoicing (includes Proforma and Progressive Invoice)
+#### 6. Advance Invoicing
+#### 7. Retention integration with invoicing
+#### 8. Project expense tracking
+#### 9. Material issuance to projects
+#### 10. Timesheet entry
+#### 11. Project live dashboards
+#### 12. BOQ amendments and variation management
+#### 13. Subcontracting for material alterations
+#### 14. Subcontract material issuance and receipt tracking for accurate stock control
