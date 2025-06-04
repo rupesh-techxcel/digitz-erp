@@ -5,12 +5,26 @@ import frappe
 from frappe.utils import formatdate
 from frappe import _
 
-
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     chart = get_chart_data(filters)
-    return columns, data, None, chart
+    summary = get_summary()
+    return columns, data, None, chart, summary
+
+def get_summary():
+    total_value = frappe.db.sql("""
+        SELECT SUM(sb.stock_value)
+        FROM `tabStock Balance` sb
+    """, as_list=True)[0][0] or 0
+
+    return [
+        {
+            "label": "Total Stock Value",
+            "value": round(total_value, 2),
+            "indicator": "Blue"
+        }
+    ]
 
 def get_data(filters=None):
     query = """
@@ -46,52 +60,38 @@ def get_chart_data(filters=None):
     query = """
         SELECT
             i.item_group,
-            sum(stock_qty)
+            SUM(sb.stock_qty) as total_qty
         FROM
             `tabStock Balance` sb
-        INNER JOIN `tabItem` i on i.name = sb.item
+        INNER JOIN `tabItem` i ON i.name = sb.item
         WHERE 1
     """
     if filters:
         if filters.get('item'):
-            query += " AND item = %(item)s"
+            query += " AND sb.item = %(item)s"
         if filters.get('stock_qty'):
-            query += " AND stock_qty = %(stock_qty)s"
+            query += " AND sb.stock_qty = %(stock_qty)s"
         if filters.get('warehouse'):
-            query += " AND warehouse = %(warehouse)s"
-    
-    query += " GROUP BY i.item_group"
+            query += " AND sb.warehouse = %(warehouse)s"
 
-    data = frappe.db.sql(query, filters, as_list=True)
+    query += """
+        GROUP BY i.item_group
+        ORDER BY total_qty DESC
+        LIMIT 10
+    """
 
-    items = []
-    item_wise_qty = {}
-    for row in data:
-        if row[0] not in items:
-            items.append(row[0])
-        if item_wise_qty.get(row[0]):
-            item_wise_qty[row[0]] = item_wise_qty.get(row[0]) + row[1]
-        else:
-            item_wise_qty[row[0]] = row[1]
-    data = list(item_wise_qty.items())
+    result = frappe.db.sql(query, filters, as_list=True)
 
-    datasets = []
-    labels = []
-    chart = {}
+    chart = {
+        "data": {
+            "labels": [row[0] for row in result],
+            "datasets": [{"values": [row[1] for row in result]}]
+        },
+        "type": "bar"
+    }
 
-    if data:
-        for d in data:
-            labels.append(d[0])
-            datasets.append(d[1])
-
-        chart = {
-            "data": {
-                "labels": labels,
-                "datasets": [{"values": datasets}]
-            },
-            "type": "bar"
-        }
     return chart
+
 
 def get_columns():
     return [

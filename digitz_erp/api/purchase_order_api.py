@@ -129,7 +129,7 @@ def create_purchase_order_from_material_request(material_request):
             po_item = po.append("items", {})
             po_item.item = item.item
             po_item.item_name = item.item_name
-            po_item.display_name = item.description  
+            po_item.display_name = item.display_name  
             qty_approved_in_base_unit = item.qty_approved * item.conversion_factor          
             
             po_item.qty = qty_approved_in_base_unit - item.qty_purchased_in_base_unit

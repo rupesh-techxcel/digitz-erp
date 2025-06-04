@@ -142,7 +142,7 @@
    "type": "Link"
   }
  ],
- "modified": "2025-05-31 12:24:46.335195",
+ "modified": "2025-06-01 15:07:29.181222",
  "modified_by": "Administrator",
  "module": "Services",
  "name": "Services",
@@ -152,14 +152,13 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 8.0,
+ "sequence_id": 10.0,
  "shortcuts": [
   {
    "color": "Grey",
    "doc_view": "List",
    "label": "Projectwise Labour Report",
    "link_to": "Projectwise Labour Report",
-   "report_ref_doctype": "Timesheet Entry",
    "type": "Report"
   },
   {
@@ -175,7 +174,6 @@
    "doc_view": "List",
    "label": "Projectwise Material Issue Report",
    "link_to": "Projectwise Material Issue Report",
-   "report_ref_doctype": "Material Issue",
    "type": "Report"
   },
   {

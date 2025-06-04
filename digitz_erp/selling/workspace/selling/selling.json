@@ -5,11 +5,11 @@
    "label": "Sales Trends"
   },
   {
-   "chart_name": "Top Customers",
-   "label": "Top Customers"
+   "chart_name": "Top Customers Chart",
+   "label": "Top Customers Chart"
   }
  ],
- "content": "[{\"id\":\"wuZpQSlRT6\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers\",\"col\":12}},{\"id\":\"r8G2KrYoVs\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Sales Trends\",\"col\":12}},{\"id\":\"wvc__ptX0n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"9dB0JdsKyv\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"tzCU3Rv8EL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"jAs2mp2HTC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Group\",\"col\":3}},{\"id\":\"BEEHIJaYB9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Area\",\"col\":3}},{\"id\":\"JEltu7TKmr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"lVBMZ7Pcxz\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"oKGdnQzqrM\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"AXSEwoyRND\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Transactions\",\"col\":4}},{\"id\":\"kXMmqz_AiT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"K-GC9xr-t5\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Reports</span>\",\"col\":12}},{\"id\":\"weSnfN0O6Z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Register\",\"col\":3}},{\"id\":\"srMzpaAqHB\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Itemwise Register\",\"col\":3}},{\"id\":\"_ImzAyKIiA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Itemwise Summary Report\",\"col\":3}},{\"id\":\"R0WNfi2G6Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oy4anwvhY3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Register\",\"col\":3}},{\"id\":\"dyiq7jyRla\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Itemwise Register\",\"col\":3}},{\"id\":\"zMjt6glnu6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Itemwise Summary Report\",\"col\":3}},{\"id\":\"0hMebdcIN7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Bm5yEaiGp0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Register\",\"col\":3}},{\"id\":\"22SLfnTJsc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Itemwise Register\",\"col\":3}},{\"id\":\"5mmFmcEq3x\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Itemwise Summary Report\",\"col\":3}},{\"id\":\"nmBwQKS8xd\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"L78A4ZGXcY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Register\",\"col\":3}},{\"id\":\"wQOJaxEjPo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Itemwise Register\",\"col\":3}},{\"id\":\"EjPHUAVef_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Itemwise Summary Report\",\"col\":3}},{\"id\":\"Q9_8-JG3MB\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_QyVxDFaqT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Register\",\"col\":3}},{\"id\":\"nvJbMwXQGt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Itemwise Register\",\"col\":3}},{\"id\":\"H5QKyI1PeR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Itemwise Summary Report\",\"col\":3}},{\"id\":\"xkabYmkNUT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"dVsCFDvg-w\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Chart   Top Customer Sales\",\"col\":3}},{\"id\":\"xkYZVBbrZQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Transaction Ageing Report\",\"col\":3}}]",
+ "content": "[{\"id\":\"r8G2KrYoVs\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Sales Trends\",\"col\":12}},{\"id\":\"gAzwZp4f1i\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers Chart\",\"col\":12}},{\"id\":\"wvc__ptX0n\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"9dB0JdsKyv\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Masters</span>\",\"col\":12}},{\"id\":\"tzCU3Rv8EL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"jAs2mp2HTC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Group\",\"col\":3}},{\"id\":\"BEEHIJaYB9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Area\",\"col\":3}},{\"id\":\"JEltu7TKmr\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"lVBMZ7Pcxz\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"oKGdnQzqrM\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"AXSEwoyRND\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Transactions\",\"col\":4}},{\"id\":\"kXMmqz_AiT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"K-GC9xr-t5\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Reports</span>\",\"col\":12}},{\"id\":\"weSnfN0O6Z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Register\",\"col\":3}},{\"id\":\"srMzpaAqHB\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Itemwise Register\",\"col\":3}},{\"id\":\"_ImzAyKIiA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Itemwise Summary Report\",\"col\":3}},{\"id\":\"R0WNfi2G6Q\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"oy4anwvhY3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Register\",\"col\":3}},{\"id\":\"dyiq7jyRla\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Itemwise Register\",\"col\":3}},{\"id\":\"zMjt6glnu6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note Itemwise Summary Report\",\"col\":3}},{\"id\":\"0hMebdcIN7\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Bm5yEaiGp0\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Register\",\"col\":3}},{\"id\":\"22SLfnTJsc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Itemwise Register\",\"col\":3}},{\"id\":\"5mmFmcEq3x\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation Itemwise Summary Report\",\"col\":3}},{\"id\":\"nmBwQKS8xd\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"L78A4ZGXcY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Register\",\"col\":3}},{\"id\":\"wQOJaxEjPo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Itemwise Register\",\"col\":3}},{\"id\":\"EjPHUAVef_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order Itemwise Summary Report\",\"col\":3}},{\"id\":\"Q9_8-JG3MB\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"_QyVxDFaqT\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Register\",\"col\":3}},{\"id\":\"nvJbMwXQGt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Itemwise Register\",\"col\":3}},{\"id\":\"H5QKyI1PeR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Return Itemwise Summary Report\",\"col\":3}},{\"id\":\"xkabYmkNUT\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"RhiXHx3QuI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Top Customer Sales Report\",\"col\":3}},{\"id\":\"xkYZVBbrZQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Transaction Ageing Report\",\"col\":3}}]",
  "creation": "2024-02-06 11:37:44.222236",
  "custom_blocks": [],
  "docstatus": 0,
@@ -170,7 +170,7 @@
    "type": "Link"
   }
  ],
- "modified": "2025-05-18 08:55:11.772897",
+ "modified": "2025-06-01 15:07:28.668679",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -182,6 +182,14 @@
  "roles": [],
  "sequence_id": 3.0,
  "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Top Customer Sales Report",
+   "link_to": "Top Customer Sales Report",
+   "report_ref_doctype": "Sales Invoice",
+   "type": "Report"
+  },
   {
    "color": "Grey",
    "doc_view": "List",
@@ -212,14 +220,6 @@
    "label": "Sales Order Register",
    "link_to": "Sales Order Register",
    "report_ref_doctype": "Sales Order",
-   "type": "Report"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Sales Chart   Top Customer Sales",
-   "link_to": "Sales Chart - Top Customer Sales",
-   "report_ref_doctype": "Sales Invoice",
    "type": "Report"
   },
   {

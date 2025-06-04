@@ -13,6 +13,7 @@
   "supplier",
   "supplier_balance",
   "supplier_address",
+  "attention",
   "tax_id",
   "column_break_6",
   "posting_date",
@@ -460,6 +461,11 @@
    "fieldname": "for_sub_contracting",
    "fieldtype": "Check",
    "label": "For sub contracting"
+  },
+  {
+   "fieldname": "attention",
+   "fieldtype": "Data",
+   "label": "Attn:"
   }
  ],
  "is_submittable": 1,
@@ -477,7 +483,7 @@
    "link_fieldname": "purchase_order"
   }
  ],
- "modified": "2025-02-05 14:18:59.441849",
+ "modified": "2025-06-03 10:52:44.129028",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",
@@ -497,6 +503,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

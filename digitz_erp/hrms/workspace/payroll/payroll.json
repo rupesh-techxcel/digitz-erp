@@ -26,7 +26,7 @@
  "is_hidden": 0,
  "label": "Payroll",
  "links": [],
- "modified": "2025-05-31 08:49:45.445026",
+ "modified": "2025-06-01 15:07:29.075180",
  "modified_by": "Administrator",
  "module": "HRMS",
  "name": "Payroll",
@@ -36,7 +36,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 7.0,
+ "sequence_id": 8.0,
  "shortcuts": [
   {
    "color": "Grey",
