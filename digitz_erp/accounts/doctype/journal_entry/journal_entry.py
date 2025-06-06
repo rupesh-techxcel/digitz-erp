@@ -3,13 +3,16 @@
 
 import frappe
 from frappe.model.document import Document
-from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type
+from digitz_erp.api.gl_posting_api import update_accounts_for_doc_type, delete_gl_postings_for_cancel_doc_type
 
 class JournalEntry(Document):
 	def on_submit(self):
 		# frappe.enqueue(self.insert_gl_records, queue="long")
 		self.insert_gl_records()
-		update_accounts_for_doc_type('Journal Entry',self.name)
+		update_accounts_for_doc_type('Journal Entry',self.name)  
+	
+	def on_cancel(self):     
+		delete_gl_postings_for_cancel_doc_type('Journal Entry',self.name)     
 
 	def insert_gl_records(self):
 		idx = 1

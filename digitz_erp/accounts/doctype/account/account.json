@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "field:account_name",
  "creation": "2022-12-21 11:47:46.978910",
  "default_view": "Report",
@@ -109,10 +108,11 @@
    "label": "Include in gross profit"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2024-11-23 16:51:25.072470",
+ "modified": "2025-06-06 21:41:32.472477",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",
@@ -133,6 +133,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

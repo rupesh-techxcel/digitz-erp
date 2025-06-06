@@ -43,7 +43,26 @@ frappe.ui.form.on('Company', {
                 frappe.msgprint("❌ Action cancelled");
             }
         );
-    }
+    },
+	create_all_expense_heads: function(frm) {
+        frappe.confirm(
+            'Are you sure you want to create all missing expense heads?',
+            () => {
+                frappe.call({
+                    method: "digitz_erp.api.expense_api.create_expense_heads_from_accounts",
+                    callback: function(r) {
+                        frappe.msgprint("✅ Expense heads created successfully");
+                    },
+                    error: function(err) {
+                        frappe.msgprint("❌ Failed to create expense heads");
+                    }
+                });
+            },
+            () => {
+                frappe.msgprint("❌ Action cancelled");
+            }
+        );
+    },
 
 });
 

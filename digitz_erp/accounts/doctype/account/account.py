@@ -25,3 +25,43 @@ class Account(NestedSet):
 			# Set the root_type of the current account to match the parent's root_type
 			self.root_type = parent_account.root_type
 			print(f"Root type set from parent account: {self.root_type}")
+   
+	def on_update(self):
+		self.create_expense_head_if_applicable()
+
+	def create_expense_head_if_applicable(self):
+		if self.is_group or self.root_type != "Expense":
+			return
+
+		company_doc = frappe.get_doc("Company", self.company)
+		if company_doc.get("do_not_create_expense_head_automatically"):
+			return
+
+		if self.account_already_linked():
+			frappe.msgprint(f"An Expense Head is already linked to this account: {self.name}", alert=1)
+			return
+
+		if self.expense_head_name_exists():
+			frappe.msgprint(f"An Expense Head with the name '{self.name}' already exists.", alert=1)
+			return
+
+		try:
+			expense_head = frappe.new_doc("Expense Head")
+			expense_head.expense_type = "Expense"
+			expense_head.expense_head = self.name
+			expense_head.account = self.name
+			expense_head.tax = "UAE VAT - 5%"
+			expense_head.insert(ignore_permissions=True)
+			frappe.msgprint(f"Expense Head has been successfully created for the account: {self.name}", alert=1)
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), f"Failed to create Expense Head for account: {self.name}")
+
+	def account_already_linked(self):
+		return frappe.db.exists("Expense Head", {
+			"account": self.name
+		})
+
+	def expense_head_name_exists(self):
+		return frappe.db.exists("Expense Head", {
+			"expense_head": self.name
+		})
