@@ -700,7 +700,7 @@
    "label": "Do not create expense head automatically from Expense Account"
   },
   {
-   "description": "Use this option if you want to generate expense heads for all accounts during data migration. Otherwise, expense heads will be created individually for each expense account based on the company\u2019s configuration.",
+   "description": "Use this option if you want to generate expense heads for all accounts during data migration. Otherwise, expense heads will be created individually for each expense account based on the company\u2019s configuration ",
    "fieldname": "create_all_expense_heads",
    "fieldtype": "Button",
    "label": "Create All Expense Heads"
@@ -709,7 +709,7 @@
  "image_field": "company_logo",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-06 21:52:08.442042",
+ "modified": "2025-06-07 11:44:48.769733",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Company",
