@@ -3,6 +3,9 @@ from digitz_erp.api.install_api_hr import after_install_hr
 
 @frappe.whitelist()
 def after_install():
+    
+    frappe.flags.skip_expense_head_creation = True
+    
     # Do not change the order of the following methods which may lead to reference_error
     insert_accounts()
     create_default_warehouse()
@@ -21,7 +24,6 @@ def after_install():
     
     # HR after_install
     after_install_hr()
-    
 
 def insert_accounts():
     accounts = [

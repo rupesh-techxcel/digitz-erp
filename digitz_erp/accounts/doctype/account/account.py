@@ -27,13 +27,27 @@ class Account(NestedSet):
 			print(f"Root type set from parent account: {self.root_type}")
    
 	def on_update(self):
+     
+		if frappe.flags.get('skip_expense_head_creation'):
+			return
+     
 		self.create_expense_head_if_applicable()
 
 	def create_expense_head_if_applicable(self):
+     		
 		if self.is_group or self.root_type != "Expense":
 			return
 
-		company_doc = frappe.get_doc("Company", self.company)
+		company = frappe.db.get_single_value("Global Settings",'default_company')
+  
+		print("company")
+		print(company)
+
+		# This checking is critical because while install the app and creating default accounts, there is no company exists and leads to error.
+		if not company:
+			return
+
+		company_doc = frappe.get_doc("Company", company)
 		if company_doc.get("do_not_create_expense_head_automatically"):
 			return
 
